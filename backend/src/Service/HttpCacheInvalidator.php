@@ -32,7 +32,14 @@ readonly class HttpCacheInvalidator
 
     public function invalidateCollectionForRessource($resource): void
     {
-        $collectionOperation = $this->operationMetadataFactory->create(get_class($resource)::COLLECTION_URI, []);
+        // si la ressource n'a pas de GetCollection, on sort
+        if (!defined(get_class($resource) . '::COLLECTION_URI')) {
+            return;
+        }
+
+        $collectionUriTemplate = get_class($resource)::COLLECTION_URI;
+
+        $collectionOperation = $this->operationMetadataFactory->create($collectionUriTemplate, []);
         $collectionUri = $this->iriConverter->getIriFromResource($resource, UrlGeneratorInterface::ABS_PATH, $collectionOperation);
         try {
             $this->httpCachePurger->purge([$collectionUri]);
