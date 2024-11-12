@@ -12,6 +12,10 @@
     color: var(--color-primary) !important;
   }
 
+  .ant-steps-item-wait .ant-steps-item-title {
+    color: #666 !important;
+  }
+
   .question-item {
     display: block;
     @extend .pb-2;

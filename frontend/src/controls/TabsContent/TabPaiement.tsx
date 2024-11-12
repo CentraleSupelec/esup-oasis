@@ -38,6 +38,7 @@ interface ITabPaiement {
  */
 export function TabPaiement({ evenement, form, setEvenement }: ITabPaiement): ReactElement {
    const [details, setDetails] = useState(false);
+   console.log("TabPaiement", evenement);
    return (
       <>
          <Row gutter={[16, 10]}>
@@ -171,7 +172,7 @@ export function TabPaiement({ evenement, form, setEvenement }: ITabPaiement): Re
                Durée totale
             </ColStyled>
             <Col md={9} xs={24} sm={24}>
-               <DureeTotaleEvenementField evenement={form.getFieldsValue() as Evenement} />
+               <DureeTotaleEvenementField evenement={evenement} />
             </Col>
             <Col md={3} xs={0} sm={0}>
                &nbsp;

@@ -99,7 +99,7 @@ export default function DemandeListItem(props: { demande?: IDemande; demandeId?:
             description={
                <>
                   <Space direction="vertical" size={3}>
-                     <Space align="start">
+                     <Space align="start" className="mb-1">
                         <EtatDemandeAvatar
                            etatDemandeId={item.etat}
                            afficherDerniereModification={

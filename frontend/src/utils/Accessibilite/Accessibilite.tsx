@@ -37,6 +37,12 @@ export default function Accessibilite(): ReactElement {
          document.body.classList.remove("accessibilite-dyslexie-arial");
       }
 
+      if (appAccessibilite.dyslexieLexend) {
+         document.body.classList.add("accessibilite-dyslexie-lexend");
+      } else {
+         document.body.classList.remove("accessibilite-dyslexie-lexend");
+      }
+
       if (appAccessibilite.dyslexieOpenDys) {
          document.body.classList.add("accessibilite-dyslexie-open-dys");
       } else {

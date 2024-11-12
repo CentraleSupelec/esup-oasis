@@ -31,6 +31,7 @@ import { BeneficiaireProfilItem } from "../Items/BeneficiaireProfilItem";
 
 import { UseStateDispatch } from "../../utils/utils";
 import { env } from "../../env";
+import dayjs from "dayjs";
 
 interface TableBeneficiairesColumnsProps {
    user: Utilisateur | undefined;
@@ -107,23 +108,25 @@ export function beneficiaireTableColumns({
          dataIndex: "inscription",
          render: (_value: string, record: IBeneficiaire) => {
             return record.inscriptions ? (
-               record.inscriptions.map((inscription) => (
-                  <Space
-                     key={inscription["@id"]}
-                     className="mt-05 mb-05"
-                     direction="vertical"
-                     size={2}
-                  >
-                     <ComposanteItem composanteId={inscription?.formation?.composante} />
-                     <EllipsisMiddle
-                        className="light"
-                        style={{ maxWidth: 350 }}
-                        suffixCount={12}
-                        content={inscription?.formation?.libelle as string}
-                        expandable
-                     />
-                  </Space>
-               ))
+               record.inscriptions
+                  .filter((inscription) => dayjs(inscription.fin).isAfter())
+                  .map((inscription) => (
+                     <Space
+                        key={inscription["@id"]}
+                        className="mt-05 mb-05"
+                        direction="vertical"
+                        size={2}
+                     >
+                        <ComposanteItem composanteId={inscription?.formation?.composante} />
+                        <EllipsisMiddle
+                           className="light"
+                           style={{ maxWidth: 350 }}
+                           suffixCount={12}
+                           content={inscription?.formation?.libelle as string}
+                           expandable
+                        />
+                     </Space>
+                  ))
             ) : (
                <MinusOutlined />
             );

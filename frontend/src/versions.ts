@@ -41,6 +41,17 @@ export interface IVersion {
  */
 export const VERSIONS: IVersion[] = [
    {
+      version: "2.1.2",
+      date: "2024-11-13",
+      description: "Correctifs divers",
+      changes: [
+         {
+            description: `Amélioration de l'accessibilité / police Lexend`,
+            type: "add",
+         },
+      ],
+   },
+   {
       version: "2.1.0",
       date: "2024-11-07",
       description: "Version packagée pour distribution ESUP",

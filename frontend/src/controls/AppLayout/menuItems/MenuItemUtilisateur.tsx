@@ -14,6 +14,7 @@ import { LabelUtilisateurMenu, menuProfils } from "../AppLayoutCommun";
 import { LogoutOutlined, PieChartOutlined, SettingOutlined, UserOutlined } from "@ant-design/icons";
 import { queryClient } from "../../../App";
 import React from "react";
+import { Button } from "antd";
 
 /**
  * Returns the menu items for the user menu.
@@ -36,11 +37,13 @@ export const menuItemUtilisateur = (
       {
          key: "user",
          label: (
-            <LabelUtilisateurMenu
-               auth={auth}
-               apiFetching={apiFetching}
-               isImpersonate={auth.impersonate !== undefined}
-            />
+            <Button type="text" className="bg-light-grey">
+               <LabelUtilisateurMenu
+                  auth={auth}
+                  apiFetching={apiFetching}
+                  isImpersonate={auth.impersonate !== undefined}
+               />
+            </Button>
          ),
          className: `user no-indicator`,
          style: { fontWeight: 300 },

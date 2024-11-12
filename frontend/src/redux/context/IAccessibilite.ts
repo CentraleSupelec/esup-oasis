@@ -11,6 +11,7 @@ export interface IAccessibilite {
    contrast: boolean;
    dyslexieArial: boolean;
    dyslexieOpenDys: boolean;
+   dyslexieLexend: boolean;
    policeLarge: boolean;
 }
 
@@ -18,5 +19,6 @@ export const initialAccessibilite: IAccessibilite = {
    contrast: false,
    dyslexieArial: false,
    dyslexieOpenDys: false,
+   dyslexieLexend: false,
    policeLarge: false,
 };

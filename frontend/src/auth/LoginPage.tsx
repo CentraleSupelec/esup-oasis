@@ -84,7 +84,7 @@ export default function LoginPage(): ReactElement {
                      <Alert type="error" description={auth.error} className="mt-24" showIcon />
                   )}
 
-                  <div className="legende">
+                  <div className="info fs-09">
                      La connexion à l'application se fait en utilisant vos identifiants fournis par{" "}
                      {env.REACT_APP_ETABLISSEMENT_ARTICLE}.<br />
                      {env.REACT_APP_INFOS_AUTH && (
@@ -121,9 +121,9 @@ export default function LoginPage(): ReactElement {
             </Col>
          </Row>
 
-         <footer>
+         <footer className="bg-light-grey">
             <Row className="pt-2 pb-2">
-               <Col span={24} className="legende text-center">
+               <Col span={24} className="text-center fs-09">
                   Des cookies sont utilisés afin de garantir le bon fonctionnement de l'application.
                   En continuant, vous acceptez l'utilisation de ces cookies. Pour en savoir plus,
                   merci de contacter{" "}

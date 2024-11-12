@@ -4,6 +4,7 @@
 
 $fontDyslexieArial: "Arial";
 $fontDyslexieOpenDys: "OpenDys";
+$fontDyslexieLexend: "Lexend";
 
 body.accessibilite-contraste {
   color: #000 !important;
@@ -234,7 +235,7 @@ body.accessibilite-contraste {
   }
 }
 
-body.accessibilite-dyslexie-arial, body.accessibilite-dyslexie-open-dys {
+body.accessibilite-dyslexie-arial, body.accessibilite-dyslexie-open-dys, body.accessibilite-dyslexie-lexend {
   .libelle-evenement {
     line-height: 1.5;
   }
@@ -259,6 +260,12 @@ body.accessibilite-dyslexie-open-dys {
 body.accessibilite-dyslexie-arial {
   &, .rbc-label, .month-header, .rbc-header button {
     font-family: $fontDyslexieArial, serif !important;
+  }
+}
+
+body.accessibilite-dyslexie-lexend {
+  &, .rbc-label, .month-header, .rbc-header button {
+    font-family: $fontDyslexieLexend, serif !important;
   }
 }
 

@@ -11,6 +11,7 @@ import { AnyAction } from "redux";
 import {
    ACCESSIBILITE_CONTRAST,
    ACCESSIBILITE_DYSLEXIE_ARIAL,
+   ACCESSIBILITE_DYSLEXIE_LEXEND,
    ACCESSIBILITE_DYSLEXIE_OPENDYS,
    ACCESSIBILITE_POLICE_LARGE,
 } from "../ReduxConstants";
@@ -34,6 +35,7 @@ export const AccessibiliteReducer = (
             ...state,
             dyslexieArial: action.payload,
             dyslexieOpenDys: action.payload ? false : state.dyslexieOpenDys,
+            dyslexieLexend: action.payload ? false : state.dyslexieLexend,
          };
 
       case ACCESSIBILITE_DYSLEXIE_OPENDYS:
@@ -41,6 +43,15 @@ export const AccessibiliteReducer = (
             ...state,
             dyslexieOpenDys: action.payload,
             dyslexieArial: action.payload ? false : state.dyslexieArial,
+            dyslexieLexend: action.payload ? false : state.dyslexieLexend,
+         };
+
+      case ACCESSIBILITE_DYSLEXIE_LEXEND:
+         return {
+            ...state,
+            dyslexieLexend: action.payload,
+            dyslexieArial: action.payload ? false : state.dyslexieArial,
+            dyslexieOpenDys: action.payload ? false : state.dyslexieOpenDys,
          };
 
       case ACCESSIBILITE_POLICE_LARGE:

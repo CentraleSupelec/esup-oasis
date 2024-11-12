@@ -69,7 +69,7 @@ export function EvenementResumeAutresInformations(props: { evenement: Evenement 
                         {props.evenement.tempsPreparation &&
                         props.evenement.tempsPreparation > 0 ? (
                            <Space>
-                              <Typography.Text type="secondary" className="fs-09">
+                              <Typography.Text className="fs-09 legende">
                                  Préparation
                               </Typography.Text>
                               <Typography.Text>
@@ -78,9 +78,7 @@ export function EvenementResumeAutresInformations(props: { evenement: Evenement 
                            </Space>
                         ) : null}
                         <Space>
-                           <Typography.Text type="secondary" className="fs-09">
-                              Évènement
-                           </Typography.Text>
+                           <Typography.Text className="fs-09 legende">Évènement</Typography.Text>
                            <Typography.Text>
                               {dayjs(props.evenement.fin).diff(
                                  dayjs(props.evenement.debut),

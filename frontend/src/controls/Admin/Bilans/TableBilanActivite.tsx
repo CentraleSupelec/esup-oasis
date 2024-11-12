@@ -127,7 +127,6 @@ export function TableBilanActivite(props: {
       if (enCoursGeneration) {
          timer = setTimeout(() => {
             setEnCoursGeneration(false);
-            console.log("Refetching bilans...");
             refetch().then();
          }, 2000);
       }

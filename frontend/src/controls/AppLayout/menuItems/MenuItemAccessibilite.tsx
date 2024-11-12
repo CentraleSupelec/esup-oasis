@@ -9,11 +9,12 @@
 
 import { IAccessibilite } from "../../../redux/context/IAccessibilite";
 import { Dispatch } from "redux";
-import { MenuProps } from "antd";
+import { Button, MenuProps } from "antd";
 import Icon, { CheckOutlined } from "@ant-design/icons";
 import {
    setAccessibiliteContrast,
    setAccessibiliteDyslexieArial,
+   setAccessibiliteDyslexieLexend,
    setAccessibiliteDyslexieOpenDys,
    setPoliceLarge,
 } from "../../../redux/actions/Accessibilite";
@@ -39,17 +40,27 @@ export function menuItemAccessibilite(
          title: "Options d'accessibilité",
          className: "menu-small-item no-indicator item-accessibilite",
          label: (
-            <>
-               <Icon component={IconeAccessibilite} className="hide-on-overflow" />
-               <span className="show-on-overflow">Accessibilité</span>
-            </>
+            <Button
+               type="text"
+               className="bg-transparent"
+               aria-label="Ajuster les préférences d'accessibilité"
+            >
+               <Icon component={IconeAccessibilite} aria-hidden className="hide-on-overflow" />
+            </Button>
          ),
          children: [
             {
                key: "accessibilite-contraste",
                label: "Contraste",
                icon: (
-                  <CheckOutlined className={appAccessibilite.contrast ? "mr-1" : "mr-1 v-hidden"} />
+                  <CheckOutlined
+                     aria-label={
+                        appAccessibilite.contrast
+                           ? "Fonctionnalité activée"
+                           : "Fonctionnalité désactivée"
+                     }
+                     className={appAccessibilite.contrast ? "mr-1" : "mr-1 v-hidden"}
+                  />
                ),
                onClick: () => {
                   dispatch(setAccessibiliteContrast(!appAccessibilite.contrast));
@@ -61,10 +72,38 @@ export function menuItemAccessibilite(
                type: "divider",
             },
             {
-               key: "accessibilite-dyslexie",
-               label: "Dyslexie (Arial)",
+               key: "accessibilite-dyslexie-lexend",
+               label: "Police : Lexend",
                icon: (
                   <CheckOutlined
+                     aria-label={
+                        appAccessibilite.dyslexieLexend
+                           ? "Fonctionnalité activée"
+                           : "Fonctionnalité désactivée"
+                     }
+                     className={appAccessibilite.dyslexieLexend ? "mr-1" : "mr-1 v-hidden"}
+                  />
+               ),
+               onClick: () => {
+                  const value = !appAccessibilite.dyslexieLexend;
+                  dispatch(setAccessibiliteDyslexieLexend(value));
+                  setPreference("dyslexie-lexend", value ? "true" : "false");
+                  if (value) {
+                     setPreference("dyslexie-opendys", "false");
+                     setPreference("dyslexie-arial", "false");
+                  }
+               },
+            },
+            {
+               key: "accessibilite-dyslexie",
+               label: "Police : Arial",
+               icon: (
+                  <CheckOutlined
+                     aria-label={
+                        appAccessibilite.dyslexieArial
+                           ? "Fonctionnalité activée"
+                           : "Fonctionnalité désactivée"
+                     }
                      className={appAccessibilite.dyslexieArial ? "mr-1" : "mr-1 v-hidden"}
                   />
                ),
@@ -72,14 +111,22 @@ export function menuItemAccessibilite(
                   const value = !appAccessibilite.dyslexieArial;
                   dispatch(setAccessibiliteDyslexieArial(value));
                   setPreference("dyslexie-arial", value ? "true" : "false");
-                  if (value) setPreference("dyslexie-opendys", "false");
+                  if (value) {
+                     setPreference("dyslexie-opendys", "false");
+                     setPreference("dyslexie-lexend", "false");
+                  }
                },
             },
             {
                key: "accessibilite-dyslexie-opendys",
-               label: "Dyslexie (OpenDys)",
+               label: "Police : OpenDys",
                icon: (
                   <CheckOutlined
+                     aria-label={
+                        appAccessibilite.dyslexieOpenDys
+                           ? "Fonctionnalité activée"
+                           : "Fonctionnalité désactivée"
+                     }
                      className={appAccessibilite.dyslexieOpenDys ? "mr-1" : "mr-1 v-hidden"}
                   />
                ),
@@ -87,7 +134,10 @@ export function menuItemAccessibilite(
                   const value = !appAccessibilite.dyslexieOpenDys;
                   dispatch(setAccessibiliteDyslexieOpenDys(value));
                   setPreference("dyslexie-opendys", value ? "true" : "false");
-                  if (value) setPreference("dyslexie-arial", "false");
+                  if (value) {
+                     setPreference("dyslexie-arial", "false");
+                     setPreference("dyslexie-lexend", "false");
+                  }
                },
             },
             {
@@ -99,6 +149,11 @@ export function menuItemAccessibilite(
                label: "Police large",
                icon: (
                   <CheckOutlined
+                     aria-label={
+                        appAccessibilite.policeLarge
+                           ? "Fonctionnalité activée"
+                           : "Fonctionnalité désactivée"
+                     }
                      className={appAccessibilite.policeLarge ? "mr-1" : "mr-1 v-hidden"}
                   />
                ),

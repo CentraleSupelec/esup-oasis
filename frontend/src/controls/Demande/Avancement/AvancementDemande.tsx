@@ -187,10 +187,7 @@ export default function AvancementDemande({
             type={screens.md ? "navigation" : "default"}
             direction="vertical" // screens.xl ? "horizontal" : "vertical"}
          />
-         <Typography.Paragraph
-            type="secondary"
-            className={`mt-1 mb-0${screens.md ? " mt-3 text-center" : ""}`}
-         >
+         <Typography.Paragraph className={`mt-1 mb-0${screens.md ? " mt-3 text-center" : ""}`}>
             <span className="sr-only">État de votre demande :</span>
             {item?.etat && (
                <Space direction="vertical">

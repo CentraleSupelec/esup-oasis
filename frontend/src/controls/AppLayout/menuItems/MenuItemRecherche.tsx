@@ -11,7 +11,7 @@ import { Dispatch } from "redux";
 import { UseStateDispatch } from "../../../utils/utils";
 import { RoleValues, Utilisateur } from "../../../lib/Utilisateur";
 import { NavigateFunction } from "react-router-dom";
-import { MenuProps, Tooltip } from "antd";
+import { Button, MenuProps, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import BeneficiaireIntervenantSearchDrawer from "../../Drawers/BeneficiaireIntervenant/BeneficiaireIntervenantSearchDrawer";
 import { setDrawerUtilisateur } from "../../../redux/actions/Drawers";
@@ -39,10 +39,14 @@ export const menuItemRecherche = (
       key: "rechercher",
       icon: (
          <Tooltip title="Rechercher un demandeur, un bénéficiaire ou un intervenant à partir de son nom, son prénom ou son email">
-            <SearchOutlined
-               style={{ verticalAlign: "sub" }}
+            <Button
+               type="text"
+               className="bg-transparent"
+               aria-label="Rechercher un étudiant"
                onClick={() => setModeRecherche(!modeRecherche)}
-            />
+            >
+               <SearchOutlined aria-hidden style={{ verticalAlign: "sub" }} />
+            </Button>
          </Tooltip>
       ),
       className: `ml-auto recherche ${modeRecherche ? "recherche-en-cours" : ""} hide-on-overflow${

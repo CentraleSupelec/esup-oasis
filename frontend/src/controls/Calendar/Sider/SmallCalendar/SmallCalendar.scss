@@ -1,5 +1,5 @@
-@import "/src/lib/react-modern-calendar-datepicker/DatePicker.css";
-@import "src/styles/variables";
+@import "../../../../lib/react-modern-calendar-datepicker/DatePicker.css";
+@import "../../../../styles/variables";
 
 .small-calendar {
   background: transparent;
@@ -20,7 +20,9 @@
   }
 
   .ant-picker-cell {
-    color: $light-grey-border-dark;
+    color: $legende;
+    font-weight: 100 !important;
+    font-size: .9rem;
 
     .bg-app {
       color: $text;
@@ -28,7 +30,8 @@
   }
 
   .ant-picker-cell-in-view {
-    color: $text
+    color: $text;
+    font-weight: 400 !important;
   }
 
   .ant-picker-calendar-mode-switch {
