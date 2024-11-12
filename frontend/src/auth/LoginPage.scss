@@ -1,4 +1,4 @@
-@import "src/styles/variables";
+@import "../styles/variables";
 
 .login-image {
   display: flex;
@@ -39,7 +39,7 @@
     flex-direction: column;
     z-index: 1;
 
-    .legende {
+    .info {
       width: 70%;
       text-align: center;
       margin: 32px auto;

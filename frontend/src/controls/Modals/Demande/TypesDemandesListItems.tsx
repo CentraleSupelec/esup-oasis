@@ -25,29 +25,36 @@ export function TypesDemandesListItems(props: {
       <>
          <h3 className={props.titleClassName}>{props.titre}</h3>
          <List bordered split>
-            {props.items
-               .sort((t1, t2) => (t1.libelle || "").localeCompare(t2.libelle || ""))
-               .map((item) => (
-                  <List.Item
-                     key={item["@id"]}
-                     actions={
-                        props.ajout
-                           ? [<PostulerButton typeDemande={item} demandeurId={props.demandeurId} />]
-                           : undefined
-                     }
-                  >
-                     <List.Item.Meta
-                        avatar={<TypeDemandeAvatar typeDemande={item} />}
-                        title={item.libelle}
-                        description={getTypeDemandeDescription(item)}
-                     />
+            <ul className="pl-0">
+               {props.items
+                  .sort((t1, t2) => (t1.libelle || "").localeCompare(t2.libelle || ""))
+                  .map((item) => (
+                     <List.Item
+                        key={item["@id"]}
+                        actions={
+                           props.ajout
+                              ? [
+                                   <PostulerButton
+                                      typeDemande={item}
+                                      demandeurId={props.demandeurId}
+                                   />,
+                                ]
+                              : undefined
+                        }
+                     >
+                        <List.Item.Meta
+                           avatar={<TypeDemandeAvatar typeDemande={item} />}
+                           title={item.libelle}
+                           description={getTypeDemandeDescription(item)}
+                        />
+                     </List.Item>
+                  ))}
+               {props.items.length === 0 && (
+                  <List.Item>
+                     <Empty className="w-100" description="Aucune campagne disponible." />
                   </List.Item>
-               ))}
-            {props.items.length === 0 && (
-               <List.Item>
-                  <Empty className="w-100" description="Aucune campagne disponible." />
-               </List.Item>
-            )}
+               )}
+            </ul>
          </List>
       </>
    );

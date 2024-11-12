@@ -1,5 +1,5 @@
-@import "/src/styles/variables";
-@import "/src/styles/helpers";
+@import "../../../styles/variables";
+@import "../../../styles/helpers";
 @import 'react-big-calendar/lib/sass/styles';
 @import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 
@@ -43,7 +43,7 @@
   }
 
   .rbc-label {
-    color: $light-color;
+    color: $legende;
     position: relative;
     top: -10px;
     background-color: white;
@@ -73,7 +73,7 @@
 
       .date {
         font-size: .9rem;
-        color: $light-color;
+        color: $legende;
       }
 
       .jour {
@@ -216,6 +216,14 @@ body.accessibilite-contraste {
 
   .calendar .rbc-header button .date, .calendar .rbc-label {
     color: #666 !important;
+  }
+
+  .ant-picker-calendar .ant-picker-cell {
+    font-weight: 400 !important;
+
+    &.ant-picker-cell-in-view {
+      font-weight: 500 !important;
+    }
   }
 
 }

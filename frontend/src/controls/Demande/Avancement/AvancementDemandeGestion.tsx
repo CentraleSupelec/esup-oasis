@@ -188,7 +188,7 @@ function EtapeCDescription(props: { demande: IDemande; etatDemande: EtatInfo }) 
                {questUtils?.isGrantedQuestionnaire(
                   FONCTIONNALITES.ATTRIBUER_PROFIL,
                   membreCommission?.roles,
-               ) && <ProfilsSelectButton demande={props.demande} masquerCommission />}
+               ) && <ProfilsSelectButton demande={props.demande} masquerCommission={true} />}
             </>
          </>
       );
@@ -244,10 +244,7 @@ function EtapeDDescription(props: {
          </Space>
       );
    }
-   console.log(
-      "questUtils",
-      questUtils?.isGrantedQuestionnaire(FONCTIONNALITES.STATUER_ACCOMPAGNEMENT),
-   );
+
    return (
       <Space direction="vertical">
          Accompagnement à valider

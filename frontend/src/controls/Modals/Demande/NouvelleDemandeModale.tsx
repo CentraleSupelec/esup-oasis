@@ -91,7 +91,7 @@ export default function NouvelleDemandeModale(props: {
          <TypesDemandesListItems
             titre="Campagnes en cours"
             items={getTypesDemandesPostulables()}
-            ajout
+            ajout={true}
             demandeurId={auth.user?.["@id"] as string}
          />
          {getTypesDemandesBientot().length > 0 && (

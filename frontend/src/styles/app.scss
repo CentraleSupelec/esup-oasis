@@ -1,5 +1,6 @@
 @import "noir-pro/styles.css";
 @import "opendyslexic/styles.css";
+@import "lexend/styles.css";
 @import "helpers";
 @import "variables";
 @import "root_variables";
@@ -327,9 +328,16 @@ h3, h4 {
   }
 }
 
-.ant-picker.text-center, .ant-input-affix-wrapper.text-center, .ant-input-number.text-center {
+.ant-picker.text-center, .ant-input-affix-wrapper.text-center, .ant-input-number.text-center, .ant-input-number-group-wrapper.text-center {
   input {
     text-align: center;
+  }
+}
+
+.ant-picker.text-right, .ant-input-affix-wrapper.text-right, .ant-input-number.text-right, .ant-input-number-group-wrapper.text-right {
+  input {
+    text-align: right;
+    padding-right: 1rem;
   }
 }
 
@@ -720,7 +728,7 @@ th.pointer {
 }
 
 .monospaced {
-  font-family: 'Roboto Mono', monospace;
+  font-family: 'Roboto Mono', monospace !important;
 }
 
 
@@ -746,4 +754,57 @@ th.pointer {
     width: 11px;
     background-color: lighten($light-grey-border-dark, 25%);
   }
+}
+
+.ant-empty .ant-empty-description {
+  color: $text;
+}
+
+
+  a, footer .ant-btn-link {
+    text-decoration: underline;
+    text-underline-offset: .2em;
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: .1em;
+    }
+  }
+
+  .ant-pagination a {
+    text-decoration: none;
+  }
+
+.ant-tag-green {
+  background: var(--color-light-green) !important;
+  color: var(--color-dark-green) !important;
+  border-color: var(--color-green) !important;
+}
+
+.ant-tag-purple {
+  background: var(--color-light-deepPurple) !important;
+  color: var(--color-dark-deepPurple) !important;
+    border-color: var(--color-deepPurple) !important;
+}
+
+.ant-tag-red {
+  background: var(--color-light-red) !important;
+  color: $text !important;
+  border-color: var(--color-red) !important;
+}
+
+.ant-tag-orange {
+  background: var(--color-light-orange) !important;
+  color: $text !important;
+    border-color: var(--color-orange) !important;
+}
+
+.ant-tag-volcano {
+  background: var(--color-light-deepOrange) !important;
+  color: $text !important;
+  border-color: var(--color-deepOrange) !important;
+}
+
+.ant-list .ant-list-item .ant-list-item-meta .ant-list-item-meta-description {
+  color: $legende;
 }

@@ -1,5 +1,5 @@
-@import "src/styles/variables";
-@import "src/styles/helpers";
+@import "../../styles/variables";
+@import "../../styles/helpers";
 
 #main main {
   min-height: calc(100vh - 160px)
@@ -30,6 +30,9 @@
     padding: 9.5px 24px;
   }
 
+  .user .ant-menu-title-content {
+    padding: 0 !important;
+  }
   .user .ant-menu-title-content, .recherche .ant-menu-title-content {
     background-color: $light-grey;
   }
@@ -78,7 +81,17 @@
     }
   }
 
+  .item-accessibilite .ant-menu-submenu-title {
+    display: flex;
+    align-items: center;
+  }
+
   .recherche.recherche-en-cours {
+
+    .ant-menu-submenu-title {
+      display: flex;
+      align-items: center;
+    }
 
     .anticon.anticon-search {
       color: $primary;
@@ -94,7 +107,7 @@
 
     .ant-menu-title-content {
       border-radius: 0 30px 30px 0;
-      margin-left: 0;
+      margin-left: -1px;
       padding-left: 12px;
     }
   }
@@ -277,7 +290,7 @@
     }
 
     .role {
-      color: $light-color;
+      color: $legende;
       font-weight: 300;
       font-size: .8rem;
     }

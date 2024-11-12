@@ -99,6 +99,19 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
       return 16;
    }
 
+   function getFontFamily() {
+      if (appAccessibilite.dyslexieLexend) {
+         return "Lexend, sans-serif";
+      }
+      if (appAccessibilite.dyslexieArial) {
+         return "Arial, Helvetica, sans-serif";
+      }
+      if (appAccessibilite.dyslexieOpenDys) {
+         return "OpenDys, Arial, Helvetica, sans-serif";
+      }
+      return "NoirPro, sans-serif";
+   }
+
    return (
       <ConfigProvider
          locale={frFR}
@@ -117,12 +130,8 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
                colorTextDisabled: appAccessibilite.contrast ? "#333" : "#555",
                fontSize: getFontSize(),
                wireframe: false,
-               fontFamily: appAccessibilite.dyslexieArial
-                  ? "Arial, Helvetica, sans-serif"
-                  : appAccessibilite.dyslexieOpenDys
-                    ? "OpenDys, Arial, Helvetica, sans-serif"
-                    : "NoirPro, sans-serif",
-               fontWeightStrong: 500,
+               fontFamily: getFontFamily(),
+               //fontWeightStrong: 500,
                borderRadius: 7,
                opacityLoading: 0.75,
                linkDecoration:

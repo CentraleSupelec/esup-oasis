@@ -19,10 +19,10 @@ interface IDureeEvenementFieldProps {
 }
 
 export default function DureeEvenementField({
-                                               evenement,
-                                               className,
-                                               width,
-                                            }: IDureeEvenementFieldProps) {
+   evenement,
+   className,
+   width,
+}: IDureeEvenementFieldProps) {
    // get nb minutes between evenement.debut and evenement.fin
    const nbMinutes = dayjs(evenement.fin).diff(dayjs(evenement.debut), "minute");
 
