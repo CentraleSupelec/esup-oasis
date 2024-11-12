@@ -5,21 +5,18 @@ App\Entity\Utilisateur:
     nom: 'ROSSARD'
     prenom: 'Manuel'
     admin: true
+    destinataire_technique: true
   jlemon100p:
     uid: 'jlemon100p'
     email: 'julien.lemonnier@u-bordeaux.fr'
     nom: 'LEMONNIER'
     prenom: 'Julien'
     admin: true
-  axdubroca:
-    uid: 'axdubroca'
-    email: 'axelle.dubroca@u-bordeaux.fr'
-    nom: 'DUBROCA'
-    prenom: 'Axelle'
+    destinataire_technique: true
+  admin_fonctionnel:
+    uid: 'admin-fonctionnel'
+    email: 'admin-fonctionnel@etablissement.fr'
+    nom: 'FONCTIONNEL'
+    prenom: 'Admin'
     admin: true
-  kverdeau:
-    uid: 'kverdeau'
-    email: 'karine.verdeau@u-bordeux.fr'
-    nom: 'VERDEAU'
-    prenom: 'Karine'
-    admin: true
+    destinataire_technique: false
