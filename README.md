@@ -24,7 +24,14 @@ suivantes :
 * Backend : PHP, Symfony 7.1 / Api Platform 3.2
 
 Des Dockerfile sont fournis pour le déploiement des deux applications, plus de détails dans la documentation de
-chacune :
+chacune.
+
+## Documentation
+
+Les fonctionnalités de l'application sont documentée via
+l'[expression de besoins](docs/Documentation_Fonctionnelle_Oasis_1.0.pdf), remise à jour post développement.
+
+Des documentations techniques sont disponibles séparément pour les deux briques applicatives :
 
 * [frontend](docs/frontend/README.md)
 * [backend](docs/backend/README.md)

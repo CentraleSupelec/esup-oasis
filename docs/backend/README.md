@@ -124,7 +124,7 @@ $ docker run --add-host=host.docker.internal:ip.machine.dev \
 ```
 
 Au premier démarrage la base (qui doit être créée au préalable) sera initialisée automatiquement / mise à jour si
-nécessaire.  
+nécessaire.
 Pour le développement, vous pouvez créer et mettre à jour la base à la main après le premier démarrage du conteneur si
 vous le souhaitez (en ignorant les erreurs) :
 
@@ -132,6 +132,23 @@ vous le souhaitez (en ignorant les erreurs) :
 $ php bin/console doctrine:database:create
 $ php bin/console doctrine:migrations:migrate
 ```
+
+### Données initiales
+
+Comme mentionné plus haut, la base de données est mise à jour / initialisée automatiquement au démarrage.
+
+Les données qui sont chargées à l'initialisation sont celles définies dans les fixtures du
+dossier [deploiement](../../backend/fixtures/deploiement). Les données livrées sont celles utilisées par l'université de
+Bordeaux, modifiez les en fonction de vos besoins !
+
+La commande exécutée pour l'initialisation des données peut être lancée à la main :
+
+```
+$ php bin/console app:init-db
+```
+
+Elle n'a cependant d'effet que s'il n'existe aucun utilisateur déclaré en base ; si vous voulez réinitialiser vos
+données via cette commande il faut repartir d'une base sans aucune données.
 
 ### Conseils pratiques
 
