@@ -112,6 +112,13 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
       return "NoirPro, sans-serif";
    }
 
+   function getFontWeight() {
+        if (appAccessibilite.dyslexieArial || appAccessibilite.dyslexieOpenDys || appAccessibilite.dyslexieLexend) {
+             return undefined;
+        }
+        return 500;
+   }
+
    return (
       <ConfigProvider
          locale={frFR}
@@ -129,6 +136,7 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
                colorText: appAccessibilite.contrast ? "#000000" : "#333333",
                colorTextDisabled: appAccessibilite.contrast ? "#333" : "#555",
                fontSize: getFontSize(),
+               fontWeightStrong: getFontWeight(),
                wireframe: false,
                fontFamily: getFontFamily(),
                //fontWeightStrong: 500,
