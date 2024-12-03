@@ -74,7 +74,7 @@ export default function UtilisateurAvatarImage(props: {
             credentials: "include",
             cache: "force-cache",
             headers: {
-               Accept: "image/*",
+               Accept: "image/jpeg",
             },
          };
 

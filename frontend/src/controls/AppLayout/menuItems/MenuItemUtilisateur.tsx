@@ -37,7 +37,7 @@ export const menuItemUtilisateur = (
       {
          key: "user",
          label: (
-            <Button type="text">
+            <Button type="text" className="bg-transparent">
                <LabelUtilisateurMenu
                   auth={auth}
                   apiFetching={apiFetching}
