@@ -49,6 +49,10 @@ export const VERSIONS: IVersion[] = [
             description: `Amélioration de l'accessibilité / police Lexend`,
             type: "add",
          },
+         {
+            description: "Filtre campagnes archivées",
+            type: "add",
+         },
       ],
    },
    {
