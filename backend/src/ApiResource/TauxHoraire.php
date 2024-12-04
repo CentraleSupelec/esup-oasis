@@ -13,13 +13,18 @@
 namespace App\ApiResource;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Filter\TauxHoraireDateFilter;
+use App\State\TauxHoraire\TauxHoraireCollectionProvider;
 use App\State\TauxHoraire\TauxHoraireProcessor;
 use App\State\TauxHoraire\TauxHoraireProvider;
 use DateTimeInterface;
@@ -27,46 +32,54 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    operations            : [
+    operations: [
+        new GetCollection(
+            uriTemplate: self::COLLECTION_URI,
+            uriVariables: [
+                'typeId' => new Link(fromProperty: 'id', toProperty: 'typeEvenement', fromClass: TypeEvenement::class,),
+            ],
+            provider: TauxHoraireCollectionProvider::class,
+        ),
         new Get(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: [
                 'typeId', 'id',
             ],
         ),
         new Post(
-            uriTemplate : self::COLLECTION_URI,
+            uriTemplate: self::COLLECTION_URI,
             uriVariables: [
                 'typeId',
             ],
-            security    : "is_granted('ROLE_ADMIN')",
-            read        : false,
+            security: "is_granted('ROLE_ADMIN')",
+            read: false,
         ),
         new Patch(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: [
                 'typeId', 'id',
             ],
-            security    : "is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_ADMIN')",
         ),
         new Delete(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: [
                 'typeId', 'id',
             ],
-            security    : "is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_ADMIN')",
         ),
     ],
 
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    openapi               : new Operation(tags: ['Referentiel']),
-    order                 : ['debut' => 'DESC '],
-    security              : "is_granted('ROLE_PLANIFICATEUR') or is_granted('ROLE_INTERVENANT')",
-    provider              : TauxHoraireProvider::class,
-    processor             : TauxHoraireProcessor::class,
-    stateOptions          : new Options(entityClass: \App\Entity\TauxHoraire::class)
+    openapi: new Operation(tags: ['Referentiel']),
+    order: ['debut' => 'DESC '],
+    security: "is_granted('ROLE_PLANIFICATEUR') or is_granted('ROLE_INTERVENANT')",
+    provider: TauxHoraireProvider::class,
+    processor: TauxHoraireProcessor::class,
+    stateOptions: new Options(entityClass: \App\Entity\TauxHoraire::class)
 )]
+#[ApiFilter(TauxHoraireDateFilter::class)]
 class TauxHoraire
 {
     public const string COLLECTION_URI = '/types_evenements/{typeId}/taux';
@@ -80,6 +93,7 @@ class TauxHoraire
 
     //copie juste pour gérer facilement les IRI
     public int $typeId;
+    public TypeEvenement $typeEvenement;
 
     #[Assert\NotBlank]
     #[Assert\Length(max: 5)]

@@ -15,6 +15,7 @@ namespace App\State\TauxHoraire;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Operation;
 use App\ApiResource\TauxHoraire;
+use App\ApiResource\TypeEvenement;
 use App\State\AbstractEntityProvider;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -41,9 +42,9 @@ class TauxHoraireProvider extends AbstractEntityProvider
             ->withUriVariables([$link]);
 
         $taux = parent::provide(
-            operation   : $relevantOperation,
+            operation: $relevantOperation,
             uriVariables: $relevantVariables,
-            context     : $context
+            context: $context
         );
 
         //devrait être une contrainte de validation
@@ -65,6 +66,8 @@ class TauxHoraireProvider extends AbstractEntityProvider
         $resource->typeId = $entity->getTypeEvenement()->getId();
         $resource->debut = $entity->getDebut();
         $resource->fin = $entity->getFin();
+        $resource->typeEvenement = new TypeEvenement();
+        $resource->typeEvenement->id = $resource->typeId;
         return $resource;
     }
 }
