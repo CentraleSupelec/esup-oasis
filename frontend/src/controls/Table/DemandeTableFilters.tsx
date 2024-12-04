@@ -195,24 +195,6 @@ export function DemandeTableFilters(props: {
 
                         <Col xs={24} sm={24} md={6}>
                            <Space direction="vertical" size={0}>
-                              <span aria-label="Campagne archivée">Campagne archivée</span>
-                           </Space>
-                        </Col>
-                        <Col xs={24} sm={24} md={18}>
-                           <Switch
-                              checked={props.filtreDemande.archivees}
-                              onChange={(checked) => {
-                                 props.setFiltreDemande((prev) => ({
-                                    ...prev,
-                                    archivees: checked,
-                                    page: 1,
-                                 }));
-                              }}
-                           />
-                        </Col>
-
-                        <Col xs={24} sm={24} md={6}>
-                           <Space direction="vertical" size={0}>
                               <span aria-label="Chargés d'accompagnement">
                                  Chargé•es d'accompagnement
                               </span>
@@ -323,6 +305,26 @@ export function DemandeTableFilters(props: {
                            <div className="legende">
                               Seules les formations ayant au moins un demandeur sont proposées.
                            </div>
+                        </Col>
+
+                        <Col xs={24} sm={24} md={6}>
+                           <Space direction="vertical" size={0}>
+                              <span aria-label="Afficher les campagnes archivées">
+                                 Afficher campagnes archivées
+                              </span>
+                           </Space>
+                        </Col>
+                        <Col xs={24} sm={24} md={18}>
+                           <Switch
+                              checked={props.filtreDemande.archivees}
+                              onChange={(checked) => {
+                                 props.setFiltreDemande((prev) => ({
+                                    ...prev,
+                                    archivees: checked,
+                                    page: 1,
+                                 }));
+                              }}
+                           />
                         </Col>
                      </Row>
                   </>
