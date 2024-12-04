@@ -1743,6 +1743,7 @@ export interface components {
          fin?: string;
          intervenants?: components["schemas"]["IntervenantBilanFinancier"][];
          periodes?: string[];
+         id?: string;
       };
       "BilanFinancier.jsonld": {
          "@id"?: string;
@@ -1753,6 +1754,7 @@ export interface components {
          fin?: string;
          intervenants?: components["schemas"]["IntervenantBilanFinancier.jsonld"][];
          periodes?: string[];
+         id?: string;
       };
       "CampagneDemande-campagne.in": {
          libelle?: string | null;
@@ -7053,6 +7055,7 @@ export interface operations {
             "order[demandeur.nom]"?: "asc" | "desc";
             "order[dateDepot]"?: "asc" | "desc";
             format_simple?: boolean;
+            archivees?: boolean;
          };
       };
       responses: {
@@ -12639,6 +12642,7 @@ export interface operations {
             "order[demandeur.nom]"?: "asc" | "desc";
             "order[dateDepot]"?: "asc" | "desc";
             format_simple?: boolean;
+            archivees?: boolean;
          };
          path: {
             /** @description Demande identifier */
