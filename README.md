@@ -28,7 +28,7 @@ chacune.
 
 ## Documentation
 
-Les fonctionnalités de l'application sont documentée via
+Les fonctionnalités de l'application sont documentées via
 l'[expression de besoins](docs/Documentation_Fonctionnelle_Oasis_1.0.pdf), remise à jour post développement.
 
 Des documentations techniques sont disponibles séparément pour les deux briques applicatives :
