@@ -46,8 +46,8 @@ class ServicesFaitsProvider implements ProviderInterface
 
     /**
      * @param Operation $operation
-     * @param array     $uriVariables
-     * @param array     $context
+     * @param array $uriVariables
+     * @param array $context
      * @return object|array|null
      * @throws Exception
      */
@@ -67,7 +67,7 @@ class ServicesFaitsProvider implements ProviderInterface
     }
 
     /**
-     * @param \App\Entity\PeriodeRH           $periode
+     * @param \App\Entity\PeriodeRH $periode
      * @param                                 $uid
      * @return ServicesFaits
      * @throws Exception
@@ -87,13 +87,13 @@ class ServicesFaitsProvider implements ProviderInterface
 
     /**
      * @param \App\Entity\PeriodeRH $periode
-     * @param string|null           $uid
+     * @param string|null $uid
      * @return array<Evenement|InterventionForfait>
      */
     public function getEvenements(\App\Entity\PeriodeRH $periode, ?string $uid): array
     {
         return array_filter(
-            array   : [...$periode->getEvenements()->toArray(), ...$periode->getInterventionsForfait()],
+            array: [...$periode->getEvenements()->toArray(), ...$periode->getInterventionsForfait()],
             callback: function (Evenement|InterventionForfait $evenement) use ($uid) {
                 if (null !== $uid) {
                     return $evenement->getIntervenant()->getUtilisateur()->getUid() === $uid;
@@ -104,7 +104,7 @@ class ServicesFaitsProvider implements ProviderInterface
     }
 
     /**
-     * @param Evenement[]   $evenements
+     * @param Evenement[] $evenements
      * @param ServicesFaits $servicesFaits
      * @return ServicesFaits
      * @throws ConfigurationIncompleteException
@@ -123,8 +123,8 @@ class ServicesFaitsProvider implements ProviderInterface
         //on repasse les indices en auto
         $servicesFaits->lignes = array_values($servicesFaits->lignes);
         //on recoupe à deux chiffres après la virgule - voir https://stackoverflow.com/questions/1642614/how-to-ceil-floor-and-round-bcmath-numbers ?
-        array_walk(array   : $servicesFaits->lignes,
-                   callback: function (LigneServiceFait $ligne) {
+        array_walk(array: $servicesFaits->lignes,
+            callback: function (LigneServiceFait $ligne) {
                 $ligne->nbHeures = bcadd($ligne->nbHeures, 0, 2);
             }
         );
@@ -143,14 +143,15 @@ class ServicesFaitsProvider implements ProviderInterface
     }
 
     /**
-     * @param LigneServiceFait|null         $ligne
+     * @param LigneServiceFait|null $ligne
      * @param Evenement|InterventionForfait $evenement
      * @return LigneServiceFait
      * @throws ConfigurationIncompleteException
      */
     protected function append(?LigneServiceFait $ligne, Evenement|InterventionForfait $evenement): LigneServiceFait
     {
-        if (null === $evenement->getType()->getTauxHoraireActif()) {
+        $tauxHoraire = $evenement->getType()->getTauxHoraireActifPourDate($evenement->getDebut());
+        if (null === $tauxHoraire) {
             throw new ConfigurationIncompleteException('Taux horaire non renseigné pour ' . $evenement->getType()->getLibelle());
         }
 
@@ -158,7 +159,7 @@ class ServicesFaitsProvider implements ProviderInterface
             $ligne = new LigneServiceFait();
             $ligne->type = $this->getTypeResource($evenement->getType());
             $ligne->intervenant = $this->getUtilisateurResource($evenement->getIntervenant()->getUtilisateur());
-            $ligne->tauxHoraire = $this->getTauxHoraireResource($evenement->getType()->getTauxHoraireActif());
+            $ligne->tauxHoraire = $this->getTauxHoraireResource($tauxHoraire);
             $ligne->nbHeures = 0;
         }
 
