@@ -116,7 +116,11 @@ class ServicesFaitsProvider implements ProviderInterface
         foreach ($evenements as $evenement) {
             $intervenant = $evenement->getIntervenant();
             $type = $evenement->getType();
-            $ligneId = $intervenant->getId() . '###' . $type->getId();
+            $tauxHoraire = $evenement->getType()->getTauxHoraireActifPourDate($evenement->getDebut());
+            if (null === $tauxHoraire) {
+                throw new ConfigurationIncompleteException('Taux horaire non renseigné pour ' . $evenement->getType()->getLibelle());
+            }
+            $ligneId = $intervenant->getId() . '###' . $type->getId() . '###' . $tauxHoraire->getId();
             $servicesFaits->lignes[$ligneId] = $this->append($servicesFaits->lignes[$ligneId] ?? null, $evenement);
         }
 
@@ -151,9 +155,6 @@ class ServicesFaitsProvider implements ProviderInterface
     protected function append(?LigneServiceFait $ligne, Evenement|InterventionForfait $evenement): LigneServiceFait
     {
         $tauxHoraire = $evenement->getType()->getTauxHoraireActifPourDate($evenement->getDebut());
-        if (null === $tauxHoraire) {
-            throw new ConfigurationIncompleteException('Taux horaire non renseigné pour ' . $evenement->getType()->getLibelle());
-        }
 
         if (null == $ligne) {
             $ligne = new LigneServiceFait();
