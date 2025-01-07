@@ -42,6 +42,7 @@ readonly class ActiviteBeneficiaireProvider implements ProviderInterface
             ->withPaginationEnabled(false);
 
         $interventionsOperation = (clone $operation)->withClass(InterventionForfait::class)
+            ->withStateOptions(null)
             ->withPaginationEnabled(false);
 
         if (array_key_exists('filters', $context) && array_key_exists('beneficiaires', $context['filters'])) {

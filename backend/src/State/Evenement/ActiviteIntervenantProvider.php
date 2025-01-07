@@ -48,6 +48,7 @@ readonly class ActiviteIntervenantProvider implements ProviderInterface
             ->withPaginationEnabled(false);
 
         $interventionsOperation = (clone $operation)->withClass(InterventionForfait::class)
+            ->withStateOptions(null)
             ->withPaginationEnabled(false);
 
         $context['filters']['exists']['intervenant'] = true;
@@ -76,7 +77,7 @@ readonly class ActiviteIntervenantProvider implements ProviderInterface
                 $taux = $this->transformerService->transform(entity: $tauxEntity, to: TauxHoraire::class);
             }
             $campusId = $item instanceof InterventionForfait ? 'undefined' : $item->getCampus()->getId();
-            $key = $item->getIntervenant()->getId() . '#' . $campusId ?? 'undefined' . '#' . $item->getType()->getId() . '#' . ($taux->id ?? 'undefined');
+            $key = $item->getIntervenant()->getId() . '#' . $campusId . '#' . $item->getType()->getId() . '#' . ($taux->id ?? 'undefined');
             if (!array_key_exists($key, $results)) {
                 $results[$key] = new ActiviteIntervenant(
                     id: $key,
