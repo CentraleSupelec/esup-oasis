@@ -104,7 +104,7 @@ class ServicesFaitsProvider implements ProviderInterface
     }
 
     /**
-     * @param Evenement[] $evenements
+     * @param (Evenement|InterventionForfait)[] $evenements
      * @param ServicesFaits $servicesFaits
      * @return ServicesFaits
      * @throws ConfigurationIncompleteException
@@ -116,12 +116,13 @@ class ServicesFaitsProvider implements ProviderInterface
         foreach ($evenements as $evenement) {
             $intervenant = $evenement->getIntervenant();
             $type = $evenement->getType();
-            $tauxHoraire = $evenement->getType()->getTauxHoraireActifPourDate($evenement->getDebut());
+            $dateEvenement = $evenement instanceof Evenement ? $evenement->getDebut() : $servicesFaits->periode->debut;
+            $tauxHoraire = $evenement->getType()->getTauxHoraireActifPourDate($dateEvenement);
             if (null === $tauxHoraire) {
                 throw new ConfigurationIncompleteException('Taux horaire non renseigné pour ' . $evenement->getType()->getLibelle());
             }
             $ligneId = $intervenant->getId() . '###' . $type->getId() . '###' . $tauxHoraire->getId();
-            $servicesFaits->lignes[$ligneId] = $this->append($servicesFaits->lignes[$ligneId] ?? null, $evenement);
+            $servicesFaits->lignes[$ligneId] = $this->append($servicesFaits->lignes[$ligneId] ?? null, $evenement, $tauxHoraire);
         }
 
         //on repasse les indices en auto
@@ -152,10 +153,8 @@ class ServicesFaitsProvider implements ProviderInterface
      * @return LigneServiceFait
      * @throws ConfigurationIncompleteException
      */
-    protected function append(?LigneServiceFait $ligne, Evenement|InterventionForfait $evenement): LigneServiceFait
+    protected function append(?LigneServiceFait $ligne, Evenement|InterventionForfait $evenement, TauxHoraire $tauxHoraire): LigneServiceFait
     {
-        $tauxHoraire = $evenement->getType()->getTauxHoraireActifPourDate($evenement->getDebut());
-
         if (null == $ligne) {
             $ligne = new LigneServiceFait();
             $ligne->type = $this->getTypeResource($evenement->getType());
