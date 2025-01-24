@@ -11,7 +11,7 @@
 import {
    IAmenagementsBenefificiaire,
    ICategorieAmenagement,
-   IFormation,
+   IFormation, IInscription,
    ITypeAmenagement,
 } from "../../api/ApiTypeHelpers";
 import { useApi } from "../../context/api/ApiProvider";
@@ -40,10 +40,23 @@ export function buildAmenagementsBenefDatasource(
    typesAmenagementsUtilises: TypesDomainesAmenagements[],
 ): any[] {
    return abs.map((rd) => {
-      const data: any = {
+      const data: {
+         key: string;
+         nom: string;
+         prenom: string;
+         email: string;
+         numeroEtudiant: number | null | undefined;
+         etatAvisEse: string | undefined;
+         inscription: IInscription | undefined;
+         tags?: string[];
+      } = {
          key: rd["@id"] as string,
          nom: rd.nom as string,
          prenom: rd.prenom as string,
+         email: rd.email as string,
+         numeroEtudiant: rd.numeroEtudiant,
+         etatAvisEse: rd.etatAvisEse,
+         tags: [],
          inscription:
             rd.inscriptions && rd.inscriptions.length > 0
                ? {
@@ -59,6 +72,7 @@ export function buildAmenagementsBenefDatasource(
             (r) => r.typeAmenagement?.["@id"] === ta.typeAmenagement?.["@id"],
          );
          if (a) {
+            // @ts-ignore
             data[ta.typeAmenagement?.["@id"] as string] = {
                "@id": a?.["@id"],
                commentaire: a?.commentaire,

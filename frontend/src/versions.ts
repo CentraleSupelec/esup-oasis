@@ -41,6 +41,21 @@ export interface IVersion {
  */
 export const VERSIONS: IVersion[] = [
    {
+      version: "2.1.7",
+      date: "2025-01-22",
+      description: "Correctifs divers",
+      changes: [
+         {
+            description: "Amélioration de l'exportation des aménagements",
+            type: "fix",
+         },
+         {
+            description: "Corrections de bugs mineurs",
+            type: "fix",
+         },
+      ],
+   },
+   {
       version: "2.1.2",
       date: "2024-11-13",
       description: "Correctifs divers",
