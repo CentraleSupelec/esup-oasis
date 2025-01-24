@@ -8,13 +8,16 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { IComposante, ITag, ITypeAmenagement, IUtilisateur } from "../../api/ApiTypeHelpers";
+import {
+   ITag,
+   ITypeAmenagement,
+} from "../../api/ApiTypeHelpers";
 import { useEffect, useMemo, useState } from "react";
 import { useApi } from "../../context/api/ApiProvider";
 import { NB_MAX_ITEMS_PER_PAGE } from "../../constants";
 import { TableExportButton } from "../Buttons/TableExportButton";
 import { FiltreAmenagement, filtreAmenagementToApi } from "./AmenagementTableLayout";
-import { PREFETCH_COMPOSANTES, PREFETCH_TAGS } from "../../api/ApiPrefetchHelpers";
+import {  PREFETCH_TAGS } from "../../api/ApiPrefetchHelpers";
 import {
    buildAmenagementsBenefDatasource,
    getTypesAmenagements,
@@ -75,38 +78,24 @@ function getAmenagementsBeneficiaireData(
    user: Utilisateur | undefined,
    amenagements: any[],
    typesAmenagementsUtilises: TypesDomainesAmenagements[],
-   beneficiaires?: IUtilisateur[],
-   composantes?: IComposante[],
    tags?: ITag[],
 ) {
    return amenagements.map((amenagement) => {
       const data: any = {
          key: amenagement.key,
          "@id": amenagement.key,
-         nom: beneficiaires?.find((b) => b["@id"] === amenagement.key)?.nom?.toLocaleUpperCase(),
-         prenom: beneficiaires?.find((b) => b["@id"] === amenagement.key)?.prenom,
-         email: beneficiaires?.find((b) => b["@id"] === amenagement.key)?.email,
-         numeroEtudiant: beneficiaires?.find((b) => b["@id"] === amenagement.key)?.numeroEtudiant,
-         composante: composantes
-            ?.find(
-               (c) =>
-                  c["@id"] ===
-                  (
-                     beneficiaires?.find((b) => b["@id"] === amenagement.key)?.inscriptions || []
-                  ).sort((i1, i2) => i2.debut?.localeCompare(i1.debut || "") || 0)[0]?.formation
-                     ?.composante,
-            )
-            ?.libelle?.replaceAll('"', '""'),
-         formation: (beneficiaires?.find((b) => b["@id"] === amenagement.key)?.inscriptions || [])
-            .sort((i1, i2) => i2.debut?.localeCompare(i1.debut || "") || 0)[0]
-            ?.formation?.libelle?.replaceAll('"', '""'),
+         nom: amenagement.nom?.toLocaleUpperCase(),
+         prenom: amenagement.prenom,
+         email: amenagement.email,
+         numeroEtudiant: amenagement.numeroEtudiant,
+         composante: amenagement.inscription?.formation?.composante?.libelle?.replaceAll('"', '""'),
+         formation: amenagement.inscription?.formation?.libelle?.replaceAll('"', '""'),
          tags:
-            beneficiaires
-               ?.find((b) => b["@id"] === amenagement.key)
-               ?.tags?.map((tag) => tags?.find((t) => t["@id"] === tag))
+            (amenagement.tags as string[])
+               ?.map((tag) => tags?.find((t) => t["@id"] === tag))
                .map((tag) => tag?.libelle)
                .join(", ") || "",
-         avisESE: beneficiaires?.find((b) => b["@id"] === amenagement.key)?.etatAvisEse,
+         avisESE: amenagement?.etatAvisEse,
       };
 
       typesAmenagementsUtilises.forEach((ta) => {
@@ -155,19 +144,6 @@ export default function AmenagementsBeneficiaireTableExport({
       enabled: exportSubmit,
    });
 
-   const { data: beneficiaires, isFetching: isFetchingBeneficiaires } =
-      useApi().useGetCollectionPaginated({
-         path: "/beneficiaires",
-         page: 1,
-         itemsPerPage: NB_MAX_ITEMS_PER_PAGE,
-         enabled: exportSubmit,
-      });
-
-   const { data: composantes, isFetching: isFetchingComposantes } = useApi().useGetCollection({
-      ...PREFETCH_COMPOSANTES,
-      enabled: exportSubmit,
-   });
-
    const { data: tags, isFetching: isFetchingTags } = useApi().useGetCollection({
       ...PREFETCH_TAGS,
       enabled: exportSubmit,
@@ -195,27 +171,12 @@ export default function AmenagementsBeneficiaireTableExport({
    // ---
 
    useEffect(() => {
-      if (amenagements?.items && beneficiaires?.items && composantes?.items && tags?.items) {
+      if (amenagements?.items && tags?.items) {
          setLoading(false);
       } else {
-         setLoading(
-            isFetchingAmenagements ||
-               isFetchingBeneficiaires ||
-               isFetchingComposantes ||
-               isFetchingTags,
-         );
+         setLoading(isFetchingAmenagements || isFetchingTags);
       }
-   }, [
-      exportSubmit,
-      isFetchingAmenagements,
-      amenagements?.items,
-      beneficiaires?.items,
-      composantes?.items,
-      isFetchingBeneficiaires,
-      isFetchingComposantes,
-      tags?.items,
-      isFetchingTags,
-   ]);
+   }, [exportSubmit, isFetchingAmenagements, amenagements?.items, tags?.items, isFetchingTags]);
 
    // --- Export
 
@@ -232,8 +193,6 @@ export default function AmenagementsBeneficiaireTableExport({
                user,
                data || [],
                typesAmenagementsUtilises,
-               beneficiaires?.items,
-               composantes?.items,
                tags?.items,
             )
          }

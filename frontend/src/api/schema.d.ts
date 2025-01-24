@@ -13,50 +13,307 @@ type OneOf<T extends any[]> = T extends [infer Only]
      : never;
 
 export interface paths {
-   "/amenagements": {
+   "/utilisateurs/{uid}/avis_ese": {
       /**
-       * Retrieves the collection of Amenagement resources.
-       * @description Retrieves the collection of Amenagement resources.
+       * Retrieves the collection of AvisEse resources.
+       * @description Retrieves the collection of AvisEse resources.
        */
-      get: operations["api_amenagements_get_collection"];
+      get: operations["api_utilisateurs_uidavis_ese_get_collection"];
+      /**
+       * Creates a AvisEse resource.
+       * @description Creates a AvisEse resource.
+       */
+      post: operations["api_utilisateurs_uidavis_ese_post"];
    };
-   "/amenagements/utilisateurs": {
+   "/utilisateurs/{uid}/avis_ese/{id}": {
       /**
-       * Retrieves the collection of Utilisateur resources.
-       * @description Retrieves the collection of Utilisateur resources.
+       * Retrieves a AvisEse resource.
+       * @description Retrieves a AvisEse resource.
        */
-      get: operations["api_amenagementsutilisateurs_get_collection"];
+      get: operations["api_utilisateurs_uidavis_ese_id_get"];
+      /**
+       * Removes the AvisEse resource.
+       * @description Removes the AvisEse resource.
+       */
+      delete: operations["api_utilisateurs_uidavis_ese_id_delete"];
+      /**
+       * Updates the AvisEse resource.
+       * @description Updates the AvisEse resource.
+       */
+      patch: operations["api_utilisateurs_uidavis_ese_id_patch"];
    };
-   "/beneficiaires": {
+   "/utilisateurs/{uid}/decisions/{annee}": {
       /**
-       * Retrieves the collection of Utilisateur resources.
-       * @description Retrieves the collection of Utilisateur resources.
+       * Retrieves a DecisionAmenagementExamens resource.
+       * @description Retrieves a DecisionAmenagementExamens resource.
        */
-      get: operations["beneficiaires"];
+      get: operations["api_utilisateurs_uiddecisions_annee_get"];
+      /**
+       * Updates the DecisionAmenagementExamens resource.
+       * @description Updates the DecisionAmenagementExamens resource.
+       */
+      patch: operations["api_utilisateurs_uiddecisions_annee_patch"];
    };
-   "/beneficiaires/{uid}/pieces_jointes": {
+   "/commissions": {
       /**
-       * Retrieves the collection of PieceJointeBeneficiaire resources.
-       * @description Retrieves the collection of PieceJointeBeneficiaire resources.
+       * Retrieves the collection of Commission resources.
+       * @description Retrieves the collection of Commission resources.
        */
-      get: operations["api_beneficiaires_uidpieces_jointes_get_collection"];
+      get: operations["api_commissions_get_collection"];
       /**
-       * Creates a PieceJointeBeneficiaire resource.
-       * @description Creates a PieceJointeBeneficiaire resource.
+       * Creates a Commission resource.
+       * @description Creates a Commission resource.
        */
-      post: operations["api_beneficiaires_uidpieces_jointes_post"];
+      post: operations["api_commissions_post"];
    };
-   "/beneficiaires/{uid}/pieces_jointes/{id}": {
+   "/commissions/{commissionId}/membres": {
       /**
-       * Retrieves a PieceJointeBeneficiaire resource.
-       * @description Retrieves a PieceJointeBeneficiaire resource.
+       * Retrieves the collection of MembreCommission resources.
+       * @description Retrieves the collection of MembreCommission resources.
        */
-      get: operations["api_beneficiaires_uidpieces_jointes_id_get"];
+      get: operations["api_commissions_commissionIdmembres_get_collection"];
+   };
+   "/commissions/{commissionId}/membres/{uid}": {
       /**
-       * Removes the PieceJointeBeneficiaire resource.
-       * @description Removes the PieceJointeBeneficiaire resource.
+       * Retrieves a MembreCommission resource.
+       * @description Retrieves a MembreCommission resource.
        */
-      delete: operations["api_beneficiaires_uidpieces_jointes_id_delete"];
+      get: operations["api_commissions_commissionIdmembres_uid_get"];
+      /**
+       * Replaces the MembreCommission resource.
+       * @description Replaces the MembreCommission resource.
+       */
+      put: operations["api_commissions_commissionIdmembres_uid_put"];
+      /**
+       * Removes the MembreCommission resource.
+       * @description Removes the MembreCommission resource.
+       */
+      delete: operations["api_commissions_commissionIdmembres_uid_delete"];
+   };
+   "/commissions/{id}": {
+      /**
+       * Retrieves a Commission resource.
+       * @description Retrieves a Commission resource.
+       */
+      get: operations["api_commissions_id_get"];
+      /**
+       * Updates the Commission resource.
+       * @description Updates the Commission resource.
+       */
+      patch: operations["api_commissions_id_patch"];
+   };
+   "/demandes": {
+      /**
+       * Retrieves the collection of Demande resources.
+       * @description Retrieves the collection of Demande resources.
+       */
+      get: operations["api_demandes_get_collection"];
+      /**
+       * Creates a Demande resource.
+       * @description Creates a Demande resource.
+       */
+      post: operations["api_demandes_post"];
+   };
+   "/demandes/{demandeId}/modifications": {
+      /**
+       * Retrieves the collection of ModificationEtatDemande resources.
+       * @description Retrieves the collection of ModificationEtatDemande resources.
+       */
+      get: operations["api_demandes_demandeIdmodifications_get_collection"];
+   };
+   "/demandes/{demandeId}/modifications/{id}": {
+      /**
+       * Retrieves a ModificationEtatDemande resource.
+       * @description Retrieves a ModificationEtatDemande resource.
+       */
+      get: operations["api_demandes_demandeIdmodifications_id_get"];
+   };
+   "/demandes/{demandeId}/questions/{questionId}/reponse": {
+      /**
+       * Retrieves a Reponse resource.
+       * @description Retrieves a Reponse resource.
+       */
+      get: operations["api_demandes_demandeIdquestions_questionIdreponse_get"];
+      /**
+       * Replaces the Reponse resource.
+       * @description Replaces the Reponse resource.
+       */
+      put: operations["api_demandes_demandeIdquestions_questionIdreponse_put"];
+   };
+   "/demandes/{id}": {
+      /**
+       * Retrieves a Demande resource.
+       * @description Retrieves a Demande resource.
+       */
+      get: operations["api_demandes_id_get"];
+      /**
+       * Updates the Demande resource.
+       * @description Updates the Demande resource.
+       */
+      patch: operations["api_demandes_id_patch"];
+   };
+   "/etapes_demandes": {
+      /**
+       * Retrieves the collection of EtapeDemande resources.
+       * @description Retrieves the collection of EtapeDemande resources.
+       */
+      get: operations["api_etapes_demandes_get_collection"];
+   };
+   "/etapes_demandes/{id}": {
+      /**
+       * Retrieves a EtapeDemande resource.
+       * @description Retrieves a EtapeDemande resource.
+       */
+      get: operations["api_etapes_demandes_id_get"];
+   };
+   "/questions/{id}": {
+      /**
+       * Retrieves a Question resource.
+       * @description Retrieves a Question resource.
+       */
+      get: operations["api_questions_id_get"];
+   };
+   "/types_demandes": {
+      /**
+       * Retrieves the collection of TypeDemande resources.
+       * @description Retrieves the collection of TypeDemande resources.
+       */
+      get: operations["api_types_demandes_get_collection"];
+      /**
+       * Creates a TypeDemande resource.
+       * @description Creates a TypeDemande resource.
+       */
+      post: operations["api_types_demandes_post"];
+   };
+   "/types_demandes/{id}": {
+      /**
+       * Retrieves a TypeDemande resource.
+       * @description Retrieves a TypeDemande resource.
+       */
+      get: operations["api_types_demandes_id_get"];
+      /**
+       * Updates the TypeDemande resource.
+       * @description Updates the TypeDemande resource.
+       */
+      patch: operations["api_types_demandes_id_patch"];
+   };
+   "/types_demandes/{typeId}/campagnes": {
+      /**
+       * Retrieves the collection of CampagneDemande resources.
+       * @description Retrieves the collection of CampagneDemande resources.
+       */
+      get: operations["api_types_demandes_typeIdcampagnes_get_collection"];
+      /**
+       * Creates a CampagneDemande resource.
+       * @description Creates a CampagneDemande resource.
+       */
+      post: operations["api_types_demandes_typeIdcampagnes_post"];
+   };
+   "/types_demandes/{typeId}/campagnes/{id}": {
+      /**
+       * Retrieves a CampagneDemande resource.
+       * @description Retrieves a CampagneDemande resource.
+       */
+      get: operations["api_types_demandes_typeIdcampagnes_id_get"];
+      /**
+       * Updates the CampagneDemande resource.
+       * @description Updates the CampagneDemande resource.
+       */
+      patch: operations["api_types_demandes_typeIdcampagnes_id_patch"];
+   };
+   "/utilisateurs/{uid}/demandes": {
+      /**
+       * Retrieves the collection of Demande resources.
+       * @description Retrieves the collection of Demande resources.
+       */
+      get: operations["api_utilisateurs_uiddemandes_get_collection"];
+   };
+   "/utilisateurs/{uid}/entretiens": {
+      /**
+       * Retrieves the collection of Entretien resources.
+       * @description Retrieves the collection of Entretien resources.
+       */
+      get: operations["api_utilisateurs_uidentretiens_get_collection"];
+      /**
+       * Creates a Entretien resource.
+       * @description Creates a Entretien resource.
+       */
+      post: operations["api_utilisateurs_uidentretiens_post"];
+   };
+   "/utilisateurs/{uid}/entretiens/{id}": {
+      /**
+       * Retrieves a Entretien resource.
+       * @description Retrieves a Entretien resource.
+       */
+      get: operations["api_utilisateurs_uidentretiens_id_get"];
+      /**
+       * Removes the Entretien resource.
+       * @description Removes the Entretien resource.
+       */
+      delete: operations["api_utilisateurs_uidentretiens_id_delete"];
+      /**
+       * Updates the Entretien resource.
+       * @description Updates the Entretien resource.
+       */
+      patch: operations["api_utilisateurs_uidentretiens_id_patch"];
+   };
+   "/evenements": {
+      /**
+       * Retrieves the collection of Evenement resources.
+       * @description Retrieves the collection of Evenement resources.
+       */
+      get: operations["api_evenements_get_collection"];
+      /**
+       * Creates a Evenement resource.
+       * @description Creates a Evenement resource.
+       */
+      post: operations["api_evenements_post"];
+   };
+   "/evenements/{id}": {
+      /**
+       * Retrieves a Evenement resource.
+       * @description Retrieves a Evenement resource.
+       */
+      get: operations["api_evenements_id_get"];
+      /**
+       * Removes the Evenement resource.
+       * @description Removes the Evenement resource.
+       */
+      delete: operations["api_evenements_id_delete"];
+      /**
+       * Updates the Evenement resource.
+       * @description Updates the Evenement resource.
+       */
+      patch: operations["api_evenements_id_patch"];
+   };
+   "/interventions_forfait": {
+      /**
+       * Retrieves the collection of InterventionForfait resources.
+       * @description Retrieves the collection of InterventionForfait resources.
+       */
+      get: operations["api_interventions_forfait_get_collection"];
+      /**
+       * Creates a InterventionForfait resource.
+       * @description Creates a InterventionForfait resource.
+       */
+      post: operations["api_interventions_forfait_post"];
+   };
+   "/interventions_forfait/{id}": {
+      /**
+       * Retrieves a InterventionForfait resource.
+       * @description Retrieves a InterventionForfait resource.
+       */
+      get: operations["api_interventions_forfait_id_get"];
+      /**
+       * Removes the InterventionForfait resource.
+       * @description Removes the InterventionForfait resource.
+       */
+      delete: operations["api_interventions_forfait_id_delete"];
+      /**
+       * Updates the InterventionForfait resource.
+       * @description Updates the InterventionForfait resource.
+       */
+      patch: operations["api_interventions_forfait_id_patch"];
    };
    "/campus": {
       /**
@@ -190,54 +447,6 @@ export interface paths {
        */
       patch: operations["api_clubs_sportifs_id_patch"];
    };
-   "/commissions": {
-      /**
-       * Retrieves the collection of Commission resources.
-       * @description Retrieves the collection of Commission resources.
-       */
-      get: operations["api_commissions_get_collection"];
-      /**
-       * Creates a Commission resource.
-       * @description Creates a Commission resource.
-       */
-      post: operations["api_commissions_post"];
-   };
-   "/commissions/{commissionId}/membres": {
-      /**
-       * Retrieves the collection of MembreCommission resources.
-       * @description Retrieves the collection of MembreCommission resources.
-       */
-      get: operations["api_commissions_commissionIdmembres_get_collection"];
-   };
-   "/commissions/{commissionId}/membres/{uid}": {
-      /**
-       * Retrieves a MembreCommission resource.
-       * @description Retrieves a MembreCommission resource.
-       */
-      get: operations["api_commissions_commissionIdmembres_uid_get"];
-      /**
-       * Replaces the MembreCommission resource.
-       * @description Replaces the MembreCommission resource.
-       */
-      put: operations["api_commissions_commissionIdmembres_uid_put"];
-      /**
-       * Removes the MembreCommission resource.
-       * @description Removes the MembreCommission resource.
-       */
-      delete: operations["api_commissions_commissionIdmembres_uid_delete"];
-   };
-   "/commissions/{id}": {
-      /**
-       * Retrieves a Commission resource.
-       * @description Retrieves a Commission resource.
-       */
-      get: operations["api_commissions_id_get"];
-      /**
-       * Updates the Commission resource.
-       * @description Updates the Commission resource.
-       */
-      patch: operations["api_commissions_id_patch"];
-   };
    "/competences": {
       /**
        * Retrieves the collection of Competence resources.
@@ -280,56 +489,6 @@ export interface paths {
        * @description Updates the Composante resource.
        */
       patch: operations["api_composantes_id_patch"];
-   };
-   "/demandes": {
-      /**
-       * Retrieves the collection of Demande resources.
-       * @description Retrieves the collection of Demande resources.
-       */
-      get: operations["api_demandes_get_collection"];
-      /**
-       * Creates a Demande resource.
-       * @description Creates a Demande resource.
-       */
-      post: operations["api_demandes_post"];
-   };
-   "/demandes/{demandeId}/modifications": {
-      /**
-       * Retrieves the collection of ModificationEtatDemande resources.
-       * @description Retrieves the collection of ModificationEtatDemande resources.
-       */
-      get: operations["api_demandes_demandeIdmodifications_get_collection"];
-   };
-   "/demandes/{demandeId}/modifications/{id}": {
-      /**
-       * Retrieves a ModificationEtatDemande resource.
-       * @description Retrieves a ModificationEtatDemande resource.
-       */
-      get: operations["api_demandes_demandeIdmodifications_id_get"];
-   };
-   "/demandes/{demandeId}/questions/{questionId}/reponse": {
-      /**
-       * Retrieves a Reponse resource.
-       * @description Retrieves a Reponse resource.
-       */
-      get: operations["api_demandes_demandeIdquestions_questionIdreponse_get"];
-      /**
-       * Replaces the Reponse resource.
-       * @description Replaces the Reponse resource.
-       */
-      put: operations["api_demandes_demandeIdquestions_questionIdreponse_put"];
-   };
-   "/demandes/{id}": {
-      /**
-       * Retrieves a Demande resource.
-       * @description Retrieves a Demande resource.
-       */
-      get: operations["api_demandes_id_get"];
-      /**
-       * Updates the Demande resource.
-       * @description Updates the Demande resource.
-       */
-      patch: operations["api_demandes_id_patch"];
    };
    "/disciplines_artistiques": {
       /**
@@ -403,20 +562,6 @@ export interface paths {
        */
       patch: operations["api_etablissements_enseignement_artistique_id_patch"];
    };
-   "/etapes_demandes": {
-      /**
-       * Retrieves the collection of EtapeDemande resources.
-       * @description Retrieves the collection of EtapeDemande resources.
-       */
-      get: operations["api_etapes_demandes_get_collection"];
-   };
-   "/etapes_demandes/{id}": {
-      /**
-       * Retrieves a EtapeDemande resource.
-       * @description Retrieves a EtapeDemande resource.
-       */
-      get: operations["api_etapes_demandes_id_get"];
-   };
    "/etats_demandes": {
       /**
        * Retrieves the collection of EtatDemande resources.
@@ -431,35 +576,6 @@ export interface paths {
        */
       get: operations["api_etats_demandes_id_get"];
    };
-   "/evenements": {
-      /**
-       * Retrieves the collection of Evenement resources.
-       * @description Retrieves the collection of Evenement resources.
-       */
-      get: operations["api_evenements_get_collection"];
-      /**
-       * Creates a Evenement resource.
-       * @description Creates a Evenement resource.
-       */
-      post: operations["api_evenements_post"];
-   };
-   "/evenements/{id}": {
-      /**
-       * Retrieves a Evenement resource.
-       * @description Retrieves a Evenement resource.
-       */
-      get: operations["api_evenements_id_get"];
-      /**
-       * Removes the Evenement resource.
-       * @description Removes the Evenement resource.
-       */
-      delete: operations["api_evenements_id_delete"];
-      /**
-       * Updates the Evenement resource.
-       * @description Updates the Evenement resource.
-       */
-      patch: operations["api_evenements_id_patch"];
-   };
    "/formations": {
       /**
        * Retrieves the collection of Formation resources.
@@ -473,56 +589,6 @@ export interface paths {
        * @description Retrieves a Formation resource.
        */
       get: operations["api_formations_id_get"];
-   };
-   "/intervenants": {
-      /**
-       * Retrieves the collection of Utilisateur resources.
-       * @description Retrieves the collection of Utilisateur resources.
-       */
-      get: operations["intervenants"];
-   };
-   "/intervenants/{uid}/services_faits": {
-      /**
-       * Retrieves the collection of ServicesFaits resources.
-       * @description Retrieves the collection of ServicesFaits resources.
-       */
-      get: operations["api_intervenants_uidservices_faits_get_collection"];
-   };
-   "/intervenants/{uid}/services_faits/{id}": {
-      /**
-       * Retrieves a ServicesFaits resource.
-       * @description Retrieves a ServicesFaits resource.
-       */
-      get: operations["api_intervenants_uidservices_faits_id_get"];
-   };
-   "/interventions_forfait": {
-      /**
-       * Retrieves the collection of InterventionForfait resources.
-       * @description Retrieves the collection of InterventionForfait resources.
-       */
-      get: operations["api_interventions_forfait_get_collection"];
-      /**
-       * Creates a InterventionForfait resource.
-       * @description Creates a InterventionForfait resource.
-       */
-      post: operations["api_interventions_forfait_post"];
-   };
-   "/interventions_forfait/{id}": {
-      /**
-       * Retrieves a InterventionForfait resource.
-       * @description Retrieves a InterventionForfait resource.
-       */
-      get: operations["api_interventions_forfait_id_get"];
-      /**
-       * Removes the InterventionForfait resource.
-       * @description Removes the InterventionForfait resource.
-       */
-      delete: operations["api_interventions_forfait_id_delete"];
-      /**
-       * Updates the InterventionForfait resource.
-       * @description Updates the InterventionForfait resource.
-       */
-      patch: operations["api_interventions_forfait_id_patch"];
    };
    "/liste_sportifs_haut_niveau": {
       /**
@@ -588,13 +654,6 @@ export interface paths {
        */
       patch: operations["api_periodes_id_patch"];
    };
-   "/periodes/{id}/services_faits": {
-      /**
-       * Retrieves a ServicesFaits resource.
-       * @description Retrieves a ServicesFaits resource.
-       */
-      get: operations["api_periodes_idservices_faits_get"];
-   };
    "/profils": {
       /**
        * Retrieves the collection of ProfilBeneficiaire resources.
@@ -618,27 +677,6 @@ export interface paths {
        * @description Updates the ProfilBeneficiaire resource.
        */
       patch: operations["api_profils_id_patch"];
-   };
-   "/questions/{id}": {
-      /**
-       * Retrieves a Question resource.
-       * @description Retrieves a Question resource.
-       */
-      get: operations["api_questions_id_get"];
-   };
-   "/renforts": {
-      /**
-       * Retrieves the collection of Utilisateur resources.
-       * @description Retrieves the collection of Utilisateur resources.
-       */
-      get: operations["renforts"];
-   };
-   "/roles/{roleId}/utilisateurs": {
-      /**
-       * Retrieves the collection of Utilisateur resources.
-       * @description Retrieves the collection of Utilisateur resources.
-       */
-      get: operations["api_roles_roleIdutilisateurs_get_collection"];
    };
    "/services": {
       /**
@@ -698,58 +736,6 @@ export interface paths {
        */
       patch: operations["api_sportifs_haut_niveau_identifiantExterne_patch"];
    };
-   "/statistiques": {
-      /**
-       * Retrieves a TableauDeBord resource.
-       * @description Retrieves a TableauDeBord resource.
-       */
-      get: operations["api_statistiques_get"];
-   };
-   "/suivis/activite": {
-      /**
-       * Retrieves the collection of BilanActivite resources.
-       * @description Bilan activite
-       */
-      get: operations["api_suivisactivite_get_collection"];
-      /**
-       * Creates a BilanActivite resource.
-       * @description Bilan activite
-       */
-      post: operations["api_suivisactivite_post"];
-   };
-   "/suivis/activite/{id}": {
-      /**
-       * Retrieves a BilanActivite resource.
-       * @description Bilan activite
-       */
-      get: operations["api_suivisactivite_id_get"];
-      /**
-       * Removes the BilanActivite resource.
-       * @description Bilan activite
-       */
-      delete: operations["api_suivisactivite_id_delete"];
-   };
-   "/suivis/beneficiaires": {
-      /**
-       * Retrieves the collection of ActiviteBeneficiaire resources.
-       * @description Retrieves the collection of ActiviteBeneficiaire resources.
-       */
-      get: operations["api_suivisbeneficiaires_get_collection"];
-   };
-   "/suivis/financiers/debut/{debut}/fin/{fin}": {
-      /**
-       * Retrieves the collection of BilanFinancier resources.
-       * @description Bilan financier
-       */
-      get: operations["api_suivisfinanciersdebut_debutfin_fin_get_collection"];
-   };
-   "/suivis/intervenants": {
-      /**
-       * Retrieves the collection of ActiviteIntervenant resources.
-       * @description Retrieves the collection of ActiviteIntervenant resources.
-       */
-      get: operations["api_suivisintervenants_get_collection"];
-   };
    "/tags": {
       /**
        * Retrieves the collection of Tag resources.
@@ -774,20 +760,6 @@ export interface paths {
        */
       patch: operations["api_tags_id_patch"];
    };
-   "/telechargements": {
-      /**
-       * Creates a Telechargement resource.
-       * @description Creates a Telechargement resource.
-       */
-      post: operations["api_telechargements_post"];
-   };
-   "/telechargements/{id}": {
-      /**
-       * Retrieves a Telechargement resource.
-       * @description Retrieves a Telechargement resource.
-       */
-      get: operations["api_telechargements_id_get"];
-   };
    "/types_amenagements": {
       /**
        * Retrieves the collection of TypeAmenagement resources.
@@ -811,54 +783,6 @@ export interface paths {
        * @description Updates the TypeAmenagement resource.
        */
       patch: operations["api_types_amenagements_id_patch"];
-   };
-   "/types_demandes": {
-      /**
-       * Retrieves the collection of TypeDemande resources.
-       * @description Retrieves the collection of TypeDemande resources.
-       */
-      get: operations["api_types_demandes_get_collection"];
-      /**
-       * Creates a TypeDemande resource.
-       * @description Creates a TypeDemande resource.
-       */
-      post: operations["api_types_demandes_post"];
-   };
-   "/types_demandes/{id}": {
-      /**
-       * Retrieves a TypeDemande resource.
-       * @description Retrieves a TypeDemande resource.
-       */
-      get: operations["api_types_demandes_id_get"];
-      /**
-       * Updates the TypeDemande resource.
-       * @description Updates the TypeDemande resource.
-       */
-      patch: operations["api_types_demandes_id_patch"];
-   };
-   "/types_demandes/{typeId}/campagnes": {
-      /**
-       * Retrieves the collection of CampagneDemande resources.
-       * @description Retrieves the collection of CampagneDemande resources.
-       */
-      get: operations["api_types_demandes_typeIdcampagnes_get_collection"];
-      /**
-       * Creates a CampagneDemande resource.
-       * @description Creates a CampagneDemande resource.
-       */
-      post: operations["api_types_demandes_typeIdcampagnes_post"];
-   };
-   "/types_demandes/{typeId}/campagnes/{id}": {
-      /**
-       * Retrieves a CampagneDemande resource.
-       * @description Retrieves a CampagneDemande resource.
-       */
-      get: operations["api_types_demandes_typeIdcampagnes_id_get"];
-      /**
-       * Updates the CampagneDemande resource.
-       * @description Updates the CampagneDemande resource.
-       */
-      patch: operations["api_types_demandes_typeIdcampagnes_id_patch"];
    };
    "/types_engagements": {
       /**
@@ -1009,6 +933,159 @@ export interface paths {
        */
       patch: operations["api_typologies_id_patch"];
    };
+   "/intervenants/{uid}/services_faits": {
+      /**
+       * Retrieves the collection of ServicesFaits resources.
+       * @description Retrieves the collection of ServicesFaits resources.
+       */
+      get: operations["api_intervenants_uidservices_faits_get_collection"];
+   };
+   "/intervenants/{uid}/services_faits/{id}": {
+      /**
+       * Retrieves a ServicesFaits resource.
+       * @description Retrieves a ServicesFaits resource.
+       */
+      get: operations["api_intervenants_uidservices_faits_id_get"];
+   };
+   "/periodes/{id}/services_faits": {
+      /**
+       * Retrieves a ServicesFaits resource.
+       * @description Retrieves a ServicesFaits resource.
+       */
+      get: operations["api_periodes_idservices_faits_get"];
+   };
+   "/suivis/activite": {
+      /**
+       * Retrieves the collection of BilanActivite resources.
+       * @description Bilan activite
+       */
+      get: operations["api_suivisactivite_get_collection"];
+      /**
+       * Creates a BilanActivite resource.
+       * @description Bilan activite
+       */
+      post: operations["api_suivisactivite_post"];
+   };
+   "/suivis/activite/{id}": {
+      /**
+       * Retrieves a BilanActivite resource.
+       * @description Bilan activite
+       */
+      get: operations["api_suivisactivite_id_get"];
+      /**
+       * Removes the BilanActivite resource.
+       * @description Bilan activite
+       */
+      delete: operations["api_suivisactivite_id_delete"];
+   };
+   "/suivis/beneficiaires": {
+      /**
+       * Retrieves the collection of ActiviteBeneficiaire resources.
+       * @description Retrieves the collection of ActiviteBeneficiaire resources.
+       */
+      get: operations["api_suivisbeneficiaires_get_collection"];
+   };
+   "/suivis/financiers/debut/{debut}/fin/{fin}": {
+      /**
+       * Retrieves the collection of BilanFinancier resources.
+       * @description Bilan financier
+       */
+      get: operations["api_suivisfinanciersdebut_debutfin_fin_get_collection"];
+   };
+   "/suivis/intervenants": {
+      /**
+       * Retrieves the collection of ActiviteIntervenant resources.
+       * @description Retrieves the collection of ActiviteIntervenant resources.
+       */
+      get: operations["api_suivisintervenants_get_collection"];
+   };
+   "/statistiques": {
+      /**
+       * Retrieves a TableauDeBord resource.
+       * @description Retrieves a TableauDeBord resource.
+       */
+      get: operations["api_statistiques_get"];
+   };
+   "/telechargements": {
+      /**
+       * Creates a Telechargement resource.
+       * @description Creates a Telechargement resource.
+       */
+      post: operations["api_telechargements_post"];
+   };
+   "/telechargements/{id}": {
+      /**
+       * Retrieves a Telechargement resource.
+       * @description Retrieves a Telechargement resource.
+       */
+      get: operations["api_telechargements_id_get"];
+   };
+   "/amenagements": {
+      /**
+       * Retrieves the collection of Amenagement resources.
+       * @description Retrieves the collection of Amenagement resources.
+       */
+      get: operations["api_amenagements_get_collection"];
+   };
+   "/amenagements/utilisateurs": {
+      /**
+       * Retrieves the collection of Utilisateur resources.
+       * @description Retrieves the collection of Utilisateur resources.
+       */
+      get: operations["api_amenagementsutilisateurs_get_collection"];
+   };
+   "/beneficiaires": {
+      /**
+       * Retrieves the collection of Utilisateur resources.
+       * @description Retrieves the collection of Utilisateur resources.
+       */
+      get: operations["beneficiaires"];
+   };
+   "/beneficiaires/{uid}/pieces_jointes": {
+      /**
+       * Retrieves the collection of PieceJointeBeneficiaire resources.
+       * @description Retrieves the collection of PieceJointeBeneficiaire resources.
+       */
+      get: operations["api_beneficiaires_uidpieces_jointes_get_collection"];
+      /**
+       * Creates a PieceJointeBeneficiaire resource.
+       * @description Creates a PieceJointeBeneficiaire resource.
+       */
+      post: operations["api_beneficiaires_uidpieces_jointes_post"];
+   };
+   "/beneficiaires/{uid}/pieces_jointes/{id}": {
+      /**
+       * Retrieves a PieceJointeBeneficiaire resource.
+       * @description Retrieves a PieceJointeBeneficiaire resource.
+       */
+      get: operations["api_beneficiaires_uidpieces_jointes_id_get"];
+      /**
+       * Removes the PieceJointeBeneficiaire resource.
+       * @description Removes the PieceJointeBeneficiaire resource.
+       */
+      delete: operations["api_beneficiaires_uidpieces_jointes_id_delete"];
+   };
+   "/intervenants": {
+      /**
+       * Retrieves the collection of Utilisateur resources.
+       * @description Retrieves the collection of Utilisateur resources.
+       */
+      get: operations["intervenants"];
+   };
+   "/renforts": {
+      /**
+       * Retrieves the collection of Utilisateur resources.
+       * @description Retrieves the collection of Utilisateur resources.
+       */
+      get: operations["renforts"];
+   };
+   "/roles/{roleId}/utilisateurs": {
+      /**
+       * Retrieves the collection of Utilisateur resources.
+       * @description Retrieves the collection of Utilisateur resources.
+       */
+      get: operations["api_roles_roleIdutilisateurs_get_collection"];
+   };
    "/utilisateurs": {
       /**
        * Retrieves the collection of Utilisateur resources.
@@ -1057,35 +1134,6 @@ export interface paths {
        */
       patch: operations["api_utilisateurs_uidamenagements_id_patch"];
    };
-   "/utilisateurs/{uid}/avis_ese": {
-      /**
-       * Retrieves the collection of AvisEse resources.
-       * @description Retrieves the collection of AvisEse resources.
-       */
-      get: operations["api_utilisateurs_uidavis_ese_get_collection"];
-      /**
-       * Creates a AvisEse resource.
-       * @description Creates a AvisEse resource.
-       */
-      post: operations["api_utilisateurs_uidavis_ese_post"];
-   };
-   "/utilisateurs/{uid}/avis_ese/{id}": {
-      /**
-       * Retrieves a AvisEse resource.
-       * @description Retrieves a AvisEse resource.
-       */
-      get: operations["api_utilisateurs_uidavis_ese_id_get"];
-      /**
-       * Removes the AvisEse resource.
-       * @description Removes the AvisEse resource.
-       */
-      delete: operations["api_utilisateurs_uidavis_ese_id_delete"];
-      /**
-       * Updates the AvisEse resource.
-       * @description Updates the AvisEse resource.
-       */
-      patch: operations["api_utilisateurs_uidavis_ese_id_patch"];
-   };
    "/utilisateurs/{uid}/chartes": {
       /**
        * Retrieves the collection of CharteUtilisateur resources.
@@ -1104,54 +1152,6 @@ export interface paths {
        * @description Updates the CharteUtilisateur resource.
        */
       patch: operations["api_utilisateurs_uidchartes_id_patch"];
-   };
-   "/utilisateurs/{uid}/decisions/{annee}": {
-      /**
-       * Retrieves a DecisionAmenagementExamens resource.
-       * @description Retrieves a DecisionAmenagementExamens resource.
-       */
-      get: operations["api_utilisateurs_uiddecisions_annee_get"];
-      /**
-       * Updates the DecisionAmenagementExamens resource.
-       * @description Updates the DecisionAmenagementExamens resource.
-       */
-      patch: operations["api_utilisateurs_uiddecisions_annee_patch"];
-   };
-   "/utilisateurs/{uid}/demandes": {
-      /**
-       * Retrieves the collection of Demande resources.
-       * @description Retrieves the collection of Demande resources.
-       */
-      get: operations["api_utilisateurs_uiddemandes_get_collection"];
-   };
-   "/utilisateurs/{uid}/entretiens": {
-      /**
-       * Retrieves the collection of Entretien resources.
-       * @description Retrieves the collection of Entretien resources.
-       */
-      get: operations["api_utilisateurs_uidentretiens_get_collection"];
-      /**
-       * Creates a Entretien resource.
-       * @description Creates a Entretien resource.
-       */
-      post: operations["api_utilisateurs_uidentretiens_post"];
-   };
-   "/utilisateurs/{uid}/entretiens/{id}": {
-      /**
-       * Retrieves a Entretien resource.
-       * @description Retrieves a Entretien resource.
-       */
-      get: operations["api_utilisateurs_uidentretiens_id_get"];
-      /**
-       * Removes the Entretien resource.
-       * @description Removes the Entretien resource.
-       */
-      delete: operations["api_utilisateurs_uidentretiens_id_delete"];
-      /**
-       * Updates the Entretien resource.
-       * @description Updates the Entretien resource.
-       */
-      patch: operations["api_utilisateurs_uidentretiens_id_patch"];
    };
    "/utilisateurs/{uid}/parametres_ui": {
       /**
@@ -1743,7 +1743,6 @@ export interface components {
          fin?: string;
          intervenants?: components["schemas"]["IntervenantBilanFinancier"][];
          periodes?: string[];
-         id?: string;
       };
       "BilanFinancier.jsonld": {
          "@id"?: string;
@@ -1754,7 +1753,6 @@ export interface components {
          fin?: string;
          intervenants?: components["schemas"]["IntervenantBilanFinancier.jsonld"][];
          periodes?: string[];
-         id?: string;
       };
       "CampagneDemande-campagne.in": {
          libelle?: string | null;
@@ -4841,9 +4839,13 @@ export interface components {
       };
       "Utilisateur-amenagements_utilisateurs.out": {
          uid?: string;
+         email?: string;
          nom?: string;
          prenom?: string;
+         numeroEtudiant?: number | null;
+         etatAvisEse?: string;
          amenagements?: components["schemas"]["Amenagement-amenagements_utilisateurs.out"][];
+         tags?: string[];
          inscriptions?: components["schemas"]["Inscription-amenagements_utilisateurs.out"][];
       };
       "Utilisateur-demande.out": {
@@ -4951,9 +4953,13 @@ export interface components {
          "@id"?: string;
          "@type"?: string;
          uid?: string;
+         email?: string;
          nom?: string;
          prenom?: string;
+         numeroEtudiant?: number | null;
+         etatAvisEse?: string;
          amenagements?: components["schemas"]["Amenagement.jsonld-amenagements_utilisateurs.out"][];
+         tags?: string[];
          inscriptions?: components["schemas"]["Inscription.jsonld-amenagements_utilisateurs.out"][];
       };
       "Utilisateur.jsonld-demande.out": {
@@ -5142,298 +5148,29 @@ export type external = Record<string, never>;
 
 export interface operations {
    /**
-    * Retrieves the collection of Amenagement resources.
-    * @description Retrieves the collection of Amenagement resources.
+    * Retrieves the collection of AvisEse resources.
+    * @description Retrieves the collection of AvisEse resources.
     */
-   api_amenagements_get_collection: {
+   api_utilisateurs_uidavis_ese_get_collection: {
       parameters: {
          query?: {
             /** @description The collection page number */
             page?: number;
             /** @description The number of items per page */
             itemsPerPage?: number;
-            type?: string;
-            "type[]"?: string[];
-            "type.categorie"?: string;
-            "type.categorie[]"?: string[];
-            suivi?: string;
-            "suivi[]"?: string[];
-            nom?: string;
-            "nom[]"?: string[];
-            "type.pedagogique"?: boolean;
-            "type.examens"?: boolean;
-            "type.aideHumaine"?: boolean;
-            composante?: string;
-            "composante[]"?: string[];
-            formation?: string;
-            "formation[]"?: string[];
-            tags?: string;
-            "tags[]"?: string[];
-            "order[beneficiaires.utilisateur.nom]"?: "asc" | "desc";
-            gestionnaire?: string;
-            "gestionnaire[]"?: string[];
-         };
-      };
-      responses: {
-         /** @description Amenagement collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["Amenagement.jsonld-amenagement.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["Amenagement-amenagement.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of Utilisateur resources.
-    * @description Retrieves the collection of Utilisateur resources.
-    */
-   api_amenagementsutilisateurs_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            benefAvecAmenagementEnCours?: boolean;
-            categorie?: string;
-            "categorie[]"?: string[];
-            type?: string;
-            "type[]"?: string[];
-            examens?: boolean;
-            pedagogique?: boolean;
-            aideHumaine?: boolean;
-            term?: string;
-            beneficiaire?: string;
-            "creneau[debut]"?: string;
-            "creneau[fin]"?: string;
-            recherche?: string;
-            tags?: string;
-            "tags[]"?: string[];
-            nom?: string;
-            prenom?: string;
-            "intervenant.typesEvenements"?: string;
-            "intervenant.typesEvenements[]"?: string[];
-            "intervenant.campuses"?: string;
-            "intervenant.campuses[]"?: string[];
-            "intervenant.competences"?: string;
-            "intervenant.competences[]"?: string[];
-            profil?: string;
-            libelleCampus?: string;
-            libelleComposante?: string;
-            nomGestionnaire?: string;
-            intervenantArchive?: boolean;
-            "order[nom]"?: "asc" | "desc";
-            "beneficiaires.avecAccompagnement"?: boolean;
-            gestionnaire?: string;
-            "gestionnaire[]"?: string[];
-            "exists[numeroEtudiant]"?: boolean;
-            composante?: string;
-            "composante[]"?: string[];
-            formation?: string;
-            "formation[]"?: string[];
-            etatAvisEse?: string;
-            etatDecisionAmenagement?: string;
-         };
-      };
-      responses: {
-         /** @description Utilisateur collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["Utilisateur.jsonld-amenagements_utilisateurs.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["Utilisateur-amenagements_utilisateurs.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of Utilisateur resources.
-    * @description Retrieves the collection of Utilisateur resources.
-    */
-   beneficiaires: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            term?: string;
-            beneficiaire?: string;
-            "creneau[debut]"?: string;
-            "creneau[fin]"?: string;
-            recherche?: string;
-            tags?: string;
-            "tags[]"?: string[];
-            nom?: string;
-            prenom?: string;
-            "intervenant.typesEvenements"?: string;
-            "intervenant.typesEvenements[]"?: string[];
-            "intervenant.campuses"?: string;
-            "intervenant.campuses[]"?: string[];
-            "intervenant.competences"?: string;
-            "intervenant.competences[]"?: string[];
-            profil?: string;
-            libelleCampus?: string;
-            libelleComposante?: string;
-            nomGestionnaire?: string;
-            intervenantArchive?: boolean;
-            "order[nom]"?: "asc" | "desc";
-            "beneficiaires.avecAccompagnement"?: boolean;
-            gestionnaire?: string;
-            "gestionnaire[]"?: string[];
-            "exists[numeroEtudiant]"?: boolean;
-            composante?: string;
-            "composante[]"?: string[];
-            formation?: string;
-            "formation[]"?: string[];
-            etatAvisEse?: string;
-            etatDecisionAmenagement?: string;
-         };
-      };
-      responses: {
-         /** @description Utilisateur collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["Utilisateur.jsonld-utilisateur.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["Utilisateur-utilisateur.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of PieceJointeBeneficiaire resources.
-    * @description Retrieves the collection of PieceJointeBeneficiaire resources.
-    */
-   api_beneficiaires_uidpieces_jointes_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
+            "order[debut]"?: "asc" | "desc";
          };
          path: {
-            /** @description PieceJointeBeneficiaire identifier */
+            /** @description AvisEse identifier */
             uid: string;
          };
       };
       responses: {
-         /** @description PieceJointeBeneficiaire collection */
+         /** @description AvisEse collection */
          200: {
             content: {
                "application/ld+json": {
-                  "hydra:member": components["schemas"]["PieceJointeBeneficiaire.jsonld-piece_beneficiaire.out"][];
+                  "hydra:member": components["schemas"]["AvisEse.jsonld-avis_ese.out"][];
                   "hydra:totalItems"?: number;
                   /**
                    * @example {
@@ -5470,35 +5207,35 @@ export interface operations {
                      }[];
                   };
                };
-               "text/html": components["schemas"]["PieceJointeBeneficiaire-piece_beneficiaire.out"][];
+               "text/html": components["schemas"]["AvisEse-avis_ese.out"][];
             };
          };
       };
    };
    /**
-    * Creates a PieceJointeBeneficiaire resource.
-    * @description Creates a PieceJointeBeneficiaire resource.
+    * Creates a AvisEse resource.
+    * @description Creates a AvisEse resource.
     */
-   api_beneficiaires_uidpieces_jointes_post: {
+   api_utilisateurs_uidavis_ese_post: {
       parameters: {
          path: {
-            /** @description PieceJointeBeneficiaire identifier */
+            /** @description AvisEse identifier */
             uid: string;
          };
       };
-      /** @description The new PieceJointeBeneficiaire resource */
+      /** @description The new AvisEse resource */
       requestBody: {
          content: {
-            "application/ld+json": components["schemas"]["PieceJointeBeneficiaire.jsonld-piece_beneficiaire.in"];
-            "text/html": components["schemas"]["PieceJointeBeneficiaire-piece_beneficiaire.in"];
+            "application/ld+json": components["schemas"]["AvisEse.jsonld-avis_ese.in"];
+            "text/html": components["schemas"]["AvisEse-avis_ese.in"];
          };
       };
       responses: {
-         /** @description PieceJointeBeneficiaire resource created */
+         /** @description AvisEse resource created */
          201: {
             content: {
-               "application/ld+json": components["schemas"]["PieceJointeBeneficiaire.jsonld-piece_beneficiaire.out"];
-               "text/html": components["schemas"]["PieceJointeBeneficiaire-piece_beneficiaire.out"];
+               "application/ld+json": components["schemas"]["AvisEse.jsonld-avis_ese.out"];
+               "text/html": components["schemas"]["AvisEse-avis_ese.out"];
             };
          };
          /** @description Invalid input */
@@ -5512,24 +5249,24 @@ export interface operations {
       };
    };
    /**
-    * Retrieves a PieceJointeBeneficiaire resource.
-    * @description Retrieves a PieceJointeBeneficiaire resource.
+    * Retrieves a AvisEse resource.
+    * @description Retrieves a AvisEse resource.
     */
-   api_beneficiaires_uidpieces_jointes_id_get: {
+   api_utilisateurs_uidavis_ese_id_get: {
       parameters: {
          path: {
-            /** @description PieceJointeBeneficiaire identifier */
+            /** @description AvisEse identifier */
             uid: string;
-            /** @description PieceJointeBeneficiaire identifier */
+            /** @description AvisEse identifier */
             id: string;
          };
       };
       responses: {
-         /** @description PieceJointeBeneficiaire resource */
+         /** @description AvisEse resource */
          200: {
             content: {
-               "application/ld+json": components["schemas"]["PieceJointeBeneficiaire.jsonld-piece_beneficiaire.out"];
-               "text/html": components["schemas"]["PieceJointeBeneficiaire-piece_beneficiaire.out"];
+               "application/ld+json": components["schemas"]["AvisEse.jsonld-avis_ese.out"];
+               "text/html": components["schemas"]["AvisEse-avis_ese.out"];
             };
          };
          /** @description Resource not found */
@@ -5539,25 +5276,1912 @@ export interface operations {
       };
    };
    /**
-    * Removes the PieceJointeBeneficiaire resource.
-    * @description Removes the PieceJointeBeneficiaire resource.
+    * Removes the AvisEse resource.
+    * @description Removes the AvisEse resource.
     */
-   api_beneficiaires_uidpieces_jointes_id_delete: {
+   api_utilisateurs_uidavis_ese_id_delete: {
       parameters: {
          path: {
-            /** @description PieceJointeBeneficiaire identifier */
+            /** @description AvisEse identifier */
             uid: string;
-            /** @description PieceJointeBeneficiaire identifier */
+            /** @description AvisEse identifier */
             id: string;
          };
       };
       responses: {
-         /** @description PieceJointeBeneficiaire resource deleted */
+         /** @description AvisEse resource deleted */
          204: {
             content: never;
          };
          /** @description Resource not found */
          404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Updates the AvisEse resource.
+    * @description Updates the AvisEse resource.
+    */
+   api_utilisateurs_uidavis_ese_id_patch: {
+      parameters: {
+         path: {
+            /** @description AvisEse identifier */
+            uid: string;
+            /** @description AvisEse identifier */
+            id: string;
+         };
+      };
+      /** @description The updated AvisEse resource */
+      requestBody: {
+         content: {
+            "application/merge-patch+json": components["schemas"]["AvisEse-avis_ese.in"];
+         };
+      };
+      responses: {
+         /** @description AvisEse resource updated */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["AvisEse.jsonld-avis_ese.out"];
+               "text/html": components["schemas"]["AvisEse-avis_ese.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a DecisionAmenagementExamens resource.
+    * @description Retrieves a DecisionAmenagementExamens resource.
+    */
+   api_utilisateurs_uiddecisions_annee_get: {
+      parameters: {
+         path: {
+            /** @description DecisionAmenagementExamens identifier */
+            uid: string;
+            /** @description DecisionAmenagementExamens identifier */
+            annee: string;
+         };
+      };
+      responses: {
+         /** @description DecisionAmenagementExamens resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["DecisionAmenagementExamens.jsonld-decision.out"];
+               "application/pdf": components["schemas"]["DecisionAmenagementExamens-decision.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Updates the DecisionAmenagementExamens resource.
+    * @description Updates the DecisionAmenagementExamens resource.
+    */
+   api_utilisateurs_uiddecisions_annee_patch: {
+      parameters: {
+         path: {
+            /** @description DecisionAmenagementExamens identifier */
+            uid: string;
+            /** @description DecisionAmenagementExamens identifier */
+            annee: string;
+         };
+      };
+      /** @description The updated DecisionAmenagementExamens resource */
+      requestBody: {
+         content: {
+            "application/merge-patch+json": components["schemas"]["DecisionAmenagementExamens-decision.in"];
+         };
+      };
+      responses: {
+         /** @description DecisionAmenagementExamens resource updated */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["DecisionAmenagementExamens.jsonld-decision.out"];
+               "text/html": components["schemas"]["DecisionAmenagementExamens-decision.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of Commission resources.
+    * @description Retrieves the collection of Commission resources.
+    */
+   api_commissions_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            "order[libelle]"?: "asc" | "desc";
+         };
+      };
+      responses: {
+         /** @description Commission collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["Commission.jsonld-commission.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["Commission-commission.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Creates a Commission resource.
+    * @description Creates a Commission resource.
+    */
+   api_commissions_post: {
+      /** @description The new Commission resource */
+      requestBody: {
+         content: {
+            "application/ld+json": components["schemas"]["Commission.jsonld-commission.in"];
+            "text/html": components["schemas"]["Commission-commission.in"];
+         };
+      };
+      responses: {
+         /** @description Commission resource created */
+         201: {
+            content: {
+               "application/ld+json": components["schemas"]["Commission.jsonld-commission.out"];
+               "text/html": components["schemas"]["Commission-commission.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of MembreCommission resources.
+    * @description Retrieves the collection of MembreCommission resources.
+    */
+   api_commissions_commissionIdmembres_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+         };
+         path: {
+            /** @description MembreCommission identifier */
+            commissionId: string;
+         };
+      };
+      responses: {
+         /** @description MembreCommission collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["MembreCommission.jsonld-membre_commission.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["MembreCommission-membre_commission.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Retrieves a MembreCommission resource.
+    * @description Retrieves a MembreCommission resource.
+    */
+   api_commissions_commissionIdmembres_uid_get: {
+      parameters: {
+         path: {
+            /** @description MembreCommission identifier */
+            commissionId: string;
+            /** @description MembreCommission identifier */
+            uid: string;
+         };
+      };
+      responses: {
+         /** @description MembreCommission resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["MembreCommission.jsonld-membre_commission.out"];
+               "text/html": components["schemas"]["MembreCommission-membre_commission.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Replaces the MembreCommission resource.
+    * @description Replaces the MembreCommission resource.
+    */
+   api_commissions_commissionIdmembres_uid_put: {
+      parameters: {
+         path: {
+            /** @description MembreCommission identifier */
+            commissionId: string;
+            /** @description MembreCommission identifier */
+            uid: string;
+         };
+      };
+      /** @description The updated MembreCommission resource */
+      requestBody: {
+         content: {
+            "application/ld+json": components["schemas"]["MembreCommission.jsonld-membre_commission.in"];
+            "text/html": components["schemas"]["MembreCommission-membre_commission.in"];
+         };
+      };
+      responses: {
+         /** @description MembreCommission resource updated */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["MembreCommission.jsonld-membre_commission.out"];
+               "text/html": components["schemas"]["MembreCommission-membre_commission.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Removes the MembreCommission resource.
+    * @description Removes the MembreCommission resource.
+    */
+   api_commissions_commissionIdmembres_uid_delete: {
+      parameters: {
+         path: {
+            /** @description MembreCommission identifier */
+            commissionId: string;
+            /** @description MembreCommission identifier */
+            uid: string;
+         };
+      };
+      responses: {
+         /** @description MembreCommission resource deleted */
+         204: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a Commission resource.
+    * @description Retrieves a Commission resource.
+    */
+   api_commissions_id_get: {
+      parameters: {
+         path: {
+            /** @description Commission identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description Commission resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["Commission.jsonld-commission.out"];
+               "text/html": components["schemas"]["Commission-commission.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Updates the Commission resource.
+    * @description Updates the Commission resource.
+    */
+   api_commissions_id_patch: {
+      parameters: {
+         path: {
+            /** @description Commission identifier */
+            id: string;
+         };
+      };
+      /** @description The updated Commission resource */
+      requestBody: {
+         content: {
+            "application/merge-patch+json": components["schemas"]["Commission-commission.in"];
+         };
+      };
+      responses: {
+         /** @description Commission resource updated */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["Commission.jsonld-commission.out"];
+               "text/html": components["schemas"]["Commission-commission.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of Demande resources.
+    * @description Retrieves the collection of Demande resources.
+    */
+   api_demandes_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            "demandeur.nom"?: string;
+            "demandeur.prenom"?: string;
+            etat?: string;
+            "etat[]"?: string[];
+            "campagne.typeDemande"?: string;
+            "campagne.typeDemande[]"?: string[];
+            "campagne.typeDemande.libelle"?: string;
+            campagne?: string;
+            "campagne[]"?: string[];
+            demandeur?: string;
+            "demandeur[]"?: string[];
+            gestionnaire?: string;
+            "gestionnaire[]"?: string[];
+            libelleComposante?: string;
+            "libelleComposante[]"?: string[];
+            libelleFormation?: string;
+            "libelleFormation[]"?: string[];
+            composante?: string;
+            "composante[]"?: string[];
+            formation?: string;
+            "formation[]"?: string[];
+            discipline?: string;
+            "discipline[]"?: string[];
+            "order[demandeur.nom]"?: "asc" | "desc";
+            "order[dateDepot]"?: "asc" | "desc";
+            format_simple?: boolean;
+            archivees?: boolean;
+         };
+      };
+      responses: {
+         /** @description Demande collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["Demande.jsonld-demande.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["Demande-demande.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Creates a Demande resource.
+    * @description Creates a Demande resource.
+    */
+   api_demandes_post: {
+      /** @description The new Demande resource */
+      requestBody: {
+         content: {
+            "application/ld+json": components["schemas"]["Demande.jsonld-demande.in"];
+            "text/html": components["schemas"]["Demande-demande.in"];
+         };
+      };
+      responses: {
+         /** @description Demande resource created */
+         201: {
+            content: {
+               "application/ld+json": components["schemas"]["Demande.jsonld-demande.out"];
+               "text/html": components["schemas"]["Demande-demande.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of ModificationEtatDemande resources.
+    * @description Retrieves the collection of ModificationEtatDemande resources.
+    */
+   api_demandes_demandeIdmodifications_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            "order[dateModification]"?: "asc" | "desc";
+            "order[id]"?: "asc" | "desc";
+            "dateModification[before]"?: string;
+            "dateModification[strictly_before]"?: string;
+            "dateModification[after]"?: string;
+            "dateModification[strictly_after]"?: string;
+            demande?: string;
+            "demande[]"?: string[];
+         };
+         path: {
+            /** @description ModificationEtatDemande identifier */
+            demandeId: string;
+         };
+      };
+      responses: {
+         /** @description ModificationEtatDemande collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["ModificationEtatDemande.jsonld"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["ModificationEtatDemande"][];
+            };
+         };
+      };
+   };
+   /**
+    * Retrieves a ModificationEtatDemande resource.
+    * @description Retrieves a ModificationEtatDemande resource.
+    */
+   api_demandes_demandeIdmodifications_id_get: {
+      parameters: {
+         path: {
+            /** @description ModificationEtatDemande identifier */
+            demandeId: string;
+            /** @description ModificationEtatDemande identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description ModificationEtatDemande resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["ModificationEtatDemande.jsonld"];
+               "text/html": components["schemas"]["ModificationEtatDemande"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a Reponse resource.
+    * @description Retrieves a Reponse resource.
+    */
+   api_demandes_demandeIdquestions_questionIdreponse_get: {
+      parameters: {
+         path: {
+            /** @description Reponse identifier */
+            demandeId: string;
+            /** @description Reponse identifier */
+            questionId: string;
+         };
+      };
+      responses: {
+         /** @description Reponse resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["Reponse.jsonld-reponse.out"];
+               "text/html": components["schemas"]["Reponse-reponse.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Replaces the Reponse resource.
+    * @description Replaces the Reponse resource.
+    */
+   api_demandes_demandeIdquestions_questionIdreponse_put: {
+      parameters: {
+         path: {
+            /** @description Reponse identifier */
+            demandeId: string;
+            /** @description Reponse identifier */
+            questionId: string;
+         };
+      };
+      /** @description The updated Reponse resource */
+      requestBody: {
+         content: {
+            "application/ld+json": components["schemas"]["Reponse.jsonld-reponse.in"];
+            "text/html": components["schemas"]["Reponse-reponse.in"];
+         };
+      };
+      responses: {
+         /** @description Reponse resource updated */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["Reponse.jsonld-reponse.out"];
+               "text/html": components["schemas"]["Reponse-reponse.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a Demande resource.
+    * @description Retrieves a Demande resource.
+    */
+   api_demandes_id_get: {
+      parameters: {
+         path: {
+            /** @description Demande identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description Demande resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["Demande.jsonld-demande.out"];
+               "text/html": components["schemas"]["Demande-demande.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Updates the Demande resource.
+    * @description Updates the Demande resource.
+    */
+   api_demandes_id_patch: {
+      parameters: {
+         path: {
+            /** @description Demande identifier */
+            id: string;
+         };
+      };
+      /** @description The updated Demande resource */
+      requestBody: {
+         content: {
+            "application/merge-patch+json": components["schemas"]["Demande-demande.modif"];
+         };
+      };
+      responses: {
+         /** @description Demande resource updated */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["Demande.jsonld-demande.out"];
+               "text/html": components["schemas"]["Demande-demande.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of EtapeDemande resources.
+    * @description Retrieves the collection of EtapeDemande resources.
+    */
+   api_etapes_demandes_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+         };
+      };
+      responses: {
+         /** @description EtapeDemande collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["EtapeDemande.jsonld-etape_demande.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["EtapeDemande-etape_demande.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Retrieves a EtapeDemande resource.
+    * @description Retrieves a EtapeDemande resource.
+    */
+   api_etapes_demandes_id_get: {
+      parameters: {
+         path: {
+            /** @description EtapeDemande identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description EtapeDemande resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["EtapeDemande.jsonld-etape_demande.out"];
+               "text/html": components["schemas"]["EtapeDemande-etape_demande.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a Question resource.
+    * @description Retrieves a Question resource.
+    */
+   api_questions_id_get: {
+      parameters: {
+         path: {
+            /** @description Question identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description Question resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["Question.jsonld-question.out"];
+               "text/html": components["schemas"]["Question-question.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of TypeDemande resources.
+    * @description Retrieves the collection of TypeDemande resources.
+    */
+   api_types_demandes_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            "order[libelle]"?: "asc" | "desc";
+         };
+      };
+      responses: {
+         /** @description TypeDemande collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["TypeDemande.jsonld-type_demande.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["TypeDemande-type_demande.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Creates a TypeDemande resource.
+    * @description Creates a TypeDemande resource.
+    */
+   api_types_demandes_post: {
+      /** @description The new TypeDemande resource */
+      requestBody: {
+         content: {
+            "application/ld+json": components["schemas"]["TypeDemande.jsonld-type_demande.in"];
+            "text/html": components["schemas"]["TypeDemande-type_demande.in"];
+         };
+      };
+      responses: {
+         /** @description TypeDemande resource created */
+         201: {
+            content: {
+               "application/ld+json": components["schemas"]["TypeDemande.jsonld-type_demande.out"];
+               "text/html": components["schemas"]["TypeDemande-type_demande.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a TypeDemande resource.
+    * @description Retrieves a TypeDemande resource.
+    */
+   api_types_demandes_id_get: {
+      parameters: {
+         path: {
+            /** @description TypeDemande identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description TypeDemande resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["TypeDemande.jsonld-type_demande.out"];
+               "text/html": components["schemas"]["TypeDemande-type_demande.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Updates the TypeDemande resource.
+    * @description Updates the TypeDemande resource.
+    */
+   api_types_demandes_id_patch: {
+      parameters: {
+         path: {
+            /** @description TypeDemande identifier */
+            id: string;
+         };
+      };
+      /** @description The updated TypeDemande resource */
+      requestBody: {
+         content: {
+            "application/merge-patch+json": components["schemas"]["TypeDemande-type_demande.in"];
+         };
+      };
+      responses: {
+         /** @description TypeDemande resource updated */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["TypeDemande.jsonld-type_demande.out"];
+               "text/html": components["schemas"]["TypeDemande-type_demande.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of CampagneDemande resources.
+    * @description Retrieves the collection of CampagneDemande resources.
+    */
+   api_types_demandes_typeIdcampagnes_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+         };
+         path: {
+            /** @description CampagneDemande identifier */
+            typeId: string;
+         };
+      };
+      responses: {
+         /** @description CampagneDemande collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["CampagneDemande.jsonld-campagne.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["CampagneDemande-campagne.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Creates a CampagneDemande resource.
+    * @description Creates a CampagneDemande resource.
+    */
+   api_types_demandes_typeIdcampagnes_post: {
+      parameters: {
+         path: {
+            /** @description CampagneDemande identifier */
+            typeId: string;
+         };
+      };
+      /** @description The new CampagneDemande resource */
+      requestBody: {
+         content: {
+            "application/ld+json": components["schemas"]["CampagneDemande.jsonld-campagne.in"];
+            "text/html": components["schemas"]["CampagneDemande-campagne.in"];
+         };
+      };
+      responses: {
+         /** @description CampagneDemande resource created */
+         201: {
+            content: {
+               "application/ld+json": components["schemas"]["CampagneDemande.jsonld-campagne.out"];
+               "text/html": components["schemas"]["CampagneDemande-campagne.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a CampagneDemande resource.
+    * @description Retrieves a CampagneDemande resource.
+    */
+   api_types_demandes_typeIdcampagnes_id_get: {
+      parameters: {
+         path: {
+            /** @description CampagneDemande identifier */
+            id: string;
+            /** @description CampagneDemande identifier */
+            typeId: string;
+         };
+      };
+      responses: {
+         /** @description CampagneDemande resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["CampagneDemande.jsonld-campagne.out"];
+               "text/html": components["schemas"]["CampagneDemande-campagne.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Updates the CampagneDemande resource.
+    * @description Updates the CampagneDemande resource.
+    */
+   api_types_demandes_typeIdcampagnes_id_patch: {
+      parameters: {
+         path: {
+            /** @description CampagneDemande identifier */
+            id: string;
+            /** @description CampagneDemande identifier */
+            typeId: string;
+         };
+      };
+      /** @description The updated CampagneDemande resource */
+      requestBody: {
+         content: {
+            "application/merge-patch+json": components["schemas"]["CampagneDemande-campagne.in"];
+         };
+      };
+      responses: {
+         /** @description CampagneDemande resource updated */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["CampagneDemande.jsonld-campagne.out"];
+               "text/html": components["schemas"]["CampagneDemande-campagne.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of Demande resources.
+    * @description Retrieves the collection of Demande resources.
+    */
+   api_utilisateurs_uiddemandes_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            "demandeur.nom"?: string;
+            "demandeur.prenom"?: string;
+            etat?: string;
+            "etat[]"?: string[];
+            "campagne.typeDemande"?: string;
+            "campagne.typeDemande[]"?: string[];
+            "campagne.typeDemande.libelle"?: string;
+            campagne?: string;
+            "campagne[]"?: string[];
+            demandeur?: string;
+            "demandeur[]"?: string[];
+            gestionnaire?: string;
+            "gestionnaire[]"?: string[];
+            libelleComposante?: string;
+            "libelleComposante[]"?: string[];
+            libelleFormation?: string;
+            "libelleFormation[]"?: string[];
+            composante?: string;
+            "composante[]"?: string[];
+            formation?: string;
+            "formation[]"?: string[];
+            discipline?: string;
+            "discipline[]"?: string[];
+            "order[demandeur.nom]"?: "asc" | "desc";
+            "order[dateDepot]"?: "asc" | "desc";
+            format_simple?: boolean;
+            archivees?: boolean;
+         };
+         path: {
+            /** @description Demande identifier */
+            uid: string;
+         };
+      };
+      responses: {
+         /** @description Demande collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["Demande.jsonld-demande.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["Demande-demande.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of Entretien resources.
+    * @description Retrieves the collection of Entretien resources.
+    */
+   api_utilisateurs_uidentretiens_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            "order[date]"?: "asc" | "desc";
+         };
+         path: {
+            /** @description Entretien identifier */
+            uid: string;
+         };
+      };
+      responses: {
+         /** @description Entretien collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["Entretien.jsonld-entretien.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["Entretien-entretien.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Creates a Entretien resource.
+    * @description Creates a Entretien resource.
+    */
+   api_utilisateurs_uidentretiens_post: {
+      parameters: {
+         path: {
+            /** @description Entretien identifier */
+            uid: string;
+         };
+      };
+      /** @description The new Entretien resource */
+      requestBody: {
+         content: {
+            "application/ld+json": components["schemas"]["Entretien.jsonld-entretien.in"];
+            "text/html": components["schemas"]["Entretien-entretien.in"];
+         };
+      };
+      responses: {
+         /** @description Entretien resource created */
+         201: {
+            content: {
+               "application/ld+json": components["schemas"]["Entretien.jsonld-entretien.out"];
+               "text/html": components["schemas"]["Entretien-entretien.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a Entretien resource.
+    * @description Retrieves a Entretien resource.
+    */
+   api_utilisateurs_uidentretiens_id_get: {
+      parameters: {
+         path: {
+            /** @description Entretien identifier */
+            uid: string;
+            /** @description Entretien identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description Entretien resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["Entretien.jsonld-entretien.out"];
+               "text/html": components["schemas"]["Entretien-entretien.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Removes the Entretien resource.
+    * @description Removes the Entretien resource.
+    */
+   api_utilisateurs_uidentretiens_id_delete: {
+      parameters: {
+         path: {
+            /** @description Entretien identifier */
+            uid: string;
+            /** @description Entretien identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description Entretien resource deleted */
+         204: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Updates the Entretien resource.
+    * @description Updates the Entretien resource.
+    */
+   api_utilisateurs_uidentretiens_id_patch: {
+      parameters: {
+         path: {
+            /** @description Entretien identifier */
+            uid: string;
+            /** @description Entretien identifier */
+            id: string;
+         };
+      };
+      /** @description The updated Entretien resource */
+      requestBody: {
+         content: {
+            "application/merge-patch+json": components["schemas"]["Entretien-entretien.in"];
+         };
+      };
+      responses: {
+         /** @description Entretien resource updated */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["Entretien.jsonld-entretien.out"];
+               "text/html": components["schemas"]["Entretien-entretien.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of Evenement resources.
+    * @description Retrieves the collection of Evenement resources.
+    */
+   api_evenements_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            type?: string;
+            "type[]"?: string[];
+            campus?: string;
+            "campus[]"?: string[];
+            "type.avecValidation"?: boolean;
+            "type.avecValidation[]"?: boolean[];
+            "type.forfait"?: boolean;
+            "type.forfait[]"?: boolean[];
+            "exists[periodePriseEnCompteRH]"?: boolean;
+            "exists[dateAnnulation]"?: boolean;
+            "exists[intervenant]"?: boolean;
+            "exists[beneficiaires]"?: boolean;
+            "debut[before]"?: string;
+            "debut[strictly_before]"?: string;
+            "debut[after]"?: string;
+            "debut[strictly_after]"?: string;
+            "fin[before]"?: string;
+            "fin[strictly_before]"?: string;
+            "fin[after]"?: string;
+            "fin[strictly_after]"?: string;
+            intervenant?: string;
+            "intervenant[]"?: string[];
+            beneficiaires?: string;
+            "beneficiaires[]"?: string[];
+            suppleants?: string;
+            "suppleants[]"?: string[];
+            utilisateurCreation?: string;
+            "utilisateurCreation[]"?: string[];
+            aValider?: boolean;
+            nomIntervenant?: string;
+         };
+      };
+      responses: {
+         /** @description Evenement collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["Evenement.jsonld-evenement.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["Evenement-evenement.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Creates a Evenement resource.
+    * @description Creates a Evenement resource.
+    */
+   api_evenements_post: {
+      /** @description The new Evenement resource */
+      requestBody: {
+         content: {
+            "application/ld+json": components["schemas"]["Evenement.jsonld-evenement.in"];
+            "text/html": components["schemas"]["Evenement-evenement.in"];
+         };
+      };
+      responses: {
+         /** @description Evenement resource created */
+         201: {
+            content: {
+               "application/ld+json": components["schemas"]["Evenement.jsonld-evenement.out"];
+               "text/html": components["schemas"]["Evenement-evenement.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a Evenement resource.
+    * @description Retrieves a Evenement resource.
+    */
+   api_evenements_id_get: {
+      parameters: {
+         path: {
+            /** @description Evenement identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description Evenement resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["Evenement.jsonld-evenement.out"];
+               "text/html": components["schemas"]["Evenement-evenement.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Removes the Evenement resource.
+    * @description Removes the Evenement resource.
+    */
+   api_evenements_id_delete: {
+      parameters: {
+         path: {
+            /** @description Evenement identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description Evenement resource deleted */
+         204: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Updates the Evenement resource.
+    * @description Updates the Evenement resource.
+    */
+   api_evenements_id_patch: {
+      parameters: {
+         path: {
+            /** @description Evenement identifier */
+            id: string;
+         };
+      };
+      /** @description The updated Evenement resource */
+      requestBody: {
+         content: {
+            "application/merge-patch+json": components["schemas"]["Evenement-evenement.in"];
+         };
+      };
+      responses: {
+         /** @description Evenement resource updated */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["Evenement.jsonld-evenement.out"];
+               "text/html": components["schemas"]["Evenement-evenement.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of InterventionForfait resources.
+    * @description Retrieves the collection of InterventionForfait resources.
+    */
+   api_interventions_forfait_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            periode?: string;
+            "periode[]"?: string[];
+            type?: string;
+            "type[]"?: string[];
+            intervenant?: string;
+            "intervenant[]"?: string[];
+            utilisateurCreation?: string;
+            "utilisateurCreation[]"?: string[];
+            nomIntervenant?: string;
+            "order[intervenant.utilisateur.nom]"?: "asc" | "desc";
+            "periode.debut[before]"?: string;
+            "periode.debut[strictly_before]"?: string;
+            "periode.debut[after]"?: string;
+            "periode.debut[strictly_after]"?: string;
+            "periode.fin[before]"?: string;
+            "periode.fin[strictly_before]"?: string;
+            "periode.fin[after]"?: string;
+            "periode.fin[strictly_after]"?: string;
+         };
+      };
+      responses: {
+         /** @description InterventionForfait collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["InterventionForfait.jsonld-forfait.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["InterventionForfait-forfait.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Creates a InterventionForfait resource.
+    * @description Creates a InterventionForfait resource.
+    */
+   api_interventions_forfait_post: {
+      /** @description The new InterventionForfait resource */
+      requestBody: {
+         content: {
+            "application/ld+json": components["schemas"]["InterventionForfait.jsonld-forfait.in"];
+            "text/html": components["schemas"]["InterventionForfait-forfait.in"];
+         };
+      };
+      responses: {
+         /** @description InterventionForfait resource created */
+         201: {
+            content: {
+               "application/ld+json": components["schemas"]["InterventionForfait.jsonld-forfait.out"];
+               "text/html": components["schemas"]["InterventionForfait-forfait.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a InterventionForfait resource.
+    * @description Retrieves a InterventionForfait resource.
+    */
+   api_interventions_forfait_id_get: {
+      parameters: {
+         path: {
+            /** @description InterventionForfait identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description InterventionForfait resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["InterventionForfait.jsonld-forfait.out"];
+               "text/html": components["schemas"]["InterventionForfait-forfait.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Removes the InterventionForfait resource.
+    * @description Removes the InterventionForfait resource.
+    */
+   api_interventions_forfait_id_delete: {
+      parameters: {
+         path: {
+            /** @description InterventionForfait identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description InterventionForfait resource deleted */
+         204: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Updates the InterventionForfait resource.
+    * @description Updates the InterventionForfait resource.
+    */
+   api_interventions_forfait_id_patch: {
+      parameters: {
+         path: {
+            /** @description InterventionForfait identifier */
+            id: string;
+         };
+      };
+      /** @description The updated InterventionForfait resource */
+      requestBody: {
+         content: {
+            "application/merge-patch+json": components["schemas"]["InterventionForfait-forfait.in"];
+         };
+      };
+      responses: {
+         /** @description InterventionForfait resource updated */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["InterventionForfait.jsonld-forfait.out"];
+               "text/html": components["schemas"]["InterventionForfait-forfait.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
             content: never;
          };
       };
@@ -6427,318 +8051,6 @@ export interface operations {
       };
    };
    /**
-    * Retrieves the collection of Commission resources.
-    * @description Retrieves the collection of Commission resources.
-    */
-   api_commissions_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            "order[libelle]"?: "asc" | "desc";
-         };
-      };
-      responses: {
-         /** @description Commission collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["Commission.jsonld-commission.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["Commission-commission.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Creates a Commission resource.
-    * @description Creates a Commission resource.
-    */
-   api_commissions_post: {
-      /** @description The new Commission resource */
-      requestBody: {
-         content: {
-            "application/ld+json": components["schemas"]["Commission.jsonld-commission.in"];
-            "text/html": components["schemas"]["Commission-commission.in"];
-         };
-      };
-      responses: {
-         /** @description Commission resource created */
-         201: {
-            content: {
-               "application/ld+json": components["schemas"]["Commission.jsonld-commission.out"];
-               "text/html": components["schemas"]["Commission-commission.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of MembreCommission resources.
-    * @description Retrieves the collection of MembreCommission resources.
-    */
-   api_commissions_commissionIdmembres_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-         };
-         path: {
-            /** @description MembreCommission identifier */
-            commissionId: string;
-         };
-      };
-      responses: {
-         /** @description MembreCommission collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["MembreCommission.jsonld-membre_commission.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["MembreCommission-membre_commission.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Retrieves a MembreCommission resource.
-    * @description Retrieves a MembreCommission resource.
-    */
-   api_commissions_commissionIdmembres_uid_get: {
-      parameters: {
-         path: {
-            /** @description MembreCommission identifier */
-            commissionId: string;
-            /** @description MembreCommission identifier */
-            uid: string;
-         };
-      };
-      responses: {
-         /** @description MembreCommission resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["MembreCommission.jsonld-membre_commission.out"];
-               "text/html": components["schemas"]["MembreCommission-membre_commission.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Replaces the MembreCommission resource.
-    * @description Replaces the MembreCommission resource.
-    */
-   api_commissions_commissionIdmembres_uid_put: {
-      parameters: {
-         path: {
-            /** @description MembreCommission identifier */
-            commissionId: string;
-            /** @description MembreCommission identifier */
-            uid: string;
-         };
-      };
-      /** @description The updated MembreCommission resource */
-      requestBody: {
-         content: {
-            "application/ld+json": components["schemas"]["MembreCommission.jsonld-membre_commission.in"];
-            "text/html": components["schemas"]["MembreCommission-membre_commission.in"];
-         };
-      };
-      responses: {
-         /** @description MembreCommission resource updated */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["MembreCommission.jsonld-membre_commission.out"];
-               "text/html": components["schemas"]["MembreCommission-membre_commission.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Removes the MembreCommission resource.
-    * @description Removes the MembreCommission resource.
-    */
-   api_commissions_commissionIdmembres_uid_delete: {
-      parameters: {
-         path: {
-            /** @description MembreCommission identifier */
-            commissionId: string;
-            /** @description MembreCommission identifier */
-            uid: string;
-         };
-      };
-      responses: {
-         /** @description MembreCommission resource deleted */
-         204: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves a Commission resource.
-    * @description Retrieves a Commission resource.
-    */
-   api_commissions_id_get: {
-      parameters: {
-         path: {
-            /** @description Commission identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description Commission resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["Commission.jsonld-commission.out"];
-               "text/html": components["schemas"]["Commission-commission.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Updates the Commission resource.
-    * @description Updates the Commission resource.
-    */
-   api_commissions_id_patch: {
-      parameters: {
-         path: {
-            /** @description Commission identifier */
-            id: string;
-         };
-      };
-      /** @description The updated Commission resource */
-      requestBody: {
-         content: {
-            "application/merge-patch+json": components["schemas"]["Commission-commission.in"];
-         };
-      };
-      responses: {
-         /** @description Commission resource updated */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["Commission.jsonld-commission.out"];
-               "text/html": components["schemas"]["Commission-commission.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
     * Retrieves the collection of Competence resources.
     * @description Retrieves the collection of Competence resources.
     */
@@ -7002,355 +8314,6 @@ export interface operations {
             content: {
                "application/ld+json": components["schemas"]["Composante.jsonld-composante.out"];
                "text/html": components["schemas"]["Composante-composante.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of Demande resources.
-    * @description Retrieves the collection of Demande resources.
-    */
-   api_demandes_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            "demandeur.nom"?: string;
-            "demandeur.prenom"?: string;
-            etat?: string;
-            "etat[]"?: string[];
-            "campagne.typeDemande"?: string;
-            "campagne.typeDemande[]"?: string[];
-            "campagne.typeDemande.libelle"?: string;
-            campagne?: string;
-            "campagne[]"?: string[];
-            demandeur?: string;
-            "demandeur[]"?: string[];
-            gestionnaire?: string;
-            "gestionnaire[]"?: string[];
-            libelleComposante?: string;
-            "libelleComposante[]"?: string[];
-            libelleFormation?: string;
-            "libelleFormation[]"?: string[];
-            composante?: string;
-            "composante[]"?: string[];
-            formation?: string;
-            "formation[]"?: string[];
-            discipline?: string;
-            "discipline[]"?: string[];
-            "order[demandeur.nom]"?: "asc" | "desc";
-            "order[dateDepot]"?: "asc" | "desc";
-            format_simple?: boolean;
-            archivees?: boolean;
-         };
-      };
-      responses: {
-         /** @description Demande collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["Demande.jsonld-demande.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["Demande-demande.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Creates a Demande resource.
-    * @description Creates a Demande resource.
-    */
-   api_demandes_post: {
-      /** @description The new Demande resource */
-      requestBody: {
-         content: {
-            "application/ld+json": components["schemas"]["Demande.jsonld-demande.in"];
-            "text/html": components["schemas"]["Demande-demande.in"];
-         };
-      };
-      responses: {
-         /** @description Demande resource created */
-         201: {
-            content: {
-               "application/ld+json": components["schemas"]["Demande.jsonld-demande.out"];
-               "text/html": components["schemas"]["Demande-demande.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of ModificationEtatDemande resources.
-    * @description Retrieves the collection of ModificationEtatDemande resources.
-    */
-   api_demandes_demandeIdmodifications_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            "order[dateModification]"?: "asc" | "desc";
-            "order[id]"?: "asc" | "desc";
-            "dateModification[before]"?: string;
-            "dateModification[strictly_before]"?: string;
-            "dateModification[after]"?: string;
-            "dateModification[strictly_after]"?: string;
-            demande?: string;
-            "demande[]"?: string[];
-         };
-         path: {
-            /** @description ModificationEtatDemande identifier */
-            demandeId: string;
-         };
-      };
-      responses: {
-         /** @description ModificationEtatDemande collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["ModificationEtatDemande.jsonld"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["ModificationEtatDemande"][];
-            };
-         };
-      };
-   };
-   /**
-    * Retrieves a ModificationEtatDemande resource.
-    * @description Retrieves a ModificationEtatDemande resource.
-    */
-   api_demandes_demandeIdmodifications_id_get: {
-      parameters: {
-         path: {
-            /** @description ModificationEtatDemande identifier */
-            demandeId: string;
-            /** @description ModificationEtatDemande identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description ModificationEtatDemande resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["ModificationEtatDemande.jsonld"];
-               "text/html": components["schemas"]["ModificationEtatDemande"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves a Reponse resource.
-    * @description Retrieves a Reponse resource.
-    */
-   api_demandes_demandeIdquestions_questionIdreponse_get: {
-      parameters: {
-         path: {
-            /** @description Reponse identifier */
-            demandeId: string;
-            /** @description Reponse identifier */
-            questionId: string;
-         };
-      };
-      responses: {
-         /** @description Reponse resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["Reponse.jsonld-reponse.out"];
-               "text/html": components["schemas"]["Reponse-reponse.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Replaces the Reponse resource.
-    * @description Replaces the Reponse resource.
-    */
-   api_demandes_demandeIdquestions_questionIdreponse_put: {
-      parameters: {
-         path: {
-            /** @description Reponse identifier */
-            demandeId: string;
-            /** @description Reponse identifier */
-            questionId: string;
-         };
-      };
-      /** @description The updated Reponse resource */
-      requestBody: {
-         content: {
-            "application/ld+json": components["schemas"]["Reponse.jsonld-reponse.in"];
-            "text/html": components["schemas"]["Reponse-reponse.in"];
-         };
-      };
-      responses: {
-         /** @description Reponse resource updated */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["Reponse.jsonld-reponse.out"];
-               "text/html": components["schemas"]["Reponse-reponse.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves a Demande resource.
-    * @description Retrieves a Demande resource.
-    */
-   api_demandes_id_get: {
-      parameters: {
-         path: {
-            /** @description Demande identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description Demande resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["Demande.jsonld-demande.out"];
-               "text/html": components["schemas"]["Demande-demande.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Updates the Demande resource.
-    * @description Updates the Demande resource.
-    */
-   api_demandes_id_patch: {
-      parameters: {
-         path: {
-            /** @description Demande identifier */
-            id: string;
-         };
-      };
-      /** @description The updated Demande resource */
-      requestBody: {
-         content: {
-            "application/merge-patch+json": components["schemas"]["Demande-demande.modif"];
-         };
-      };
-      responses: {
-         /** @description Demande resource updated */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["Demande.jsonld-demande.out"];
-               "text/html": components["schemas"]["Demande-demande.out"];
             };
          };
          /** @description Invalid input */
@@ -7833,91 +8796,6 @@ export interface operations {
       };
    };
    /**
-    * Retrieves the collection of EtapeDemande resources.
-    * @description Retrieves the collection of EtapeDemande resources.
-    */
-   api_etapes_demandes_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-         };
-      };
-      responses: {
-         /** @description EtapeDemande collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["EtapeDemande.jsonld-etape_demande.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["EtapeDemande-etape_demande.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Retrieves a EtapeDemande resource.
-    * @description Retrieves a EtapeDemande resource.
-    */
-   api_etapes_demandes_id_get: {
-      parameters: {
-         path: {
-            /** @description EtapeDemande identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description EtapeDemande resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["EtapeDemande.jsonld-etape_demande.out"];
-               "text/html": components["schemas"]["EtapeDemande-etape_demande.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
     * Retrieves the collection of EtatDemande resources.
     * @description Retrieves the collection of EtatDemande resources.
     */
@@ -7998,212 +8876,6 @@ export interface operations {
          };
          /** @description Resource not found */
          404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of Evenement resources.
-    * @description Retrieves the collection of Evenement resources.
-    */
-   api_evenements_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            type?: string;
-            "type[]"?: string[];
-            campus?: string;
-            "campus[]"?: string[];
-            "type.avecValidation"?: boolean;
-            "type.avecValidation[]"?: boolean[];
-            "type.forfait"?: boolean;
-            "type.forfait[]"?: boolean[];
-            "exists[periodePriseEnCompteRH]"?: boolean;
-            "exists[dateAnnulation]"?: boolean;
-            "exists[intervenant]"?: boolean;
-            "exists[beneficiaires]"?: boolean;
-            "debut[before]"?: string;
-            "debut[strictly_before]"?: string;
-            "debut[after]"?: string;
-            "debut[strictly_after]"?: string;
-            "fin[before]"?: string;
-            "fin[strictly_before]"?: string;
-            "fin[after]"?: string;
-            "fin[strictly_after]"?: string;
-            intervenant?: string;
-            "intervenant[]"?: string[];
-            beneficiaires?: string;
-            "beneficiaires[]"?: string[];
-            suppleants?: string;
-            "suppleants[]"?: string[];
-            utilisateurCreation?: string;
-            "utilisateurCreation[]"?: string[];
-            aValider?: boolean;
-            nomIntervenant?: string;
-         };
-      };
-      responses: {
-         /** @description Evenement collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["Evenement.jsonld-evenement.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["Evenement-evenement.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Creates a Evenement resource.
-    * @description Creates a Evenement resource.
-    */
-   api_evenements_post: {
-      /** @description The new Evenement resource */
-      requestBody: {
-         content: {
-            "application/ld+json": components["schemas"]["Evenement.jsonld-evenement.in"];
-            "text/html": components["schemas"]["Evenement-evenement.in"];
-         };
-      };
-      responses: {
-         /** @description Evenement resource created */
-         201: {
-            content: {
-               "application/ld+json": components["schemas"]["Evenement.jsonld-evenement.out"];
-               "text/html": components["schemas"]["Evenement-evenement.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves a Evenement resource.
-    * @description Retrieves a Evenement resource.
-    */
-   api_evenements_id_get: {
-      parameters: {
-         path: {
-            /** @description Evenement identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description Evenement resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["Evenement.jsonld-evenement.out"];
-               "text/html": components["schemas"]["Evenement-evenement.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Removes the Evenement resource.
-    * @description Removes the Evenement resource.
-    */
-   api_evenements_id_delete: {
-      parameters: {
-         path: {
-            /** @description Evenement identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description Evenement resource deleted */
-         204: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Updates the Evenement resource.
-    * @description Updates the Evenement resource.
-    */
-   api_evenements_id_patch: {
-      parameters: {
-         path: {
-            /** @description Evenement identifier */
-            id: string;
-         };
-      };
-      /** @description The updated Evenement resource */
-      requestBody: {
-         content: {
-            "application/merge-patch+json": components["schemas"]["Evenement-evenement.in"];
-         };
-      };
-      responses: {
-         /** @description Evenement resource updated */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["Evenement.jsonld-evenement.out"];
-               "text/html": components["schemas"]["Evenement-evenement.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
             content: never;
          };
       };
@@ -8293,383 +8965,6 @@ export interface operations {
          };
          /** @description Resource not found */
          404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of Utilisateur resources.
-    * @description Retrieves the collection of Utilisateur resources.
-    */
-   intervenants: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            term?: string;
-            beneficiaire?: string;
-            "creneau[debut]"?: string;
-            "creneau[fin]"?: string;
-            recherche?: string;
-            tags?: string;
-            "tags[]"?: string[];
-            nom?: string;
-            prenom?: string;
-            "intervenant.typesEvenements"?: string;
-            "intervenant.typesEvenements[]"?: string[];
-            "intervenant.campuses"?: string;
-            "intervenant.campuses[]"?: string[];
-            "intervenant.competences"?: string;
-            "intervenant.competences[]"?: string[];
-            profil?: string;
-            libelleCampus?: string;
-            libelleComposante?: string;
-            nomGestionnaire?: string;
-            intervenantArchive?: boolean;
-            "order[nom]"?: "asc" | "desc";
-            "beneficiaires.avecAccompagnement"?: boolean;
-            gestionnaire?: string;
-            "gestionnaire[]"?: string[];
-            "exists[numeroEtudiant]"?: boolean;
-            composante?: string;
-            "composante[]"?: string[];
-            formation?: string;
-            "formation[]"?: string[];
-            etatAvisEse?: string;
-            etatDecisionAmenagement?: string;
-         };
-      };
-      responses: {
-         /** @description Utilisateur collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["Utilisateur.jsonld-utilisateur.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["Utilisateur-utilisateur.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of ServicesFaits resources.
-    * @description Retrieves the collection of ServicesFaits resources.
-    */
-   api_intervenants_uidservices_faits_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            "order[debut]"?: "asc" | "desc";
-         };
-         path: {
-            /** @description ServicesFaits identifier */
-            uid: string;
-         };
-      };
-      responses: {
-         /** @description ServicesFaits collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["ServicesFaits.jsonld-services_faits.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["ServicesFaits-services_faits.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Retrieves a ServicesFaits resource.
-    * @description Retrieves a ServicesFaits resource.
-    */
-   api_intervenants_uidservices_faits_id_get: {
-      parameters: {
-         path: {
-            /** @description ServicesFaits identifier */
-            uid: string;
-            /** @description ServicesFaits identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description ServicesFaits resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["ServicesFaits.jsonld-services_faits.out"];
-               "text/html": components["schemas"]["ServicesFaits-services_faits.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of InterventionForfait resources.
-    * @description Retrieves the collection of InterventionForfait resources.
-    */
-   api_interventions_forfait_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            periode?: string;
-            "periode[]"?: string[];
-            type?: string;
-            "type[]"?: string[];
-            intervenant?: string;
-            "intervenant[]"?: string[];
-            utilisateurCreation?: string;
-            "utilisateurCreation[]"?: string[];
-            nomIntervenant?: string;
-            "order[intervenant.utilisateur.nom]"?: "asc" | "desc";
-            "periode.debut[before]"?: string;
-            "periode.debut[strictly_before]"?: string;
-            "periode.debut[after]"?: string;
-            "periode.debut[strictly_after]"?: string;
-            "periode.fin[before]"?: string;
-            "periode.fin[strictly_before]"?: string;
-            "periode.fin[after]"?: string;
-            "periode.fin[strictly_after]"?: string;
-         };
-      };
-      responses: {
-         /** @description InterventionForfait collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["InterventionForfait.jsonld-forfait.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["InterventionForfait-forfait.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Creates a InterventionForfait resource.
-    * @description Creates a InterventionForfait resource.
-    */
-   api_interventions_forfait_post: {
-      /** @description The new InterventionForfait resource */
-      requestBody: {
-         content: {
-            "application/ld+json": components["schemas"]["InterventionForfait.jsonld-forfait.in"];
-            "text/html": components["schemas"]["InterventionForfait-forfait.in"];
-         };
-      };
-      responses: {
-         /** @description InterventionForfait resource created */
-         201: {
-            content: {
-               "application/ld+json": components["schemas"]["InterventionForfait.jsonld-forfait.out"];
-               "text/html": components["schemas"]["InterventionForfait-forfait.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves a InterventionForfait resource.
-    * @description Retrieves a InterventionForfait resource.
-    */
-   api_interventions_forfait_id_get: {
-      parameters: {
-         path: {
-            /** @description InterventionForfait identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description InterventionForfait resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["InterventionForfait.jsonld-forfait.out"];
-               "text/html": components["schemas"]["InterventionForfait-forfait.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Removes the InterventionForfait resource.
-    * @description Removes the InterventionForfait resource.
-    */
-   api_interventions_forfait_id_delete: {
-      parameters: {
-         path: {
-            /** @description InterventionForfait identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description InterventionForfait resource deleted */
-         204: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Updates the InterventionForfait resource.
-    * @description Updates the InterventionForfait resource.
-    */
-   api_interventions_forfait_id_patch: {
-      parameters: {
-         path: {
-            /** @description InterventionForfait identifier */
-            id: string;
-         };
-      };
-      /** @description The updated InterventionForfait resource */
-      requestBody: {
-         content: {
-            "application/merge-patch+json": components["schemas"]["InterventionForfait-forfait.in"];
-         };
-      };
-      responses: {
-         /** @description InterventionForfait resource updated */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["InterventionForfait.jsonld-forfait.out"];
-               "text/html": components["schemas"]["InterventionForfait-forfait.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
             content: never;
          };
       };
@@ -9042,32 +9337,6 @@ export interface operations {
       };
    };
    /**
-    * Retrieves a ServicesFaits resource.
-    * @description Retrieves a ServicesFaits resource.
-    */
-   api_periodes_idservices_faits_get: {
-      parameters: {
-         path: {
-            /** @description ServicesFaits identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description ServicesFaits resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["ServicesFaits.jsonld-services_faits.out"];
-               "text/csv": components["schemas"]["ServicesFaits-services_faits.out"];
-               "application/pdf": components["schemas"]["ServicesFaits-services_faits.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
     * Retrieves the collection of ProfilBeneficiaire resources.
     * @description Retrieves the collection of ProfilBeneficiaire resources.
     */
@@ -9219,217 +9488,6 @@ export interface operations {
          /** @description Unprocessable entity */
          422: {
             content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves a Question resource.
-    * @description Retrieves a Question resource.
-    */
-   api_questions_id_get: {
-      parameters: {
-         path: {
-            /** @description Question identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description Question resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["Question.jsonld-question.out"];
-               "text/html": components["schemas"]["Question-question.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of Utilisateur resources.
-    * @description Retrieves the collection of Utilisateur resources.
-    */
-   renforts: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            term?: string;
-            beneficiaire?: string;
-            "creneau[debut]"?: string;
-            "creneau[fin]"?: string;
-            recherche?: string;
-            tags?: string;
-            "tags[]"?: string[];
-            nom?: string;
-            prenom?: string;
-            "intervenant.typesEvenements"?: string;
-            "intervenant.typesEvenements[]"?: string[];
-            "intervenant.campuses"?: string;
-            "intervenant.campuses[]"?: string[];
-            "intervenant.competences"?: string;
-            "intervenant.competences[]"?: string[];
-            profil?: string;
-            libelleCampus?: string;
-            libelleComposante?: string;
-            nomGestionnaire?: string;
-            intervenantArchive?: boolean;
-            "order[nom]"?: "asc" | "desc";
-            "beneficiaires.avecAccompagnement"?: boolean;
-            gestionnaire?: string;
-            "gestionnaire[]"?: string[];
-            "exists[numeroEtudiant]"?: boolean;
-            composante?: string;
-            "composante[]"?: string[];
-            formation?: string;
-            "formation[]"?: string[];
-            etatAvisEse?: string;
-            etatDecisionAmenagement?: string;
-         };
-      };
-      responses: {
-         /** @description Utilisateur collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["Utilisateur.jsonld-utilisateur.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["Utilisateur-utilisateur.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of Utilisateur resources.
-    * @description Retrieves the collection of Utilisateur resources.
-    */
-   api_roles_roleIdutilisateurs_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            term?: string;
-            beneficiaire?: string;
-            "creneau[debut]"?: string;
-            "creneau[fin]"?: string;
-            recherche?: string;
-            tags?: string;
-            "tags[]"?: string[];
-            nom?: string;
-            prenom?: string;
-            "intervenant.typesEvenements"?: string;
-            "intervenant.typesEvenements[]"?: string[];
-            "intervenant.campuses"?: string;
-            "intervenant.campuses[]"?: string[];
-            "intervenant.competences"?: string;
-            "intervenant.competences[]"?: string[];
-            profil?: string;
-            libelleCampus?: string;
-            libelleComposante?: string;
-            nomGestionnaire?: string;
-            intervenantArchive?: boolean;
-            "order[nom]"?: "asc" | "desc";
-            "beneficiaires.avecAccompagnement"?: boolean;
-            gestionnaire?: string;
-            "gestionnaire[]"?: string[];
-            "exists[numeroEtudiant]"?: boolean;
-            composante?: string;
-            "composante[]"?: string[];
-            formation?: string;
-            "formation[]"?: string[];
-            etatAvisEse?: string;
-            etatDecisionAmenagement?: string;
-         };
-         path: {
-            /** @description Utilisateur identifier */
-            roleId: string;
-         };
-      };
-      responses: {
-         /** @description Utilisateur collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["Utilisateur.jsonld-utilisateur.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["Utilisateur-utilisateur.out"][];
-            };
          };
       };
    };
@@ -9805,387 +9863,6 @@ export interface operations {
       };
    };
    /**
-    * Retrieves a TableauDeBord resource.
-    * @description Retrieves a TableauDeBord resource.
-    */
-   api_statistiques_get: {
-      parameters: {
-         query?: {
-            /** @description utilisateur concerné */
-            utilisateur?: string;
-         };
-      };
-      responses: {
-         /** @description TableauDeBord resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["TableauDeBord.jsonld"];
-               "text/html": components["schemas"]["TableauDeBord"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of BilanActivite resources.
-    * @description Bilan activite
-    */
-   api_suivisactivite_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            "order[dateDemande]"?: "asc" | "desc";
-            demandeur?: string;
-            "demandeur[]"?: string[];
-         };
-      };
-      responses: {
-         /** @description BilanActivite collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["BilanActivite.jsonld-bilan-activite.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["BilanActivite-bilan-activite.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Creates a BilanActivite resource.
-    * @description Bilan activite
-    */
-   api_suivisactivite_post: {
-      /** @description The new BilanActivite resource */
-      requestBody: {
-         content: {
-            "application/ld+json": components["schemas"]["BilanActivite.jsonld-bilan-activite.in"];
-            "text/html": components["schemas"]["BilanActivite-bilan-activite.in"];
-         };
-      };
-      responses: {
-         /** @description BilanActivite resource created */
-         201: {
-            content: {
-               "application/ld+json": components["schemas"]["BilanActivite.jsonld-bilan-activite.out"];
-               "text/html": components["schemas"]["BilanActivite-bilan-activite.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves a BilanActivite resource.
-    * @description Bilan activite
-    */
-   api_suivisactivite_id_get: {
-      parameters: {
-         path: {
-            /** @description BilanActivite identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description BilanActivite resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["BilanActivite.jsonld-bilan-activite.out"];
-               "text/html": components["schemas"]["BilanActivite-bilan-activite.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Removes the BilanActivite resource.
-    * @description Bilan activite
-    */
-   api_suivisactivite_id_delete: {
-      parameters: {
-         path: {
-            /** @description BilanActivite identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description BilanActivite resource deleted */
-         204: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of ActiviteBeneficiaire resources.
-    * @description Retrieves the collection of ActiviteBeneficiaire resources.
-    */
-   api_suivisbeneficiaires_get_collection: {
-      parameters: {
-         query?: {
-            type?: string;
-            "type[]"?: string[];
-            campus?: string;
-            "campus[]"?: string[];
-            "beneficiaires.profil"?: string;
-            "beneficiaires.profil[]"?: string[];
-            "beneficiaires.typologies"?: string;
-            "beneficiaires.typologies[]"?: string[];
-            beneficiaires?: string;
-            "beneficiaires[]"?: string[];
-            "debut[before]"?: string;
-            "debut[strictly_before]"?: string;
-            "debut[after]"?: string;
-            "debut[strictly_after]"?: string;
-            "fin[before]"?: string;
-            "fin[strictly_before]"?: string;
-            "fin[after]"?: string;
-            "fin[strictly_after]"?: string;
-            "exists[dateAnnulation]"?: boolean;
-            periode?: string;
-            "periode[]"?: string[];
-         };
-      };
-      responses: {
-         /** @description ActiviteBeneficiaire collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["ActiviteBeneficiaire.jsonld-ActiviteBeneficiaire.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["ActiviteBeneficiaire-ActiviteBeneficiaire.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of BilanFinancier resources.
-    * @description Bilan financier
-    */
-   api_suivisfinanciersdebut_debutfin_fin_get_collection: {
-      parameters: {
-         query?: {
-            profil?: string;
-            "profil[]"?: string[];
-            "exists[dateAnnulation]"?: boolean;
-         };
-         path: {
-            /** @description BilanFinancier identifier */
-            debut: string;
-            /** @description BilanFinancier identifier */
-            fin: string;
-         };
-      };
-      responses: {
-         /** @description BilanFinancier collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["BilanFinancier.jsonld"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/csv": components["schemas"]["BilanFinancier"][];
-            };
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of ActiviteIntervenant resources.
-    * @description Retrieves the collection of ActiviteIntervenant resources.
-    */
-   api_suivisintervenants_get_collection: {
-      parameters: {
-         query?: {
-            type?: string;
-            "type[]"?: string[];
-            campus?: string;
-            "campus[]"?: string[];
-            intervenant?: string;
-            "intervenant[]"?: string[];
-            "debut[before]"?: string;
-            "debut[strictly_before]"?: string;
-            "debut[after]"?: string;
-            "debut[strictly_after]"?: string;
-            "fin[before]"?: string;
-            "fin[strictly_before]"?: string;
-            "fin[after]"?: string;
-            "fin[strictly_after]"?: string;
-            "exists[intervenant]"?: boolean;
-            "exists[dateAnnulation]"?: boolean;
-            periode?: string;
-            "periode[]"?: string[];
-         };
-      };
-      responses: {
-         /** @description ActiviteIntervenant collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["ActiviteIntervenant.jsonld-ActiviteIntervenant.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["ActiviteIntervenant-ActiviteIntervenant.out"][];
-            };
-         };
-      };
-   };
-   /**
     * Retrieves the collection of Tag resources.
     * @description Retrieves the collection of Tag resources.
     */
@@ -10341,62 +10018,6 @@ export interface operations {
       };
    };
    /**
-    * Creates a Telechargement resource.
-    * @description Creates a Telechargement resource.
-    */
-   api_telechargements_post: {
-      requestBody?: {
-         content: {
-            "multipart/form-data": {
-               /** Format: binary */
-               file?: string;
-            };
-         };
-      };
-      responses: {
-         /** @description Telechargement resource created */
-         201: {
-            content: {
-               "application/ld+json": components["schemas"]["Telechargement.jsonld-telechargement.out"];
-               "text/html": components["schemas"]["Telechargement-telechargement.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves a Telechargement resource.
-    * @description Retrieves a Telechargement resource.
-    */
-   api_telechargements_id_get: {
-      parameters: {
-         path: {
-            /** @description Telechargement identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description Telechargement resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["Telechargement.jsonld-telechargement.out"];
-               "text/html": components["schemas"]["Telechargement-telechargement.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
     * Retrieves the collection of TypeAmenagement resources.
     * @description Retrieves the collection of TypeAmenagement resources.
     */
@@ -10538,329 +10159,6 @@ export interface operations {
             content: {
                "application/ld+json": components["schemas"]["TypeAmenagement.jsonld-type_amenagement.out"];
                "text/html": components["schemas"]["TypeAmenagement-type_amenagement.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of TypeDemande resources.
-    * @description Retrieves the collection of TypeDemande resources.
-    */
-   api_types_demandes_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            "order[libelle]"?: "asc" | "desc";
-         };
-      };
-      responses: {
-         /** @description TypeDemande collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["TypeDemande.jsonld-type_demande.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["TypeDemande-type_demande.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Creates a TypeDemande resource.
-    * @description Creates a TypeDemande resource.
-    */
-   api_types_demandes_post: {
-      /** @description The new TypeDemande resource */
-      requestBody: {
-         content: {
-            "application/ld+json": components["schemas"]["TypeDemande.jsonld-type_demande.in"];
-            "text/html": components["schemas"]["TypeDemande-type_demande.in"];
-         };
-      };
-      responses: {
-         /** @description TypeDemande resource created */
-         201: {
-            content: {
-               "application/ld+json": components["schemas"]["TypeDemande.jsonld-type_demande.out"];
-               "text/html": components["schemas"]["TypeDemande-type_demande.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves a TypeDemande resource.
-    * @description Retrieves a TypeDemande resource.
-    */
-   api_types_demandes_id_get: {
-      parameters: {
-         path: {
-            /** @description TypeDemande identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description TypeDemande resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["TypeDemande.jsonld-type_demande.out"];
-               "text/html": components["schemas"]["TypeDemande-type_demande.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Updates the TypeDemande resource.
-    * @description Updates the TypeDemande resource.
-    */
-   api_types_demandes_id_patch: {
-      parameters: {
-         path: {
-            /** @description TypeDemande identifier */
-            id: string;
-         };
-      };
-      /** @description The updated TypeDemande resource */
-      requestBody: {
-         content: {
-            "application/merge-patch+json": components["schemas"]["TypeDemande-type_demande.in"];
-         };
-      };
-      responses: {
-         /** @description TypeDemande resource updated */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["TypeDemande.jsonld-type_demande.out"];
-               "text/html": components["schemas"]["TypeDemande-type_demande.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of CampagneDemande resources.
-    * @description Retrieves the collection of CampagneDemande resources.
-    */
-   api_types_demandes_typeIdcampagnes_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-         };
-         path: {
-            /** @description CampagneDemande identifier */
-            typeId: string;
-         };
-      };
-      responses: {
-         /** @description CampagneDemande collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["CampagneDemande.jsonld-campagne.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["CampagneDemande-campagne.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Creates a CampagneDemande resource.
-    * @description Creates a CampagneDemande resource.
-    */
-   api_types_demandes_typeIdcampagnes_post: {
-      parameters: {
-         path: {
-            /** @description CampagneDemande identifier */
-            typeId: string;
-         };
-      };
-      /** @description The new CampagneDemande resource */
-      requestBody: {
-         content: {
-            "application/ld+json": components["schemas"]["CampagneDemande.jsonld-campagne.in"];
-            "text/html": components["schemas"]["CampagneDemande-campagne.in"];
-         };
-      };
-      responses: {
-         /** @description CampagneDemande resource created */
-         201: {
-            content: {
-               "application/ld+json": components["schemas"]["CampagneDemande.jsonld-campagne.out"];
-               "text/html": components["schemas"]["CampagneDemande-campagne.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves a CampagneDemande resource.
-    * @description Retrieves a CampagneDemande resource.
-    */
-   api_types_demandes_typeIdcampagnes_id_get: {
-      parameters: {
-         path: {
-            /** @description CampagneDemande identifier */
-            id: string;
-            /** @description CampagneDemande identifier */
-            typeId: string;
-         };
-      };
-      responses: {
-         /** @description CampagneDemande resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["CampagneDemande.jsonld-campagne.out"];
-               "text/html": components["schemas"]["CampagneDemande-campagne.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Updates the CampagneDemande resource.
-    * @description Updates the CampagneDemande resource.
-    */
-   api_types_demandes_typeIdcampagnes_id_patch: {
-      parameters: {
-         path: {
-            /** @description CampagneDemande identifier */
-            id: string;
-            /** @description CampagneDemande identifier */
-            typeId: string;
-         };
-      };
-      /** @description The updated CampagneDemande resource */
-      requestBody: {
-         content: {
-            "application/merge-patch+json": components["schemas"]["CampagneDemande-campagne.in"];
-         };
-      };
-      responses: {
-         /** @description CampagneDemande resource updated */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["CampagneDemande.jsonld-campagne.out"];
-               "text/html": components["schemas"]["CampagneDemande-campagne.out"];
             };
          };
          /** @description Invalid input */
@@ -11846,6 +11144,1260 @@ export interface operations {
       };
    };
    /**
+    * Retrieves the collection of ServicesFaits resources.
+    * @description Retrieves the collection of ServicesFaits resources.
+    */
+   api_intervenants_uidservices_faits_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            "order[debut]"?: "asc" | "desc";
+         };
+         path: {
+            /** @description ServicesFaits identifier */
+            uid: string;
+         };
+      };
+      responses: {
+         /** @description ServicesFaits collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["ServicesFaits.jsonld-services_faits.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["ServicesFaits-services_faits.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Retrieves a ServicesFaits resource.
+    * @description Retrieves a ServicesFaits resource.
+    */
+   api_intervenants_uidservices_faits_id_get: {
+      parameters: {
+         path: {
+            /** @description ServicesFaits identifier */
+            uid: string;
+            /** @description ServicesFaits identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description ServicesFaits resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["ServicesFaits.jsonld-services_faits.out"];
+               "text/html": components["schemas"]["ServicesFaits-services_faits.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a ServicesFaits resource.
+    * @description Retrieves a ServicesFaits resource.
+    */
+   api_periodes_idservices_faits_get: {
+      parameters: {
+         path: {
+            /** @description ServicesFaits identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description ServicesFaits resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["ServicesFaits.jsonld-services_faits.out"];
+               "text/csv": components["schemas"]["ServicesFaits-services_faits.out"];
+               "application/pdf": components["schemas"]["ServicesFaits-services_faits.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of BilanActivite resources.
+    * @description Bilan activite
+    */
+   api_suivisactivite_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            "order[dateDemande]"?: "asc" | "desc";
+            demandeur?: string;
+            "demandeur[]"?: string[];
+         };
+      };
+      responses: {
+         /** @description BilanActivite collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["BilanActivite.jsonld-bilan-activite.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["BilanActivite-bilan-activite.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Creates a BilanActivite resource.
+    * @description Bilan activite
+    */
+   api_suivisactivite_post: {
+      /** @description The new BilanActivite resource */
+      requestBody: {
+         content: {
+            "application/ld+json": components["schemas"]["BilanActivite.jsonld-bilan-activite.in"];
+            "text/html": components["schemas"]["BilanActivite-bilan-activite.in"];
+         };
+      };
+      responses: {
+         /** @description BilanActivite resource created */
+         201: {
+            content: {
+               "application/ld+json": components["schemas"]["BilanActivite.jsonld-bilan-activite.out"];
+               "text/html": components["schemas"]["BilanActivite-bilan-activite.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a BilanActivite resource.
+    * @description Bilan activite
+    */
+   api_suivisactivite_id_get: {
+      parameters: {
+         path: {
+            /** @description BilanActivite identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description BilanActivite resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["BilanActivite.jsonld-bilan-activite.out"];
+               "text/html": components["schemas"]["BilanActivite-bilan-activite.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Removes the BilanActivite resource.
+    * @description Bilan activite
+    */
+   api_suivisactivite_id_delete: {
+      parameters: {
+         path: {
+            /** @description BilanActivite identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description BilanActivite resource deleted */
+         204: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of ActiviteBeneficiaire resources.
+    * @description Retrieves the collection of ActiviteBeneficiaire resources.
+    */
+   api_suivisbeneficiaires_get_collection: {
+      parameters: {
+         query?: {
+            type?: string;
+            "type[]"?: string[];
+            campus?: string;
+            "campus[]"?: string[];
+            "beneficiaires.profil"?: string;
+            "beneficiaires.profil[]"?: string[];
+            "beneficiaires.typologies"?: string;
+            "beneficiaires.typologies[]"?: string[];
+            beneficiaires?: string;
+            "beneficiaires[]"?: string[];
+            "debut[before]"?: string;
+            "debut[strictly_before]"?: string;
+            "debut[after]"?: string;
+            "debut[strictly_after]"?: string;
+            "fin[before]"?: string;
+            "fin[strictly_before]"?: string;
+            "fin[after]"?: string;
+            "fin[strictly_after]"?: string;
+            "exists[dateAnnulation]"?: boolean;
+            periode?: string;
+            "periode[]"?: string[];
+         };
+      };
+      responses: {
+         /** @description ActiviteBeneficiaire collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["ActiviteBeneficiaire.jsonld-ActiviteBeneficiaire.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["ActiviteBeneficiaire-ActiviteBeneficiaire.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of BilanFinancier resources.
+    * @description Bilan financier
+    */
+   api_suivisfinanciersdebut_debutfin_fin_get_collection: {
+      parameters: {
+         query?: {
+            profil?: string;
+            "profil[]"?: string[];
+            "exists[dateAnnulation]"?: boolean;
+         };
+         path: {
+            /** @description BilanFinancier identifier */
+            debut: string;
+            /** @description BilanFinancier identifier */
+            fin: string;
+         };
+      };
+      responses: {
+         /** @description BilanFinancier collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["BilanFinancier.jsonld"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/csv": components["schemas"]["BilanFinancier"][];
+            };
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of ActiviteIntervenant resources.
+    * @description Retrieves the collection of ActiviteIntervenant resources.
+    */
+   api_suivisintervenants_get_collection: {
+      parameters: {
+         query?: {
+            type?: string;
+            "type[]"?: string[];
+            campus?: string;
+            "campus[]"?: string[];
+            intervenant?: string;
+            "intervenant[]"?: string[];
+            "debut[before]"?: string;
+            "debut[strictly_before]"?: string;
+            "debut[after]"?: string;
+            "debut[strictly_after]"?: string;
+            "fin[before]"?: string;
+            "fin[strictly_before]"?: string;
+            "fin[after]"?: string;
+            "fin[strictly_after]"?: string;
+            "exists[intervenant]"?: boolean;
+            "exists[dateAnnulation]"?: boolean;
+            periode?: string;
+            "periode[]"?: string[];
+         };
+      };
+      responses: {
+         /** @description ActiviteIntervenant collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["ActiviteIntervenant.jsonld-ActiviteIntervenant.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["ActiviteIntervenant-ActiviteIntervenant.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Retrieves a TableauDeBord resource.
+    * @description Retrieves a TableauDeBord resource.
+    */
+   api_statistiques_get: {
+      parameters: {
+         query?: {
+            /** @description utilisateur concerné */
+            utilisateur?: string;
+         };
+      };
+      responses: {
+         /** @description TableauDeBord resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["TableauDeBord.jsonld"];
+               "text/html": components["schemas"]["TableauDeBord"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Creates a Telechargement resource.
+    * @description Creates a Telechargement resource.
+    */
+   api_telechargements_post: {
+      /** @description The new Telechargement resource */
+      requestBody?: {
+         content: {
+            "multipart/form-data": {
+               /** Format: binary */
+               file?: string;
+            };
+         };
+      };
+      responses: {
+         /** @description Telechargement resource created */
+         201: {
+            content: {
+               "application/ld+json": components["schemas"]["Telechargement.jsonld-telechargement.out"];
+               "text/html": components["schemas"]["Telechargement-telechargement.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a Telechargement resource.
+    * @description Retrieves a Telechargement resource.
+    */
+   api_telechargements_id_get: {
+      parameters: {
+         path: {
+            /** @description Telechargement identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description Telechargement resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["Telechargement.jsonld-telechargement.out"];
+               "text/html": components["schemas"]["Telechargement-telechargement.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of Amenagement resources.
+    * @description Retrieves the collection of Amenagement resources.
+    */
+   api_amenagements_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            type?: string;
+            "type[]"?: string[];
+            "type.categorie"?: string;
+            "type.categorie[]"?: string[];
+            suivi?: string;
+            "suivi[]"?: string[];
+            nom?: string;
+            "nom[]"?: string[];
+            "type.pedagogique"?: boolean;
+            "type.examens"?: boolean;
+            "type.aideHumaine"?: boolean;
+            composante?: string;
+            "composante[]"?: string[];
+            formation?: string;
+            "formation[]"?: string[];
+            tags?: string;
+            "tags[]"?: string[];
+            "order[beneficiaires.utilisateur.nom]"?: "asc" | "desc";
+            gestionnaire?: string;
+            "gestionnaire[]"?: string[];
+         };
+      };
+      responses: {
+         /** @description Amenagement collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["Amenagement.jsonld-amenagement.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["Amenagement-amenagement.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of Utilisateur resources.
+    * @description Retrieves the collection of Utilisateur resources.
+    */
+   api_amenagementsutilisateurs_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            benefAvecAmenagementEnCours?: boolean;
+            categorie?: string;
+            "categorie[]"?: string[];
+            type?: string;
+            "type[]"?: string[];
+            examens?: boolean;
+            pedagogique?: boolean;
+            aideHumaine?: boolean;
+            term?: string;
+            beneficiaire?: string;
+            "creneau[debut]"?: string;
+            "creneau[fin]"?: string;
+            recherche?: string;
+            tags?: string;
+            "tags[]"?: string[];
+            nom?: string;
+            prenom?: string;
+            "intervenant.typesEvenements"?: string;
+            "intervenant.typesEvenements[]"?: string[];
+            "intervenant.campuses"?: string;
+            "intervenant.campuses[]"?: string[];
+            "intervenant.competences"?: string;
+            "intervenant.competences[]"?: string[];
+            profil?: string;
+            libelleCampus?: string;
+            libelleComposante?: string;
+            nomGestionnaire?: string;
+            intervenantArchive?: boolean;
+            "order[nom]"?: "asc" | "desc";
+            "beneficiaires.avecAccompagnement"?: boolean;
+            gestionnaire?: string;
+            "gestionnaire[]"?: string[];
+            "exists[numeroEtudiant]"?: boolean;
+            composante?: string;
+            "composante[]"?: string[];
+            formation?: string;
+            "formation[]"?: string[];
+            etatAvisEse?: string;
+            etatDecisionAmenagement?: string;
+         };
+      };
+      responses: {
+         /** @description Utilisateur collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["Utilisateur.jsonld-amenagements_utilisateurs.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["Utilisateur-amenagements_utilisateurs.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of Utilisateur resources.
+    * @description Retrieves the collection of Utilisateur resources.
+    */
+   beneficiaires: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            term?: string;
+            beneficiaire?: string;
+            "creneau[debut]"?: string;
+            "creneau[fin]"?: string;
+            recherche?: string;
+            tags?: string;
+            "tags[]"?: string[];
+            nom?: string;
+            prenom?: string;
+            "intervenant.typesEvenements"?: string;
+            "intervenant.typesEvenements[]"?: string[];
+            "intervenant.campuses"?: string;
+            "intervenant.campuses[]"?: string[];
+            "intervenant.competences"?: string;
+            "intervenant.competences[]"?: string[];
+            profil?: string;
+            libelleCampus?: string;
+            libelleComposante?: string;
+            nomGestionnaire?: string;
+            intervenantArchive?: boolean;
+            "order[nom]"?: "asc" | "desc";
+            "beneficiaires.avecAccompagnement"?: boolean;
+            gestionnaire?: string;
+            "gestionnaire[]"?: string[];
+            "exists[numeroEtudiant]"?: boolean;
+            composante?: string;
+            "composante[]"?: string[];
+            formation?: string;
+            "formation[]"?: string[];
+            etatAvisEse?: string;
+            etatDecisionAmenagement?: string;
+         };
+      };
+      responses: {
+         /** @description Utilisateur collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["Utilisateur.jsonld-utilisateur.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["Utilisateur-utilisateur.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of PieceJointeBeneficiaire resources.
+    * @description Retrieves the collection of PieceJointeBeneficiaire resources.
+    */
+   api_beneficiaires_uidpieces_jointes_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+         };
+         path: {
+            /** @description PieceJointeBeneficiaire identifier */
+            uid: string;
+         };
+      };
+      responses: {
+         /** @description PieceJointeBeneficiaire collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["PieceJointeBeneficiaire.jsonld-piece_beneficiaire.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["PieceJointeBeneficiaire-piece_beneficiaire.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Creates a PieceJointeBeneficiaire resource.
+    * @description Creates a PieceJointeBeneficiaire resource.
+    */
+   api_beneficiaires_uidpieces_jointes_post: {
+      parameters: {
+         path: {
+            /** @description PieceJointeBeneficiaire identifier */
+            uid: string;
+         };
+      };
+      /** @description The new PieceJointeBeneficiaire resource */
+      requestBody: {
+         content: {
+            "application/ld+json": components["schemas"]["PieceJointeBeneficiaire.jsonld-piece_beneficiaire.in"];
+            "text/html": components["schemas"]["PieceJointeBeneficiaire-piece_beneficiaire.in"];
+         };
+      };
+      responses: {
+         /** @description PieceJointeBeneficiaire resource created */
+         201: {
+            content: {
+               "application/ld+json": components["schemas"]["PieceJointeBeneficiaire.jsonld-piece_beneficiaire.out"];
+               "text/html": components["schemas"]["PieceJointeBeneficiaire-piece_beneficiaire.out"];
+            };
+         };
+         /** @description Invalid input */
+         400: {
+            content: never;
+         };
+         /** @description Unprocessable entity */
+         422: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves a PieceJointeBeneficiaire resource.
+    * @description Retrieves a PieceJointeBeneficiaire resource.
+    */
+   api_beneficiaires_uidpieces_jointes_id_get: {
+      parameters: {
+         path: {
+            /** @description PieceJointeBeneficiaire identifier */
+            uid: string;
+            /** @description PieceJointeBeneficiaire identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description PieceJointeBeneficiaire resource */
+         200: {
+            content: {
+               "application/ld+json": components["schemas"]["PieceJointeBeneficiaire.jsonld-piece_beneficiaire.out"];
+               "text/html": components["schemas"]["PieceJointeBeneficiaire-piece_beneficiaire.out"];
+            };
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Removes the PieceJointeBeneficiaire resource.
+    * @description Removes the PieceJointeBeneficiaire resource.
+    */
+   api_beneficiaires_uidpieces_jointes_id_delete: {
+      parameters: {
+         path: {
+            /** @description PieceJointeBeneficiaire identifier */
+            uid: string;
+            /** @description PieceJointeBeneficiaire identifier */
+            id: string;
+         };
+      };
+      responses: {
+         /** @description PieceJointeBeneficiaire resource deleted */
+         204: {
+            content: never;
+         };
+         /** @description Resource not found */
+         404: {
+            content: never;
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of Utilisateur resources.
+    * @description Retrieves the collection of Utilisateur resources.
+    */
+   intervenants: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            term?: string;
+            beneficiaire?: string;
+            "creneau[debut]"?: string;
+            "creneau[fin]"?: string;
+            recherche?: string;
+            tags?: string;
+            "tags[]"?: string[];
+            nom?: string;
+            prenom?: string;
+            "intervenant.typesEvenements"?: string;
+            "intervenant.typesEvenements[]"?: string[];
+            "intervenant.campuses"?: string;
+            "intervenant.campuses[]"?: string[];
+            "intervenant.competences"?: string;
+            "intervenant.competences[]"?: string[];
+            profil?: string;
+            libelleCampus?: string;
+            libelleComposante?: string;
+            nomGestionnaire?: string;
+            intervenantArchive?: boolean;
+            "order[nom]"?: "asc" | "desc";
+            "beneficiaires.avecAccompagnement"?: boolean;
+            gestionnaire?: string;
+            "gestionnaire[]"?: string[];
+            "exists[numeroEtudiant]"?: boolean;
+            composante?: string;
+            "composante[]"?: string[];
+            formation?: string;
+            "formation[]"?: string[];
+            etatAvisEse?: string;
+            etatDecisionAmenagement?: string;
+         };
+      };
+      responses: {
+         /** @description Utilisateur collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["Utilisateur.jsonld-utilisateur.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["Utilisateur-utilisateur.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of Utilisateur resources.
+    * @description Retrieves the collection of Utilisateur resources.
+    */
+   renforts: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            term?: string;
+            beneficiaire?: string;
+            "creneau[debut]"?: string;
+            "creneau[fin]"?: string;
+            recherche?: string;
+            tags?: string;
+            "tags[]"?: string[];
+            nom?: string;
+            prenom?: string;
+            "intervenant.typesEvenements"?: string;
+            "intervenant.typesEvenements[]"?: string[];
+            "intervenant.campuses"?: string;
+            "intervenant.campuses[]"?: string[];
+            "intervenant.competences"?: string;
+            "intervenant.competences[]"?: string[];
+            profil?: string;
+            libelleCampus?: string;
+            libelleComposante?: string;
+            nomGestionnaire?: string;
+            intervenantArchive?: boolean;
+            "order[nom]"?: "asc" | "desc";
+            "beneficiaires.avecAccompagnement"?: boolean;
+            gestionnaire?: string;
+            "gestionnaire[]"?: string[];
+            "exists[numeroEtudiant]"?: boolean;
+            composante?: string;
+            "composante[]"?: string[];
+            formation?: string;
+            "formation[]"?: string[];
+            etatAvisEse?: string;
+            etatDecisionAmenagement?: string;
+         };
+      };
+      responses: {
+         /** @description Utilisateur collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["Utilisateur.jsonld-utilisateur.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["Utilisateur-utilisateur.out"][];
+            };
+         };
+      };
+   };
+   /**
+    * Retrieves the collection of Utilisateur resources.
+    * @description Retrieves the collection of Utilisateur resources.
+    */
+   api_roles_roleIdutilisateurs_get_collection: {
+      parameters: {
+         query?: {
+            /** @description The collection page number */
+            page?: number;
+            /** @description The number of items per page */
+            itemsPerPage?: number;
+            term?: string;
+            beneficiaire?: string;
+            "creneau[debut]"?: string;
+            "creneau[fin]"?: string;
+            recherche?: string;
+            tags?: string;
+            "tags[]"?: string[];
+            nom?: string;
+            prenom?: string;
+            "intervenant.typesEvenements"?: string;
+            "intervenant.typesEvenements[]"?: string[];
+            "intervenant.campuses"?: string;
+            "intervenant.campuses[]"?: string[];
+            "intervenant.competences"?: string;
+            "intervenant.competences[]"?: string[];
+            profil?: string;
+            libelleCampus?: string;
+            libelleComposante?: string;
+            nomGestionnaire?: string;
+            intervenantArchive?: boolean;
+            "order[nom]"?: "asc" | "desc";
+            "beneficiaires.avecAccompagnement"?: boolean;
+            gestionnaire?: string;
+            "gestionnaire[]"?: string[];
+            "exists[numeroEtudiant]"?: boolean;
+            composante?: string;
+            "composante[]"?: string[];
+            formation?: string;
+            "formation[]"?: string[];
+            etatAvisEse?: string;
+            etatDecisionAmenagement?: string;
+         };
+         path: {
+            /** @description Utilisateur identifier */
+            roleId: string;
+         };
+      };
+      responses: {
+         /** @description Utilisateur collection */
+         200: {
+            content: {
+               "application/ld+json": {
+                  "hydra:member": components["schemas"]["Utilisateur.jsonld-utilisateur.out"][];
+                  "hydra:totalItems"?: number;
+                  /**
+                   * @example {
+                   *   "@id": "string",
+                   *   "type": "string",
+                   *   "hydra:first": "string",
+                   *   "hydra:last": "string",
+                   *   "hydra:previous": "string",
+                   *   "hydra:next": "string"
+                   * }
+                   */
+                  "hydra:view"?: {
+                     /** Format: iri-reference */
+                     "@id"?: string;
+                     "@type"?: string;
+                     /** Format: iri-reference */
+                     "hydra:first"?: string;
+                     /** Format: iri-reference */
+                     "hydra:last"?: string;
+                     /** Format: iri-reference */
+                     "hydra:previous"?: string;
+                     /** Format: iri-reference */
+                     "hydra:next"?: string;
+                  };
+                  "hydra:search"?: {
+                     "@type"?: string;
+                     "hydra:template"?: string;
+                     "hydra:variableRepresentation"?: string;
+                     "hydra:mapping"?: {
+                        "@type"?: string;
+                        variable?: string;
+                        property?: string | null;
+                        required?: boolean;
+                     }[];
+                  };
+               };
+               "text/html": components["schemas"]["Utilisateur-utilisateur.out"][];
+            };
+         };
+      };
+   };
+   /**
     * Retrieves the collection of Utilisateur resources.
     * @description Retrieves the collection of Utilisateur resources.
     */
@@ -12213,199 +12765,6 @@ export interface operations {
       };
    };
    /**
-    * Retrieves the collection of AvisEse resources.
-    * @description Retrieves the collection of AvisEse resources.
-    */
-   api_utilisateurs_uidavis_ese_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            "order[debut]"?: "asc" | "desc";
-         };
-         path: {
-            /** @description AvisEse identifier */
-            uid: string;
-         };
-      };
-      responses: {
-         /** @description AvisEse collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["AvisEse.jsonld-avis_ese.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["AvisEse-avis_ese.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Creates a AvisEse resource.
-    * @description Creates a AvisEse resource.
-    */
-   api_utilisateurs_uidavis_ese_post: {
-      parameters: {
-         path: {
-            /** @description AvisEse identifier */
-            uid: string;
-         };
-      };
-      /** @description The new AvisEse resource */
-      requestBody: {
-         content: {
-            "application/ld+json": components["schemas"]["AvisEse.jsonld-avis_ese.in"];
-            "text/html": components["schemas"]["AvisEse-avis_ese.in"];
-         };
-      };
-      responses: {
-         /** @description AvisEse resource created */
-         201: {
-            content: {
-               "application/ld+json": components["schemas"]["AvisEse.jsonld-avis_ese.out"];
-               "text/html": components["schemas"]["AvisEse-avis_ese.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves a AvisEse resource.
-    * @description Retrieves a AvisEse resource.
-    */
-   api_utilisateurs_uidavis_ese_id_get: {
-      parameters: {
-         path: {
-            /** @description AvisEse identifier */
-            uid: string;
-            /** @description AvisEse identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description AvisEse resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["AvisEse.jsonld-avis_ese.out"];
-               "text/html": components["schemas"]["AvisEse-avis_ese.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Removes the AvisEse resource.
-    * @description Removes the AvisEse resource.
-    */
-   api_utilisateurs_uidavis_ese_id_delete: {
-      parameters: {
-         path: {
-            /** @description AvisEse identifier */
-            uid: string;
-            /** @description AvisEse identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description AvisEse resource deleted */
-         204: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Updates the AvisEse resource.
-    * @description Updates the AvisEse resource.
-    */
-   api_utilisateurs_uidavis_ese_id_patch: {
-      parameters: {
-         path: {
-            /** @description AvisEse identifier */
-            uid: string;
-            /** @description AvisEse identifier */
-            id: string;
-         };
-      };
-      /** @description The updated AvisEse resource */
-      requestBody: {
-         content: {
-            "application/merge-patch+json": components["schemas"]["AvisEse-avis_ese.in"];
-         };
-      };
-      responses: {
-         /** @description AvisEse resource updated */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["AvisEse.jsonld-avis_ese.out"];
-               "text/html": components["schemas"]["AvisEse-avis_ese.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
     * Retrieves the collection of CharteUtilisateur resources.
     * @description Retrieves the collection of CharteUtilisateur resources.
     */
@@ -12521,358 +12880,6 @@ export interface operations {
             content: {
                "application/ld+json": components["schemas"]["CharteUtilisateur.jsonld"];
                "text/html": components["schemas"]["CharteUtilisateur"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves a DecisionAmenagementExamens resource.
-    * @description Retrieves a DecisionAmenagementExamens resource.
-    */
-   api_utilisateurs_uiddecisions_annee_get: {
-      parameters: {
-         path: {
-            /** @description DecisionAmenagementExamens identifier */
-            uid: string;
-            /** @description DecisionAmenagementExamens identifier */
-            annee: string;
-         };
-      };
-      responses: {
-         /** @description DecisionAmenagementExamens resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["DecisionAmenagementExamens.jsonld-decision.out"];
-               "application/pdf": components["schemas"]["DecisionAmenagementExamens-decision.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Updates the DecisionAmenagementExamens resource.
-    * @description Updates the DecisionAmenagementExamens resource.
-    */
-   api_utilisateurs_uiddecisions_annee_patch: {
-      parameters: {
-         path: {
-            /** @description DecisionAmenagementExamens identifier */
-            uid: string;
-            /** @description DecisionAmenagementExamens identifier */
-            annee: string;
-         };
-      };
-      /** @description The updated DecisionAmenagementExamens resource */
-      requestBody: {
-         content: {
-            "application/merge-patch+json": components["schemas"]["DecisionAmenagementExamens-decision.in"];
-         };
-      };
-      responses: {
-         /** @description DecisionAmenagementExamens resource updated */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["DecisionAmenagementExamens.jsonld-decision.out"];
-               "text/html": components["schemas"]["DecisionAmenagementExamens-decision.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of Demande resources.
-    * @description Retrieves the collection of Demande resources.
-    */
-   api_utilisateurs_uiddemandes_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            "demandeur.nom"?: string;
-            "demandeur.prenom"?: string;
-            etat?: string;
-            "etat[]"?: string[];
-            "campagne.typeDemande"?: string;
-            "campagne.typeDemande[]"?: string[];
-            "campagne.typeDemande.libelle"?: string;
-            campagne?: string;
-            "campagne[]"?: string[];
-            demandeur?: string;
-            "demandeur[]"?: string[];
-            gestionnaire?: string;
-            "gestionnaire[]"?: string[];
-            libelleComposante?: string;
-            "libelleComposante[]"?: string[];
-            libelleFormation?: string;
-            "libelleFormation[]"?: string[];
-            composante?: string;
-            "composante[]"?: string[];
-            formation?: string;
-            "formation[]"?: string[];
-            discipline?: string;
-            "discipline[]"?: string[];
-            "order[demandeur.nom]"?: "asc" | "desc";
-            "order[dateDepot]"?: "asc" | "desc";
-            format_simple?: boolean;
-            archivees?: boolean;
-         };
-         path: {
-            /** @description Demande identifier */
-            uid: string;
-         };
-      };
-      responses: {
-         /** @description Demande collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["Demande.jsonld-demande.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["Demande-demande.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Retrieves the collection of Entretien resources.
-    * @description Retrieves the collection of Entretien resources.
-    */
-   api_utilisateurs_uidentretiens_get_collection: {
-      parameters: {
-         query?: {
-            /** @description The collection page number */
-            page?: number;
-            /** @description The number of items per page */
-            itemsPerPage?: number;
-            "order[date]"?: "asc" | "desc";
-         };
-         path: {
-            /** @description Entretien identifier */
-            uid: string;
-         };
-      };
-      responses: {
-         /** @description Entretien collection */
-         200: {
-            content: {
-               "application/ld+json": {
-                  "hydra:member": components["schemas"]["Entretien.jsonld-entretien.out"][];
-                  "hydra:totalItems"?: number;
-                  /**
-                   * @example {
-                   *   "@id": "string",
-                   *   "type": "string",
-                   *   "hydra:first": "string",
-                   *   "hydra:last": "string",
-                   *   "hydra:previous": "string",
-                   *   "hydra:next": "string"
-                   * }
-                   */
-                  "hydra:view"?: {
-                     /** Format: iri-reference */
-                     "@id"?: string;
-                     "@type"?: string;
-                     /** Format: iri-reference */
-                     "hydra:first"?: string;
-                     /** Format: iri-reference */
-                     "hydra:last"?: string;
-                     /** Format: iri-reference */
-                     "hydra:previous"?: string;
-                     /** Format: iri-reference */
-                     "hydra:next"?: string;
-                  };
-                  "hydra:search"?: {
-                     "@type"?: string;
-                     "hydra:template"?: string;
-                     "hydra:variableRepresentation"?: string;
-                     "hydra:mapping"?: {
-                        "@type"?: string;
-                        variable?: string;
-                        property?: string | null;
-                        required?: boolean;
-                     }[];
-                  };
-               };
-               "text/html": components["schemas"]["Entretien-entretien.out"][];
-            };
-         };
-      };
-   };
-   /**
-    * Creates a Entretien resource.
-    * @description Creates a Entretien resource.
-    */
-   api_utilisateurs_uidentretiens_post: {
-      parameters: {
-         path: {
-            /** @description Entretien identifier */
-            uid: string;
-         };
-      };
-      /** @description The new Entretien resource */
-      requestBody: {
-         content: {
-            "application/ld+json": components["schemas"]["Entretien.jsonld-entretien.in"];
-            "text/html": components["schemas"]["Entretien-entretien.in"];
-         };
-      };
-      responses: {
-         /** @description Entretien resource created */
-         201: {
-            content: {
-               "application/ld+json": components["schemas"]["Entretien.jsonld-entretien.out"];
-               "text/html": components["schemas"]["Entretien-entretien.out"];
-            };
-         };
-         /** @description Invalid input */
-         400: {
-            content: never;
-         };
-         /** @description Unprocessable entity */
-         422: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Retrieves a Entretien resource.
-    * @description Retrieves a Entretien resource.
-    */
-   api_utilisateurs_uidentretiens_id_get: {
-      parameters: {
-         path: {
-            /** @description Entretien identifier */
-            uid: string;
-            /** @description Entretien identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description Entretien resource */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["Entretien.jsonld-entretien.out"];
-               "text/html": components["schemas"]["Entretien-entretien.out"];
-            };
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Removes the Entretien resource.
-    * @description Removes the Entretien resource.
-    */
-   api_utilisateurs_uidentretiens_id_delete: {
-      parameters: {
-         path: {
-            /** @description Entretien identifier */
-            uid: string;
-            /** @description Entretien identifier */
-            id: string;
-         };
-      };
-      responses: {
-         /** @description Entretien resource deleted */
-         204: {
-            content: never;
-         };
-         /** @description Resource not found */
-         404: {
-            content: never;
-         };
-      };
-   };
-   /**
-    * Updates the Entretien resource.
-    * @description Updates the Entretien resource.
-    */
-   api_utilisateurs_uidentretiens_id_patch: {
-      parameters: {
-         path: {
-            /** @description Entretien identifier */
-            uid: string;
-            /** @description Entretien identifier */
-            id: string;
-         };
-      };
-      /** @description The updated Entretien resource */
-      requestBody: {
-         content: {
-            "application/merge-patch+json": components["schemas"]["Entretien-entretien.in"];
-         };
-      };
-      responses: {
-         /** @description Entretien resource updated */
-         200: {
-            content: {
-               "application/ld+json": components["schemas"]["Entretien.jsonld-entretien.out"];
-               "text/html": components["schemas"]["Entretien-entretien.out"];
             };
          };
          /** @description Invalid input */
