@@ -24,17 +24,17 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\OpenApi\Model\Operation;
-use App\Filter\BeneficiaireAvecAmenagementEnCoursFilter;
 use App\Filter\BeneficiaireActifTagFilter;
+use App\Filter\BeneficiaireAvecAmenagementEnCoursFilter;
 use App\Filter\BeneficiaireFilter;
 use App\Filter\CaseInsensitiveOrderFilter;
 use App\Filter\CategorieAmenagementEnCoursFilter;
 use App\Filter\ComposanteFormationFilter;
 use App\Filter\DomaineAmenagementEnCoursFilter;
 use App\Filter\EtatAvisEseUtilisateurFilter;
+use App\Filter\IntervenantArchiveFilter;
 use App\Filter\IntervenantDisponibleFilter;
 use App\Filter\IntervenantFilter;
-use App\Filter\IntervenantArchiveFilter;
 use App\Filter\IntervenantOrderedByBeneficiaireFilter;
 use App\Filter\LdapSearchFilter;
 use App\Filter\LibCampusIntervenantFilter;
@@ -61,62 +61,62 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    operations            : [
+    operations: [
         new GetCollection(
             uriTemplate: self::COLLECTION_URI,
-            name       : self::COLLECTION_URI,
-            provider   : UtilisateurProvider::class,
+            name: self::COLLECTION_URI,
+            provider: UtilisateurProvider::class,
         ),
         new GetCollection(
             uriTemplate: self::BENEFICIAIRE_COLLECTION_URI,
-            name       : self::BENEFICIAIRE_COLLECTION_URI,
-            provider   : BeneficiaireProvider::class
+            name: self::BENEFICIAIRE_COLLECTION_URI,
+            provider: BeneficiaireProvider::class
         ),
         new GetCollection(
             uriTemplate: self::INTERVENANT_COLLECTION_URI,
-            name       : self::INTERVENANT_COLLECTION_URI,
-            provider   : IntervenantProvider::class
+            name: self::INTERVENANT_COLLECTION_URI,
+            provider: IntervenantProvider::class
         ),
         new GetCollection(
             uriTemplate: self::RENFORT_COLLECTION_URI,
-            name       : self::RENFORT_COLLECTION_URI,
-            provider   : RenfortProvider::class
+            name: self::RENFORT_COLLECTION_URI,
+            provider: RenfortProvider::class
         ),
         new GetCollection(
-            uriTemplate : '/roles/{roleId}/utilisateurs',
+            uriTemplate: '/roles/{roleId}/utilisateurs',
             uriVariables: ['roleId'],
-            security    : "is_granted('" . self::LIST_BY_ROLE . "', request)",
-            provider    : UtilisateurRoleProvider::class,
+            security: "is_granted('" . self::LIST_BY_ROLE . "', request)",
+            provider: UtilisateurRoleProvider::class,
         ),
         new GetCollection(
-            uriTemplate         : '/amenagements/utilisateurs',
+            uriTemplate: '/amenagements/utilisateurs',
             normalizationContext: ['groups' => [self::AMENAGEMENTS_UTILISATEURS_OUT]],
-            security            : "is_granted('" . Amenagement::VOIR_AMENAGEMENTS . "')",
-            filters             : [
+            security: "is_granted('" . Amenagement::VOIR_AMENAGEMENTS . "')",
+            filters: [
                 BeneficiaireAvecAmenagementEnCoursFilter::class,
                 CategorieAmenagementEnCoursFilter::class,
                 TypeAmenagementEnCoursFilter::class,
                 DomaineAmenagementEnCoursFilter::class,
             ],
-            provider            : AmenagementsParUtilisateurProvider::class
+            provider: AmenagementsParUtilisateurProvider::class
         ),
         new Get(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: ['uid'],
-            provider    : UtilisateurProvider::class,
+            provider: UtilisateurProvider::class,
         ),
         new Patch(
-            uriTemplate            : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             securityPostDenormalize: "is_granted('" . self::CAN_PATCH_USER . "', [previous_object, object])",
-            provider               : UtilisateurProvider::class
+            provider: UtilisateurProvider::class
         ),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    openapi               : new Operation(tags: ['Utilisateurs']),
-    exceptionToStatus     : [ErreurLdapException::class => 400],
-    processor             : UtilisateurProcessor::class,
-    stateOptions          : new Options(entityClass: \App\Entity\Utilisateur::class)
+    openapi: new Operation(tags: ['Utilisateurs']),
+    exceptionToStatus: [ErreurLdapException::class => 400],
+    processor: UtilisateurProcessor::class,
+    stateOptions: new Options(entityClass: \App\Entity\Utilisateur::class)
 )]
 #[ApiFilter(LdapSearchFilter::class)]
 #[ApiFilter(RenfortFilter::class)]
@@ -187,7 +187,7 @@ final class Utilisateur
     #[Groups([self::GROUP_OUT, Demande::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT])]
     public string $uid;
 
-    #[Groups([self::GROUP_OUT, ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT])]
+    #[Groups([self::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT, ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT])]
     public string $email;
 
     #[Groups([self::GROUP_OUT, ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT, Demande::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT])]
@@ -202,26 +202,26 @@ final class Utilisateur
     #[Groups([self::GROUP_OUT])]
     public ?string $genre = null;
 
-    #[Groups([self::GROUP_OUT])]
+    #[Groups([self::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT])]
     public ?int $numeroEtudiant = null;
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
     #[Assert\Email]
-    #[ApiProperty(security               : "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
-                  securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
+    #[ApiProperty(security: "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
+        securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
     )]
     public ?string $emailPerso;
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
     #[Assert\Length(max: 20)]
-    #[ApiProperty(security               : "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
-                  securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
+    #[ApiProperty(security: "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
+        securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
     )]
     public ?string $telPerso;
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    #[ApiProperty(security               : "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
-                  securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
+    #[ApiProperty(security: "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
+        securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
     )]
     public ?string $contactUrgence;
 
@@ -266,7 +266,7 @@ final class Utilisateur
     #[ApiProperty(security: "is_granted('ROLE_GESTIONNAIRE')")]
     public array $profils;
 
-    #[Groups([self::GROUP_OUT])]
+    #[Groups([self::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT])]
     #[ApiProperty(security: "is_granted('ROLE_GESTIONNAIRE')")]
     public string $etatAvisEse;
 
@@ -279,7 +279,7 @@ final class Utilisateur
     /**
      * @var Tag[]
      */
-    #[Groups([self::GROUP_OUT])]
+    #[Groups([self::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT])]
     #[ApiProperty(security: "is_granted('ROLE_PLANIFICATEUR')")]
     public array $tags;
 
@@ -310,26 +310,26 @@ final class Utilisateur
     public ?string $statutEtudiant = null;
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    #[ApiProperty(security               : "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
-                  securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
+    #[ApiProperty(security: "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
+        securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
     )]
     public bool $abonneImmediat;
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    #[ApiProperty(security               : "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
-                  securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
+    #[ApiProperty(security: "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
+        securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
     )]
     public bool $abonneVeille;
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    #[ApiProperty(security               : "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
-                  securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
+    #[ApiProperty(security: "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
+        securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
     )]
     public bool $abonneAvantVeille;
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    #[ApiProperty(security               : "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
-                  securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
+    #[ApiProperty(security: "object == null or object.uid == user.getUserIdentifier() or is_granted('ROLE_PLANIFICATEUR')",
+        securityPostDenormalize: "is_granted('" . self::VOIR_INFOS_PERSO . "', object)"
     )]
     public bool $abonneRecapHebdo;
 

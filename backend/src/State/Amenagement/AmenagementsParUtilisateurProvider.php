@@ -16,9 +16,11 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Composante;
 use App\ApiResource\Inscription;
+use App\ApiResource\Tag;
 use App\ApiResource\TypeAmenagement;
 use App\ApiResource\Utilisateur;
 use App\Entity\Amenagement;
+use App\Entity\Beneficiaire;
 use App\Filter\BeneficiaireAvecAmenagementEnCoursFilter;
 use App\State\AbstractEntityProvider;
 use Exception;
@@ -96,6 +98,8 @@ class AmenagementsParUtilisateurProvider extends AbstractEntityProvider
         $resource->uid = $entity->getUid();
         $resource->nom = $entity->getNom();
         $resource->prenom = $entity->getPrenom();
+        $resource->email = $entity->getEmail();
+        $resource->numeroEtudiant = $entity->getNumeroEtudiant();
 
         $amenagementsVisibles = $entity->getAmenagementsActifs();
 
@@ -135,6 +139,18 @@ class AmenagementsParUtilisateurProvider extends AbstractEntityProvider
             null => [],
             default => [$this->transformerService->transform($derniereInscription, Inscription::class)]
         };
+
+        //Ajouts infos manquantes pour export
+        $resource->etatAvisEse = $entity->getEtatAvisEse();
+
+        $resource->tags = array_values(array_unique(array_map(
+            fn($tag) => $this->transformerService->transform($tag, Tag::class),
+            array_reduce(
+                $entity->getBeneficiairesActifs(),
+                fn(array $carry, Beneficiaire $beneficiaire) => [...$carry, ...$beneficiaire->getTags()],
+                []
+            )
+        ), SORT_REGULAR));
 
 
         return $resource;
