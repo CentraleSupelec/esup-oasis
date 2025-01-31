@@ -56,7 +56,7 @@ export function buildAmenagementsBenefDatasource(
          email: rd.email as string,
          numeroEtudiant: rd.numeroEtudiant,
          etatAvisEse: rd.etatAvisEse,
-         tags: [],
+         tags: rd.tags || [],
          inscription:
             rd.inscriptions && rd.inscriptions.length > 0
                ? {
