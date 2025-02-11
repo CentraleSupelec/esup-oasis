@@ -13,11 +13,8 @@
 namespace App\Message;
 
 use App\Entity\Amenagement;
-use App\Entity\Beneficiaire;
 use App\Entity\Utilisateur;
 use App\Util\AnneeUniversitaireAwareTrait;
-use DateTime;
-use DateTimeImmutable;
 use Exception;
 
 class AmenagementModifieMessage
@@ -26,10 +23,12 @@ class AmenagementModifieMessage
     use AnneeUniversitaireAwareTrait;
 
     protected Utilisateur $beneficiaire;
+    protected bool $isExamens;
 
     public function __construct(private Amenagement $amenagement)
     {
         $this->beneficiaire = $amenagement->getBeneficiaires()->current()->getUtilisateur();
+        $this->isExamens = $this->amenagement->getType()->isExamens();
     }
 
     /**
@@ -49,6 +48,11 @@ class AmenagementModifieMessage
     public function getBeneficiaire(): Utilisateur
     {
         return $this->beneficiaire;
+    }
+
+    public function isExamens(): bool
+    {
+        return $this->isExamens;
     }
 
 }
