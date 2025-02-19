@@ -13,7 +13,6 @@
 namespace App\State\Evenement;
 
 use ApiPlatform\Doctrine\Orm\State\CollectionProvider;
-use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\ActiviteBilanFinancier;
@@ -61,7 +60,8 @@ class BilanFinancierProvider implements ProviderInterface
             ->withPaginationEnabled(false);
 
         $interventionsOperation = $operation->withClass(InterventionForfait::class)
-            ->withPaginationEnabled(false);
+            ->withPaginationEnabled(false)
+            ->withStateOptions(null);
 
         $context['filters']['exists']['intervenant'] = true;
         $context['filters']['intervalle']['debut'] = $uriVariables['debut'];
