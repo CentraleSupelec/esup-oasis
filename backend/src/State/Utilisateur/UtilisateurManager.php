@@ -40,15 +40,17 @@ use App\Service\SiScol\BackendUnavailableException;
 use App\Service\SiScol\FormationManager;
 use App\State\Demande\DemandeManager;
 use App\Util\AnneeUniversitaireAwareTrait;
+use DateMalformedStringException;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
-use Exception;
 use Generator;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\ClockAwareTrait;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -57,28 +59,30 @@ readonly class UtilisateurManager
     use AnneeUniversitaireAwareTrait;
     use ClockAwareTrait;
 
-    public function __construct(private LdapService                  $ldapService,
-                                private UtilisateurRepository        $utilisateurRepository,
-                                private CampusRepository             $campusRepository,
-                                private CompetenceRepository         $competenceRepository,
-                                private TypeEvenementRepository      $typeEvenementRepository,
-                                private ServiceRepository            $serviceRepository,
-                                private LoggerInterface              $logger,
-                                private Security                     $security,
-                                private AbstractSiScolDataProvider   $scolProvider,
-                                private FormationManager             $formationManager,
-                                private ProfilBeneficiaireRepository $profilBeneficiaireRepository,
-                                private TypologieHandicapRepository  $typologieHandicapRepository,
-                                private DemandeManager               $demandeManager,
-                                private MessageBusInterface          $messageBus,
-                                private TagAwareCacheInterface       $cache, private ReponseRepository $reponseRepository)
+    public function __construct(private LdapService                                              $ldapService,
+                                private UtilisateurRepository                                    $utilisateurRepository,
+                                private CampusRepository                                         $campusRepository,
+                                private CompetenceRepository                                     $competenceRepository,
+                                private TypeEvenementRepository                                  $typeEvenementRepository,
+                                private ServiceRepository                                        $serviceRepository,
+                                private LoggerInterface                                          $logger,
+                                private Security                                                 $security,
+                                private AbstractSiScolDataProvider                               $scolProvider,
+                                private FormationManager                                         $formationManager,
+                                private ProfilBeneficiaireRepository                             $profilBeneficiaireRepository,
+                                private TypologieHandicapRepository                              $typologieHandicapRepository,
+                                private DemandeManager                                           $demandeManager,
+                                private MessageBusInterface                                      $messageBus,
+                                private TagAwareCacheInterface                                   $cache, private ReponseRepository $reponseRepository,
+                                #[Autowire('%env(json:LDAP_CHAMPS_RECHERCHE)%')] private array   $ldapChampsRecherche,
+                                #[Autowire('%env(LDAP_CRITERES_RECHERCHE_SUP)%')] private string $ldapCriteresRecherche)
     {
 
     }
 
     /**
      * @param string $uid
-     * @param bool   $creerSiNouveau
+     * @param bool $creerSiNouveau
      * @return Utilisateur
      * @throws ErreurLdapException
      */
@@ -127,8 +131,13 @@ readonly class UtilisateurManager
         $existants = $this->utilisateurRepository->search($term);
 
         //On cherche dans l'annuaire...possiblement pas connu en local!
-        $searchString = '(&(eduPersonAffiliation=member)(|(ubxstatutcompte=ACTIF)(ubxstatutcompte=NOUVEAU))(|(uid=*' .
-            $term . '*)(cn=*' . $term . '*)))';
+        $searchString = '(&';
+        $searchString .= $this->ldapCriteresRecherche;
+        $searchString .= '(|';
+        foreach ($this->ldapChampsRecherche as $champ) {
+            $searchString .= '(' . $champ . '=*' . $term . '*)';
+        }
+        $searchString .= '))';
 
         try {
             $entries = $this->ldapService->query($searchString, ['uid', 'sn', 'givenname', 'mail', 'supannetuid']);
@@ -163,7 +172,8 @@ readonly class UtilisateurManager
      * @param mixed $data
      * @return Utilisateur
      * @throws ErreurLdapException
-     * @throws Exception
+     * @throws DateMalformedStringException
+     * @throws ExceptionInterface
      */
     public function maj(\App\ApiResource\Utilisateur $data): Utilisateur
     {
@@ -293,7 +303,7 @@ readonly class UtilisateurManager
     }
 
     /**
-     * @param array       $resources
+     * @param array $resources
      * @param Utilisateur $entity
      * @return void
      */
@@ -391,13 +401,13 @@ readonly class UtilisateurManager
 
 
     /**
-     * @param Utilisateur             $utilisateur
+     * @param Utilisateur $utilisateur
      * @param ProfilBeneficiaire|null $profil
-     * @param DateTimeInterface       $debut
-     * @param DateTimeInterface|null  $fin
-     * @param int|null                $id
-     * @param Utilisateur|null        $gestionnaire
-     * @param TypologieHandicap[]     $typologies
+     * @param DateTimeInterface $debut
+     * @param DateTimeInterface|null $fin
+     * @param int|null $id
+     * @param Utilisateur|null $gestionnaire
+     * @param TypologieHandicap[] $typologies
      * @return Beneficiaire
      * @throws BeneficiaireInconnuException
      */
@@ -462,7 +472,7 @@ readonly class UtilisateurManager
 
     /**
      * @param Utilisateur $utilisateur
-     * @param int         $id
+     * @param int $id
      * @return void
      * @throws BeneficiaireInconnuException
      */
@@ -479,8 +489,8 @@ readonly class UtilisateurManager
     }
 
     /**
-     * @param Utilisateur            $utilisateur
-     * @param DateTime               $debut
+     * @param Utilisateur $utilisateur
+     * @param DateTime $debut
      * @param DateTimeInterface|null $fin
      * @return void
      */
@@ -519,13 +529,13 @@ readonly class UtilisateurManager
                     unset($inscriptions[$id]);
                     if (null === $existante->getFormation()->getDiplome()) {
                         //rattrapage pour bilan activité
-                        $formation = $this->formationManager->getFormation(codeFormation : $inscription['codeFormation'],
-                                                                           libFormation  : $inscription['libFormation'],
-                                                                           codeComposante: $inscription['codeComposante'],
-                                                                           libComposante : $inscription['libComposante'],
-                                                                           niveau        : $inscription['niveau'],
-                                                                           discipline    : $inscription['discipline'],
-                                                                           diplome       : $inscription['diplome']);
+                        $formation = $this->formationManager->getFormation(codeFormation: $inscription['codeFormation'],
+                            libFormation: $inscription['libFormation'],
+                            codeComposante: $inscription['codeComposante'],
+                            libComposante: $inscription['libComposante'],
+                            niveau: $inscription['niveau'],
+                            discipline: $inscription['discipline'],
+                            diplome: $inscription['diplome']);
                     }
                     continue 2;
                 }
@@ -536,13 +546,13 @@ readonly class UtilisateurManager
         //ajouter les nouvelles
         foreach ($inscriptions as $inscription) {
             $new = new Inscription();
-            $formation = $this->formationManager->getFormation(codeFormation : $inscription['codeFormation'],
-                                                               libFormation  : $inscription['libFormation'],
-                                                               codeComposante: $inscription['codeComposante'],
-                                                               libComposante : $inscription['libComposante'],
-                                                               niveau        : $inscription['niveau'],
-                                                               discipline    : $inscription['discipline'],
-                                                               diplome       : $inscription['diplome']);
+            $formation = $this->formationManager->getFormation(codeFormation: $inscription['codeFormation'],
+                libFormation: $inscription['libFormation'],
+                codeComposante: $inscription['codeComposante'],
+                libComposante: $inscription['libComposante'],
+                niveau: $inscription['niveau'],
+                discipline: $inscription['discipline'],
+                diplome: $inscription['diplome']);
             $new->setDebut($inscription['debut'])
                 ->setFin($inscription['fin'])
                 ->setFormation($formation);
@@ -559,7 +569,7 @@ readonly class UtilisateurManager
     public function parRole(string $role): array
     {
         return array_reduce(
-            array   : $this->utilisateurRepository->findAll(),
+            array: $this->utilisateurRepository->findAll(),
             callback: function ($carry, Utilisateur $utilisateur) use ($role) {
                 if (in_array($role, $utilisateur->getRoles())) {
                     $carry[] = $utilisateur;
@@ -571,8 +581,8 @@ readonly class UtilisateurManager
 
     /**
      * @param Demande $demande
-     * @param ?int    $idProfil
-     * @param string  $uidGestionnaire
+     * @param ?int $idProfil
+     * @param string $uidGestionnaire
      * @return Beneficiaire
      * @throws BeneficiaireInconnuException
      * @throws ErreurLdapException
@@ -609,12 +619,12 @@ readonly class UtilisateurManager
 
         //let's go!
         $beneficiaire = $this->majBeneficiaires(
-            utilisateur       : $utilisateur,
-            profil            : $profil,
-            debut             : $this->now(),
-            fin               : $annee['fin'],
-            gestionnaire      : $gestionnaire,
-            typologies        : $typologies,
+            utilisateur: $utilisateur,
+            profil: $profil,
+            debut: $this->now(),
+            fin: $annee['fin'],
+            gestionnaire: $gestionnaire,
+            typologies: $typologies,
             avecAccompagnement: $avecAccompagnement
         );
 
@@ -623,14 +633,14 @@ readonly class UtilisateurManager
         //On copie les données récupérables dans la demande
         $this->copierDonneesDemande($demande);
 
-        $this->utilisateurRepository->save($beneficiaire->getUtilisateur(), true);
+        $this->utilisateurRepository->save($beneficiaire->getUtilisateur());
 
         return $beneficiaire;
     }
 
     /**
      * @param Utilisateur $utilisateur
-     * @param Tag         $tag
+     * @param Tag $tag
      * @return void
      * @throws UtilisateurNonBeneficiaireException
      */
@@ -648,7 +658,7 @@ readonly class UtilisateurManager
 
     /**
      * @param Utilisateur $utilisateur
-     * @param Tag         $tag
+     * @param Tag $tag
      * @return void
      */
     public function supprimerTag(Utilisateur $utilisateur, Tag $tag)
