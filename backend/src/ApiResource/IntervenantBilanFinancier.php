@@ -29,7 +29,7 @@ class IntervenantBilanFinancier
          * Pour chaque période, on sépare les activités par (type, taux, coeff charges) !
          */
 
-        $key = $periode->id . '#' . ($tauxHoraire?->id ?? 'undefined') . '#' . $coeffCharge;
+        $key = $periode->id . '#' . $type->id . '#' . ($tauxHoraire?->id ?? 'undefined') . '#' . $coeffCharge;
 
         if (!array_key_exists($key, $this->activitesParPeriode)) {
             $this->activitesParPeriode[$key] = new ActiviteBilanFinancier();
@@ -39,9 +39,8 @@ class IntervenantBilanFinancier
             $this->activitesParPeriode[$key]->coeffCharges = $coeffCharge;
         }
         $this->activitesParPeriode[$key]->nbHeures = bcadd(
-            $this->activitesParMois[$key]->nbHeures ?? 0,
+            $this->activitesParPeriode[$key]?->nbHeures ?? 0,
             $nbHeures
         );
-
     }
 }
