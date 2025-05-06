@@ -57,7 +57,7 @@ class Beneficiaire
     #[ORM\Column(options: ['default' => true])]
     private ?bool $avecAccompagnement = true;
 
-    #[ORM\OneToOne(inversedBy: 'beneficiaire', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'beneficiaire', cascade: ['persist'])]
     private ?Demande $demande = null;
 
     #[ORM\ManyToMany(targetEntity: Amenagement::class, mappedBy: 'beneficiaires')]

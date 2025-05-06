@@ -42,7 +42,7 @@ class Demande
     #[ORM\JoinColumn(nullable: false)]
     private ?EtatDemande $etat = null;
 
-    #[ORM\OneToOne(mappedBy: 'demande', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(mappedBy: 'demande', cascade: ['persist'])]
     private ?Beneficiaire $beneficiaire = null;
 
     #[ORM\OneToMany(mappedBy: 'demande', targetEntity: ModificationEtatDemande::class, orphanRemoval: true)]
