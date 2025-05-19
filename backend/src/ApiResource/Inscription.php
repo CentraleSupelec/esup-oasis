@@ -22,10 +22,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     operations: [
         new Get(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: ['id'],
-            openapi     : false,
-            provider    : InscriptionProvider::class
+            openapi: false,
+            provider: InscriptionProvider::class
         ),
     ],
 )]
@@ -37,7 +37,7 @@ final class Inscription
     #[ApiProperty(identifier: true)]
     public int $id;
 
-    #[Groups([Utilisateur::GROUP_OUT, Demande::GROUP_OUT, Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT])]
+    #[Groups([Utilisateur::GROUP_OUT, Demande::GROUP_OUT, Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT, Amenagement::GROUP_OUT])]
     public Formation $formation;
 
     #[Groups([Utilisateur::GROUP_OUT, Demande::GROUP_OUT, Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT])]

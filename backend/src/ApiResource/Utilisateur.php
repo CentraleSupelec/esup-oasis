@@ -184,16 +184,41 @@ final class Utilisateur
     ];
 
     #[ApiProperty(identifier: true)]
-    #[Groups([self::GROUP_OUT, Demande::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT])]
+    #[Groups([
+        self::GROUP_OUT,
+        Demande::GROUP_OUT,
+        self::AMENAGEMENTS_UTILISATEURS_OUT,
+        Amenagement::GROUP_OUT,
+    ])]
     public string $uid;
 
-    #[Groups([self::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT, ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT])]
+    #[Groups([
+        self::GROUP_OUT,
+        self::AMENAGEMENTS_UTILISATEURS_OUT,
+        ActiviteBeneficiaire::OUT,
+        ActiviteIntervenant::OUT,
+        Amenagement::GROUP_OUT,
+    ])]
     public string $email;
 
-    #[Groups([self::GROUP_OUT, ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT, Demande::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT])]
+    #[Groups([
+        self::GROUP_OUT,
+        ActiviteBeneficiaire::OUT,
+        ActiviteIntervenant::OUT,
+        Demande::GROUP_OUT,
+        self::AMENAGEMENTS_UTILISATEURS_OUT,
+        Amenagement::GROUP_OUT,
+    ])]
     public string $nom;
 
-    #[Groups([self::GROUP_OUT, ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT, Demande::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT])]
+    #[Groups([
+        self::GROUP_OUT,
+        ActiviteBeneficiaire::OUT,
+        ActiviteIntervenant::OUT,
+        Demande::GROUP_OUT,
+        self::AMENAGEMENTS_UTILISATEURS_OUT,
+        Amenagement::GROUP_OUT,
+    ])]
     public string $prenom;
 
     #[Groups([self::GROUP_OUT])]
@@ -202,7 +227,7 @@ final class Utilisateur
     #[Groups([self::GROUP_OUT])]
     public ?string $genre = null;
 
-    #[Groups([self::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT])]
+    #[Groups([self::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT, Amenagement::GROUP_OUT])]
     public ?int $numeroEtudiant = null;
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
@@ -266,7 +291,7 @@ final class Utilisateur
     #[ApiProperty(security: "is_granted('ROLE_GESTIONNAIRE')")]
     public array $profils;
 
-    #[Groups([self::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT])]
+    #[Groups([self::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT, Amenagement::GROUP_OUT])]
     #[ApiProperty(security: "is_granted('ROLE_GESTIONNAIRE')")]
     public string $etatAvisEse;
 
@@ -279,14 +304,14 @@ final class Utilisateur
     /**
      * @var Tag[]
      */
-    #[Groups([self::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT])]
+    #[Groups([self::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT, Amenagement::GROUP_OUT])]
     #[ApiProperty(security: "is_granted('ROLE_PLANIFICATEUR')")]
     public array $tags;
 
     /**
      * @var Utilisateur[]
      */
-    #[Groups([self::GROUP_OUT])]
+    #[Groups([self::GROUP_OUT, Amenagement::GROUP_OUT])]
     #[ApiProperty(readableLink: false, writableLink: false)]
     public array $gestionnairesActifs;
 
@@ -298,7 +323,7 @@ final class Utilisateur
     /**
      * @var Inscription[]
      */
-    #[Groups([self::GROUP_OUT, Demande::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT])]
+    #[Groups([self::GROUP_OUT, Demande::GROUP_OUT, self::AMENAGEMENTS_UTILISATEURS_OUT, Amenagement::GROUP_OUT])]
     public array $inscriptions;
 
     #[Groups([self::GROUP_OUT])]

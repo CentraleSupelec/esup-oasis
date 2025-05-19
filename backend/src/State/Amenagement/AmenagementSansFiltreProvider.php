@@ -17,6 +17,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Amenagement;
 use App\ApiResource\Composante;
+use App\ApiResource\Inscription;
 use App\ApiResource\TypeAmenagement;
 use App\ApiResource\TypeSuiviAmenagement;
 use App\ApiResource\Utilisateur;
@@ -93,6 +94,13 @@ class AmenagementSansFiltreProvider extends AbstractEntityProvider
         $resource->id = $entity->getId();
         $utilisateruBeneficiaire = ($entity->getBeneficiaires())->current()->getUtilisateur();
         $resource->beneficiaire = $this->transformerService->transform($utilisateruBeneficiaire, Utilisateur::class);
+
+        $derniereInscription = $utilisateruBeneficiaire->getDerniereInscription();
+        $resource->beneficiaire->inscriptions = match ($derniereInscription) {
+            null => [],
+            default => [$this->transformerService->transform($derniereInscription, Inscription::class)]
+        };
+
         $resource->uid = $utilisateruBeneficiaire->getUid();
 
         $resource->commentaire = $entity->getCommentaire();

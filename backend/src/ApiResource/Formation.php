@@ -26,17 +26,17 @@ use App\State\Formation\FormationProvider;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
-    operations  : [
+    operations: [
         new Get(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: ['id']
         ),
         new GetCollection(
             uriTemplate: self::COLLECTION_URI
         ),
     ],
-    openapi     : new Operation(tags: ['Referentiel']),
-    provider    : FormationProvider::class,
+    openapi: new Operation(tags: ['Referentiel']),
+    provider: FormationProvider::class,
     stateOptions: new Options(entityClass: \App\Entity\Formation::class)
 )]
 #[ApiFilter(SearchFilter::class, properties: ['composante'])]
@@ -50,10 +50,10 @@ final class Formation
     #[ApiProperty(identifier: true)]
     public int $id;
 
-    #[Groups([Utilisateur::GROUP_OUT, Demande::GROUP_OUT, Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT])]
+    #[Groups([Utilisateur::GROUP_OUT, Demande::GROUP_OUT, Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT, Amenagement::GROUP_OUT])]
     public Composante $composante;
 
-    #[Groups([Utilisateur::GROUP_OUT, Demande::GROUP_OUT, Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT])]
+    #[Groups([Utilisateur::GROUP_OUT, Demande::GROUP_OUT, Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT, Amenagement::GROUP_OUT])]
     public string $libelle;
 
     #[Groups([Utilisateur::GROUP_OUT])]

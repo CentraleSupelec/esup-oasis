@@ -33,6 +33,7 @@ use App\Repository\TypeEvenementRepository;
 use App\Repository\UtilisateurRepository;
 use App\State\MajBeneficiairesTrait;
 use App\State\Utilisateur\UtilisateurManager;
+use App\Util\AnneeUniversitaireAwareTrait;
 use DateMalformedStringException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -43,6 +44,7 @@ class EvenementManager
 {
     use ClockAwareTrait;
     use MajBeneficiairesTrait;
+    use AnneeUniversitaireAwareTrait;
 
     public function __construct(private readonly EvenementRepository                  $evenementRepository,
                                 private readonly TypeEvenementRepository              $typeEvenementRepository,
@@ -122,9 +124,9 @@ class EvenementManager
         $this->evenementRepository->save($entity, true);
 
         $this->messageBus->dispatch(new ModificationEvenementMessage(
-            evenement  : $entity,
+            evenement: $entity,
             dateOrigine: ($creation === false && $dateOrigine != $entity->getDebut()) ? $dateOrigine : null,
-            creation   : $creation
+            creation: $creation
         ));
 
         return $entity;
@@ -133,7 +135,7 @@ class EvenementManager
 
     /**
      * @param Utilisateur[] $suppleants
-     * @param Evenement     $entity
+     * @param Evenement $entity
      * @return void
      */
     private function majSuppleants(array $suppleants, Evenement $entity): void
@@ -158,7 +160,7 @@ class EvenementManager
 
     /**
      * @param Utilisateur[] $enseignants
-     * @param Evenement     $entity
+     * @param Evenement $entity
      * @return void
      */
     private function majEnseignants(array $enseignants, Evenement $entity): void
@@ -184,7 +186,7 @@ class EvenementManager
 
     /**
      * @param TypeEquipement[] $equipements
-     * @param Evenement|null   $entity
+     * @param Evenement|null $entity
      * @return void
      */
     private function majEquipements(array $equipements, ?Evenement $entity): void
@@ -215,7 +217,7 @@ class EvenementManager
     }
 
     /**
-     * @param Utilisateur|null   $utilisateur
+     * @param Utilisateur|null $utilisateur
      * @param TableauDeBord|null $tdb
      * @return TableauDeBord
      * @throws DateMalformedStringException
@@ -260,16 +262,16 @@ class EvenementManager
 
         $tdb->evenementsEnAttenteDeValidation = count($this->evenementRepository->findValidables($utilisateur));
 
-        $tdb->evenementsSansBeneficiaire = $this->evenementRepository->countByDateInterval(debut           : $ilyaDeuxMois,
-                                                                                           utilisateur     : $utilisateur,
-                                                                                           sansBeneficiaire: true);
+        $tdb->evenementsSansBeneficiaire = $this->evenementRepository->countByDateInterval(debut: $ilyaDeuxMois,
+            utilisateur: $utilisateur,
+            sansBeneficiaire: true);
 
         $beneficiairesActifs = $this->beneficiaireRepository->actifs($now);
 
         //bénéficiaires sans profil
         $tdb->nbBeneficiairesIncomplets = count(
             array_filter(
-                array   : $beneficiairesActifs,
+                array: $beneficiairesActifs,
                 callback: fn(Beneficiaire $beneficiaire) => $beneficiaire->getProfil()->getId() === ProfilBeneficiaire::A_DETERMINER
             )
         );
@@ -292,13 +294,37 @@ class EvenementManager
         ]);
 
         //décisions
-        $tdb->nbDecisionsAttenteValidation = $this->decisionAmenagementExamensRepository->count([
-            'etat' => DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS,
-        ]);
+        $bornesAnnee = $this->bornesAnneeDuJour($now);
+        $tdb->nbDecisionsAttenteValidation = count(
+            array_filter(
+                $beneficiairesActifs,
+                function ($beneficiaire) use ($bornesAnnee) {
+                    $decisionAmenagementExamens = $beneficiaire->getUtilisateur()->getDecisionAmenagementExamens(
+                        $bornesAnnee['debut'], $bornesAnnee['fin']
+                    );
+                    return $decisionAmenagementExamens?->getEtat() === DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS;
+                }
+            )
+        );
 
-        $tdb->nbDecisionsAEditer = $this->decisionAmenagementExamensRepository->count([
-            'etat' => DecisionAmenagementExamens::ETAT_VALIDE,
-        ]);
+//        $this->decisionAmenagementExamensRepository->count([
+//            'etat' => DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS,
+//        ]);
+        
+        $tdb->nbDecisionsAEditer = count(
+            array_filter(
+                $beneficiairesActifs,
+                function ($beneficiaire) use ($bornesAnnee) {
+                    $decisionAmenagementExamens = $beneficiaire->getUtilisateur()->getDecisionAmenagementExamens(
+                        $bornesAnnee['debut'], $bornesAnnee['fin']
+                    );
+                    return $decisionAmenagementExamens?->getEtat() === DecisionAmenagementExamens::ETAT_VALIDE;
+                }
+            )
+        );
+//        $this->decisionAmenagementExamensRepository->count([
+//            'etat' => DecisionAmenagementExamens::ETAT_VALIDE,
+//        ]);
 
         //aménagements
         $tdb->nbAmenagementsEnCours = count($this->amenagementRepository->findEnCours($now));

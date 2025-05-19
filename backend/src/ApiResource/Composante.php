@@ -21,31 +21,31 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\CaseInsensitiveOrderFilter;
-use App\State\Composante\PatchComposanteProcessor;
 use App\State\Composante\ComposanteProvider;
+use App\State\Composante\PatchComposanteProcessor;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
-    operations            : [
+    operations: [
         new Get(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: ['id']
         ),
         new GetCollection(
             uriTemplate: self::COLLECTION_URI
         ),
         new Patch(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: ['id'],
-            security    : "is_granted('ROLE_ADMIN')"
+            security: "is_granted('ROLE_ADMIN')"
         ),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    openapi               : new Operation(tags: ['Referentiel']),
-    provider              : ComposanteProvider::class,
-    processor             : PatchComposanteProcessor::class,
-    stateOptions          : new Options(entityClass: \App\Entity\Composante::class)
+    openapi: new Operation(tags: ['Referentiel']),
+    provider: ComposanteProvider::class,
+    processor: PatchComposanteProcessor::class,
+    stateOptions: new Options(entityClass: \App\Entity\Composante::class)
 )]
 #[ApiFilter(CaseInsensitiveOrderFilter::class, properties: ['libelle'])]
 final class Composante
@@ -59,7 +59,7 @@ final class Composante
     #[Groups([self::GROUP_OUT])]
     public int $id;
 
-    #[Groups([Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT, self::GROUP_OUT])]
+    #[Groups([Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT, Amenagement::GROUP_OUT, self::GROUP_OUT])]
     public string $libelle;
 
     /**
