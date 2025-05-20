@@ -137,7 +137,7 @@ class BilanActiviteNormalizer implements NormalizerInterface
                 default => implode(' - ', array_map(fn($typo) => $typo->libelle, $profil->typologies))
             },
             match ($profil->profil->id) {
-                ProfilBeneficiaire::HANDICAP_PERMANENT, ProfilBeneficiaire::INCAPACITE_TEMPORAIRE => 'oui',
+                ProfilBeneficiaire::INCAPACITE_TEMPORAIRE => 'oui',
                 default => 'non'
             },
             '', //com
@@ -195,11 +195,13 @@ class BilanActiviteNormalizer implements NormalizerInterface
         //ajout items types pédago
         foreach ($typesPedagogiques as $type) {
             $entete[] = $type->libelle;
+            $enteteLibelles[] = $type->libelle;
         }
         $entete[] = 'codmeahF';
         $enteteLibelles[] = 'Aménagement avec aide humaine?';
         foreach ($typesAideHumaine as $type) {
             $entete[] = $type->libelle;
+            $enteteLibelles[] = $type->libelle;
         }
         $entete[] = 'aidhnat';
         $enteteLibelles[] = 'Autre aide humaine?';
@@ -207,6 +209,7 @@ class BilanActiviteNormalizer implements NormalizerInterface
         $enteteLibelles[] = "Aménagement d'examen?";
         foreach ($typesExamens as $type) {
             $entete[] = $type->libelle;
+            $enteteLibelles[] = $type->libelle;
         }
         return [
             [...$entete, 'précisions modalités évaluation', 'autae', 'session différée', 'codmeaa',

@@ -96,7 +96,7 @@ class Bilan
 
     public function setDebut(DateTimeInterface $debut): static
     {
-        $this->debut = $debut;
+        $this->debut = DateTime::createFromInterface($debut);
 
         return $this;
     }
@@ -108,7 +108,7 @@ class Bilan
 
     public function setFin(DateTimeInterface $fin): static
     {
-        $this->fin = $fin;
+        $this->fin = DateTime::createFromInterface($fin);
 
         return $this;
     }
