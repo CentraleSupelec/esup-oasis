@@ -151,7 +151,8 @@ export function AuthProvider({
 
                   // redirect apres connexion lorsque l'utilisateur est affecté
                   setTimeout(() => {
-                     queryClient.clear();
+                     // console.log("AuthProvider: 154 - redirect to /");
+                     //  queryClient.clear();
                      setLoadingUser(false);
                      onSuccess();
                   }, 500);

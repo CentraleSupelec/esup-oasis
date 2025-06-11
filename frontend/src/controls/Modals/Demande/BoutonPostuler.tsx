@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 export default function PostulerButton(props: { typeDemande: ITypeDemande; demandeurId: string }) {
    const navigate = useNavigate();
    const [demandeTrouvee, setDemandeTrouvee] = useState<IDemande>();
+   const [submitted, setSubmitted] = useState(false);
    const { data: demandesEnCours } = useApi().useGetCollectionPaginated({
       path: "/demandes",
       page: 1,
@@ -30,7 +31,7 @@ export default function PostulerButton(props: { typeDemande: ITypeDemande; deman
 
    const mutationPostuler = useApi().usePost({
       path: "/demandes",
-      invalidationQueryKeys: ["/demandes"],
+      invalidationQueryKeys: ["/utilisateurs/{uid}/demandes", "/demandes"],
       onSuccess: (data) => {
          navigate(`${data["@id"]}/saisie`);
       },
@@ -63,8 +64,13 @@ export default function PostulerButton(props: { typeDemande: ITypeDemande; deman
    ) : (
       props.typeDemande.campagneEnCours && (
          <Button
+            loading={submitted}
+            disabled={submitted}
             icon={<PlusOutlined aria-hidden />}
-            onClick={() => deposerNouvelleDemande(props.typeDemande)}
+            onClick={() => {
+               setSubmitted(true);
+               deposerNouvelleDemande(props.typeDemande);
+            }}
             aria-label={`Déposer une demande : ${props.typeDemande.libelle}`}
          >
             Déposer une demande

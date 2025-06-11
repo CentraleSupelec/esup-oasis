@@ -156,8 +156,8 @@ export default function AmenagementTableExport({
    const [amenagements, setAmenagements] = useState<IAmenagement[] | null>(null);
 
    useEffect(() => {
-      setAmenagements(null)
-   }, [filtreAmenagement])
+      setAmenagements(null);
+   }, [filtreAmenagement]);
 
    useEffect(() => {
       if (
@@ -179,6 +179,7 @@ export default function AmenagementTableExport({
                isFetchingCas,
          );
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [
       exportSubmit,
       amenagements,

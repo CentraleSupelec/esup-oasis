@@ -38,7 +38,6 @@ interface ITabPaiement {
  */
 export function TabPaiement({ evenement, form, setEvenement }: ITabPaiement): ReactElement {
    const [details, setDetails] = useState(false);
-   console.log("TabPaiement", evenement);
    return (
       <>
          <Row gutter={[16, 10]}>

@@ -22,7 +22,7 @@ export function UtilisateurTags(props: { utilisateurId: string }) {
    });
 
    return (
-      <Card type="inner" size="small" bordered={false} className="mb-2">
+      <Card type="inner" size="small" variant={"borderless"} className="mb-2">
          {tagsUtilisateur?.items.map((tag) => (
             <UtilisateurTag
                key={tag["@id"] as string}

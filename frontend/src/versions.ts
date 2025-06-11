@@ -41,12 +41,23 @@ export interface IVersion {
  */
 export const VERSIONS: IVersion[] = [
    {
+      version: "2.2.1",
+      date: "2025-06-11",
+      description: "Bugfix et améliorations mineures",
+      changes: [
+         {
+            description: "Gestion du cache lors de la création d'une nouvelle demande",
+            type: "fix",
+         },
+      ],
+   },
+   {
       version: "2.2.0",
       date: "2025-05-06",
       description: "Accompagnement des bénéficiaires",
       changes: [
          {
-            description: "GEstion de l'accompagnement des bénéficiaires : filtre + modification",
+            description: "Gestion de l'accompagnement des bénéficiaires : filtre + modification",
             type: "add",
          },
       ],

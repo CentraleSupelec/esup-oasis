@@ -21,7 +21,8 @@ import { IDemande } from "../../api/ApiTypeHelpers";
  */
 function TypeDemandeList(props: { isFetching?: boolean; demandes?: IDemande[] }) {
    if (props.isFetching) {
-      return <Skeleton paragraph={{ rows: 2 }} active />;
+      // Affiche un squelette de chargement si les données sont en cours de récupération
+      return <Skeleton paragraph={{ rows: 3 }} active />;
    }
 
    if (!props.demandes) return null;

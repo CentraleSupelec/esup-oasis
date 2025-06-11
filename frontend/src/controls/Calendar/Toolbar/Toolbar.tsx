@@ -55,7 +55,7 @@ const MesInterventionsIntro = memo(
    (): ReactElement => (
       <>
          <Typography.Title level={2}>Mes interventions</Typography.Title>
-         <Card className="mb-2 mt-2" bordered={false}>
+         <Card className="mb-2 mt-2" variant={"borderless"}>
             <Row>
                <Col span={16}>
                   <Typography.Title level={3} className="mt-1">

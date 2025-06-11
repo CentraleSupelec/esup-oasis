@@ -146,7 +146,7 @@ export function useGetCollection<P extends Path>(
             options && typeof options === "object" && "itemsPerPage" in options
                ? options.itemsPerPage
                : undefined,
-      } as PaginateResult<ApiPathMethodResponse<Path, "get">>;
+      } as PaginateResult<ApiPathMethodResponse<P, "get">>;
    };
 
    return useQuery({

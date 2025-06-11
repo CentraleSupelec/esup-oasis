@@ -18,11 +18,42 @@ import {
    ETAT_DEMANDE_EN_COURS,
    ETAT_DEMANDE_NON_CONFORME,
    ETAT_DEMANDE_REFUSEE,
-   getTypeDemandeDescription,
 } from "../../lib/demande";
 import { useNavigate } from "react-router-dom";
 import { EtatDemandeAvatar } from "../Avatars/EtatDemandeAvatar";
 import useBreakpoint from "antd/es/grid/hooks/useBreakpoint";
+import CampagneDemandeDateItem from "./CampagneDemandeDateItem";
+
+function CampagneItem(props: { campagneId?: string }) {
+   let templateString = "";
+   const { data: campagneDemandeData } = useApi().useGetItem({
+      path: "/types_demandes/{typeId}/campagnes/{id}",
+      url: props.campagneId,
+      enabled: !!props.campagneId,
+   });
+
+   if (!props.campagneId || !campagneDemandeData) return <Spinner />;
+
+   // Si la campagne est passée
+   if (campagneDemandeData?.fin && new Date(campagneDemandeData.fin) < new Date()) {
+      templateString = "Campagne fermée depuis le {{fin}}";
+   } else if (campagneDemandeData?.debut && new Date(campagneDemandeData.debut) > new Date()) {
+      // Si la campagne est à venir
+      templateString = "Prochaine campagne du {{debut}} au {{fin}}";
+   } else {
+      // Si la campagne est en cours
+      templateString = "Campagne ouverte du {{debut}} au {{fin}}";
+   }
+
+   return campagneDemandeData ? (
+      <CampagneDemandeDateItem
+         campagneDemande={campagneDemandeData}
+         templateString={templateString}
+      />
+   ) : (
+      <Spinner />
+   );
+}
 
 export default function DemandeListItem(props: { demande?: IDemande; demandeId?: string }) {
    const screens = useBreakpoint();
@@ -109,7 +140,7 @@ export default function DemandeListItem(props: { demande?: IDemande; demandeId?:
                            demandeId={item["@id"]}
                         />
                      </Space>
-                     {getTypeDemandeDescription(typeDemandeData)}
+                     <CampagneItem campagneId={item?.campagne} />
                      {!screens.md && getActionButton()}
                   </Space>
                </>

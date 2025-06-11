@@ -13,7 +13,7 @@ export default function SplitFetcher(props: {
    const [enabled, setEnabled] = useState(false);
    const [page, setPage] = useState(1);
    const [totalItems, setTotalItems] = useState<number | null>(null);
-   const [_allData, setAllData] = useState<any[]>([]);
+   const [, setAllData] = useState<any[]>([]);
 
    const { data } = useApi().useGetCollectionPaginated({
       path: "/amenagements",
@@ -37,6 +37,7 @@ export default function SplitFetcher(props: {
          }
          return [...prev, ...(data?.items || [])];
       });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [data]);
 
    return enabled ? (

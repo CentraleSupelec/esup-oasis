@@ -108,7 +108,7 @@ export default function DashboardUtilisateurStats({
                      <Col xl={8} lg={12} xs={24} sm={12}>
                         <Card
                            className="pointer ant-card-stats-numeric ant-card-stats-hoverable"
-                           bordered={false}
+                           variant={"borderless"}
                            onClick={() => {
                               navigate(`/beneficiaires`);
                            }}
@@ -142,7 +142,7 @@ export default function DashboardUtilisateurStats({
                      <Col xl={8} lg={12} xs={24} sm={12}>
                         <Card
                            className="pointer ant-card-stats-numeric ant-card-stats-hoverable"
-                           bordered={false}
+                           variant={"borderless"}
                            onClick={() => {
                               navigate(`/amenagements?mode=beneficiaire`);
                            }}
@@ -162,7 +162,7 @@ export default function DashboardUtilisateurStats({
                      <Col xl={8} lg={12} xs={24} sm={12}>
                         <Card
                            className="pointer ant-card-stats-numeric ant-card-stats-hoverable"
-                           bordered={false}
+                           variant={"borderless"}
                            onClick={() => {
                               navigate(`/intervenants`);
                            }}
@@ -187,7 +187,7 @@ export default function DashboardUtilisateurStats({
                               <Col xl={8} lg={12} xs={24} sm={12}>
                                  <Card
                                     className="pointer ant-card-stats-numeric ant-card-stats-hoverable"
-                                    bordered={false}
+                                    variant={"borderless"}
                                     onClick={() => {
                                        navigate(
                                           `/beneficiaires?filtreType=profil&filtreValeur=${
@@ -211,7 +211,7 @@ export default function DashboardUtilisateurStats({
                               <Col xl={8} lg={12} xs={24} sm={12}>
                                  <Card
                                     className="pointer ant-card-stats-numeric ant-card-stats-hoverable"
-                                    bordered={false}
+                                    variant={"borderless"}
                                     onClick={() => {
                                        navigate(
                                           `/beneficiaires?filtreType=etatAvisEse&filtreValeur=${
@@ -231,7 +231,7 @@ export default function DashboardUtilisateurStats({
                               <Col xl={8} lg={12} xs={24} sm={12}>
                                  <Card
                                     className="pointer ant-card-stats-numeric ant-card-stats-hoverable"
-                                    bordered={false}
+                                    variant={"borderless"}
                                     onClick={() => {
                                        navigate(
                                           `/beneficiaires?filtreType=etatDecisionAmenagement&filtreValeur=${
@@ -283,7 +283,7 @@ export default function DashboardUtilisateurStats({
                   <Col xl={6} lg={12} xs={24} sm={12}>
                      <Card
                         className="pointer ant-card-stats-numeric ant-card-stats-hoverable"
-                        bordered={false}
+                        variant={"borderless"}
                         onClick={() => {
                            navigate(`/demandeurs`);
                         }}
@@ -357,7 +357,7 @@ export default function DashboardUtilisateurStats({
                                        <Col key={key} xl={6} lg={12} xs={24} sm={12}>
                                           <Card
                                              className="pointer ant-card-stats-numeric ant-card-stats-hoverable"
-                                             bordered={false}
+                                             variant={"borderless"}
                                              onClick={() => {
                                                 navigate(
                                                    `/demandeurs?filtreType=etat&filtreValeur=${key}`,
@@ -401,7 +401,7 @@ export default function DashboardUtilisateurStats({
                   <Col xl={6} lg={12} xs={24} sm={12}>
                      <Card
                         className="pointer ant-card-stats-hoverable"
-                        bordered={false}
+                        variant={"borderless"}
                         onClick={() => {
                            goToCalendar("day", AffectationFilterValues.Tous);
                         }}
@@ -420,7 +420,7 @@ export default function DashboardUtilisateurStats({
                   <Col xl={6} lg={12} xs={24} sm={12}>
                      <Card
                         className="pointer ant-card-stats-hoverable"
-                        bordered={false}
+                        variant={"borderless"}
                         onClick={() => {
                            goToCalendar("work_week", AffectationFilterValues.Tous);
                         }}
@@ -440,7 +440,7 @@ export default function DashboardUtilisateurStats({
                   <Col xl={6} lg={12} xs={24} sm={12}>
                      <Card
                         className="pointer ant-card-stats-hoverable"
-                        bordered={false}
+                        variant={"borderless"}
                         onClick={() => {
                            goToCalendar("month", AffectationFilterValues.Tous);
                         }}
@@ -460,7 +460,7 @@ export default function DashboardUtilisateurStats({
                      <Col xl={6} lg={12} xs={24} sm={12}>
                         <Card
                            className="pointer ant-card-stats-numeric ant-card-stats-hoverable"
-                           bordered={false}
+                           variant={"borderless"}
                            onClick={() => {
                               navigate(`/interventions/renforts`);
                            }}
