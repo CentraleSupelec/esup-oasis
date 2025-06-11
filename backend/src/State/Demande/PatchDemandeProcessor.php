@@ -14,7 +14,10 @@ namespace App\State\Demande;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\ApiResource\BeneficiaireProfil;
 use App\ApiResource\Demande;
+use App\Entity\EtatDemande;
+use App\Message\RessourceCollectionModifieeMessage;
 use App\Message\RessourceModifieeMessage;
 use App\State\TransformerService;
 use Exception;
@@ -47,6 +50,20 @@ readonly class PatchDemandeProcessor implements ProcessorInterface
                 profilId: $data->profilAttribue?->id,
                 user: $this->security->getUser()
             );
+            //si nouvel état = validé, on veut refresh le cache!
+            if ($data->etat->id === EtatDemande::VALIDEE) {
+                $beneficiaire = $this->transformerService->transform($demande->getDemandeur()->getBeneficiairesActifs()[0], BeneficiaireProfil::class);
+                $demandeur = $data->demandeur;
+                $demandeur->roleId = 'ROLE_DEMANDEUR';
+                $this->messageBus->dispatch(new RessourceModifieeMessage($beneficiaire));
+                $this->messageBus->dispatch(new RessourceModifieeMessage($demandeur));
+                $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($beneficiaire));
+                $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($demandeur));
+                $demandeur->roleId = 'ROLE_BENEFICIAIRE';
+                $this->messageBus->dispatch(new RessourceModifieeMessage($demandeur));
+                $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($demandeur));
+            }
+
         } else {
             $this->demandeManager->ajouterCommentaire($demande, $data->commentaire);
         }

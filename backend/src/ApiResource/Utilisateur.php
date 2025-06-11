@@ -192,6 +192,10 @@ final class Utilisateur
     ])]
     public string $uid;
 
+    public ?string $roleId = null {
+        get => $this->roleId ?? $this->roles[0];
+    }
+
     #[Groups([
         self::GROUP_OUT,
         self::AMENAGEMENTS_UTILISATEURS_OUT,

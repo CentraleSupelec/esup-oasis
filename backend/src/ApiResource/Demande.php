@@ -141,6 +141,10 @@ class Demande
     #[Assert\NotNull(message: 'Impossible si le DemandeDenormalizer fait son job')]
     public ?Utilisateur $demandeur = null;
 
+    public string $uid {
+        get => $this->demandeur->uid;
+    }
+
     #[Groups([self::GROUP_OUT])]
     public CampagneDemande $campagne;
 
