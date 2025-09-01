@@ -82,6 +82,9 @@ disponibles dans le fichier
 * **LDAP_USERNAME** : nom d'utilisateur pour connexion au LDAP
 * **LDAP_PASSWORD** : mot de passe de connexion au LDAP
 * **LDAP_DN** : base dans laquelle rechercher les individus dans le LDAP
+* **LDAP_CHAMPS_RECHERCHE** : champs utilisés pour la recherche d'individus
+* **LDAP_CRITERES_RECHERCHE_SUP** : Filtre additionnel pour la recherche
+* **LDAP_CHAMP_ETU_ID** : Champ contenant le numéro étudiant
 * **MAILER_DSN** : DSN du serveur smtp (`smtp://user:password@server:port`)
 * **GOTENBERG_DSN** : URL de l'instance Gotenberg
 * **APOGEE_USER** : utilisateur avec droits de lecture dans la base Apogée

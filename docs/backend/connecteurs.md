@@ -13,7 +13,7 @@ Le seul champ utilisé est l'id de l'utilisateur, qui doit correspondre au champ
 L'annuaire LDAP est utilisé dans plusieurs contextes :
 
 * lors de l'authentification d'un utilisateur non déjà connu, récupération des champs `uid`,  `sn`, `givenname`, `mail`
-  et `supannetuid`.
+  et du champ pointé par la variable d'environnement LDAP_CHAMP_ETU_ID (`supannetuid` par défaut).
 * lors de la recherche d'un utilisateur en vue de lui attribuer un rôle, recherche textuelle sur les champs
   `uid` et `cn` (par défaut, cf plus bas) pour récupération des mêmes champs que précédemment.
 

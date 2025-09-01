@@ -75,7 +75,8 @@ readonly class UtilisateurManager
                                 private MessageBusInterface                                      $messageBus,
                                 private TagAwareCacheInterface                                   $cache, private ReponseRepository $reponseRepository,
                                 #[Autowire('%env(json:LDAP_CHAMPS_RECHERCHE)%')] private array   $ldapChampsRecherche,
-                                #[Autowire('%env(LDAP_CRITERES_RECHERCHE_SUP)%')] private string $ldapCriteresRecherche)
+                                #[Autowire('%env(LDAP_CRITERES_RECHERCHE_SUP)%')] private string $ldapCriteresRecherche,
+                                #[Autowire('%env(LDAP_CHAMP_ETU_ID)%')] private string           $ldapChampEtuId)
     {
 
     }
@@ -102,14 +103,14 @@ readonly class UtilisateurManager
         }
 
         //todo: remplacer l'exception LDAP par une "utilisateur inconnu"
-        $userEntry = $this->ldapService->searchUid($uid, ['uid', 'sn', 'givenname', 'mail', 'supannetuid']);
+        $userEntry = $this->ldapService->searchUid($uid, ['uid', 'sn', 'givenname', 'mail', $this->ldapChampEtuId]);
 
         $user = new Utilisateur();
         $user->setUid($userEntry[0]['uid'][0]);
         $user->setNom($userEntry[0]['sn'][0] ?? $userEntry[0]['uid'][0]);
         $user->setPrenom($userEntry[0]['givenname'][0] ?? $userEntry[0]['uid'][0]);
         $user->setEmail($userEntry[0]['mail'][0] ?? '');
-        $user->setNumeroEtudiant($userEntry[0]['supannetuid'][0] ?? null);
+        $user->setNumeroEtudiant($userEntry[0][$this->ldapChampEtuId][0] ?? null);
 
         if ($creerSiNouveau) {
             $this->utilisateurRepository->save($user, true);
@@ -141,14 +142,14 @@ readonly class UtilisateurManager
         $searchString .= '))';
 
         try {
-            $entries = $this->ldapService->query($searchString, ['uid', 'sn', 'givenname', 'mail', 'supannetuid']);
+            $entries = $this->ldapService->query($searchString, ['uid', 'sn', 'givenname', 'mail', $this->ldapChampEtuId]);
         } catch (ErreurLdapException $e) {
             $this->logger->debug($e->getMessage());
             $this->logger->debug($e->getTraceAsString());
             return []; //Relancer une exception pour prévenir ? Retourner quand même ceux présents en base?
         }
         foreach ($entries as $entry) {
-            if ($etudiantsSeulement && !array_key_exists('supannetuid', $entry)) {
+            if ($etudiantsSeulement && !array_key_exists($this->ldapChampEtuId, $entry)) {
                 continue;
             }
             if (array_key_exists($entry['uid'][0], $existants)) {
@@ -161,8 +162,8 @@ readonly class UtilisateurManager
             $user->setNom($entry['sn'][0] ?? $entry['uid'][0]);
             $user->setPrenom($entry['givenname'][0] ?? $entry['uid'][0]);
             $user->setEmail($entry['mail'][0]);
-            if (array_key_exists('supannetuid', $entry)) {
-                $user->setNumeroEtudiant((int)$entry['supannetuid'][0]);
+            if (array_key_exists($this->ldapChampEtuId, $entry)) {
+                $user->setNumeroEtudiant((int)$entry[$this->ldapChampEtuId][0]);
             }
             yield $user;
         }
