@@ -4,7 +4,7 @@ LABEL authors="mrossard"
 RUN apt-get update &&  \
     apt upgrade -y && \
     apt-get install -y libssl-dev libldap2-dev libsodium-dev zlib1g-dev curl libcurl4-openssl-dev git unzip libxml2-dev libpq-dev  \
-                libzip-dev libaio1 dos2unix libldap-common gnupg2 libxml2 libxml2-dev supervisor tzdata
+                libzip-dev libaio1t64 dos2unix libldap-common gnupg2 libxml2 libxml2-dev supervisor tzdata libicu-dev
 
 ENV TZ="Europe/Paris"
 RUN echo 'date.timezone = "Europe/Paris"'> /usr/local/etc/php/conf.d/timezone.ini
