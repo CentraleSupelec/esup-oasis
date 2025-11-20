@@ -13,9 +13,11 @@
 namespace App\State\PeriodeRH;
 
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Entity\PeriodeRH;
+use App\Filter\PeriodeEnvoyeeFilter;
 use App\Filter\PeriodeIntervenantFilter;
 use App\Repository\PeriodeRHRepository;
 use Exception;
@@ -23,12 +25,11 @@ use Exception;
 readonly class IntervenantServicesFaitsProvider implements ProviderInterface
 {
 
-    function __construct(private ServicesFaitsProvider $servicesFaitsProvider,
-                         private PeriodeProvider       $periodeProvider,
-                         private PeriodeRHRepository   $periodeRHRepository)
-    {
-
-    }
+    function __construct(
+        private ServicesFaitsProvider $servicesFaitsProvider,
+        private PeriodeProvider $periodeProvider,
+        private PeriodeRHRepository $periodeRHRepository,
+    ) {}
 
     /**
      * @throws Exception
@@ -42,26 +43,34 @@ readonly class IntervenantServicesFaitsProvider implements ProviderInterface
         // On appelle le PeriodeProvider pour avoir les filtres!
         $periodeContext = $context;
         $periodeContext['filters'][PeriodeIntervenantFilter::PROPERTY] = $uriVariables['uid'];
+        $periodeContext['filters'][PeriodeEnvoyeeFilter::PROPERTY] = true;
         if ($context['filters']['order'] ?? false) {
             $periodeContext['filters']['order'] = $context['filters']['order'];
         }
 
+        $periodeRhOperation = new GetCollection()
+//            ->withClass(PeriodeRH::class)
+            ->withclass(PeriodeRH::class) //entité, on ajoute les filtres à la main
+            ->withFilters([
+                'annotated_app_api_resource_periode_rh_api_platform_doctrine_orm_filter_order_filter',
+                PeriodeIntervenantFilter::class,
+                PeriodeEnvoyeeFilter::class,
+            ]);
+
         $periodes = $this->periodeProvider->provide(
-            operation: $operation->withClass(PeriodeRH::class),
+            operation: $periodeRhOperation,
             uriVariables: [],
-            context: $periodeContext);
+            context: $periodeContext,
+        );
 
         //on a les périodes filtrées...
         $result = [];
         foreach ($periodes as $periode) {
-            if (!$periode->envoyee) {
-                continue;
-            }
             $periodeEntity = $this->periodeRHRepository->find($periode->id);
             $servicesFaits = $this->servicesFaitsProvider->init($periodeEntity, $uriVariables['uid']);
             $result[] = $this->servicesFaitsProvider->traiterEvenements(
                 evenements: $this->servicesFaitsProvider->getEvenements($periodeEntity, $uriVariables['uid']),
-                servicesFaits: $servicesFaits
+                servicesFaits: $servicesFaits,
             );
         }
 

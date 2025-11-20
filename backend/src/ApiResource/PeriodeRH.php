@@ -22,6 +22,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Filter\PeriodeEnvoyeeFilter;
 use App\Filter\PeriodeIntervenantFilter;
 use App\State\PeriodeRH\PeriodeProcessor;
 use App\State\PeriodeRH\PeriodeProvider;
@@ -31,36 +32,37 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    operations            : [
+    operations: [
         new GetCollection(
-            uriTemplate: self::COLLECTION_URI
+            uriTemplate: self::COLLECTION_URI,
         ),
         new Get(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: ['id'],
         ),
         new Post(
             uriTemplate: self::COLLECTION_URI,
-            security   : "is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_ADMIN')",
         ),
         new Patch(
             uriTemplate: self::ITEM_URI,
-            security   : "is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_ADMIN')",
         ),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    openapi               : new Operation(tags: ['Referentiel']),
-    order                 : ['debut' => 'DESC '],
-    security              : "is_granted('ROLE_PLANIFICATEUR') or is_granted('ROLE_INTERVENANT')",
-    provider              : PeriodeProvider::class,
-    processor             : PeriodeProcessor::class,
-    stateOptions          : new Options(entityClass: \App\Entity\PeriodeRH::class)
+    openapi: new Operation(tags: ['Referentiel']),
+    order: ['debut' => 'DESC '],
+    security: "is_granted('ROLE_PLANIFICATEUR') or is_granted('ROLE_INTERVENANT')",
+    provider: PeriodeProvider::class,
+    processor: PeriodeProcessor::class,
+    stateOptions: new Options(entityClass: \App\Entity\PeriodeRH::class)
 )]
 #[ApiFilter(OrderFilter::class, properties: ['debut'])]
 #[ApiFilter(DateFilter::class, properties: ['butoir'])]
 #[PeriodesSansChevauchementConstraint]
 #[ApiFilter(PeriodeIntervenantFilter::class)]
+#[ApiFilter(PeriodeEnvoyeeFilter::class)]
 final class PeriodeRH
 {
     public const string COLLECTION_URI = '/periodes';
