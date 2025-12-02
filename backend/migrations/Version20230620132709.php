@@ -19,7 +19,7 @@ final class Version20230620132709 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('CREATE EXTENSION unaccent;');
+        $this->addSql('CREATE EXTENSION IF NOT EXISTS unaccent;');
 
     }
 
