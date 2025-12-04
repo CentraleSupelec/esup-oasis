@@ -71,6 +71,12 @@ class BeneficiaireRepository extends ServiceEntityRepository
     public function actifs(DateTimeInterface $now): array
     {
         $qb = $this->createQueryBuilder('b')
+            ->addSelect('u')
+            ->addSelect('d')
+            ->addSelect('i')
+            ->join('b.utilisateur', 'u')
+            ->leftJoin('u.intervenant', 'i')
+            ->leftJoin('u.decisionsAmenagementExamens', 'd')
             ->andWhere(':now >= b.debut and (b.fin is null or :now < b.fin)')
             ->setParameter('now', $now);
 

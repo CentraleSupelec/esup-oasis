@@ -236,13 +236,16 @@ class DemandeManager
             $utilisateur = $this->utilisateurManager->parUid($utilisateur->uid);
         }
 
-        $demandesEnCours = $this->demandeRepository->findDemandesEnCours($utilisateur);
-        $tdb->nbDemandesEnCours = count($demandesEnCours);
+        $demandesParEtat = $this->demandeRepository->countDemandesEnCoursParEtat($utilisateur);
+
+        $tdb->nbDemandesEnCours = array_sum(
+            array_map(fn(array $demande) => $demande['nb'], $demandesParEtat),
+        );
 
         $tdb->nbDemandesParEtat = [];
-        foreach ($demandesEnCours as $demande) {
-            $etatUri = \App\ApiResource\EtatDemande::COLLECTION_URI . '/' . $demande->getEtat()->getId();
-            $tdb->nbDemandesParEtat[$etatUri] = ($tdb->nbDemandesParEtat[$etatUri] ?? 0) + 1;
+        foreach ($demandesParEtat as $etatId => $nbDemandes) {
+            $etatUri = \App\ApiResource\EtatDemande::COLLECTION_URI . '/' . $etatId;
+            $tdb->nbDemandesParEtat[$etatUri] = $nbDemandes;
         }
 
         return $tdb;

@@ -94,4 +94,25 @@ class DemandeRepository extends ServiceEntityRepository
         return $qb->getQuery()
             ->getResult();
     }
+
+    public function countDemandesEnCoursParEtat(?Utilisateur $utilisateur): array
+    {
+        $qb = $this->createQueryBuilder('d')
+            ->select('e.id, count(d) as nb')
+            ->join('d.campagne', 'campagne')
+            ->join('d.etat', 'e')
+            ->andWhere('campagne.debut <= :now and (campagne.fin is null or campagne.fin > :now)')
+            ->groupBy('e.id')
+            ->setParameter('now', $this->now());
+
+        //si non gestionnaire, il faut filtrer!
+        if (in_array(Utilisateur::ROLE_RENFORT, $utilisateur->getRoles())) {
+            $qb->join('campagne.typeDemande', 'type')
+                ->andWhere('type.visibiliteLimitee = false');
+        }
+
+        return $qb->getQuery()
+            ->getResult();
+    }
+
 }
