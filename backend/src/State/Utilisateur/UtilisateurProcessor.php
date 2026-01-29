@@ -16,18 +16,19 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Utilisateur;
+use App\Message\RessourceCollectionModifieeMessage;
 use App\Message\RessourceModifieeMessage;
 use App\Service\ErreurLdapException;
 use RuntimeException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/** @mago-ignore analysis:unused-property */
 readonly class UtilisateurProcessor implements ProcessorInterface
 {
-
-    function __construct(private UtilisateurManager  $utilisateurManager,
-                         private MessageBusInterface $messageBus)
-    {
-    }
+    function __construct(
+        private UtilisateurManager $utilisateurManager,
+        private MessageBusInterface $messageBus,
+    ) {}
 
     /**
      * @param Utilisateur $data
@@ -40,7 +41,7 @@ readonly class UtilisateurProcessor implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         if (!$operation instanceof Patch) {
-            throw new RuntimeException("Erreur du dev, uniquement PATCH sur utilisateur");
+            throw new RuntimeException('Erreur du dev, uniquement PATCH sur utilisateur');
         }
 
         $entity = $this->utilisateurManager->maj($data);
@@ -48,6 +49,8 @@ readonly class UtilisateurProcessor implements ProcessorInterface
         $data->roles = $entity->getRoles();
 
         $this->messageBus->dispatch(new RessourceModifieeMessage($data));
+        //Un patch ici peut impacter des collections (ajout/retrait de la liste des intervenants par ex.)
+        $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($data));
 
         return $data;
     }

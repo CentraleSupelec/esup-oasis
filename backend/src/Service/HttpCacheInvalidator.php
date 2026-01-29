@@ -25,25 +25,28 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 readonly class HttpCacheInvalidator
 {
-    public function __construct(private IriConverterInterface                                                        $iriConverter,
-                                private ResourceClassResolverInterface                                               $resourceClassResolver,
-                                private ResourceMetadataCollectionFactoryInterface                                   $resourceMetadataCollectionFactory,
-                                #[Autowire(service: 'api_platform.http_cache.purger.souin')] private PurgerInterface $httpCachePurger,
-                                private LoggerInterface                                                              $logger)
-    {
-
-    }
+    public function __construct(
+        private IriConverterInterface $iriConverter,
+        private ResourceClassResolverInterface $resourceClassResolver,
+        private ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory,
+        #[Autowire(service: 'api_platform.http_cache.purger.souin')]
+        private PurgerInterface $httpCachePurger,
+        private LoggerInterface $logger,
+    ) {}
 
     public function invalidateCollectionForRessource($resource): void
     {
-        $this->invalidate($resource, GetCollection::class);
+        if (null !== $resource) {
+            $this->invalidate($resource, GetCollection::class);
+        }
     }
 
     public function invalidateRessource($resource): void
     {
-        $this->invalidate($resource, Get::class);
+        if (null !== $resource) {
+            $this->invalidate($resource, Get::class);
+        }
     }
-
 
     private function invalidate(object $resource, string $type): void
     {
@@ -53,7 +56,11 @@ readonly class HttpCacheInvalidator
         foreach ($resourceMetadataCollection as $resourceMetadata) {
             foreach ($resourceMetadata->getOperations() ?? [] as $operation) {
                 if ($operation instanceof $type) {
-                    $targetUri = $this->iriConverter->getIriFromResource($resource, UrlGeneratorInterface::ABS_PATH, $operation);
+                    $targetUri = $this->iriConverter->getIriFromResource(
+                        $resource,
+                        UrlGeneratorInterface::ABS_PATH,
+                        $operation,
+                    );
                     try {
                         $this->httpCachePurger->purge([$targetUri]);
                         $this->logger->info("Invalidated uri for ressource : $targetUri");
@@ -63,7 +70,5 @@ readonly class HttpCacheInvalidator
                 }
             }
         }
-
     }
-
 }
