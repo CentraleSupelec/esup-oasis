@@ -63,7 +63,7 @@ class NuxeoStorageProvider implements StorageProviderInterface
     }
 
     #[Override]
-    public function get(array $metadata): string
+    public function get(array $metadata): string|File
     {
         if (!$this->online) {
             return $this->fallbackProvider->get($metadata);
