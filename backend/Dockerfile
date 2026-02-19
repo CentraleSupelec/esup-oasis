@@ -9,7 +9,8 @@ RUN CGO_ENABLED=1 \
     CGO_LDFLAGS="$(php-config --ldflags) $(php-config --libs)" \
     xcaddy build \
     --output /usr/local/bin/frankenphp \
-    --with github.com/dunglas/frankenphp/caddy \
+    --with github.com/dunglas/frankenphp=./ \
+    --with github.com/dunglas/frankenphp/caddy=./caddy/ \
     --with github.com/dunglas/mercure/caddy \
     --with github.com/dunglas/vulcain/caddy \
     --with github.com/dunglas/caddy-cbrotli \
