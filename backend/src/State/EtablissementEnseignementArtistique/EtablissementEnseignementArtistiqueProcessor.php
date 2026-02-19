@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -14,25 +14,15 @@ namespace App\State\EtablissementEnseignementArtistique;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\EtablissementEnseignementArtistique;
-use App\State\MappedEntityProcessor;
 use Override;
 
 readonly class EtablissementEnseignementArtistiqueProcessor implements ProcessorInterface
 {
+    function __construct() {}
 
-    function __construct(private MappedEntityProcessor $processor)
+    #[Override]
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-    }
-
-    #[Override] public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
-    {
-        return $this->processor->process(
-            data: $data,
-            operation: $operation,
-            entityClass: EtablissementEnseignementArtistique::class,
-            uriVariables: $uriVariables,
-            context: $context
-        );
+        assert('This should not be called  : ' . __CLASS__ . '::' . __METHOD__);
     }
 }

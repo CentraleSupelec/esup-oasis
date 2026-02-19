@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -23,7 +23,6 @@ use App\Message\RessourceModifieeMessage;
 use App\Repository\ProfilBeneficiaireRepository;
 use App\Repository\TypologieHandicapRepository;
 use App\Service\ErreurLdapException;
-use App\State\TransformerService;
 use App\State\Utilisateur\BeneficiaireInconnuException;
 use App\State\Utilisateur\UtilisateurManager;
 use Exception;
@@ -33,14 +32,13 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final readonly class BeneficiaireProfilProcessor implements ProcessorInterface
 {
-    public function __construct(private UtilisateurManager           $utilisateurManager,
-                                private ProfilBeneficiaireRepository $profilBeneficiaireRepository,
-                                private TypologieHandicapRepository  $typologieHandicapRepository,
-                                private TransformerService           $transformerService,
-                                private MessageBusInterface          $messageBus,
-                                private ValidatorInterface           $validator,)
-    {
-    }
+    public function __construct(
+        private UtilisateurManager $utilisateurManager,
+        private ProfilBeneficiaireRepository $profilBeneficiaireRepository,
+        private TypologieHandicapRepository $typologieHandicapRepository,
+        private MessageBusInterface $messageBus,
+        private ValidatorInterface $validator,
+    ) {}
 
     /**
      * @param BeneficiaireProfil $data
@@ -50,8 +48,12 @@ final readonly class BeneficiaireProfilProcessor implements ProcessorInterface
      * @return BeneficiaireProfil|null
      * @throws Exception
      */
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): BeneficiaireProfil|null
-    {
+    public function process(
+        mixed $data,
+        Operation $operation,
+        array $uriVariables = [],
+        array $context = [],
+    ): ?BeneficiaireProfil {
         try {
             $utilisateur = $this->utilisateurManager->parUid($uriVariables['uid']);
             $gestionnaire = $this->utilisateurManager->parUid($data->gestionnaire->uid);
@@ -65,7 +67,7 @@ final readonly class BeneficiaireProfilProcessor implements ProcessorInterface
 
             try {
                 $this->utilisateurManager->supprimerBeneficiaire($utilisateur, $data->id);
-                $this->messageBus->dispatch(new RessourceModifieeMessage($data));
+                //                $this->messageBus->dispatch(new RessourceModifieeMessage($data));
                 return null;
             } catch (BeneficiaireInconnuException $exception) {
                 //todo: remplacer ça par une contrainte en amont
@@ -73,17 +75,20 @@ final readonly class BeneficiaireProfilProcessor implements ProcessorInterface
             }
         } else {
             try {
-                $beneficiaireEntity = $this->utilisateurManager->majBeneficiaires($utilisateur, $profil, $data->debut,
-                    $data->fin, $data->id, $gestionnaire,
-                    array_map(fn($typo) => $this->typologieHandicapRepository->find($typo->id), $data->typologies ?? []),
-                    $data->avecAccompagnement);
-                $resource = $this->transformerService->transform($beneficiaireEntity, BeneficiaireProfil::class);
-                if (null !== $data->id) {
-                    $this->messageBus->dispatch(new RessourceModifieeMessage($resource));
-                } else {
-                    $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($resource));
-                }
-                return $resource;
+                $beneficiaireEntity = $this->utilisateurManager->majBeneficiaires(
+                    $utilisateur,
+                    $profil,
+                    $data->debut,
+                    $data->fin,
+                    $data->id,
+                    $gestionnaire,
+                    array_map(
+                        fn($typo) => $this->typologieHandicapRepository->find($typo->id),
+                        $data->typologies ?? [],
+                    ),
+                    $data->avecAccompagnement,
+                );
+                return new BeneficiaireProfil($beneficiaireEntity);
             } catch (BeneficiaireInconnuException $exception) {
                 //todo: remplacer ça par une contrainte en amont
                 throw new UnprocessableEntityHttpException($exception->getMessage());

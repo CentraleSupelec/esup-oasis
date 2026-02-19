@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -17,15 +17,14 @@ use App\Entity\ApplicationCliente;
 use App\Entity\Utilisateur;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class VoirEvenementVoter extends Voter
 {
-
-    public function __construct(private readonly Security $security)
-    {
-
-    }
+    public function __construct(
+        private readonly Security $security,
+    ) {}
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -33,13 +32,17 @@ class VoirEvenementVoter extends Voter
     }
 
     /**
-     * @param string         $attribute
-     * @param Evenement      $subject
+     * @param string $attribute
+     * @param mixed $subject
      * @param TokenInterface $token
-     * @return bool
+     * @param Vote|null $vote* @return bool
      */
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
-    {
+    protected function voteOnAttribute(
+        string $attribute,
+        mixed $subject,
+        TokenInterface $token,
+        ?Vote $vote = null,
+    ): bool {
         //planificateurs
         if ($this->security->isGranted(Utilisateur::ROLE_PLANIFICATEUR)) {
             return true;
@@ -58,6 +61,5 @@ class VoirEvenementVoter extends Voter
 
         //bénéficiaire
         return count(array_filter($subject->beneficiaires, fn($benef) => $benef->uid === $userIdentifier)) > 0;
-
     }
 }

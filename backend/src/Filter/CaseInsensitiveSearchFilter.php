@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -20,17 +20,29 @@ use Override;
 
 class CaseInsensitiveSearchFilter extends NestedFieldSearchFilter
 {
-
     use PropertyHelperTrait;
 
     protected array $joins = [];
 
-    #[Override] protected function doFilter(string $alias, string $currentResourceClass, string $targetField, array $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation, array $context): void
-    {
+    #[Override]
+    protected function doFilter(
+        string $alias,
+        string $currentResourceClass,
+        string $targetField,
+        array $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation,
+        array $context,
+    ): void {
         $exprs = [];
         foreach ($value as $val) {
             $param = $queryNameGenerator->generateParameterName($targetField);
-            $exprs[] = $queryBuilder->expr()->like("lower(unaccent(" . $alias . '.' . $targetField . '))', 'unaccent(:' . $param . ')');
+            $exprs[] = $queryBuilder->expr()->like(
+                'lower(unaccent(' . $alias . '.' . $targetField . '))',
+                'unaccent(:' . $param . ')',
+            );
             $queryBuilder->setParameter($param, '%' . strtolower($val) . '%');
         }
 

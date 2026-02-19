@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,40 +13,51 @@
 namespace App\Entity;
 
 use App\Repository\PeriodeRHRepository;
+use App\State\EntityToResourceTransformer;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: PeriodeRHRepository::class)]
+#[Map(target: \App\ApiResource\PeriodeRH::class, transform: [EntityToResourceTransformer::class, 'entityToResource'])]
 class PeriodeRH
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Map(if: false)]
     private ?DateTimeInterface $debut = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Map(if: false)]
     private ?DateTimeInterface $fin = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Map(if: false)]
     private ?DateTimeInterface $butoir = null;
 
     #[ORM\OneToMany(mappedBy: 'periodePriseEnCompteRH', targetEntity: Evenement::class)]
+    #[Map(if: false)]
     private Collection $evenements;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Map(if: false)]
     private ?DateTimeInterface $dateEnvoi = null;
 
     #[ORM\ManyToOne]
+    #[Map(if: false)]
     private ?Utilisateur $utilisateurEnvoi = null;
 
     #[ORM\OneToMany(mappedBy: 'periode', targetEntity: InterventionForfait::class)]
+    #[Map(if: false)]
     private Collection $interventionsForfait;
 
     public function __construct()
@@ -135,7 +146,7 @@ class PeriodeRH
     {
         $this->dateEnvoi = match ($dateEnvoi) {
             null => null,
-            default => DateTime::createFromInterface($dateEnvoi)
+            default => DateTime::createFromInterface($dateEnvoi),
         };
 
         return $this;

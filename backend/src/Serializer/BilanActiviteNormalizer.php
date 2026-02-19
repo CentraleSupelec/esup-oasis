@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -23,9 +23,11 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class BilanActiviteNormalizer implements NormalizerInterface
 {
-
-    public function normalize(mixed $data, ?string $format = null, array $context = []): array|string|int|float|bool|ArrayObject|null
-    {
+    public function normalize(
+        mixed $data,
+        ?string $format = null,
+        array $context = [],
+    ): array|string|int|float|bool|ArrayObject|null {
         if ($format === 'customcsv') {
             return $this->toArray($data);
         }
@@ -63,20 +65,28 @@ class BilanActiviteNormalizer implements NormalizerInterface
         $typesExamens = array_filter($types, fn($type) => $type->examens);
 
         $entetes = $this->entetes($typesPedagogiques, $typesAideHumaine, $typesExamens);
-        $lines[] = $entetes[0];//codes
-        $lines[] = $entetes[1];//libellés
+        $lines[] = $entetes[0]; //codes
+        $lines[] = $entetes[1]; //libellés
 
         /**
          * Données
          */
         foreach ($bilanActivite->beneficiaires as $beneficiaire) {
-            [$pedagogiques, $aideHumaine, $examens] = $this->idsTypesAmenagementsParCategorie($beneficiaire->amenagements);
+            [$pedagogiques, $aideHumaine, $examens] =
+                $this->idsTypesAmenagementsParCategorie($beneficiaire->amenagements);
 
             foreach ($beneficiaire->profils as $profil) {
-                $lines[] = $this->ligneProfil($beneficiaire, $profil, $pedagogiques, $typesPedagogiques, $aideHumaine,
-                    $typesAideHumaine, $examens, $typesExamens);
+                $lines[] = $this->ligneProfil(
+                    $beneficiaire,
+                    $profil,
+                    $pedagogiques,
+                    $typesPedagogiques,
+                    $aideHumaine,
+                    $typesAideHumaine,
+                    $examens,
+                    $typesExamens,
+                );
             }
-
         }
 
         return $lines;
@@ -86,18 +96,15 @@ class BilanActiviteNormalizer implements NormalizerInterface
     {
         $pedagogiques = array_map(
             fn(Amenagement $amenagement) => $amenagement->typeAmenagement->id,
-            array_filter($amenagements,
-                fn($amenagement) => $amenagement->typeAmenagement->pedagogique)
+            array_filter($amenagements, fn($amenagement) => $amenagement->typeAmenagement->pedagogique),
         );
         $aideHumaine = array_map(
             fn(Amenagement $amenagement) => $amenagement->typeAmenagement->id,
-            array_filter($amenagements,
-                fn($amenagement) => $amenagement->typeAmenagement->aideHumaine)
+            array_filter($amenagements, fn($amenagement) => $amenagement->typeAmenagement->aideHumaine),
         );
         $examens = array_map(
             fn(Amenagement $amenagement) => $amenagement->typeAmenagement->id,
-            array_filter($amenagements,
-                fn($amenagement) => $amenagement->typeAmenagement->examens)
+            array_filter($amenagements, fn($amenagement) => $amenagement->typeAmenagement->examens),
         );
 
         return [$pedagogiques, $aideHumaine, $examens];
@@ -114,10 +121,16 @@ class BilanActiviteNormalizer implements NormalizerInterface
      * @param array $typesExamens
      * @return array
      */
-    protected function ligneProfil(UtilisateurBilanActivite $beneficiaire, BeneficiaireProfil $profil, array $pedagogiques,
-                                   array                    $typesPedagogiques, array $aideHumaine, array $typesAideHumaine,
-                                   array                    $examens, array $typesExamens): array
-    {
+    protected function ligneProfil(
+        UtilisateurBilanActivite $beneficiaire,
+        BeneficiaireProfil $profil,
+        array $pedagogiques,
+        array $typesPedagogiques,
+        array $aideHumaine,
+        array $typesAideHumaine,
+        array $examens,
+        array $typesExamens,
+    ): array {
         $ligne = [
             $beneficiaire->numero,
             $beneficiaire->gestionnaire->nom . ' ' . $beneficiaire->gestionnaire->prenom,
@@ -134,17 +147,17 @@ class BilanActiviteNormalizer implements NormalizerInterface
             match (count($profil->typologies)) {
                 0 => '',
                 1 => $profil->typologies[0]->libelle,
-                default => implode(' - ', array_map(fn($typo) => $typo->libelle, $profil->typologies))
+                default => implode(' - ', array_map(fn($typo) => $typo->libelle, $profil->typologies)),
             },
             match ($profil->profil->id) {
                 ProfilBeneficiaire::INCAPACITE_TEMPORAIRE => 'oui',
-                default => 'non'
+                default => 'non',
             },
             '', //com
             '', //codpfpp
             match (count($pedagogiques)) {
                 0 => 'non',
-                default => 'oui'
+                default => 'oui',
             },
             '',
         ];
@@ -154,16 +167,16 @@ class BilanActiviteNormalizer implements NormalizerInterface
         }
         $ligne[] = match (count($aideHumaine)) {
             0 => 'non',
-            default => 'oui'
+            default => 'oui',
         };
         //aménagements aide humaine dans un ordre fixe
         foreach ($typesAideHumaine as $type) {
             $ligne[] = in_array($type->id, $aideHumaine) ? 'oui' : 'non';
         }
-        $ligne[] = '';//aidhnat
+        $ligne[] = ''; //aidhnat
         $ligne[] = match (count($examens)) {
             0 => 'non',
-            default => 'oui'
+            default => 'oui',
         };
         //aménagements examens dans un ordre fixe
         foreach ($typesExamens as $type) {
@@ -187,11 +200,46 @@ class BilanActiviteNormalizer implements NormalizerInterface
         /**
          * Ligne d'entête
          */
-        $entete = ['numetu', 'CAS', 'profil', 'an', 'sexe', 'composante', 'typfrmn', 'apprentissage/contrat pro',
-            'modfrmn', 'codsco', 'codfmt', 'codfil', 'codhd', 'hdtmp', 'com', 'codpfpp', 'codpfas', 'amenagement EDT'];
-        $enteteLibelles = ['numéro anonymat', "chargé d'accompagnement", 'profil', 'Année de naissance', 'sexe', 'composante', 'Type de formation', 'apprentissage/contrat pro',
-            'format formation', "Année d'étude cursus", 'Diplôme présenté', 'Discipline', 'Typologie de handicap', 'Profil permanent/temporaire',
-            'commentaire libre', "niveau de formalisation du plan d'accompagnement", 'aménagements pédagogiques?', 'amenagement EDT'];
+        $entete = [
+            'numetu',
+            'CAS',
+            'profil',
+            'an',
+            'sexe',
+            'composante',
+            'typfrmn',
+            'apprentissage/contrat pro',
+            'modfrmn',
+            'codsco',
+            'codfmt',
+            'codfil',
+            'codhd',
+            'hdtmp',
+            'com',
+            'codpfpp',
+            'codpfas',
+            'amenagement EDT',
+        ];
+        $enteteLibelles = [
+            'numéro anonymat',
+            "chargé d'accompagnement",
+            'profil',
+            'Année de naissance',
+            'sexe',
+            'composante',
+            'Type de formation',
+            'apprentissage/contrat pro',
+            'format formation',
+            "Année d'étude cursus",
+            'Diplôme présenté',
+            'Discipline',
+            'Typologie de handicap',
+            'Profil permanent/temporaire',
+            'commentaire libre',
+            "niveau de formalisation du plan d'accompagnement",
+            'aménagements pédagogiques?',
+            'amenagement EDT',
+        ];
         //ajout items types pédago
         foreach ($typesPedagogiques as $type) {
             $entete[] = $type->libelle;
@@ -212,10 +260,26 @@ class BilanActiviteNormalizer implements NormalizerInterface
             $enteteLibelles[] = $type->libelle;
         }
         return [
-            [...$entete, 'précisions modalités évaluation', 'autae', 'session différée', 'codmeaa',
-                'autaa', 'codamL', 'précisions accompagnement autre'],
-            [...$enteteLibelles, 'précisions modalités évaluation', "Autre aménagement d'examen?", 'session différée', 'niveau de suivi',
-                'autre aide?', 'informations sur les accompagnements hors Université', 'précisions accompagnement autre'],
+            [
+                ...$entete,
+                'précisions modalités évaluation',
+                'autae',
+                'session différée',
+                'codmeaa',
+                'autaa',
+                'codamL',
+                'précisions accompagnement autre',
+            ],
+            [
+                ...$enteteLibelles,
+                'précisions modalités évaluation',
+                "Autre aménagement d'examen?",
+                'session différée',
+                'niveau de suivi',
+                'autre aide?',
+                'informations sur les accompagnements hors Université',
+                'précisions accompagnement autre',
+            ],
         ];
     }
 
@@ -241,13 +305,11 @@ class BilanActiviteNormalizer implements NormalizerInterface
          *  - par libellé dans chaque catégorie
          */
         $types = array_values($types);
-        usort($types,
-            fn(TypeAmenagement $a, TypeAmenagement $b) => match (true) {
-                $a->pedagogique !== $b->pedagogique => $b->pedagogique <=> $a->pedagogique,
-                $a->aideHumaine !== $b->aideHumaine => $b->aideHumaine <=> $a->aideHumaine,
-                default => $a->libelle <=> $b->libelle
-            }
-        );
+        usort($types, fn(TypeAmenagement $a, TypeAmenagement $b) => match (true) {
+            $a->pedagogique !== $b->pedagogique => $b->pedagogique <=> $a->pedagogique,
+            $a->aideHumaine !== $b->aideHumaine => $b->aideHumaine <=> $a->aideHumaine,
+            default => $a->libelle <=> $b->libelle,
+        });
         return $types;
     }
 }

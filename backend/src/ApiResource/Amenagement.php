@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -25,60 +25,59 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\AmenagementBeneficiaireActifFilter;
+use App\Filter\AmenagementUtilisateurFilter;
 use App\Filter\BeneficiaireActifTagFilter;
 use App\Filter\CaseInsensitiveSearchFilter;
 use App\Filter\ComposanteFormationFilter;
-use App\Filter\AmenagementUtilisateurFilter;
 use App\Filter\NestedFieldSearchFilter;
+use App\Filter\PreloadAssociationsFilter;
 use App\State\Amenagement\AmenagementProcessor;
 use App\State\Amenagement\AmenagementProvider;
 use App\State\Amenagement\AmenagementSansFiltreProvider;
 use App\Validator\AmenagementDatesConstraint;
 use App\Validator\UtilisateurBeneficiaireAmenagementConstraint;
 use DateTimeInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    operations            : [
+    operations: [
         new GetCollection(
-            uriTemplate : self::COLLECTION_URI,
+            uriTemplate: self::COLLECTION_URI,
             uriVariables: ['uid'],
-            security    : "is_granted('" . self::VOIR_AMENAGEMENTS_UTILISATEUR . "', request.get('uid'))"
+            security: "is_granted('" . self::VOIR_AMENAGEMENTS_UTILISATEUR . "', request.attributes.get('uid'))",
+            map: false,
         ),
         new GetCollection(
             uriTemplate: '/amenagements',
-            security   : "is_granted('" . self::VOIR_AMENAGEMENTS . "')",
-            provider   : AmenagementSansFiltreProvider::class
+            security: "is_granted('" . self::VOIR_AMENAGEMENTS . "')",
+            provider: AmenagementSansFiltreProvider::class,
+            map: false,
         ),
-        new Post(
-            uriTemplate : self::COLLECTION_URI,
-            uriVariables: ['uid'],
-            read        : false
-        ),
+        new Post(uriTemplate: self::COLLECTION_URI, uriVariables: ['uid'], read: false, map: false),
         new Get(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'id'],
-            security    : "is_granted('" . self::VOIR_AMENAGEMENTS_UTILISATEUR . "', request.get('uid'))"
+            security: "is_granted('" . self::VOIR_AMENAGEMENTS_UTILISATEUR . "', request.attributes.get('uid'))",
         ),
         new Patch(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'id'],
-            security    : "is_granted('" . self::MODIFIER_AMENAGEMENTS_UTILISATEUR . "', request.get('uid'))"
+            security: "is_granted('" . self::MODIFIER_AMENAGEMENTS_UTILISATEUR . "', request.attributes.get('uid'))",
         ),
         new Delete(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'id'],
-            security    : "is_granted('" . self::MODIFIER_AMENAGEMENTS_UTILISATEUR . "', request.get('uid'))"
+            security: "is_granted('" . self::MODIFIER_AMENAGEMENTS_UTILISATEUR . "', request.attributes.get('uid'))",
         ),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    openapi               : new Operation(tags: ['Utilisateurs']),
-    provider              : AmenagementProvider::class,
-    processor             : AmenagementProcessor::class,
-    stateOptions          : new Options(entityClass: \App\Entity\Amenagement::class)
+    openapi: new Operation(tags: ['Utilisateurs']),
+    provider: AmenagementProvider::class,
+    processor: AmenagementProcessor::class,
+    stateOptions: new Options(entityClass: \App\Entity\Amenagement::class),
 )]
 #[UtilisateurBeneficiaireAmenagementConstraint]
 #[ApiFilter(AmenagementUtilisateurFilter::class)]
@@ -93,7 +92,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         'type' => 'string',
         'mapping' => 'beneficiaires.utilisateur.nom',
         'desc' => 'Nom du bénéficiaire',
-    ]])]
+    ],
+])]
 #[ApiFilter(BooleanFilter::class, properties: [
     'type.pedagogique',
     'type.examens',
@@ -101,13 +101,19 @@ use Symfony\Component\Validator\Constraints as Assert;
 ])]
 #[ApiFilter(ComposanteFormationFilter::class, properties: ['composante', 'formation'])]
 #[ApiFilter(BeneficiaireActifTagFilter::class, properties: ['tags'])]
-#[ApiFilter(OrderFilter::class, properties: ['beneficiaires.utilisateur.nom'], arguments: ['orderParameterName' => 'order'])]
+#[ApiFilter(
+    OrderFilter::class,
+    properties: ['beneficiaires.utilisateur.nom'],
+    arguments: ['orderParameterName' => 'order'],
+)]
 #[ApiFilter(NestedFieldSearchFilter::class, properties: [
     'gestionnaire' => [
         'type' => 'string',
         'mapping' => 'beneficiaires.gestionnaire',
         'desc' => "gestionnaire du bénéficiaire de l'aménagement",
-    ]])]
+    ],
+])]
+#[ApiFilter(PreloadAssociationsFilter::class)]
 #[AmenagementDatesConstraint]
 class Amenagement
 {
@@ -121,31 +127,111 @@ class Amenagement
 
     //pour uriVariables uniquement
     #[Groups([Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT])]
-    public ?int $id = null;
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id;
+        }
+    }
 
-    #[Ignore] public ?string $uid = null;
+    #[Ignore]
+    public ?string $uid = null {
+        get {
+            if (!isset($this->uid) && $this->entity !== null) {
+                $this->uid = $this->beneficiaire->uid;
+            }
+            return $this->uid;
+        }
+    }
 
     #[Groups([self::GROUP_OUT])]
-    public Utilisateur $beneficiaire;
+    public Utilisateur $beneficiaire {
+        get {
+            if (
+                !isset($this->beneficiaire)
+                && $this->entity !== null
+                && !$this->entity->getBeneficiaires()->isEmpty()
+            ) {
+                $firstBenef = $this->entity->getBeneficiaires()->current();
+                $this->beneficiaire = new Utilisateur($firstBenef->getUtilisateur());
+            }
+            return $this->beneficiaire;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN, Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT])]
     #[Assert\NotNull]
-    public TypeAmenagement $typeAmenagement;
+    public TypeAmenagement $typeAmenagement {
+        get {
+            if (!isset($this->typeAmenagement) && $this->entity !== null && $this->entity->getType()) {
+                $this->typeAmenagement = new TypeAmenagement($this->entity->getType());
+            }
+            return $this->typeAmenagement;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public bool $semestre1 = false;
+    public ?bool $semestre1 = null {
+        get {
+            if (null == $this->semestre1 && $this->entity !== null) {
+                $this->semestre1 = $this->entity->isSemestre1();
+            }
+            return $this->semestre1 ?? false;
+        }
+    }
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public bool $semestre2 = false;
+    public ?bool $semestre2 = null {
+        get {
+            if (null == $this->semestre2 && $this->entity !== null) {
+                $this->semestre2 = $this->entity->isSemestre2();
+            }
+            return $this->semestre2 ?? false;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public ?DateTimeInterface $debut = null;
+    public ?DateTimeInterface $debut = null {
+        get {
+            if (!isset($this->debut) && $this->entity !== null) {
+                $this->debut = $this->entity->getDebut();
+            }
+            return $this->debut;
+        }
+    }
     #[Assert\GreaterThan(propertyPath: 'debut', message: 'fin doit être postérieur à debut')]
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public ?DateTimeInterface $fin = null;
+    public ?DateTimeInterface $fin = null {
+        get {
+            if (!isset($this->fin) && $this->entity !== null) {
+                $this->fin = $this->entity->getFin();
+            }
+            return $this->fin;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN, Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT])]
-    public ?string $commentaire = null;
+    public ?string $commentaire = null {
+        get {
+            if (!isset($this->commentaire) && $this->entity !== null) {
+                $this->commentaire = $this->entity->getCommentaire();
+            }
+            return $this->commentaire;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public ?TypeSuiviAmenagement $suivi = null;
+    public ?TypeSuiviAmenagement $suivi = null {
+        get {
+            if (!isset($this->suivi) && $this->entity !== null && $this->entity->getSuivi()) {
+                $this->suivi = new TypeSuiviAmenagement($this->entity->getSuivi());
+            }
+            return $this->suivi;
+        }
+    }
+
+    public function __construct(
+        private readonly ?\App\Entity\Amenagement $entity = null,
+    ) {}
 }

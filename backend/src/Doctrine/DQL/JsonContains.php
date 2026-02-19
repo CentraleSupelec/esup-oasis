@@ -1,7 +1,13 @@
-<?php /** @noinspection PhpMissingFieldTypeInspection */
-
-/*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+<?php /*
+ * Copyright (c) 2026. Esup - Université de Bordeaux.
+ *
+ * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
+ *
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
+ *//*
+ * Copyright (c) 2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -9,6 +15,8 @@
  *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
  *
  */
+
+/** @noinspection PhpMissingFieldTypeInspection */
 
 namespace App\Doctrine\DQL;
 
@@ -26,7 +34,13 @@ class JsonContains extends FunctionNode
     public function getSql(SqlWalker $sqlWalker): string
     {
         //$str = $this->string->dispatch($sqlWalker) . "::jsonb \? " . $this->string->dispatch($sqlWalker);
-        return 'jsonb_exists(' . $this->string1->dispatch($sqlWalker) . ', ' . $this->string2->dispatch($sqlWalker) . ')';
+        return (
+            'jsonb_exists('
+            . $this->string1->dispatch($sqlWalker)
+            . ', '
+            . $this->string2->dispatch($sqlWalker)
+            . ')'
+        );
     }
 
     public function parse(Parser $parser): void
@@ -41,5 +55,4 @@ class JsonContains extends FunctionNode
 
         $parser->match(TokenType::T_CLOSE_PARENTHESIS);
     }
-
 }

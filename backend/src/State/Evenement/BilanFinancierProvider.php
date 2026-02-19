@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -30,17 +30,16 @@ use App\Entity\TauxHoraire as TauxHoraireEntity;
 use App\Entity\TypeEvenement as TypeEvenementEntity;
 use App\Entity\Utilisateur as UtilisateurEntity;
 use App\Repository\ParametreRepository;
-use App\State\TransformerService;
 use Exception;
 
 class BilanFinancierProvider implements ProviderInterface
 {
     protected array $cachedResources;
 
-    public function __construct(private readonly CollectionProvider  $provider,
-                                private readonly TransformerService  $transformerService,
-                                private readonly ParametreRepository $parametreRepository)
-    {
+    public function __construct(
+        private readonly CollectionProvider $provider,
+        private readonly ParametreRepository $parametreRepository,
+    ) {
         $this->cachedResources = [
             TypeEvenementEntity::class => [],
             UtilisateurEntity::class => [],
@@ -56,17 +55,21 @@ class BilanFinancierProvider implements ProviderInterface
          * toutes les interventions au forfait dont les dates de début et de fin sont comprises également
          */
 
-        $evenementsOperation = $operation->withClass(Evenement::class)
-            ->withPaginationEnabled(false);
+        $evenementsOperation = $operation->withClass(Evenement::class)->withPaginationEnabled(false);
 
-        $interventionsOperation = $operation->withClass(InterventionForfait::class)
+        $interventionsOperation = $operation
+            ->withClass(InterventionForfait::class)
             ->withPaginationEnabled(false)
             ->withStateOptions(null);
 
         $context['filters']['exists']['intervenant'] = true;
         $context['filters']['intervalle']['debut'] = $uriVariables['debut'];
         $context['filters']['intervalle']['fin'] = $uriVariables['fin'];
-        $cleanUriVariables = array_filter($uriVariables, fn($key) => !in_array($key, ['debut', 'fin']), ARRAY_FILTER_USE_KEY);
+        $cleanUriVariables = array_filter(
+            $uriVariables,
+            fn($key) => !in_array($key, ['debut', 'fin']),
+            ARRAY_FILTER_USE_KEY,
+        );
         $contextEvenements = $context;
         $contextEvenements['filters']['exists']['dateAnnulation'] = false; //on ne tient pas compte des événements annulés !
         //maybe: ajouter filtre envoyé RH en systématique?
@@ -98,19 +101,19 @@ class BilanFinancierProvider implements ProviderInterface
              */
             if (!array_key_exists($item->getIntervenant()->getUtilisateur()->getId(), $intervenants)) {
                 $intervenants[$item->getIntervenant()->getUtilisateur()->getId()] = new IntervenantBilanFinancier(
-                    intervenant: $this->getUtilisateurResource($item->getIntervenant()->getUtilisateur())
+                    intervenant: $this->getUtilisateurResource($item->getIntervenant()->getUtilisateur()),
                 );
             }
             $dateItem = $item instanceof Evenement ? $item->getDebut() : $item->getPeriode()->getFin();
-            $periode = $this->getPeriodeResource($item instanceof Evenement ? $item->getPeriodePriseEnCompteRH() : $item->getPeriode());
-            $duree = $item instanceof Evenement ? $item->getDureeEnHeures() : $item->getHeures();
-            $tauxEntity = $item->getType()->getTauxHoraireActifPourDate(
-                match (true) {
-                    $item instanceof Evenement => $item->getDebut(),
-                    $item instanceof InterventionForfait => $item->getPeriode()->getFin(),
-                    default => null
-                }
+            $periode = $this->getPeriodeResource(
+                $item instanceof Evenement ? $item->getPeriodePriseEnCompteRH() : $item->getPeriode(),
             );
+            $duree = $item instanceof Evenement ? $item->getDureeEnHeures() : $item->getHeures();
+            $tauxEntity = $item->getType()->getTauxHoraireActifPourDate(match (true) {
+                $item instanceof Evenement => $item->getDebut(),
+                $item instanceof InterventionForfait => $item->getPeriode()->getFin(),
+                default => null,
+            });
             if (null !== $tauxEntity) {
                 $taux = $this->getTauxHoraireResource($tauxEntity);
             }
@@ -119,7 +122,7 @@ class BilanFinancierProvider implements ProviderInterface
                 type: $this->getTypeResource($item->getType()),
                 tauxHoraire: $taux ?? null,
                 nbHeures: $duree,
-                coeffCharge: $coeffChargeParam->getValeurPourDate($dateItem)?->getValeur() ?? '1'
+                coeffCharge: $coeffChargeParam->getValeurPourDate($dateItem)?->getValeur() ?? '1',
             );
         }
 
@@ -128,38 +131,33 @@ class BilanFinancierProvider implements ProviderInterface
          * Tri par intervenant-nom, intervenant-prénom, période, type événement
          *
          */
-        usort(array: $bilan->intervenants,
-            callback: fn(IntervenantBilanFinancier $a, IntervenantBilanFinancier $b) => match (true) {
-                $a->intervenant->nom === $b->intervenant->nom => $a->intervenant->prenom <=> $b->intervenant->prenom,
-                default => $a->intervenant->nom <=> $b->intervenant->nom
-            }
-        );
+        usort(array: $bilan->intervenants, callback: fn(
+            IntervenantBilanFinancier $a,
+            IntervenantBilanFinancier $b,
+        ) => match (true) {
+            $a->intervenant->nom === $b->intervenant->nom => $a->intervenant->prenom <=> $b->intervenant->prenom,
+            default => $a->intervenant->nom <=> $b->intervenant->nom,
+        });
         $compareActivites = function (ActiviteBilanFinancier $a, ActiviteBilanFinancier $b) {
             return match (true) {
                 $a->periode->id == $b->periode->id => $a->typeEvenement->libelle <=> $b->typeEvenement->libelle,
-                default => $a->periode->debut <=> $b->periode->debut
+                default => $a->periode->debut <=> $b->periode->debut,
             };
         };
         foreach ($bilan->intervenants as $intervenant) {
             usort($intervenant->activitesParPeriode, $compareActivites);
         }
-        $bilan->periodes = array_values($this->cachedResources[PeriodeRHEntity::class]);//todo: build this explicitly if caching changes
+        $bilan->periodes = array_values($this->cachedResources[PeriodeRHEntity::class]); //todo: build this explicitly if caching changes
 
         usort($bilan->periodes, fn($a, $b) => $a->debut <=> $b->debut);
 
         return $bilan;
     }
 
-
-    /**
-     * todo: move those into a CachedTransformerService or something
-     */
-
     public function getPeriodeResource(PeriodeRHEntity $periodeRH): PeriodeRH
     {
         if (!array_key_exists($periodeRH->getId(), $this->cachedResources[PeriodeRHEntity::class])) {
-            $this->cachedResources[PeriodeRHEntity::class][$periodeRH->getId()] =
-                $this->transformerService->transform($periodeRH, PeriodeRH::class);
+            $this->cachedResources[PeriodeRHEntity::class][$periodeRH->getId()] = new PeriodeRH($periodeRH);
         }
         return $this->cachedResources[PeriodeRHEntity::class][$periodeRH->getId()];
     }
@@ -172,8 +170,7 @@ class BilanFinancierProvider implements ProviderInterface
     public function getTypeResource(TypeEvenementEntity $typeEntity): TypeEvenement
     {
         if (!array_key_exists($typeEntity->getId(), $this->cachedResources[TypeEvenementEntity::class])) {
-            $this->cachedResources[TypeEvenementEntity::class][$typeEntity->getId()] =
-                $this->transformerService->transform($typeEntity, TypeEvenement::class);
+            $this->cachedResources[TypeEvenementEntity::class][$typeEntity->getId()] = new TypeEvenement($typeEntity);
         }
         return $this->cachedResources[TypeEvenementEntity::class][$typeEntity->getId()];
     }
@@ -186,8 +183,7 @@ class BilanFinancierProvider implements ProviderInterface
     private function getUtilisateurResource(UtilisateurEntity $utilisateur): Utilisateur
     {
         if (!array_key_exists($utilisateur->getId(), $this->cachedResources[UtilisateurEntity::class])) {
-            $this->cachedResources[UtilisateurEntity::class][$utilisateur->getId()] =
-                $this->transformerService->transform($utilisateur, Utilisateur::class);
+            $this->cachedResources[UtilisateurEntity::class][$utilisateur->getId()] = new Utilisateur($utilisateur);
         }
         return $this->cachedResources[UtilisateurEntity::class][$utilisateur->getId()];
     }
@@ -200,10 +196,8 @@ class BilanFinancierProvider implements ProviderInterface
     private function getTauxHoraireResource(TauxHoraireEntity $tauxHoraire): TauxHoraire
     {
         if (!array_key_exists($tauxHoraire->getId(), $this->cachedResources[TauxHoraireEntity::class])) {
-            $this->cachedResources[TauxHoraireEntity::class][$tauxHoraire->getId()] =
-                $this->transformerService->transform($tauxHoraire, TauxHoraire::class);
+            $this->cachedResources[TauxHoraireEntity::class][$tauxHoraire->getId()] = new TauxHoraire($tauxHoraire);
         }
         return $this->cachedResources[TauxHoraireEntity::class][$tauxHoraire->getId()];
     }
-
 }

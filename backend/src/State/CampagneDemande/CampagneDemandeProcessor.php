@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -22,21 +22,17 @@ use App\Message\RessourceModifieeMessage;
 use App\Repository\CampagneDemandeRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\TypeDemandeRepository;
-use App\State\TransformerService;
 use Override;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class CampagneDemandeProcessor implements ProcessorInterface
 {
-
-    function __construct(private CampagneDemandeRepository $campagneDemandeRepository,
-                         private CommissionRepository      $commissionRepository,
-                         private TypeDemandeRepository     $typeDemandeRepository,
-                         private TransformerService        $transformerService,
-                         private MessageBusInterface       $messageBus)
-    {
-
-    }
+    function __construct(
+        private CampagneDemandeRepository $campagneDemandeRepository,
+        private CommissionRepository $commissionRepository,
+        private TypeDemandeRepository $typeDemandeRepository,
+        private MessageBusInterface $messageBus,
+    ) {}
 
     /**
      * @param CampagneDemande $data
@@ -45,8 +41,13 @@ readonly class CampagneDemandeProcessor implements ProcessorInterface
      * @param array $context
      * @return CampagneDemande
      */
-    #[Override] public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): CampagneDemande
-    {
+    #[Override]
+    public function process(
+        mixed $data,
+        Operation $operation,
+        array $uriVariables = [],
+        array $context = [],
+    ): CampagneDemande {
         if (null === $data->id) {
             $entity = new \App\Entity\CampagneDemande();
         } else {
@@ -54,7 +55,7 @@ readonly class CampagneDemandeProcessor implements ProcessorInterface
         }
 
         if (null === ($typeDemande = $this->typeDemandeRepository->find($uriVariables['typeId']))) {
-            throw new ItemNotFoundException("Type de demande inconnu : " . $uriVariables['typeId']);
+            throw new ItemNotFoundException('Type de demande inconnu : ' . $uriVariables['typeId']);
         }
 
         $entity->setLibelle($data->libelle);
@@ -65,23 +66,16 @@ readonly class CampagneDemandeProcessor implements ProcessorInterface
         $entity->setTypeDemande($typeDemande);
         $entity->setCommission(match ($data->commission) {
             null => null,
-            default => $this->commissionRepository->find($data->commission->id)
+            default => $this->commissionRepository->find($data->commission->id),
         });
         $entity->setAnneeCible($data->anneeCible);
 
         $this->campagneDemandeRepository->save($entity, true);
 
-        $resource = $this->transformerService->transform($entity, CampagneDemande::class);
-        $typeDemandeResource = $this->transformerService->transform($typeDemande, TypeDemande::class);
-
-        if (null === $data->id) {
-            $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($resource));
-        } else {
-            $this->messageBus->dispatch(new RessourceModifieeMessage($resource));
-        }
-
+        //il faut invalider le type de resource aussi
+        $typeDemandeResource = new TypeDemande($typeDemande);
         $this->messageBus->dispatch(new RessourceModifieeMessage($typeDemandeResource));
 
-        return $resource;
+        return new CampagneDemande($entity);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -32,7 +32,7 @@ class Unaccent extends FunctionNode
 
     public function getSql(SqlWalker $sqlWalker): string
     {
-        return 'UNACCENT(' . $this->string->dispatch($sqlWalker) . ")";
+        return 'UNACCENT(' . $this->string->dispatch($sqlWalker) . ')';
     }
 
     public function parse(Parser $parser): void
@@ -44,5 +44,4 @@ class Unaccent extends FunctionNode
 
         $parser->match(TokenType::T_CLOSE_PARENTHESIS);
     }
-
 }

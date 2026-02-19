@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -23,10 +23,15 @@ class RenfortFilter extends AbstractFilter
 {
     public const string PROPERTY = 'renfortfilter';
 
-    protected function filterProperty(string                      $property, $value, QueryBuilder $queryBuilder,
-                                      QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass,
-                                      ?Operation                  $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         /** @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection */
         if (!$operation->getClass() === Utilisateur::class || $property !== self::PROPERTY) {
             return;
@@ -34,7 +39,8 @@ class RenfortFilter extends AbstractFilter
         $alias = $queryBuilder->getRootAliases()[0];
         $typeId = TypeEvenement::TYPE_RENFORT;
 
-        $queryBuilder->join($alias . '.intervenant', 'i')
+        $queryBuilder
+            ->join($alias . '.intervenant', 'i')
             ->join('i.typesEvenements', 'types')
             ->join($alias . '.services', 'services')
             ->andWhere('types.id = :typeRenfort')

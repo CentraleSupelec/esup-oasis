@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -26,11 +26,13 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 class UtilisateurConcerneParEvenementFilter extends AbstractFilter
 {
-
-    public function __construct(private readonly IriConverterInterface $iriConverter, ManagerRegistry $managerRegistry,
-                                ?LoggerInterface                       $logger = null, ?array $properties = null,
-                                ?NameConverterInterface                $nameConverter = null)
-    {
+    public function __construct(
+        private readonly IriConverterInterface $iriConverter,
+        ManagerRegistry $managerRegistry,
+        ?LoggerInterface $logger = null,
+        ?array $properties = null,
+        ?NameConverterInterface $nameConverter = null,
+    ) {
         parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
     }
 
@@ -44,10 +46,15 @@ class UtilisateurConcerneParEvenementFilter extends AbstractFilter
      * @param array $context
      * @return void
      */
-    protected function filterProperty(string                      $property, $value, QueryBuilder $queryBuilder,
-                                      QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass,
-                                      ?Operation                  $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         /** @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection */
         if (!$operation->getClass() === Evenement::class || $property !== 'utilisateurConcerne') {
             return;
@@ -71,10 +78,18 @@ class UtilisateurConcerneParEvenementFilter extends AbstractFilter
         $queryBuilder
             ->leftJoin(sprintf('%s.intervenant', $alias), $intervenantAlias)
             ->leftJoin(sprintf('%s.beneficiaires', $alias), $beneficiairesAlias)
-            ->join('App\Entity\Utilisateur', $utilisateurAlias,
-                Join::WITH, sprintf('(%s = %s.utilisateur or %s = %s.utilisateur) and %s.uid = :uid',
-                    $utilisateurAlias, $intervenantAlias, $utilisateurAlias, $beneficiairesAlias, $utilisateurAlias
-                )
+            ->join(
+                'App\Entity\Utilisateur',
+                $utilisateurAlias,
+                Join::WITH,
+                sprintf(
+                    '(%s = %s.utilisateur or %s = %s.utilisateur) and %s.uid = :uid',
+                    $utilisateurAlias,
+                    $intervenantAlias,
+                    $utilisateurAlias,
+                    $beneficiairesAlias,
+                    $utilisateurAlias,
+                ),
             )
             ->setParameter('uid', $utilisateur->uid);
     }
@@ -85,6 +100,4 @@ class UtilisateurConcerneParEvenementFilter extends AbstractFilter
         //todo: le proposer coté appel externe type mescalendriers?
         return [];
     }
-
-
 }

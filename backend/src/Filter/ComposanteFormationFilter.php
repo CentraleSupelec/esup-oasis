@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -31,34 +31,44 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\PropertyInfo\Type;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 
 class ComposanteFormationFilter extends AbstractFilter
 {
-
     use ClockAwareTrait;
 
-    public function __construct(private readonly Security              $security,
-                                private readonly FormationRepository   $formationRepository,
-                                private readonly IriConverterInterface $iriConverter,
-                                protected ?ManagerRegistry             $managerRegistry,
-                                ?LoggerInterface                       $logger = null,
-                                protected ?array                       $properties = null,
-                                protected ?NameConverterInterface      $nameConverter = null,)
-    {
+    public function __construct(
+        private readonly Security $security,
+        private readonly FormationRepository $formationRepository,
+        private readonly IriConverterInterface $iriConverter,
+        protected ?ManagerRegistry $managerRegistry,
+        ?LoggerInterface $logger = null,
+        protected ?array $properties = null,
+        protected ?NameConverterInterface $nameConverter = null,
+    ) {
         parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
     }
 
-    #[Override] protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator,
-                                                  string $resourceClass, ?Operation $operation = null, array $context = []): void
-    {
+    #[Override]
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         /**
          * On ne veut que les aménagements des bénéficiaires actifs
          * pour lesquels l'étudiant liés est inscrit à l'instant T dans la composante demandée
          */
 
-        if (!in_array($operation->getClass(), [Amenagement::class, Utilisateur::class]) || !in_array($property, ['composante', 'formation'])) {
+        if (
+            !in_array($operation->getClass(), [Amenagement::class, Utilisateur::class])
+            || !in_array($property, ['composante', 'formation'])
+        ) {
             return;
         }
 
@@ -72,17 +82,32 @@ class ComposanteFormationFilter extends AbstractFilter
 
         $nowParam = $queryNameGenerator->generateParameterName('now');
 
-        $inscriptionJoinWith = sprintf(':%s between %s.debut and %s.fin', $nowParam, $inscriptionsAlias, $inscriptionsAlias);
+        $inscriptionJoinWith = sprintf(
+            ':%s between %s.debut and %s.fin',
+            $nowParam,
+            $inscriptionsAlias,
+            $inscriptionsAlias,
+        );
 
         if ($operation->getClass() == Amenagement::class) {
-            $queryBuilder->join(sprintf('%s.beneficiaires', $alias), $benefAlias)
+            $queryBuilder
+                ->join(sprintf('%s.beneficiaires', $alias), $benefAlias)
                 ->join(sprintf('%s.utilisateur', $benefAlias), $utilisateurAlias)
-                ->join(sprintf('%s.inscriptions', $utilisateurAlias), $inscriptionsAlias, Join::WITH, $inscriptionJoinWith)
+                ->join(
+                    sprintf('%s.inscriptions', $utilisateurAlias),
+                    $inscriptionsAlias,
+                    Join::WITH,
+                    $inscriptionJoinWith,
+                )
                 ->join(sprintf('%s.formation', $inscriptionsAlias), $formationAlias);
         } else {
             //on est sur Utilisateur
-            $queryBuilder->join(sprintf('%s.inscriptions', $alias), $inscriptionsAlias, Join::WITH, $inscriptionJoinWith)
-                ->join(sprintf('%s.formation', $inscriptionsAlias), $formationAlias);
+            $queryBuilder->join(
+                sprintf('%s.inscriptions', $alias),
+                $inscriptionsAlias,
+                Join::WITH,
+                $inscriptionJoinWith,
+            )->join(sprintf('%s.formation', $inscriptionsAlias), $formationAlias);
         }
         $exprs = [];
 
@@ -93,14 +118,14 @@ class ComposanteFormationFilter extends AbstractFilter
             try {
                 $entity = $this->iriConverter->getResourceFromIri($value);
             } catch (NotFoundHttpException) {
-                throw new NotFoundHttpException(
-                    sprintf('Valeur inconnue pour %s ("%s")', $property, $value)
-                );
+                throw new NotFoundHttpException(sprintf('Valeur inconnue pour %s ("%s")', $property, $value));
             }
             if (!($entity instanceof Formation || $entity instanceof Composante)) {
-                throw new BadRequestHttpException(
-                    sprintf('le paramètre %s attend une IRI de %s', $property, ucfirst($property))
-                );
+                throw new BadRequestHttpException(sprintf(
+                    'le paramètre %s attend une IRI de %s',
+                    $property,
+                    ucfirst($property),
+                ));
             }
 
             $idParam = $queryNameGenerator->generateParameterName('id');
@@ -117,11 +142,8 @@ class ComposanteFormationFilter extends AbstractFilter
 
         $orX = $queryBuilder->expr()->orX();
         $orX->addMultiple($exprs);
-        $queryBuilder->andWhere($orX)
-            ->setParameter($nowParam, $this->now());
-
+        $queryBuilder->andWhere($orX)->setParameter($nowParam, $this->now());
     }
-
 
     /**
      * Vérifie que les composantes demandées sont bien accessibles à l'utilisateur, sinon les retire
@@ -140,10 +162,7 @@ class ComposanteFormationFilter extends AbstractFilter
              */
             $user = $this->security->getUser();
 
-            $composantesAccessiblesIRIs = array_map(
-                $this->getComposanteIri(...),
-                $user->getComposantes()->toArray()
-            );
+            $composantesAccessiblesIRIs = array_map($this->getComposanteIri(...), $user->getComposantes()->toArray());
 
             if ($property === 'composante') {
                 //on retire ce qui n'est pas accessible
@@ -156,7 +175,7 @@ class ComposanteFormationFilter extends AbstractFilter
                 //formation, on ne conserve que celles qui sont ok
                 $formationsAccessiblesIRIs = array_map(
                     $this->getFormationIri(...),
-                    $this->formationRepository->findByComposantes($user->getComposantes())
+                    $this->formationRepository->findByComposantes($user->getComposantes()),
                 );
 
                 $values = array_filter($values, fn($iri) => in_array($iri, $formationsAccessiblesIRIs));
@@ -180,13 +199,13 @@ class ComposanteFormationFilter extends AbstractFilter
         return Formation::COLLECTION_URI . '/' . $formation->getId();
     }
 
-
-    #[Override] public function getDescription(string $resourceClass): array
+    #[Override]
+    public function getDescription(string $resourceClass): array
     {
         $description = [];
         $description['composante'] = [
             'property' => "'composante",
-            'type' => Type::BUILTIN_TYPE_STRING,
+            'type' => TypeIdentifier::STRING,
             'required' => false,
             'is_collection' => false,
             'openapi' => new Parameter(
@@ -197,7 +216,7 @@ class ComposanteFormationFilter extends AbstractFilter
         ];
         $description['composante[]'] = [
             'property' => 'composante',
-            'type' => Type::BUILTIN_TYPE_STRING,
+            'type' => TypeIdentifier::STRING,
             'required' => false,
             'is_collection' => true,
             'openapi' => new Parameter(
@@ -209,7 +228,7 @@ class ComposanteFormationFilter extends AbstractFilter
 
         $description['formation'] = [
             'property' => "'formation",
-            'type' => Type::BUILTIN_TYPE_STRING,
+            'type' => TypeIdentifier::STRING,
             'required' => false,
             'is_collection' => false,
             'openapi' => new Parameter(
@@ -220,7 +239,7 @@ class ComposanteFormationFilter extends AbstractFilter
         ];
         $description['formation[]'] = [
             'property' => 'formation',
-            'type' => Type::BUILTIN_TYPE_STRING,
+            'type' => TypeIdentifier::STRING,
             'required' => false,
             'is_collection' => true,
             'openapi' => new Parameter(
@@ -232,6 +251,4 @@ class ComposanteFormationFilter extends AbstractFilter
 
         return $description;
     }
-
-
 }

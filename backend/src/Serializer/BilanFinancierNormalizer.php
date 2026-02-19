@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -15,10 +15,8 @@ namespace App\Serializer;
 use App\ApiResource\BilanFinancier;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-
 class BilanFinancierNormalizer implements NormalizerInterface
 {
-
     public function normalize(mixed $data, ?string $format = null, array $context = []): array
     {
         if ($format === 'customcsv') {
@@ -51,17 +49,34 @@ class BilanFinancierNormalizer implements NormalizerInterface
         /**
          * Entêtes
          */
-        $data[] = ["Bilan financier"];
-        $data[] = ["Période", "Du " . $bilan->debut->format('d/m/Y') . " au " . $bilan->fin->format('d/m/Y')];
+        $data[] = ['Bilan financier'];
+        $data[] = ['Période', 'Du ' . $bilan->debut->format('d/m/Y') . ' au ' . $bilan->fin->format('d/m/Y')];
         $data[] = [];
-        $data[] = ['Nom', 'Prénom', 'Email', 'Période', 'Type', 'Taux horaire', 'Heures', 'Montant brut', 'Coeff charges', 'Montant chargé'];
-
+        $data[] = [
+            'Nom',
+            'Prénom',
+            'Email',
+            'Période',
+            'Type',
+            'Taux horaire',
+            'Heures',
+            'Montant brut',
+            'Coeff charges',
+            'Montant chargé',
+        ];
 
         foreach ($bilan->intervenants as $intervenant) {
-            $lineStart = [$intervenant->intervenant->nom, $intervenant->intervenant->prenom, $intervenant->intervenant->email];
+            $lineStart = [
+                $intervenant->intervenant->nom,
+                $intervenant->intervenant->prenom,
+                $intervenant->intervenant->email,
+            ];
             foreach ($intervenant->activitesParPeriode as $activiteBilanFinancier) {
-                $data[] = [...$lineStart,
-                    $activiteBilanFinancier->periode->debut->format('d/m/y') . ' au ' . $activiteBilanFinancier->periode->fin->format('d/m/y'),
+                $data[] = [
+                    ...$lineStart,
+                    $activiteBilanFinancier->periode->debut->format('d/m/y')
+                        . ' au '
+                        . $activiteBilanFinancier->periode->fin->format('d/m/y'),
                     $activiteBilanFinancier->typeEvenement->libelle,
                     str_replace('.', ',', $activiteBilanFinancier->tauxHoraire?->montant ?? 0),
                     str_replace('.', ',', $activiteBilanFinancier->getNbHeures()),

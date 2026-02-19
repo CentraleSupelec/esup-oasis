@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,27 +12,66 @@
 
 namespace App\State\TypeDemande;
 
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PaginatorInterface;
+use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\CampagneDemande;
-use App\ApiResource\EtapeDemande;
-use App\ApiResource\ProfilBeneficiaire;
+use App\ApiResource\Charte;
 use App\ApiResource\TypeDemande;
-use App\State\AbstractEntityProvider;
+use App\Filter\PreloadAssociationsFilter;
+use App\State\MappedCollectionPaginator;
 use Exception;
 use Symfony\Component\Clock\ClockAwareTrait;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class TypeDemandeProvider extends AbstractEntityProvider
+class TypeDemandeProvider implements ProviderInterface
 {
-
     use ClockAwareTrait;
 
-    protected function getResourceClass(): string
-    {
-        return TypeDemande::class;
-    }
+    public function __construct(
+        #[Autowire(service: 'api_platform.doctrine.orm.state.item_provider')]
+        private readonly ProviderInterface $itemProvider,
+        #[Autowire(service: 'api_platform.doctrine.orm.state.collection_provider')]
+        private readonly ProviderInterface $collectionProvider,
+    ) {}
 
-    protected function getEntityClass(): string
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        return \App\Entity\TypeDemande::class;
+        if ($operation instanceof GetCollection) {
+            /**
+             * préchargement des profils liés, des campagnes et des étapes/questions
+             */
+
+            $context['filters'][PreloadAssociationsFilter::PROPERTY] = [
+                'campagnes' => [
+                    'sourceEntity' => 'root',
+                    'relationName' => 'campagnes',
+                ],
+                'etapes' => [
+                    'sourceEntity' => 'root',
+                    'relationName' => 'etapes',
+                ],
+                'questions' => [
+                    'sourceEntity' => 'etapes',
+                    'relationName' => 'questionsEtape',
+                ],
+                'profils' => [
+                    'sourceEntity' => 'root',
+                    'relationName' => 'profilsAssocies',
+                ],
+            ];
+
+            $results = $this->collectionProvider->provide($operation, $uriVariables, $context);
+            assert($results instanceof PaginatorInterface);
+            return new MappedCollectionPaginator($results, $this->transform(...));
+        }
+
+        $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
+
+        assert($entity instanceof \App\Entity\TypeDemande);
+
+        return $this->transform($entity);
     }
 
     /**
@@ -40,26 +79,17 @@ class TypeDemandeProvider extends AbstractEntityProvider
      * @return TypeDemande
      * @throws Exception
      */
-    public function transform($entity): mixed
+    public function transform(\App\Entity\TypeDemande $entity): TypeDemande
     {
-        $resource = new TypeDemande();
-        $resource->id = $entity->getId();
-        $resource->libelle = $entity->getLibelle();
-        $resource->actif = $entity->isActif();
-        $resource->visibiliteLimitee = $entity->isVisibiliteLimitee();
-        $resource->accompagnementOptionnel = $entity->isAccompagnementOptionnel();
-        
-        $resource->profilsCibles = array_map(
-            callback: fn($profilEntity) => $this->transformerService->transform($profilEntity, ProfilBeneficiaire::class),
-            array   : $entity->getProfilsAssocies()->toArray()
-        );
+        $resource = new TypeDemande($entity);
+
         $now = $this->now();
         $precedente = null;
         $prochaine = null;
         foreach ($entity->getCampagnes() as $campagne) {
             //campagne en cours
             if ($campagne->getDebut() <= $now && $now <= $campagne->getFin()) {
-                $resource->campagneEnCours = $this->transformerService->transform($campagne, CampagneDemande::class);
+                $resource->campagneEnCours = new CampagneDemande($campagne);
                 continue;
             }
             //campagne terminée
@@ -75,18 +105,13 @@ class TypeDemandeProvider extends AbstractEntityProvider
             }
         }
         $resource->campagnePrecedente = match (true) {
-            null !== $precedente => $this->transformerService->transform($precedente, CampagneDemande::class),
-            default => null
+            null !== $precedente => new CampagneDemande($precedente),
+            default => null,
         };
         $resource->campagneSuivante = match (true) {
-            null !== $prochaine => $this->transformerService->transform($prochaine, CampagneDemande::class),
-            default => null
+            null !== $prochaine => new CampagneDemande($prochaine),
+            default => null,
         };
-
-        $resource->etapes = array_map(
-            fn($etape) => $this->transformerService->transform($etape, EtapeDemande::class),
-            $entity->getEtapes()->toArray()
-        );
 
         return $resource;
     }

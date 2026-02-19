@@ -33,19 +33,18 @@ class UserContext implements Context
      * @return void
      * @throws Exception
      */
-    #[Given("il y a :number utilisateur(s) avec le rôle :role")]
+    #[Given('il y a :number utilisateur(s) avec le rôle :role')]
     public function thereAreUsersWithRole(int $number, string $role): void
     {
         $utilisateurRepository = $this->manager->getRepository(Utilisateur::class);
         $currentUsers = $utilisateurRepository->findAll();
 
-        $currentUsers = array_reduce($currentUsers,
-            function ($carry, Utilisateur $user) use ($role) {
-                if (in_array($role, $user->getRoles())) {
-                    $carry[] = $user;
-                }
-                return $carry ?? [];
-            });
+        $currentUsers = array_reduce($currentUsers, function ($carry, Utilisateur $user) use ($role) {
+            if (in_array($role, $user->getRoles())) {
+                $carry[] = $user;
+            }
+            return $carry ?? [];
+        });
 
         for ($i = count($currentUsers); $i < $number; $i++) {
             $newUser = new Utilisateur();

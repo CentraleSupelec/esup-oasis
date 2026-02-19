@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -22,11 +22,10 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 readonly class ClientAppUserProvider implements UserProviderInterface
 {
-
-    public function __construct(private ApplicationClienteRepository $applicationClienteRepository,
-                                private LoggerInterface              $logger)
-    {
-    }
+    public function __construct(
+        private ApplicationClienteRepository $applicationClienteRepository,
+        private LoggerInterface $logger,
+    ) {}
 
     public function refreshUser(UserInterface $user): UserInterface
     {
@@ -63,11 +62,11 @@ readonly class ClientAppUserProvider implements UserProviderInterface
             'identifiant' => $appId,
         ]);
         if (null == $app) {
-            $this->logger->error("Tentative de connection pour app " . $appId);
+            $this->logger->error('Tentative de connection pour app ' . $appId);
             throw new AccessDeniedException('App inconnue');
         }
         if ($app->getApiKey() !== $apiKey) {
-            $this->logger->error("ApiKey incorrecte pour app " . $appId);
+            $this->logger->error('ApiKey incorrecte pour app ' . $appId);
             throw new AccessDeniedException('ApiKey incorrecte');
         }
 

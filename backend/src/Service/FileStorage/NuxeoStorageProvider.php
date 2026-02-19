@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -39,21 +39,31 @@ class NuxeoStorageProvider implements StorageProviderInterface
 {
     private bool $online;
 
-    public function __construct(private readonly HttpClientInterface       $client, private readonly string $apiUrl,
-                                private readonly string                    $user, #[SensitiveParameter] private readonly string $password,
-                                private readonly string                    $espace,
-                                private readonly LoggerInterface           $logger,
-                                private readonly FileSystemStorageProvider $fallbackProvider)
-    {
+    public function __construct(
+        private readonly HttpClientInterface $client,
+        private readonly string $apiUrl,
+        private readonly string $user,
+        #[SensitiveParameter]
+        private readonly string $password,
+        private readonly string $espace,
+        private readonly LoggerInterface $logger,
+        private readonly FileSystemStorageProvider $fallbackProvider,
+    ) {
         $this->online = '' !== $this->apiUrl;
     }
 
-    #[Override] public function copy(UploadedFile $file): array
+    #[Override]
+    public function copy(UploadedFile $file): array
     {
-        return $this->store(fopen($file->getPathname(), 'r'), $file->getClientOriginalName(), $file->getClientMimeType());
+        return $this->store(
+            fopen($file->getPathname(), 'r'),
+            $file->getClientOriginalName(),
+            $file->getClientMimeType(),
+        );
     }
 
-    #[Override] public function get(array $metadata): string
+    #[Override]
+    public function get(array $metadata): string
     {
         if (!$this->online) {
             return $this->fallbackProvider->get($metadata);
@@ -65,12 +75,13 @@ class NuxeoStorageProvider implements StorageProviderInterface
             url: $this->apiUrl . '/id/' . $metadata['uid'] . '/@blob/file:content',
             options: [
                 'auth_basic' => [$this->user, $this->password],
-            ]
+            ],
         );
         return $response->getContent();
     }
 
-    #[Override] public function delete(array $metadata): void
+    #[Override]
+    public function delete(array $metadata): void
     {
         if (!$this->online) {
             $this->fallbackProvider->delete($metadata);
@@ -82,13 +93,9 @@ class NuxeoStorageProvider implements StorageProviderInterface
             throw new RuntimeException('Erreur de suppression - fichier sans uid [' . json_encode($metadata) . ']');
         }
 
-        $response = $this->client->request(
-            method: 'DELETE',
-            url: $this->apiUrl . '/id/' . $metadata['uid'],
-            options: [
-                'auth_basic' => [$this->user, $this->password],
-            ]
-        );
+        $response = $this->client->request(method: 'DELETE', url: $this->apiUrl . '/id/' . $metadata['uid'], options: [
+            'auth_basic' => [$this->user, $this->password],
+        ]);
 
         if (!in_array($response->getStatusCode(), [204, 404])) {
             throw new RuntimeException('Erreur de suppression du fichier ' . $metadata['uid']);
@@ -108,8 +115,13 @@ class NuxeoStorageProvider implements StorageProviderInterface
      * @throws StorageProviderError
      * @throws TransportExceptionInterface
      */
-    #[Override] public function store(mixed $contents, string $filename, string $mimeType, string $description = 'pj envoyée par appliphase'): array
-    {
+    #[Override]
+    public function store(
+        mixed $contents,
+        string $filename,
+        string $mimeType,
+        string $description = 'pj envoyée par appliphase',
+    ): array {
         if (!$this->online) {
             return $this->fallbackProvider->store($contents, $filename, $mimeType);
         }
@@ -123,16 +135,12 @@ class NuxeoStorageProvider implements StorageProviderInterface
          * - création du document en lien ave cle fichier uploadé
          */
         try {
-            $batch = $this->client->request(
-                method: 'POST',
-                url: $this->apiUrl . '/upload/',
-                options: [
-                    'auth_basic' => [$this->user, $this->password],
-                    'headers' => [
-                        'Content-Type' => 'application/json',
-                    ],
-                ]
-            );
+            $batch = $this->client->request(method: 'POST', url: $this->apiUrl . '/upload/', options: [
+                'auth_basic' => [$this->user, $this->password],
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+            ]);
             $result = $this->client->request(
                 method: 'POST',
                 url: $this->apiUrl . '/upload/' . $batch->toArray()['batchId'] . '/0',
@@ -144,43 +152,35 @@ class NuxeoStorageProvider implements StorageProviderInterface
                         'Content-Type' => 'application/json',
                     ],
                     'body' => $contents,
-                ]
+                ],
             );
-            $result = $this->client->request(
-                method: 'POST',
-                url: $this->apiUrl . $this->espace,
-                options: [
-                    'auth_basic' => [$this->user, $this->password],
-                    'headers' => [
-                        'X-File-Name' => $filename,
-                        'Content-Type' => 'application/json',
-                    ],
-                    'json' =>
-                        [
-                            "entity-type" => "document",
-                            "name" => $filename,
-                            "type" => "File",
-                            "properties" => [
-                                "dc:description" => $description,
-                                "dc:title" => $filename,
-                                "file:content" => [
-                                    "upload-batch" => $batch->toArray()['batchId'],
-                                    "upload-fileId" => $result->toArray()['fileIdx'],
-                                ],
-                            ],
+            $result = $this->client->request(method: 'POST', url: $this->apiUrl . $this->espace, options: [
+                'auth_basic' => [$this->user, $this->password],
+                'headers' => [
+                    'X-File-Name' => $filename,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'entity-type' => 'document',
+                    'name' => $filename,
+                    'type' => 'File',
+                    'properties' => [
+                        'dc:description' => $description,
+                        'dc:title' => $filename,
+                        'file:content' => [
+                            'upload-batch' => $batch->toArray()['batchId'],
+                            'upload-fileId' => $result->toArray()['fileIdx'],
                         ],
-                ]
-            );
+                    ],
+                ],
+            ]);
         } catch (Exception $e) {
-            $this->logger->error("Enregistrement dans Nuxeo échoué");
+            $this->logger->error('Enregistrement dans Nuxeo échoué');
             $this->logger->error($e->getMessage());
             $this->logger->error($e->getTraceAsString());
             throw new StorageProviderError("Erreur d'enregistrement, veuillez réessayer plus tard.");
         }
 
-        return array_filter(
-            $result->toArray(),
-            fn($key) => in_array($key, ['uid', 'path']), ARRAY_FILTER_USE_KEY
-        );
+        return array_filter($result->toArray(), fn($key) => in_array($key, ['uid', 'path']), ARRAY_FILTER_USE_KEY);
     }
 }

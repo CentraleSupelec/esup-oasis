@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,12 +12,16 @@
 
 namespace App\Entity;
 
+use App\ApiResource\Telechargement;
 use App\Repository\FichierRepository;
+use App\State\EntityToResourceTransformer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: FichierRepository::class)]
+#[Map(target: Telechargement::class, transform: [EntityToResourceTransformer::class, 'entityToResource'])]
 class Fichier
 {
     public const string VOIR_FICHIER = 'VOIR_FICHIER';
@@ -25,41 +29,53 @@ class Fichier
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Map(if: false)]
     private array $metadata = [];
 
     #[ORM\Column(length: 255)]
+    #[Map(if: false)]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Map(if: false)]
     private ?string $typeMime = null;
 
     #[ORM\ManyToOne(inversedBy: 'fichiers')]
+    #[Map(if: false)]
     private ?Utilisateur $proprietaire = null;
 
     #[ORM\ManyToMany(targetEntity: Reponse::class, mappedBy: 'piecesJustificatives')]
+    #[Map(if: false)]
     private Collection $reponses;
 
     #[ORM\OneToOne(mappedBy: 'fichier', cascade: ['persist', 'remove'])]
+    #[Map(if: false)]
     private ?AvisEse $avisEse = null;
     #[ORM\OneToOne(mappedBy: 'fichier', cascade: ['persist', 'remove'])]
+    #[Map(if: false)]
     private ?Entretien $entretien = null;
 
     #[ORM\OneToOne(mappedBy: 'fichier', cascade: ['persist', 'remove'])]
+    #[Map(if: false)]
     private ?PieceJointeBeneficiaire $pieceJointeBeneficiaire = null;
 
     #[ORM\OneToOne(mappedBy: 'fichier', cascade: ['persist', 'remove'])]
+    #[Map(if: false)]
     private ?DecisionAmenagementExamens $decisionAmenagementExamens = null;
 
     /**
      * @var Collection<int, ValeurParametre>
      */
     #[ORM\OneToMany(mappedBy: 'fichier', targetEntity: ValeurParametre::class)]
+    #[Map(if: false)]
     private Collection $valeurParametres;
 
     #[ORM\OneToOne(mappedBy: 'fichier', cascade: ['persist', 'remove'])]
+    #[Map(if: false)]
     private ?Bilan $bilan = null;
 
     public function __construct()

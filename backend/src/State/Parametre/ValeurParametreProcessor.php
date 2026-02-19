@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -20,20 +20,17 @@ use App\Message\RessourceModifieeMessage;
 use App\Repository\FichierRepository;
 use App\Repository\ParametreRepository;
 use App\Repository\ValeurParametreRepository;
-use App\State\TransformerService;
 use Exception;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class ValeurParametreProcessor implements ProcessorInterface
 {
-
-    public function __construct(private ParametreRepository       $parametreRepository,
-                                private ValeurParametreRepository $valeurParametreRepository,
-                                private FichierRepository         $fichierRepository,
-                                private TransformerService        $transformerService,
-                                private MessageBusInterface       $messageBus)
-    {
-    }
+    public function __construct(
+        private ParametreRepository $parametreRepository,
+        private ValeurParametreRepository $valeurParametreRepository,
+        private FichierRepository $fichierRepository,
+        private MessageBusInterface $messageBus,
+    ) {}
 
     /**
      * @param ValeurParametre $data
@@ -43,8 +40,12 @@ readonly class ValeurParametreProcessor implements ProcessorInterface
      * @return ValeurParametre
      * @throws Exception
      */
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ValeurParametre
-    {
+    public function process(
+        mixed $data,
+        Operation $operation,
+        array $uriVariables = [],
+        array $context = [],
+    ): ValeurParametre {
         $parametre = $this->parametreRepository->findOneBy([
             'cle' => $uriVariables['cle'],
         ]);
@@ -58,7 +59,7 @@ readonly class ValeurParametreProcessor implements ProcessorInterface
         $entity->setValeur($data->valeur);
         $fichier = match ($data->fichier) {
             null => null,
-            default => $this->fichierRepository->find($data->fichier->id)
+            default => $this->fichierRepository->find($data->fichier->id),
         };
         $entity->setFichier($fichier);
         $entity->setDebut($data->debut);
@@ -66,13 +67,6 @@ readonly class ValeurParametreProcessor implements ProcessorInterface
 
         $this->parametreRepository->save($parametre, true);
 
-        $resource = $this->transformerService->transform($entity, ValeurParametre::class);
-        if (null !== $data->id) {
-            $this->messageBus->dispatch(new RessourceModifieeMessage($resource));
-        } else {
-            $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($resource));
-        }
-
-        return $resource;
+        return new ValeurParametre($entity);
     }
 }

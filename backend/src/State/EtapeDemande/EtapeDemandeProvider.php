@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,42 +12,35 @@
 
 namespace App\State\EtapeDemande;
 
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PaginatorInterface;
+use ApiPlatform\State\ProviderInterface;
+use App\ApiResource\Charte;
 use App\ApiResource\EtapeDemande;
-use App\ApiResource\Question;
-use App\Entity\QuestionEtapeDemande;
-use App\State\AbstractEntityProvider;
-use Exception;
-use Override;
+use App\State\MappedCollectionPaginator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class EtapeDemandeProvider extends AbstractEntityProvider
+class EtapeDemandeProvider implements ProviderInterface
 {
+    public function __construct(
+        #[Autowire(service: 'api_platform.doctrine.orm.state.item_provider')]
+        private ProviderInterface $itemProvider,
+        #[Autowire(service: 'api_platform.doctrine.orm.state.collection_provider')]
+        private ProviderInterface $collectionProvider,
+    ) {}
 
-    #[Override] protected function getResourceClass(): string
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        return EtapeDemande::class;
-    }
-
-    #[Override] protected function getEntityClass(): string
-    {
-        return \App\Entity\EtapeDemande::class;
-    }
-
-    /**
-     * @param \App\Entity\EtapeDemande $entity
-     * @return EtapeDemande
-     * @throws Exception
-     */
-    #[Override] public function transform($entity): mixed
-    {
-        $resource = new EtapeDemande();
-        $resource->id = $entity->getId();
-        $resource->libelle = $entity->getLibelle();
-        $resource->ordre = $entity->getOrdre();
-        $resource->questions = array_map(
-            fn(QuestionEtapeDemande $question) => $this->transformerService->transform($question->getQuestion(), Question::class),
-            $entity->getQuestionsEtape()->toArray()
-
-        );
-        return $resource;
+        if ($operation instanceof GetCollection) {
+            $results = $this->collectionProvider->provide($operation, $uriVariables, $context);
+            assert($results instanceof PaginatorInterface);
+            return new MappedCollectionPaginator($results, fn($entity) => new EtapeDemande($entity));
+        }
+        $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
+        return match ($entity) {
+            null => null,
+            default => new EtapeDemande($entity),
+        };
     }
 }

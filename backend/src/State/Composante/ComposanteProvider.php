@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,52 +12,50 @@
 
 namespace App\State\Composante;
 
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PaginatorInterface;
+use ApiPlatform\State\ProviderInterface;
+use App\ApiResource\Charte;
 use App\ApiResource\Composante;
-use App\ApiResource\Utilisateur;
-use App\State\AbstractEntityProvider;
-use Exception;
+use App\Filter\PreloadAssociationsFilter;
+use App\State\MappedCollectionPaginator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class ComposanteProvider extends AbstractEntityProvider
+readonly class ComposanteProvider implements ProviderInterface
 {
+    public function __construct(
+        #[Autowire(service: 'api_platform.doctrine.orm.state.item_provider')]
+        private ProviderInterface $itemProvider,
+        #[Autowire(service: 'api_platform.doctrine.orm.state.collection_provider')]
+        private ProviderInterface $collectionProvider,
+    ) {}
 
-    protected function getResourceClass(): string
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        return Composante::class;
-    }
+        if ($operation instanceof GetCollection) {
+            /**
+             * préchargement des référents
+             */
+            $context['filters'][PreloadAssociationsFilter::PROPERTY] = [
+                'referents' => [
+                    'sourceEntity' => 'root',
+                    'relationName' => 'referents',
+                ],
+                'intervenant' => [
+                    'sourceEntity' => 'referents',
+                    'relationName' => 'intervenant',
+                ],
+            ];
 
-    protected function getEntityClass(): string
-    {
-        return \App\Entity\Composante::class;
-    }
-
-    /**
-     * @param \App\Entity\Composante $entity
-     * @return Composante
-     * @throws Exception
-     */
-    public function transform($entity): mixed
-    {
-        $resource = new Composante();
-        $resource->id = $entity->getId();
-        $resource->libelle = $entity->getLibelle();
-
-        $resource->referents = array_values(array_map(
-                fn($referent) => $this->transformerService->transform($referent, Utilisateur::class),
-                //on crée une copie light de l'entité pour éviter des requêtes en cascade + boucles éventuelles
-                array_map(
-                    function (\App\Entity\Utilisateur $referent) {
-                        $ref = new \App\Entity\Utilisateur();
-                        $ref->setNom($referent->getNom())
-                            ->setPrenom($referent->getPrenom())
-                            ->setEmail($referent->getEmail())
-                            ->setUid($referent->getUid());
-
-                        return $ref;
-                    },
-                    $entity->getReferents()->toArray(),
-                )
-            )
-        );
-        return $resource;
+            $results = $this->collectionProvider->provide($operation, $uriVariables, $context);
+            assert($results instanceof PaginatorInterface);
+            return new MappedCollectionPaginator($results, fn($entity) => new Composante($entity));
+        }
+        $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
+        return match ($entity) {
+            null => null,
+            default => new Composante($entity),
+        };
     }
 }

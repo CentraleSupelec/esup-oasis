@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -26,42 +26,74 @@ use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ApiResource(
     operations: [
-        new GetCollection(
-            uriTemplate: self::COLLECTION_URI,
-            uriVariables: [
-                'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
-            ]
-        ),
-        new Get(
-            uriTemplate: self::ITEM_URI,
-            uriVariables: ['uid', 'cle']
-        ),
-        new Put(
-            uriTemplate: self::ITEM_URI,
-            uriVariables: ['uid', 'cle'],
-            allowCreate: true,
-        ),
-        new Delete(
-            uriTemplate: self::ITEM_URI,
-            uriVariables: ['uid', 'cle'],
-        ),
+        new GetCollection(uriTemplate: self::COLLECTION_URI, uriVariables: [
+            'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
+        ]),
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['uid', 'cle']),
+        new Put(uriTemplate: self::ITEM_URI, uriVariables: ['uid', 'cle'], allowCreate: true),
+        new Delete(uriTemplate: self::ITEM_URI, uriVariables: ['uid', 'cle']),
     ],
     openapi: new Operation(tags: ['Utilisateurs']),
-    security: 'user.getUid() == request.get("uid")',
+    security: 'user.getUid() == request.attributes.get("uid")',
     provider: ParametreUIProvider::class,
     processor: ParametreUIProcessor::class,
-    stateOptions: new Options(entityClass: \App\Entity\ParametreUI::class)
+    stateOptions: new Options(entityClass: \App\Entity\ParametreUI::class),
 )]
 class ParametreUI
 {
     public const string COLLECTION_URI = '/utilisateurs/{uid}/parametres_ui';
     public const string ITEM_URI = '/utilisateurs/{uid}/parametres_ui/{cle}';
 
-    #[Ignore] public ?int $id = null;
-    #[Ignore] public string $uid;
+    #[Ignore]
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
 
-    #[Ignore] public ?Utilisateur $utilisateur = null;
+    #[Ignore]
+    public ?string $uid = null {
+        get {
+            if ($this->uid === null && $this->entity !== null && null !== $this->entity->getUtilisateur()) {
+                $this->uid = $this->entity->getUtilisateur()->getUid();
+            }
+            return $this->uid ?? null;
+        }
+    }
 
-    #[Ignore] public string $cle;
-    public string $valeur;
+    #[Ignore]
+    public ?Utilisateur $utilisateur = null {
+        get {
+            if ($this->utilisateur === null && $this->entity !== null && null !== $this->entity->getUtilisateur()) {
+                $this->utilisateur = new Utilisateur($this->entity->getUtilisateur());
+            }
+            return $this->utilisateur ?? null;
+        }
+    }
+
+    #[Ignore]
+    public ?string $cle = null {
+        get {
+            if ($this->cle === null && $this->entity !== null) {
+                $this->cle = $this->entity->getCle();
+            }
+            return $this->uid ?? null;
+        }
+    }
+
+    public ?string $valeur = null {
+        get {
+            if ($this->valeur === null && $this->entity !== null) {
+                $this->valeur = $this->entity->getValeur();
+            }
+            return $this->valeur ?? null;
+        }
+    }
+
+    public function __construct(
+        private readonly ?\App\Entity\ParametreUI $entity = null,
+    ) {}
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,13 +13,16 @@
 namespace App\Entity;
 
 use App\Repository\ParametreRepository;
+use App\State\EntityToResourceTransformer;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Clock\ClockAwareTrait;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: ParametreRepository::class)]
+#[Map(target: Parametre::class, transform: [EntityToResourceTransformer::class, 'entityToResource'])]
 class Parametre
 {
     use ClockAwareTrait;
@@ -38,15 +41,24 @@ class Parametre
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, unique: true)]
+    #[Map(if: false)]
     private ?string $cle = null;
 
-    #[ORM\OneToMany(mappedBy: 'parametre', targetEntity: ValeurParametre::class, cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(
+        targetEntity: ValeurParametre::class,
+        mappedBy: 'parametre',
+        cascade: ['persist'],
+        orphanRemoval: true,
+    )]
+    #[Map(if: false)]
     private Collection $valeursParametres;
 
     #[ORM\Column(nullable: true, options: ['default' => false])]
+    #[Map(if: false)]
     private ?bool $fichier = null;
 
     public function __construct()
@@ -115,7 +127,6 @@ class Parametre
                 }
                 $valeurs[] = $valeur;
             }
-
         }
         return $multiple ? $valeurs : null;
     }
@@ -126,7 +137,6 @@ class Parametre
             if ($valeur->getDebut() < $dateItem && ($valeur->getFin() === null || $dateItem < $valeur->getFin())) {
                 return $valeur;
             }
-
         }
         return null;
     }
@@ -142,5 +152,4 @@ class Parametre
 
         return $this;
     }
-
 }

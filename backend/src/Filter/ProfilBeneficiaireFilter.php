@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -22,24 +22,32 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
-use Symfony\Component\PropertyInfo\Type;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 
 class ProfilBeneficiaireFilter extends AbstractFilter
 {
     use ClockAwareTrait;
 
-    public function __construct(private readonly IriConverterInterface $iriConverter, ManagerRegistry $managerRegistry,
-                                ?LoggerInterface                       $logger = null, ?array $properties = null,
-                                ?NameConverterInterface                $nameConverter = null)
-    {
+    public function __construct(
+        private readonly IriConverterInterface $iriConverter,
+        ManagerRegistry $managerRegistry,
+        ?LoggerInterface $logger = null,
+        ?array $properties = null,
+        ?NameConverterInterface $nameConverter = null,
+    ) {
         parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
     }
 
-    protected function filterProperty(string                      $property, $value, QueryBuilder $queryBuilder,
-                                      QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass,
-                                      ?Operation                  $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         /** @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection */
         if (!$operation->getClass() === Utilisateur::class || $property !== 'profil') {
             return;
@@ -53,9 +61,21 @@ class ProfilBeneficiaireFilter extends AbstractFilter
         $profilIdParam = $queryNameGenerator->generateParameterName('profilId');
         $nowParam = $queryNameGenerator->generateParameterName('now');
 
-        $withCondition = ':' . $nowParam . ' >= ' . $bAlias . '.debut and (:' . $nowParam . ' < ' . $bAlias . '.fin or ' . $bAlias . '.fin is null)';
+        $withCondition =
+            ':'
+            . $nowParam
+            . ' >= '
+            . $bAlias
+            . '.debut and (:'
+            . $nowParam
+            . ' < '
+            . $bAlias
+            . '.fin or '
+            . $bAlias
+            . '.fin is null)';
 
-        $queryBuilder->join($alias . '.beneficiaires', $bAlias)
+        $queryBuilder
+            ->join($alias . '.beneficiaires', $bAlias)
             ->join($bAlias . '.profil', $profilAlias)
             ->andWhere($withCondition)
             ->andWhere($profilAlias . '.id = :' . $profilIdParam)
@@ -68,7 +88,7 @@ class ProfilBeneficiaireFilter extends AbstractFilter
         return [
             'profil' => [
                 'property' => 'profil',
-                'type' => Type::BUILTIN_TYPE_STRING,
+                'type' => TypeIdentifier::STRING,
                 'required' => false,
                 'openapi' => new Parameter(
                     name: 'profil',

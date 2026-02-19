@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -25,10 +25,10 @@ class RappelEnvoiRHHandler
 
     public const int DECLENCHER_J_MOINS = 4;
 
-    public function __construct(private readonly PeriodeRHRepository $periodeRHRepository,
-                                private readonly MailService         $mailService)
-    {
-    }
+    public function __construct(
+        private readonly PeriodeRHRepository $periodeRHRepository,
+        private readonly MailService $mailService,
+    ) {}
 
     /**
      * @param RappelEnvoiRHMessage $message
@@ -48,11 +48,14 @@ class RappelEnvoiRHHandler
         }
         $dateButoirPeriode = $periodeRH->getButoir();
 
-        if ($now->format('Y-m-d') == ((clone($dateButoirPeriode))->modify('-' . self::DECLENCHER_J_MOINS . 'days'))->format('Y-m-d')) {
+        if (
+            $now->format('Y-m-d') == (clone $dateButoirPeriode)->modify('-'
+            . self::DECLENCHER_J_MOINS
+            . 'days')->format('Y-m-d')
+        ) {
             //on est dans la fenêtre de déclenchement
             $this->mailService->envoyerRappelsEnvoiRH($periodeRH);
             $this->mailService->envoyerRappelValidationInterventionsRenforts($periodeRH);
         }
     }
-
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -20,11 +20,10 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 readonly class CreationIntervenantMessageHandler
 {
-    public function __construct(private MailService        $mailService,
-                                private UtilisateurManager $utilisateurManager)
-    {
-
-    }
+    public function __construct(
+        private MailService $mailService,
+        private UtilisateurManager $utilisateurManager,
+    ) {}
 
     public function __invoke(CreationIntervenantMessage $message): void
     {
@@ -38,5 +37,4 @@ readonly class CreationIntervenantMessageHandler
         $fin = $intervenant->getIntervenant()->getFin();
         $this->utilisateurManager->majInscriptionsEtIdentite($intervenant, $debut, $fin);
     }
-
 }

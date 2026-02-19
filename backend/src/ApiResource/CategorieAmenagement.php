@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -23,42 +23,27 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\CaseInsensitiveOrderFilter;
-use App\State\CategorieAmenagement\CategorieAmenagementProcessor;
-use App\State\CategorieAmenagement\CategorieAmenagementProvider;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     operations: [
-        new GetCollection(
-            uriTemplate: self::COLLECTION_URI
-        ),
-        new Get(
-            uriTemplate: self::ITEM_URI,
-            uriVariables: ['id']
-        ),
-        new Post(
-            uriTemplate: self::COLLECTION_URI,
-            security: "is_granted('ROLE_ADMIN')",
-        ),
-        new Patch(
-            uriTemplate: self::ITEM_URI,
-            uriVariables: ['id'],
-            security: "is_granted('ROLE_ADMIN')",
-        ),
+        new GetCollection(uriTemplate: self::COLLECTION_URI),
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['id']),
+        new Post(uriTemplate: self::COLLECTION_URI, security: "is_granted('ROLE_ADMIN')"),
+        new Patch(uriTemplate: self::ITEM_URI, uriVariables: ['id'], security: "is_granted('ROLE_ADMIN')"),
     ],
     denormalizationContext: ['groups' => self::GROUP_IN],
     openapi: new Operation(tags: ['Referentiel']),
-    provider: CategorieAmenagementProvider::class,
-    processor: CategorieAmenagementProcessor::class,
-    stateOptions: new Options(entityClass: \App\Entity\CategorieAmenagement::class)
+    stateOptions: new Options(entityClass: \App\Entity\CategorieAmenagement::class),
 )]
 #[ApiFilter(CaseInsensitiveOrderFilter::class, properties: ['libelle'])]
 #[ApiFilter(BooleanFilter::class, properties: [
     'typesAmenagement.examens',
     'typesAmenagement.pedagogique',
     'typesAmenagement.aideHumaine',
-]
-)]
+])]
+#[Map(target: \App\Entity\CategorieAmenagement::class, transform: [self::class, 'toEntity'])]
 class CategorieAmenagement
 {
     public const string COLLECTION_URI = '/categories_amenagements';
@@ -66,9 +51,47 @@ class CategorieAmenagement
     public const string GROUP_IN = 'categorie_amenagement:in';
 
     #[ApiProperty(identifier: true)]
-    public ?int $id = null;
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
+
     #[Groups([self::GROUP_IN])]
-    public string $libelle;
+    public ?string $libelle = null {
+        get {
+            if ($this->libelle === null && $this->entity !== null) {
+                $this->libelle = $this->entity->getLibelle();
+            }
+            return $this->libelle ?? null;
+        }
+    }
+
     #[Groups([self::GROUP_IN])]
-    public bool $actif = true;
+    public ?bool $actif = null {
+        get {
+            if ($this->actif === null && $this->entity !== null) {
+                $this->actif = $this->entity->isActif();
+            }
+            return $this->actif ?? true;
+        }
+    }
+
+    public function __construct(
+        private readonly ?\App\Entity\CategorieAmenagement $entity,
+    ) {}
+
+    public static function toEntity(self $resource): \App\Entity\CategorieAmenagement
+    {
+        if ($resource->entity === null) {
+            $entity = new \App\Entity\CategorieAmenagement();
+            $entity->setActif($resource->actif);
+            $entity->setLibelle($resource->libelle);
+            return $entity;
+        }
+        return $resource->entity;
+    }
 }

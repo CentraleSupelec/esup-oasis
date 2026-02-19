@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -22,16 +22,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(
-    name       : 'app:init-db',
-    description: 'Add a short description for your command',
-)]
+#[AsCommand(name: 'app:init-db', description: 'Add a short description for your command')]
 class InitDonneesCommand extends Command
 {
     protected array $fixtures;
 
-    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly PurgerLoader $loader)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly PurgerLoader $loader,
+    ) {
         $this->fixtures = [
             'campus',
             'competences',
@@ -45,10 +44,7 @@ class InitDonneesCommand extends Command
         parent::__construct('app:init-db');
     }
 
-    protected function configure(): void
-    {
-
-    }
+    protected function configure(): void {}
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {

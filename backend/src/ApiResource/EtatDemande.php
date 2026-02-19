@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -17,7 +17,6 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model\Operation;
-use App\State\Demande\EtatDemandeProvider;
 
 #[ApiResource(
     operations: [
@@ -25,15 +24,32 @@ use App\State\Demande\EtatDemandeProvider;
         new GetCollection(uriTemplate: self::COLLECTION_URI),
     ],
     openapi: new Operation(tags: ['Referentiel']),
-    provider: EtatDemandeProvider::class,
-    stateOptions: new Options(entityClass: \App\Entity\EtatDemande::class)
+    stateOptions: new Options(entityClass: \App\Entity\EtatDemande::class),
 )]
-readonly class EtatDemande
+final class EtatDemande
 {
     public const string COLLECTION_URI = '/etats_demandes';
     public const string ITEM_URI = self::COLLECTION_URI . '/{id}';
 
-    public function __construct(public int $id, public string $libelle)
-    {
+    public ?int $id {
+        get {
+            if (!isset($this->id) && $this->entity !== null) {
+                return $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
     }
+
+    public string $libelle {
+        get {
+            if (!isset($this->libelle) && $this->entity !== null) {
+                return $this->entity->getLibelle() ?? '';
+            }
+            return $this->libelle;
+        }
+    }
+
+    public function __construct(
+        private ?\App\Entity\EtatDemande $entity = null,
+    ) {}
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -50,10 +50,10 @@ class FormationRepository extends ServiceEntityRepository
         }
     }
 
-
     public function findByComposantes(Collection $composantes)
     {
-        $qb = $this->createQueryBuilder('f')
+        $qb = $this
+            ->createQueryBuilder('f')
             ->andWhere('f.composante in (:composantes)')
             ->setParameter('composantes', $composantes);
 
@@ -65,7 +65,8 @@ class FormationRepository extends ServiceEntityRepository
      */
     public function incompletes(): array
     {
-        return $this->createQueryBuilder('f')
+        return $this
+            ->createQueryBuilder('f')
             ->andWhere('f.diplome is null')
             ->getQuery()
             ->getResult();

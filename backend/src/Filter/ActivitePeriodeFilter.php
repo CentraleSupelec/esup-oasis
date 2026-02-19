@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -27,25 +27,32 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
-use Symfony\Component\PropertyInfo\Type;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 
 class ActivitePeriodeFilter extends AbstractFilter
 {
-    public function __construct(private readonly IriConverterInterface         $iriConverter,
-                                private readonly PropertyAccessorInterface     $propertyAccessor,
-                                private readonly IdentifiersExtractorInterface $identifiersExtractor,
-                                ManagerRegistry                                $managerRegistry,
-                                ?LoggerInterface                               $logger = null,
-                                ?array                                         $properties = null,
-                                ?NameConverterInterface                        $nameConverter = null)
-    {
+    public function __construct(
+        private readonly IriConverterInterface $iriConverter,
+        private readonly PropertyAccessorInterface $propertyAccessor,
+        private readonly IdentifiersExtractorInterface $identifiersExtractor,
+        ManagerRegistry $managerRegistry,
+        ?LoggerInterface $logger = null,
+        ?array $properties = null,
+        ?NameConverterInterface $nameConverter = null,
+    ) {
         parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
     }
 
-    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator,
-                                      string $resourceClass, ?Operation $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         $entityClass = $operation->getClass();
 
         if (!in_array($entityClass, [Evenement::class, InterventionForfait::class]) || $property !== 'periode') {
@@ -61,10 +68,25 @@ class ActivitePeriodeFilter extends AbstractFilter
 
         //cas simple, InterventionForfait : on appelle le SearchFilter d'APIP
         if ($entityClass === InterventionForfait::class) {
-            $searchFilter = new SearchFilter($this->managerRegistry, $this->iriConverter, $this->propertyAccessor,
-                $this->logger, ['periode' => 'exact'], $this->identifiersExtractor, $this->nameConverter);
+            $searchFilter = new SearchFilter(
+                $this->managerRegistry,
+                $this->iriConverter,
+                $this->propertyAccessor,
+                $this->logger,
+                ['periode' => 'exact'],
+                $this->identifiersExtractor,
+                $this->nameConverter,
+            );
 
-            $searchFilter->filterProperty('periode', $value, $queryBuilder, $queryNameGenerator, $resourceClass, $operation, $context);
+            $searchFilter->filterProperty(
+                'periode',
+                $value,
+                $queryBuilder,
+                $queryNameGenerator,
+                $resourceClass,
+                $operation,
+                $context,
+            );
             return;
         }
 
@@ -83,12 +105,20 @@ class ActivitePeriodeFilter extends AbstractFilter
             $queryBuilder->setParameter($periodeIdParameter, $periode->id);
 
             if ($periode->envoyee) {
-                $queryBuilder->leftJoin($alias . '.periodePriseEnCompteRH', $periodeAlias,
-                    Join::WITH, $periodeAlias . '.id = :' . $periodeIdParameter);
+                $queryBuilder->leftJoin(
+                    $alias . '.periodePriseEnCompteRH',
+                    $periodeAlias,
+                    Join::WITH,
+                    $periodeAlias . '.id = :' . $periodeIdParameter,
+                );
                 $whereConditions[] = $periodeAlias . '.id is not null';
             } else {
-                $queryBuilder->join('App\Entity\PeriodeRH', $periodeAlias,
-                    Join::WITH, $periodeAlias . '.id = :' . $periodeIdParameter);
+                $queryBuilder->join(
+                    'App\Entity\PeriodeRH',
+                    $periodeAlias,
+                    Join::WITH,
+                    $periodeAlias . '.id = :' . $periodeIdParameter,
+                );
 
                 $whereCondition = $alias . '.periodePriseEnCompteRH is null';
                 $whereCondition .= ' and ' . $periodeAlias . '.fin > ' . $alias . '.fin';
@@ -103,27 +133,19 @@ class ActivitePeriodeFilter extends AbstractFilter
         return [
             'periode' => [
                 'property' => 'periode',
-                'type' => Type::BUILTIN_TYPE_STRING,
+                'type' => TypeIdentifier::STRING,
                 'required' => false,
                 'strategy' => 'exact',
                 'is_collection' => false,
-                'openapi' => new Parameter(
-                    name: 'periode',
-                    in: 'query',
-                    description: "Période RH concernée",
-                ),
+                'openapi' => new Parameter(name: 'periode', in: 'query', description: 'Période RH concernée'),
             ],
             'periode[]' => [
                 'property' => 'periode',
-                'type' => Type::BUILTIN_TYPE_STRING,
+                'type' => TypeIdentifier::STRING,
                 'required' => false,
                 'strategy' => 'exact',
                 'is_collection' => true,
-                'openapi' => new Parameter(
-                    name: 'periode',
-                    in: 'query',
-                    description: "Période RH concernée",
-                ),
+                'openapi' => new Parameter(name: 'periode', in: 'query', description: 'Période RH concernée'),
             ],
         ];
     }

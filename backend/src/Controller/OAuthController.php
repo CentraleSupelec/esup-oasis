@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -25,17 +25,17 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use UnexpectedValueException;
 
 #[Route(path: '/connect/oauth', name: 'connect_oauth_')]
 class OAuthController extends AbstractController
 {
-    public function __construct(private readonly OAuthService             $oauthService,
-                                private readonly JWTTokenManagerInterface $jwtTokenManager)
-    {
-    }
+    public function __construct(
+        private readonly OAuthService $oauthService,
+        private readonly JWTTokenManagerInterface $jwtTokenManager,
+    ) {}
 
     /**
      * Démarre l'auth avec Oauth et retourne un accessToken (i.e. reproduit pour tests le boulot attendu coté front,
@@ -45,9 +45,11 @@ class OAuthController extends AbstractController
     public function getAccessToken(): Response
     {
         try {
-            $token = $this->oauthService->getAccessToken(
-                $this->generateUrl("connect_oauth_accesstoken", [], UrlGeneratorInterface::ABSOLUTE_URL)
-            );
+            $token = $this->oauthService->getAccessToken($this->generateUrl(
+                'connect_oauth_accesstoken',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_URL,
+            ));
             return new JsonResponse(['token' => $token]);
         } catch (IdentityProviderException|UnexpectedValueException $exception) {
             return new Response($exception->getMessage(), 500);
@@ -59,19 +61,22 @@ class OAuthController extends AbstractController
      * le serveur d'auth + un JWT valide pour l'api
      */
     #[Route(path: '/', name: 'login')]
-    public function fullAuthentication(UtilisateurManager                             $utilisateurManager,
-                                       #[Autowire('%env(JWT_TOKEN_TTL)%')] int        $ttl,
-                                       #[Autowire('%env(JWT_COOKIE_NAME)%')] string   $cookieName,
-                                       #[Autowire('%env(JWT_COOKIE_DOMAIN)%')] string $cookieDomain): Response
-    {
+    public function fullAuthentication(
+        UtilisateurManager $utilisateurManager,
+        #[Autowire('%env(JWT_TOKEN_TTL)%')] int $ttl,
+        #[Autowire('%env(JWT_COOKIE_NAME)%')] string $cookieName,
+        #[Autowire('%env(JWT_COOKIE_DOMAIN)%')] string $cookieDomain,
+    ): Response {
         /**
          * https://oauth2-client.thephpleague.com/usage/
          * https://apereo.github.io/cas/6.0.x/installation/OAuth-OpenId-Authentication.html#authorization-code
          */
         try {
-            $token = $this->oauthService->getAccessToken(
-                $this->generateUrl("connect_oauth_login", [], UrlGeneratorInterface::ABSOLUTE_URL)
-            );
+            $token = $this->oauthService->getAccessToken($this->generateUrl(
+                'connect_oauth_login',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_URL,
+            ));
 
             $resourceOwner = $this->oauthService->getResourceOwnerFromToken($token);
             $uid = $resourceOwner->getId();
@@ -82,18 +87,17 @@ class OAuthController extends AbstractController
 
             $jsonResponse = new JsonResponse($infos);
 
-            $jsonResponse->headers->setCookie(
-                Cookie::create(
-                    $cookieName,
-                    $infos['tokenApi'],
-                    (new DateTime())->modify(sprintf('+ %s seconds', $ttl)),
-                    "/",
-                    $cookieDomain,
-                    true,
-                    true,
-                    false,
-                    Cookie::SAMESITE_STRICT)
-            );
+            $jsonResponse->headers->setCookie(Cookie::create(
+                $cookieName,
+                $infos['tokenApi'],
+                new DateTime()->modify(sprintf('+ %s seconds', $ttl)),
+                '/',
+                $cookieDomain,
+                true,
+                true,
+                false,
+                Cookie::SAMESITE_STRICT,
+            ));
 
             return $jsonResponse;
         } catch (IdentityProviderException|UnexpectedValueException $exception) {
@@ -113,15 +117,16 @@ class OAuthController extends AbstractController
      * @throws ErreurLdapException
      */
     #[Route(path: '/token', name: 'user_token')]
-    public function getApiJwtFromCasAccessToken(Request                                        $request,
-                                                UtilisateurManager                             $utilisateurManager,
-                                                #[Autowire('%env(JWT_TOKEN_TTL)%')] int        $ttl,
-                                                #[Autowire('%env(JWT_COOKIE_NAME)%')] string   $cookieName,
-                                                #[Autowire('%env(JWT_COOKIE_DOMAIN)%')] string $cookieDomain): Response
-    {
-        $isJson = (null !== $request->get('json'));
+    public function getApiJwtFromCasAccessToken(
+        Request $request,
+        UtilisateurManager $utilisateurManager,
+        #[Autowire('%env(JWT_TOKEN_TTL)%')] int $ttl,
+        #[Autowire('%env(JWT_COOKIE_NAME)%')] string $cookieName,
+        #[Autowire('%env(JWT_COOKIE_DOMAIN)%')] string $cookieDomain,
+    ): Response {
+        $isJson = null !== $request->query->get('json');
         if (!$isJson) {
-            $accessToken = $request->get('accessToken');
+            $accessToken = $request->attributes->get('accessToken');
             if (null === $accessToken) {
                 return new JsonResponse(['error' => 'parametre accessToken manquant'], 400);
             }
@@ -139,18 +144,17 @@ class OAuthController extends AbstractController
         $token = $this->jwtTokenManager->create($user);
         $jsonResponse = new JsonResponse(['token' => $token]);
 
-        $jsonResponse->headers->setCookie(
-            Cookie::create(
-                $cookieName,
-                $token,
-                (new DateTime())->modify(sprintf('+ %s seconds', $ttl)),
-                "/",
-                $cookieDomain,
-                true,
-                true,
-                false,
-                Cookie::SAMESITE_STRICT)
-        );
+        $jsonResponse->headers->setCookie(Cookie::create(
+            $cookieName,
+            $token,
+            new DateTime()->modify(sprintf('+ %s seconds', $ttl)),
+            '/',
+            $cookieDomain,
+            true,
+            true,
+            false,
+            Cookie::SAMESITE_STRICT,
+        ));
         return $jsonResponse;
     }
 }

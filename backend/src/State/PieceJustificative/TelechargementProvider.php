@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,40 +12,35 @@
 
 namespace App\State\PieceJustificative;
 
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PaginatorInterface;
+use ApiPlatform\State\ProviderInterface;
+use App\ApiResource\Charte;
 use App\ApiResource\Telechargement;
-use App\ApiResource\Utilisateur;
-use App\Entity\Fichier;
-use App\State\AbstractEntityProvider;
-use Exception;
-use Override;
+use App\State\MappedCollectionPaginator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class TelechargementProvider extends AbstractEntityProvider
+readonly class TelechargementProvider implements ProviderInterface
 {
+    public function __construct(
+        #[Autowire(service: 'api_platform.doctrine.orm.state.item_provider')]
+        private ProviderInterface $itemProvider,
+        #[Autowire(service: 'api_platform.doctrine.orm.state.collection_provider')]
+        private ProviderInterface $collectionProvider,
+    ) {}
 
-    #[Override] protected function getResourceClass(): string
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        return Telechargement::class;
-    }
-
-    #[Override] protected function getEntityClass(): string
-    {
-        return Fichier::class;
-    }
-
-    /**
-     * @param Fichier $entity
-     * @return Telechargement
-     * @throws Exception
-     */
-    #[Override] public function transform($entity): mixed
-    {
-        $resource = new Telechargement();
-        $resource->nom = $entity->getNom();
-        $resource->typeMime = $entity->getTypeMime();
-        $resource->id = $entity->getId();
-        $resource->proprietaire = $this->transformerService->transform($entity->getProprietaire(), Utilisateur::class);
-        $resource->urlContenu = '/fichiers/' . $resource->id;
-
-        return $resource;
+        if ($operation instanceof GetCollection) {
+            $results = $this->collectionProvider->provide($operation, $uriVariables, $context);
+            assert($results instanceof PaginatorInterface);
+            return new MappedCollectionPaginator($results, fn($entity) => new Telechargement($entity));
+        }
+        $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
+        return match ($entity) {
+            null => null,
+            default => new Telechargement($entity),
+        };
     }
 }

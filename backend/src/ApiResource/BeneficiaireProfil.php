@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -29,44 +29,41 @@ use App\Validator\BeneficiaireDifferentGestionnaireContraint;
 use App\Validator\BeneficiaireSupprimableConstraint;
 use App\Validator\ProfilAvecTypologieConstraint;
 use DateTimeInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-
 #[ApiResource(
-    operations            : [
-        new Get(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['uid', 'id']
-        ),
+    operations: [
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['uid', 'id']),
         new Patch(
-            uriTemplate      : self::ITEM_URI,
-            uriVariables     : ['uid', 'id'],
-            security         : "is_granted('" . self::VOIR_PROFILS . "')",
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['uid', 'id'],
+            security: "is_granted('" . self::VOIR_PROFILS . "')",
             validationContext: ['groups' => [self::GROUP_VALIDATION_IN]],
         ),
         new Post(
-            uriTemplate      : self::COLLECTION_URI,
-            uriVariables     : ['uid'],
-            security         : "is_granted('" . self::VOIR_PROFILS . "')",
+            uriTemplate: self::COLLECTION_URI,
+            uriVariables: ['uid'],
+            security: "is_granted('" . self::VOIR_PROFILS . "')",
             validationContext: ['groups' => [self::GROUP_VALIDATION_IN]],
-            read             : false
+            read: false,
+            map: false,
         ),
         new Delete(
-            uriTemplate      : self::ITEM_URI,
-            uriVariables     : ['uid', 'id'],
-            security         : "is_granted('" . self::VOIR_PROFILS . "')",
-            validationContext: ['groups' => [self::GROUP_VALIDATION_DELETE]]
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['uid', 'id'],
+            security: "is_granted('" . self::VOIR_PROFILS . "')",
+            validationContext: ['groups' => [self::GROUP_VALIDATION_DELETE]],
         ),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    openapi               : new Operation(tags: ['Utilisateurs']),
-    order                 : ['debut' => 'DESC '],
-    security              : "is_granted('ROLE_PLANIFICATEUR')",
-    provider              : BeneficiaireProfilProvider::class,
-    processor             : BeneficiaireProfilProcessor::class,
-    stateOptions          : new Options(entityClass: Beneficiaire::class)
+    openapi: new Operation(tags: ['Utilisateurs']),
+    order: ['debut' => 'DESC '],
+    security: "is_granted('ROLE_PLANIFICATEUR')",
+    provider: BeneficiaireProfilProvider::class,
+    processor: BeneficiaireProfilProcessor::class,
+    stateOptions: new Options(entityClass: Beneficiaire::class),
 )]
 #[ApiFilter(SearchFilter::class, properties: ['profil'])]
 #[ProfilAvecTypologieConstraint(groups: [self::GROUP_VALIDATION_IN])]
@@ -85,25 +82,67 @@ final class BeneficiaireProfil
 
     #[ApiProperty(identifier: true)]
     #[Groups([self::GROUP_OUT])]
-    public ?int $id = null;
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
 
     //Copie de l'UID utilisateur. Non présenté à l'extérieur, juste utile pour uriVariables
-    public ?string $uid;
+    public ?string $uid {
+        get {
+            if (!isset($this->uid) && $this->entity !== null && $this->entity->getUtilisateur()) {
+                $this->uid = $this->entity->getUtilisateur()->getUid();
+            }
+            return $this->uid ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
     #[ApiProperty(security: "is_granted('" . self::VOIR_PROFILS . "')")]
-    public ?ProfilBeneficiaire $profil = null;
+    public ?ProfilBeneficiaire $profil = null {
+        get {
+            if ($this->profil === null && $this->entity !== null && $this->entity->getProfil()) {
+                $this->profil = new ProfilBeneficiaire($this->entity->getProfil());
+            }
+            return $this->profil;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
     #[Assert\NotBlank(groups: [self::GROUP_VALIDATION_IN])]
-    public DateTimeInterface $debut;
+    public ?DateTimeInterface $debut = null {
+        get {
+            if ($this->debut === null && $this->entity !== null) {
+                $this->debut = $this->entity->getDebut();
+            }
+            return $this->debut;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public ?DateTimeInterface $fin = null;
+    public ?DateTimeInterface $fin = null {
+        get {
+            if ($this->fin === null && $this->entity !== null) {
+                $this->fin = $this->entity->getFin();
+            }
+            return $this->fin ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
     #[Assert\NotBlank(groups: [self::GROUP_VALIDATION_IN])]
-    public Utilisateur $gestionnaire;
+    public ?Utilisateur $gestionnaire = null {
+        get {
+            if ($this->gestionnaire === null && $this->entity !== null) {
+                $this->gestionnaire = new Utilisateur($this->entity->getGestionnaire());
+            }
+            return $this->gestionnaire;
+        }
+    }
 
     /**
      * @var TypologieHandicap[]
@@ -111,8 +150,29 @@ final class BeneficiaireProfil
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
     #[Assert\All([new Assert\Type(TypologieHandicap::class)], groups: [self::GROUP_VALIDATION_IN])]
     #[ApiProperty(security: "is_granted('" . self::VOIR_PROFILS . "')")]
-    public array $typologies;
+    public array $typologies {
+        get {
+            if (!isset($this->typologies) && $this->entity !== null) {
+                $this->typologies = array_map(
+                    fn($t) => new TypologieHandicap($t),
+                    $this->entity->getTypologies()->toArray(),
+                );
+            }
+            return $this->typologies ?? [];
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public bool $avecAccompagnement = true;
+    public bool $avecAccompagnement = true {
+        get {
+            if ($this->entity !== null) {
+                return $this->entity->isAvecAccompagnement() ?? true;
+            }
+            return $this->avecAccompagnement;
+        }
+    }
+
+    public function __construct(
+        private readonly ?Beneficiaire $entity = null,
+    ) {}
 }

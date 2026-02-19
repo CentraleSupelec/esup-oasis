@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,13 +13,16 @@
 namespace App\Entity;
 
 use App\Repository\TauxHoraireRepository;
+use App\State\EntityToResourceTransformer;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Clock\ClockAwareTrait;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: TauxHoraireRepository::class)]
+#[Map(target: \App\ApiResource\TauxHoraire::class, transform: [EntityToResourceTransformer::class, 'entityToResource'])]
 class TauxHoraire
 {
     use ClockAwareTrait;
@@ -27,19 +30,24 @@ class TauxHoraire
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 2)]
+    #[Map(if: false)]
     private ?string $montant = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Map(if: false)]
     private ?DateTimeInterface $debut = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Map(if: false)]
     private ?DateTimeInterface $fin = null;
 
     #[ORM\ManyToOne(inversedBy: 'tauxHoraires')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?TypeEvenement $typeEvenement = null;
 
     public function getId(): ?int
@@ -80,7 +88,7 @@ class TauxHoraire
     {
         $this->fin = match ($fin) {
             null => null,
-            default => DateTime::createFromInterface($fin)
+            default => DateTime::createFromInterface($fin),
         };
 
         return $this;

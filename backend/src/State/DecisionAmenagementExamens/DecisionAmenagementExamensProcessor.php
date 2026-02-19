@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -24,12 +24,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class DecisionAmenagementExamensProcessor implements ProcessorInterface
 {
-    public function __construct(private DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
-                                private Security                             $security,
-                                private MessageBusInterface                  $messageBus)
-    {
-
-    }
+    public function __construct(
+        private DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
+        private Security $security,
+        private MessageBusInterface $messageBus,
+    ) {}
 
     /**
      * @param DecisionAmenagementExamens $data
@@ -52,8 +51,6 @@ readonly class DecisionAmenagementExamensProcessor implements ProcessorInterface
 
             $this->messageBus->dispatch(new DecisionEditionDemandeeMessage($entity->getId(), $user->getUid()));
         }
-
-        $this->messageBus->dispatch(new RessourceModifieeMessage($data));
 
         return $data;
     }

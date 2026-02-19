@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -36,15 +36,14 @@ class LdapService
     private ?Connection $ldap;
     private bool $bind;
 
-    public function __construct(private readonly string $ldapHost,
-                                private readonly int    $ldapPort,
-                                private readonly bool   $ldapSSL,
-                                private readonly string $ldapUsername,
-                                private readonly string $ldapPassword,
-                                private readonly string $ldapDn)
-    {
-
-    }
+    public function __construct(
+        private readonly string $ldapHost,
+        private readonly int $ldapPort,
+        private readonly bool $ldapSSL,
+        private readonly string $ldapUsername,
+        private readonly string $ldapPassword,
+        private readonly string $ldapDn,
+    ) {}
 
     /**
      * Retourne les attributs demandés pour une uid.
@@ -86,13 +85,12 @@ class LdapService
         if ($this->isConnected()) {
             $cookie = '';
             do {
-                $search = ldap_search($this->ldap, $this->ldapDn, $ldapQuery, $attributes,
-                    controls: [
-                        [
-                            'oid' => LDAP_CONTROL_PAGEDRESULTS,
-                            'value' => ['size' => 10, 'cookie' => $cookie],
-                        ],
-                    ]);
+                $search = ldap_search($this->ldap, $this->ldapDn, $ldapQuery, $attributes, controls: [
+                    [
+                        'oid' => LDAP_CONTROL_PAGEDRESULTS,
+                        'value' => ['size' => 10, 'cookie' => $cookie],
+                    ],
+                ]);
 
                 if (!ldap_parse_result($this->ldap, $search, $errcode, $matcheddn, $errmsg, $referrals, $controls)) {
                     throw new ErreurLdapException('Erreur de lecture des résultats de la recherche LDAP');

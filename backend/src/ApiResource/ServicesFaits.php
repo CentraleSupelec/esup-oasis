@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -20,28 +20,28 @@ use ApiPlatform\Metadata\GetCollection;
 use App\Filter\ServicesFaitsPeriodeOrderFilter;
 use App\State\PeriodeRH\IntervenantServicesFaitsProvider;
 use App\State\PeriodeRH\ServicesFaitsProvider;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
-    operations          : [
+    operations: [
         new GetCollection(
-            uriTemplate : '/intervenants/{uid}/services_faits',
+            uriTemplate: '/intervenants/{uid}/services_faits',
             uriVariables: ['uid'],
-            security    : "is_granted('ROLE_ADMIN') or request.get('uid') == user.getUid()",
-            provider    : IntervenantServicesFaitsProvider::class,
+            security: "is_granted('ROLE_ADMIN') or request.attributes.get('uid') == user.getUid()",
+            provider: IntervenantServicesFaitsProvider::class,
         ),
         new Get(
-            uriTemplate : '/intervenants/{uid}/services_faits/{id}', //id = id de la période RH
+            uriTemplate: '/intervenants/{uid}/services_faits/{id}', //id = id de la période RH
             uriVariables: ['uid', 'id'],
-            security    : "is_granted('ROLE_ADMIN') or object.uid == user.getUid()",
-            provider    : IntervenantServicesFaitsProvider::class,
+            security: "is_granted('ROLE_ADMIN') or object.uid == user.getUid()",
+            provider: IntervenantServicesFaitsProvider::class,
         ),
         new Get(
-            uriTemplate : '/periodes/{id}/services_faits',
-            formats     : ['jsonld', 'customcsv' => 'text/csv', 'pdf' => 'application/pdf'],
+            uriTemplate: '/periodes/{id}/services_faits',
+            formats: ['jsonld', 'customcsv' => 'text/csv', 'pdf' => 'application/pdf'],
             uriVariables: ['id'],
-            security    : 'object.periode.envoyee == true',
-            provider    : ServicesFaitsProvider::class,
+            security: 'object.periode.envoyee == true',
+            provider: ServicesFaitsProvider::class,
         ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
@@ -53,7 +53,7 @@ class ServicesFaits
 
     #[ApiProperty(identifier: true)]
     #[Groups([self::GROUP_OUT])]
-    public int $id;//copie de periode.id
+    public int $id; //copie de periode.id
 
     //copie de l'uid de l'intervenant si besoin, pour génération de l'IRI
     public ?string $uid = null;

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -191,13 +191,17 @@ class InterventionForfait implements BeneficiairesManagerInterface
 
     public function canHaveBeneficiaire(Beneficiaire $beneficiaire): bool
     {
-        if ($beneficiaire->getDebut() >= $this->getPeriode()->getDebut() &&
-            $beneficiaire->getDebut() < $this->getPeriode()->getFin()) {
+        if (
+            $beneficiaire->getDebut() >= $this->getPeriode()->getDebut()
+            && $beneficiaire->getDebut() < $this->getPeriode()->getFin()
+        ) {
             return true;
         }
 
-        if ($this->getPeriode()->getDebut() >= $beneficiaire->getDebut() &&
-            ($this->getPeriode()->getDebut() < $beneficiaire->getFin() || null == $beneficiaire->getFin())) {
+        if (
+            $this->getPeriode()->getDebut() >= $beneficiaire->getDebut()
+            && ($this->getPeriode()->getDebut() < $beneficiaire->getFin() || null == $beneficiaire->getFin())
+        ) {
             return true;
         }
 

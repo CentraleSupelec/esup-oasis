@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,38 +12,35 @@
 
 namespace App\State\Inscription;
 
-use App\ApiResource\Formation;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PaginatorInterface;
+use ApiPlatform\State\ProviderInterface;
+use App\ApiResource\Charte;
 use App\ApiResource\Inscription;
-use App\State\AbstractEntityProvider;
-use Exception;
+use App\State\MappedCollectionPaginator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class InscriptionProvider extends AbstractEntityProvider
+class InscriptionProvider implements ProviderInterface
 {
+    public function __construct(
+        #[Autowire(service: 'api_platform.doctrine.orm.state.item_provider')]
+        private ProviderInterface $itemProvider,
+        #[Autowire(service: 'api_platform.doctrine.orm.state.collection_provider')]
+        private ProviderInterface $collectionProvider,
+    ) {}
 
-    protected function getResourceClass(): string
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        return Inscription::class;
-    }
-
-    protected function getEntityClass(): string
-    {
-        return \App\Entity\Inscription::class;
-    }
-
-    /**
-     * @param \App\Entity\Inscription $entity
-     * @return Inscription
-     * @throws Exception
-     */
-    public function transform($entity): mixed
-    {
-        $resource = new Inscription();
-
-        $resource->id = $entity->getId();
-        $resource->formation = $this->transformerService->transform($entity->getFormation(), Formation::class);
-        $resource->debut = $entity->getDebut();
-        $resource->fin = $entity->getFin();
-
-        return $resource;
+        if ($operation instanceof GetCollection) {
+            $results = $this->collectionProvider->provide($operation, $uriVariables, $context);
+            assert($results instanceof PaginatorInterface);
+            return new MappedCollectionPaginator($results, fn($entity) => new Inscription($entity));
+        }
+        $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
+        return match ($entity) {
+            null => null,
+            default => new Inscription($entity),
+        };
     }
 }

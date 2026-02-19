@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -28,6 +28,7 @@ use App\Filter\DemandeDisciplineSportiveFilter;
 use App\Filter\DemandeFormatFilter;
 use App\Filter\DerniereInscriptionSearchFilter;
 use App\Filter\NestedUtilisateurFilter;
+use App\Filter\PreloadAssociationsFilter;
 use App\State\Demande\DemandeProvider;
 use App\State\Demande\DemandesUtilisateurProvider;
 use App\State\Demande\PatchDemandeProcessor;
@@ -44,18 +45,17 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['id'],
-            security: "is_granted('" . self::VOIR_DEMANDE . "', object)"
+            security: "is_granted('" . self::VOIR_DEMANDE . "', object)",
+            map: false,
         ),
-        new GetCollection(
-            uriTemplate: self::COLLECTION_URI,
-            forceEager: false
-        ),
+        new GetCollection(uriTemplate: self::COLLECTION_URI, map: false),
         new GetCollection(
             uriTemplate: self::COLLECTION_UTILISATEUR_URI,
             uriVariables: ['uid'],
-            security: "is_granted('ROLE_GESTIONNAIRE') or request.get('uid') == user.getUid()",
+            security: "is_granted('ROLE_GESTIONNAIRE') or request.attributes.get('uid') == user.getUid()",
             forceEager: false,
             provider: DemandesUtilisateurProvider::class,
+            map: false,
         ),
         new Post(
             uriTemplate: self::COLLECTION_URI,
@@ -63,13 +63,15 @@ use Symfony\Component\Validator\Constraints as Assert;
             securityPostDenormalize: "is_granted('ROLE_GESTIONNAIRE') or object.demandeur.uid == user.getUid()",
             read: false,
             processor: PostDemandeProcessor::class,
+            map: false,
         ),
         new Patch(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['id'],
             denormalizationContext: ['groups' => [self::GROUP_CHANGEMENT_ETAT]],
             securityPostDenormalize: "is_granted('" . self::MAJ_DEMANDE . "', [previous_object, object])",
-            processor: PatchDemandeProcessor::class
+            processor: PatchDemandeProcessor::class,
+            map: false,
         ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
@@ -120,6 +122,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(OrderFilter::class, properties: ['demandeur.nom', 'dateDepot'])]
 #[ApiFilter(DemandeFormatFilter::class)]
 #[ApiFilter(CampagneNonArchiveeFilter::class)]
+#[ApiFilter(PreloadAssociationsFilter::class)]
 #[DemandeUniqueParCampagneConstraint]
 #[DemandeWorkflowConstraint]
 class Demande
@@ -135,49 +138,124 @@ class Demande
 
     #[Groups([self::GROUP_OUT])]
     #[ApiProperty(identifier: true)]
-    public ?int $id = null;
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
     #[Assert\NotNull(message: 'Impossible si le DemandeDenormalizer fait son job')]
-    public ?Utilisateur $demandeur = null;
+    public ?Utilisateur $demandeur = null {
+        get {
+            if ($this->demandeur === null && $this->entity !== null && $this->entity->getDemandeur() !== null) {
+                $this->demandeur = new Utilisateur($this->entity->getDemandeur());
+            }
+            return $this->demandeur ?? null;
+        }
+    }
 
-    public string $uid {
-        get => $this->demandeur->uid;
+    public ?string $uid = null {
+        get {
+            if ($this->uid === null && $this->entity !== null && $this->entity->getDemandeur() !== null) {
+                $this->uid = $this->entity->getDemandeur()->getUid();
+            }
+            return $this->uid ?? null;
+        }
     }
 
     #[Groups([self::GROUP_OUT])]
-    public CampagneDemande $campagne;
+    public ?CampagneDemande $campagne = null {
+        get {
+            if ($this->campagne === null && $this->entity !== null) {
+                $this->campagne = new CampagneDemande($this->entity->getCampagne());
+            }
+            return $this->campagne ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
     #[Assert\NotNull(message: 'Pour créer une demande il faut en spécifier le type.')]
-    public TypeDemande $typeDemande;
+    public ?TypeDemande $typeDemande = null {
+        get {
+            if ($this->typeDemande === null && $this->entity !== null) {
+                $this->typeDemande = new TypeDemande($this->entity->getCampagne()->getTypeDemande());
+            }
+            return $this->typeDemande ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT])]
-    public ?int $idCommission = null;
+    public ?int $idCommission = null {
+        get {
+            if ($this->idCommission === null && $this->entity !== null) {
+                $this->idCommission = $this->entity
+                    ->getCampagne()
+                    ->getCommission()
+                    ?->getId();
+            }
+            return $this->idCommission ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT])]
-    public ?DateTimeInterface $dateDepot;
+    public ?DateTimeInterface $dateDepot = null {
+        get {
+            if ($this->dateDepot === null && $this->entity !== null) {
+                $this->dateDepot = $this->entity->getDateDepot();
+            }
+            return $this->dateDepot ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_CHANGEMENT_ETAT])]
-    public EtatDemande $etat;
+    public ?EtatDemande $etat = null {
+        get {
+            if ($this->etat === null && $this->entity !== null) {
+                $this->etat = new EtatDemande($this->entity->getEtat());
+            }
+            return $this->etat ?? null;
+        }
+    }
 
     /**
      * @var EtapeDemandeEtudiant[]
      */
     #[Groups([self::GROUP_OUT])]
-    public array $etapes;
+    public array $etapes; //calcul complexe, rempli dans le provider
 
     #[Groups([self::GROUP_OUT])]
-    public bool $complete = false;
+    public bool $complete = false; //calcul complexe, rempli dans le provider
 
     #[Groups([self::GROUP_CHANGEMENT_ETAT])]
-    public ?string $commentaireChangementEtat = null;
+    public ?string $commentaireChangementEtat = null; //non stocké dans l'entité
 
     #[Groups([self::GROUP_CHANGEMENT_ETAT, self::GROUP_OUT])]
-    public ?ProfilBeneficiaire $profilAttribue = null;
+    public ?ProfilBeneficiaire $profilAttribue = null {
+        get {
+            if (
+                $this->profilAttribue === null
+                && $this->entity !== null
+                && $this->entity->getProfilAttribue() !== null
+            ) {
+                $this->profilAttribue = new ProfilBeneficiaire($this->entity->getProfilAttribue());
+            }
+            return $this->profilAttribue ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_CHANGEMENT_ETAT, self::GROUP_OUT])]
-    public ?string $commentaire = null;
+    public ?string $commentaire = null {
+        get {
+            if ($this->commentaire === null && $this->entity !== null) {
+                $this->commentaire = $this->entity->getCommentaire();
+            }
+            return $this->commentaire ?? null;
+        }
+    }
 
     /**
      * @param mixed $question
@@ -193,6 +271,10 @@ class Demande
                 }
             }
         }
-        throw new Exception("pas de QuestionDemande pour cette Question");
+        throw new Exception('pas de QuestionDemande pour cette Question');
     }
+
+    public function __construct(
+        private readonly ?\App\Entity\Demande $entity = null,
+    ) {}
 }

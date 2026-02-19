@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -28,7 +28,8 @@ use App\State\TauxHoraire\TauxHoraireCollectionProvider;
 use App\State\TauxHoraire\TauxHoraireProcessor;
 use App\State\TauxHoraire\TauxHoraireProvider;
 use DateTimeInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\ObjectMapper\Attribute\Map;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -36,16 +37,14 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(
             uriTemplate: self::COLLECTION_URI,
             uriVariables: [
-                'typeId' => new Link(fromProperty: 'id', toProperty: 'typeEvenement', fromClass: TypeEvenement::class,),
+                'typeId' => new Link(fromProperty: 'id', toProperty: 'typeEvenement', fromClass: TypeEvenement::class),
             ],
             provider: TauxHoraireCollectionProvider::class,
         ),
-        new Get(
-            uriTemplate: self::ITEM_URI,
-            uriVariables: [
-                'typeId', 'id',
-            ],
-        ),
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: [
+            'typeId',
+            'id',
+        ]),
         new Post(
             uriTemplate: self::COLLECTION_URI,
             uriVariables: [
@@ -53,18 +52,22 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             security: "is_granted('ROLE_ADMIN')",
             read: false,
+            map: false,
         ),
         new Patch(
             uriTemplate: self::ITEM_URI,
             uriVariables: [
-                'typeId', 'id',
+                'typeId',
+                'id',
             ],
             security: "is_granted('ROLE_ADMIN')",
+            map: false,
         ),
         new Delete(
             uriTemplate: self::ITEM_URI,
             uriVariables: [
-                'typeId', 'id',
+                'typeId',
+                'id',
             ],
             security: "is_granted('ROLE_ADMIN')",
         ),
@@ -77,7 +80,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     security: "is_granted('ROLE_PLANIFICATEUR') or is_granted('ROLE_INTERVENANT')",
     provider: TauxHoraireProvider::class,
     processor: TauxHoraireProcessor::class,
-    stateOptions: new Options(entityClass: \App\Entity\TauxHoraire::class)
+    stateOptions: new Options(entityClass: \App\Entity\TauxHoraire::class),
 )]
 #[ApiFilter(TauxHoraireDateFilter::class)]
 class TauxHoraire
@@ -89,23 +92,75 @@ class TauxHoraire
 
     #[ApiProperty(identifier: true)]
     #[Groups([self::GROUP_OUT, ServicesFaits::GROUP_OUT, ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT])]
-    public ?int $id = null;
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
 
     //copie juste pour gérer facilement les IRI
-    public int $typeId;
-    public TypeEvenement $typeEvenement;
+    public int $typeId {
+        get {
+            if (!isset($this->typeId) && $this->entity !== null && $this->entity->getTypeEvenement()) {
+                $this->typeId = $this->entity->getTypeEvenement()->getId();
+            }
+            return $this->typeId;
+        }
+    }
+    public TypeEvenement $typeEvenement {
+        get {
+            if (!isset($this->typeEvenement) && $this->entity !== null && $this->entity->getTypeEvenement()) {
+                $this->typeEvenement = new TypeEvenement($this->entity->getTypeEvenement());
+            }
+            return $this->typeEvenement;
+        }
+    }
 
     #[Assert\NotBlank]
     #[Assert\Length(max: 5)]
     #[Assert\Type('numeric')]
     #[Assert\LessThan(1000)] //decimal(5,2)
     #[Assert\Positive]
-    #[Groups([self::GROUP_OUT, self::GROUP_IN, ServicesFaits::GROUP_OUT, ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT])]
-    public string $montant;
+    #[Groups([
+        self::GROUP_OUT,
+        self::GROUP_IN,
+        ServicesFaits::GROUP_OUT,
+        ActiviteBeneficiaire::OUT,
+        ActiviteIntervenant::OUT,
+    ])]
+    public string $montant {
+        get {
+            if (!isset($this->montant) && $this->entity !== null) {
+                $this->montant = $this->entity->getMontant() ?? '';
+            }
+            return $this->montant;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public DateTimeInterface $debut;
+    public DateTimeInterface $debut {
+        get {
+            if (!isset($this->debut) && $this->entity !== null) {
+                $this->debut = $this->entity->getDebut();
+            }
+            return $this->debut;
+        }
+    }
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
     #[Assert\GreaterThan(propertyPath: 'debut')]
-    public ?DateTimeInterface $fin = null;
+    public ?DateTimeInterface $fin = null {
+        get {
+            if ($this->fin === null && $this->entity !== null) {
+                $this->fin = $this->entity->getFin();
+            }
+            return $this->fin ?? null;
+        }
+    }
+
+    public function __construct(
+        private readonly ?\App\Entity\TauxHoraire $entity = null,
+    ) {}
 }

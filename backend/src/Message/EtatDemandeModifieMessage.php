@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -14,16 +14,14 @@ namespace App\Message;
 
 readonly class EtatDemandeModifieMessage
 {
-
     public function __construct(
-        private int     $idDemande,
-        private int     $idEtatprecedent,
-        private int     $idEtat,
-        private string  $uidUtilisateurModif,
+        private int $idDemande,
+        private int $idEtatprecedent,
+        private int $idEtat,
+        private string $uidUtilisateurModif,
         private ?string $commentaire,
-        private ?int    $idProfil)
-    {
-    }
+        private ?int $idProfil,
+    ) {}
 
     public function getIdEtat(): int
     {
@@ -54,5 +52,4 @@ readonly class EtatDemandeModifieMessage
     {
         return $this->idProfil;
     }
-
 }

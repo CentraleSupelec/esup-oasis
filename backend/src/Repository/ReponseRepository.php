@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -50,9 +50,10 @@ class ReponseRepository extends ServiceEntityRepository
      */
     public function getReponsesARecuperer(Demande $demande): array
     {
-        $qb = $this->createQueryBuilder('r')
+        $qb = $this
+            ->createQueryBuilder('r')
             ->join('r.question', 'q')
-            ->andWhere("q.champCible is not null or q.typeReponse = :type_fichier")
+            ->andWhere('q.champCible is not null or q.typeReponse = :type_fichier')
             ->andWhere('r.repondant = :demandeur')
             ->andWhere('r.campagne = :campagne')
             ->setParameter('demandeur', $demande->getDemandeur())

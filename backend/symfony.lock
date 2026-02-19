@@ -49,33 +49,6 @@
             "migrations/.gitignore"
         ]
     },
-    "friends-of-behat/symfony-extension": {
-        "version": "2.4",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "main",
-            "version": "2.0",
-            "ref": "1e012e04f573524ca83795cd19df9ea690adb604"
-        },
-        "files": [
-            "behat.yml.dist",
-            "config/services_test.yaml",
-            "features/demo.feature",
-            "tests/Behat/DemoContext.php"
-        ]
-    },
-    "friendsofphp/php-cs-fixer": {
-        "version": "3.75",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "3.0",
-            "ref": "be2103eb4a20942e28a6dd87736669b757132435"
-        },
-        "files": [
-            ".php-cs-fixer.dist.php"
-        ]
-    },
     "hautelook/alice-bundle": {
         "version": "2.11",
         "recipe": {
@@ -204,18 +177,6 @@
             "public/index.php",
             "src/Controller/.gitignore",
             "src/Kernel.php"
-        ]
-    },
-    "symfony/lock": {
-        "version": "7.1",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "5.2",
-            "ref": "8e937ff2b4735d110af1770f242c1107fdab4c8e"
-        },
-        "files": [
-            "config/packages/lock.yaml"
         ]
     },
     "symfony/mailer": {

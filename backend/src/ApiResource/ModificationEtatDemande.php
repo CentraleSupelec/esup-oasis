@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,9 +12,9 @@
 
 namespace App\ApiResource;
 
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -27,24 +27,22 @@ use DateTimeInterface;
 use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ApiResource(
-    operations  : [
+    operations: [
         new GetCollection(
-            uriTemplate : self::COLLECTION_URI,
+            uriTemplate: self::COLLECTION_URI,
             uriVariables: [
                 'demandeId' => new Link(fromProperty: 'id', toProperty: 'demande', fromClass: Demande::class),
-            ]
+            ],
+            map: false,
         ),
-        new Get(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: [
-                'demandeId' => new Link(fromProperty: 'id', toProperty: 'demande', fromClass: Demande::class),
-                'id',
-            ]
-        ),
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: [
+            'demandeId' => new Link(fromProperty: 'id', toProperty: 'demande', fromClass: Demande::class),
+            'id',
+        ]),
     ],
-    openapi     : new Operation(tags: ['Demandes']),
-    provider    : ModificationEtatDemandeProvider::class,
-    stateOptions: new Options(entityClass: \App\Entity\ModificationEtatDemande::class)
+    openapi: new Operation(tags: ['Demandes']),
+    provider: ModificationEtatDemandeProvider::class,
+    stateOptions: new Options(entityClass: \App\Entity\ModificationEtatDemande::class),
 )]
 #[ApiFilter(OrderFilter::class, properties: ['dateModification', 'id'])]
 #[ApiFilter(DateFilter::class, properties: ['dateModification'])]
@@ -54,14 +52,79 @@ class ModificationEtatDemande
     public const string COLLECTION_URI = '/demandes/{demandeId}/modifications';
     public const string ITEM_URI = '/demandes/{demandeId}/modifications/{id}';
 
-    #[Ignore] public ?int $id = null;
-    public Demande $demande;
+    #[Ignore]
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
 
-    public EtatDemande $etat;
-    public EtatDemande $etatPrecedent;
-    public Utilisateur $utilisateurModification;
-    public ?ProfilBeneficiaire $profil = null;
-    public ?string $commentaire;
+    public ?Demande $demande = null {
+        get {
+            if ($this->demande === null && $this->entity !== null) {
+                $this->demande = new Demande($this->entity->getDemande());
+            }
+            return $this->demande ?? null;
+        }
+    }
 
-    public ?DateTimeInterface $dateModification;
+    public ?EtatDemande $etat = null {
+        get {
+            if ($this->etat === null && $this->entity !== null) {
+                $this->etat = new EtatDemande($this->entity->getEtat());
+            }
+            return $this->etat ?? null;
+        }
+    }
+    public ?EtatDemande $etatPrecedent = null {
+        get {
+            if ($this->etatPrecedent === null && $this->entity !== null) {
+                $this->etatPrecedent = new EtatDemande($this->entity->getEtatPrecedent());
+            }
+            return $this->etatPrecedent ?? null;
+        }
+    }
+
+    public ?Utilisateur $utilisateurModification = null {
+        get {
+            if ($this->utilisateurModification === null && $this->entity !== null) {
+                $this->utilisateurModification = new Utilisateur($this->entity->getUtilisateur());
+            }
+            return $this->utilisateurModification ?? null;
+        }
+    }
+
+    public ?ProfilBeneficiaire $profil = null {
+        get {
+            if ($this->profil === null && $this->entity !== null && $this->entity->getProfil() !== null) {
+                $this->profil = new ProfilBeneficiaire($this->entity->getProfil());
+            }
+            return $this->profil ?? null;
+        }
+    }
+
+    public ?string $commentaire = null {
+        get {
+            if ($this->commentaire === null && $this->entity !== null) {
+                $this->commentaire = $this->entity->getCommentaire();
+            }
+            return $this->commentaire ?? null;
+        }
+    }
+
+    public ?DateTimeInterface $dateModification = null {
+        get {
+            if ($this->dateModification === null && $this->entity !== null) {
+                $this->dateModification = $this->entity->getDateModification();
+            }
+            return $this->dateModification ?? null;
+        }
+    }
+
+    public function __construct(
+        private readonly ?\App\Entity\ModificationEtatDemande $entity = null,
+    ) {}
 }

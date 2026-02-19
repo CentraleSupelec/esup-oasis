@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,70 +12,35 @@
 
 namespace App\State\Demande;
 
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Operation;
-use App\ApiResource\Demande;
-use App\ApiResource\EtatDemande;
+use ApiPlatform\State\Pagination\PaginatorInterface;
+use ApiPlatform\State\ProviderInterface;
+use App\ApiResource\Charte;
 use App\ApiResource\ModificationEtatDemande;
-use App\ApiResource\ProfilBeneficiaire;
-use App\ApiResource\Utilisateur;
-use App\State\AbstractEntityProvider;
-use Exception;
-use Override;
+use App\State\MappedCollectionPaginator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class ModificationEtatDemandeProvider extends AbstractEntityProvider
+readonly class ModificationEtatDemandeProvider implements ProviderInterface
 {
+    public function __construct(
+        #[Autowire(service: 'api_platform.doctrine.orm.state.item_provider')]
+        private ProviderInterface $itemProvider,
+        #[Autowire(service: 'api_platform.doctrine.orm.state.collection_provider')]
+        private ProviderInterface $collectionProvider,
+    ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        return parent::provide($operation, $uriVariables, $context);
-    }
-
-    #[Override] protected function getResourceClass(): string
-    {
-        return ModificationEtatDemande::class;
-    }
-
-    #[Override] protected function getEntityClass(): string
-    {
-        return \App\Entity\ModificationEtatDemande::class;
-    }
-
-    /**
-     * @param \App\Entity\ModificationEtatDemande $entity
-     * @return ModificationEtatDemande
-     * @throws Exception
-     */
-    #[Override] public function transform($entity): mixed
-    {
-        $resource = new ModificationEtatDemande();
-        $resource->id = $entity->getId();
-        $resource->commentaire = $entity->getCommentaire();
-        $resource->etat = $this->transformerService->transform(
-            $entity->getEtat(),
-            EtatDemande::class
-        );
-        $resource->etatPrecedent = $this->transformerService->transform(
-            $entity->getEtatPrecedent(),
-            EtatDemande::class
-        );
-        $resource->profil = match ($profil = $entity->getProfil()) {
+        if ($operation instanceof GetCollection) {
+            $results = $this->collectionProvider->provide($operation, $uriVariables, $context);
+            assert($results instanceof PaginatorInterface);
+            return new MappedCollectionPaginator($results, fn($entity) => new ModificationEtatDemande($entity));
+        }
+        $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
+        return match ($entity) {
             null => null,
-            default => $this->transformerService->transform(
-                $profil,
-                ProfilBeneficiaire::class
-            ),
+            default => new ModificationEtatDemande($entity),
         };
-        $resource->utilisateurModification = $this->transformerService->transform(
-            $entity->getUtilisateur(),
-            Utilisateur::class
-        );
-        $resource->demande = $this->transformerService->transform(
-            $entity->getDemande(),
-            Demande::class
-        );
-
-        $resource->dateModification = $entity->getDateModification();
-
-        return $resource;
     }
 }

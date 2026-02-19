@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -19,14 +19,14 @@ use Exception;
 
 class AmenagementModifieMessage
 {
-
     use AnneeUniversitaireAwareTrait;
 
     protected Utilisateur $beneficiaire;
     protected bool $isExamens;
 
-    public function __construct(private readonly Amenagement $amenagement)
-    {
+    public function __construct(
+        private readonly Amenagement $amenagement,
+    ) {
         $this->beneficiaire = $amenagement->getBeneficiaires()->current()->getUtilisateur();
         $this->isExamens = $this->amenagement->getType()->isExamens();
     }
@@ -41,9 +41,10 @@ class AmenagementModifieMessage
          * On veut la date de début d'année universitaire pour laquelle le dernierBenef est valide
          */
 
-        return $this->bornesAnneeDuJour($this->getDebutAnneeUniversitairePourBeneficiaires($this->amenagement->getBeneficiaires()->toArray()));
+        return $this->bornesAnneeDuJour(
+            $this->getDebutAnneeUniversitairePourBeneficiaires($this->amenagement->getBeneficiaires()->toArray()),
+        );
     }
-
 
     public function getBeneficiaire(): Utilisateur
     {
@@ -54,5 +55,4 @@ class AmenagementModifieMessage
     {
         return $this->isExamens;
     }
-
 }

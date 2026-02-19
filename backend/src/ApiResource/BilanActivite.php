@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -19,6 +19,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\IriConverterInterface;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Entity\Bilan;
@@ -26,6 +27,8 @@ use App\Filter\NestedUtilisateurFilter;
 use App\State\BilanActivite\BilanActiviteProcessor;
 use App\State\BilanActivite\BilanActiviteProvider;
 use DateTimeInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -34,21 +37,19 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(
             uriTemplate: self::COLLECTION_URI,
             security: "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "')",
+            map: false,
         ),
         new Post(
             uriTemplate: self::COLLECTION_URI,
             security: "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "')",
+            map: false,
         ),
         new Get(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['id'],
             security: "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "')",
         ),
-        new Delete(
-            uriTemplate: self::ITEM_URI,
-            uriVariables: ['id'],
-            security: "object.getUid() == user.getUid()",
-        ),
+        new Delete(uriTemplate: self::ITEM_URI, uriVariables: ['id'], security: 'object.getUid() == user.getUid()'),
     ],
     cacheHeaders: [
         'public' => false,
@@ -58,7 +59,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     openapi: new Operation(tags: ['Suivis'], description: 'Bilan activite'),
     provider: BilanActiviteProvider::class,
     processor: BilanActiviteProcessor::class,
-    stateOptions: new Options(entityClass: Bilan::class)
+    stateOptions: new Options(entityClass: Bilan::class),
 )]
 #[ApiFilter(OrderFilter::class, properties: ['dateDemande'])]
 #[ApiFilter(NestedUtilisateurFilter::class, properties: ['demandeur' => 'demandeur'])]
@@ -70,53 +71,148 @@ class BilanActivite
     public const string GROUP_OUT = 'bilan-activite:out';
 
     #[Groups([self::GROUP_OUT])]
-    public ?int $id = null;
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT])]
-    public Utilisateur $demandeur;
+    public ?Utilisateur $demandeur = null {
+        get {
+            if ($this->demandeur === null && $this->entity !== null) {
+                $this->demandeur = new Utilisateur($this->entity->getDemandeur());
+            }
+            return $this->demandeur ?? null;
+        }
+    }
 
     #[Assert\NotNull]
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public DateTimeInterface $debut;
+    public ?DateTimeInterface $debut = null {
+        get {
+            if ($this->debut === null && $this->entity !== null) {
+                $this->debut = $this->entity->getDebut();
+            }
+            return $this->debut ?? null;
+        }
+    }
+
     #[Assert\NotNull]
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public DateTimeInterface $fin;
+    public ?DateTimeInterface $fin = null {
+        get {
+            if ($this->fin === null && $this->entity !== null) {
+                $this->fin = $this->entity->getFin();
+            }
+            return $this->fin ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT])]
-    public DateTimeInterface $dateDemande;
+    public ?DateTimeInterface $dateDemande = null {
+        get {
+            if ($this->dateDemande === null && $this->entity !== null) {
+                $this->dateDemande = $this->entity->getDateDemande();
+            }
+            return $this->dateDemande ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT])]
-    public ?DateTimeInterface $dateGeneration = null;
+    public ?DateTimeInterface $dateGeneration = null {
+        get {
+            if ($this->dateGeneration === null && $this->entity !== null) {
+                $this->dateGeneration = $this->entity->getDateGeneration();
+            }
+            return $this->dateGeneration ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT])]
-    public ?Telechargement $fichier = null;
+    public ?Telechargement $fichier = null {
+        get {
+            if ($this->fichier === null && $this->entity !== null && null !== $this->entity->getFichier()) {
+                $this->fichier = new Telechargement($this->entity->getFichier());
+            }
+            return $this->fichier ?? null;
+        }
+    }
 
     /**
      * @var Utilisateur[]
      */
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public array $gestionnaires = [];
+    public ?array $gestionnaires = null {
+        get {
+            if ($this->gestionnaires === null && $this->entity !== null) {
+                $this->gestionnaires = array_map(
+                    callback: fn($iri) => $this->iriConverter->getResourceFromIri($iri),
+                    array: $this->entity->getParametre('gestionnaires') ?? [],
+                );
+            }
+            return $this->gestionnaires ?? null;
+        }
+    }
 
     /**
      * @var ProfilBeneficiaire[]
      */
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public array $profils = [];
+    public ?array $profils = null {
+        get {
+            if ($this->profils === null && $this->entity !== null) {
+                $this->profils = array_map(
+                    callback: fn($iri) => $this->iriConverter->getResourceFromIri($iri),
+                    array: $this->entity->getParametre('profils') ?? [],
+                );
+            }
+            return $this->profils ?? null;
+        }
+    }
 
     /**
      * @var Composante[]
      */
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public array $composantes = [];
+    public ?array $composantes = null {
+        get {
+            if ($this->composantes === null && $this->entity !== null) {
+                $this->composantes = array_map(
+                    callback: fn($iri) => $this->iriConverter->getResourceFromIri($iri),
+                    array: $this->entity->getParametre('composantes') ?? [],
+                );
+            }
+            return $this->composantes ?? null;
+        }
+    }
 
     /**
      * @var Formation[]
      */
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public array $formations = [];
+    public ?array $formations = null {
+        get {
+            if ($this->formations === null && $this->entity !== null) {
+                $this->formations = array_map(
+                    callback: fn($iri) => $this->iriConverter->getResourceFromIri($iri),
+                    array: $this->entity->getParametre('formations') ?? [],
+                );
+            }
+            return $this->formations ?? null;
+        }
+    }
 
     public function getuid()
     {
         return $this->demandeur->uid;
     }
+
+    public function __construct(
+        private readonly ?Bilan $entity = null,
+        private readonly ?IriConverterInterface $iriConverter = null,
+    ) {}
 }

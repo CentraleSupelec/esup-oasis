@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -24,10 +24,15 @@ class BeneficiaireFilter extends AbstractFilter
 {
     use ClockAwareTrait;
 
-    protected function filterProperty(string                      $property, $value, QueryBuilder $queryBuilder,
-                                      QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass,
-                                      ?Operation                  $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         /** @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection */
         if (!$operation->getClass() === Utilisateur::class || $property !== 'beneficiairefilter') {
             return;
@@ -36,10 +41,23 @@ class BeneficiaireFilter extends AbstractFilter
         $beneficiaireAlias = $queryNameGenerator->generateJoinAlias('beneficiaire');
         $nowParam = $queryNameGenerator->generateParameterName('now');
 
-        $withCondition = ':' . $nowParam . ' >= ' . $beneficiaireAlias . '.debut and (:' . $nowParam . ' < ' . $beneficiaireAlias . '.fin or ' . $beneficiaireAlias . '.fin is null)';
+        $withCondition =
+            ':'
+            . $nowParam
+            . ' >= '
+            . $beneficiaireAlias
+            . '.debut and (:'
+            . $nowParam
+            . ' < '
+            . $beneficiaireAlias
+            . '.fin or '
+            . $beneficiaireAlias
+            . '.fin is null)';
 
-        $queryBuilder->join($alias . '.beneficiaires', $beneficiaireAlias, Join::WITH, $withCondition)
-            ->setParameter($nowParam, $this->now());
+        $queryBuilder->join($alias . '.beneficiaires', $beneficiaireAlias, Join::WITH, $withCondition)->setParameter(
+            $nowParam,
+            $this->now(),
+        );
     }
 
     public function getDescription(string $resourceClass): array

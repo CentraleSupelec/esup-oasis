@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -21,7 +21,6 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 class NonEnvoyeRHConstraintValidator extends ConstraintValidator
 {
-
     /**
      * @param Evenement  $value
      * @param Constraint $constraint
@@ -41,11 +40,11 @@ class NonEnvoyeRHConstraintValidator extends ConstraintValidator
             throw new UnexpectedValueException($value, Evenement::class . ' / ' . InterventionForfait::class);
         }
 
-        if (($value instanceof Evenement && null !== $value->dateEnvoiRH) ||
-            ($value instanceof InterventionForfait && $value->periode->envoyee)) {
-
-            $this->context->buildViolation($constraint->message)
-                ->addViolation();
+        if (
+            $value instanceof Evenement && null !== $value->dateEnvoiRH
+            || $value instanceof InterventionForfait && $value->periode->envoyee
+        ) {
+            $this->context->buildViolation($constraint->message)->addViolation();
         }
     }
 }

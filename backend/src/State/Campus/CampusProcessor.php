@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,24 +13,35 @@
 namespace App\State\Campus;
 
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Campus;
-use App\State\MappedEntityProcessor;
+use App\Repository\CampusRepository;
 use Override;
 
 readonly class CampusProcessor implements ProcessorInterface
 {
-    function __construct(private MappedEntityProcessor $processor)
-    {
-    }
+    public function __construct(
+        private CampusRepository $campusRepository,
+    ) {}
 
-    #[Override] public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
+    /**
+     * @param \App\ApiResource\Campus $data
+     */
+    #[Override]
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        return $this->processor->process(
-            data: $data,
-            operation: $operation,
-            entityClass: Campus::class,
-            uriVariables: $uriVariables,
-            context: [...$context, 'map_groups' => [\App\ApiResource\Campus::GROUP_IN]]);
+        if ($operation instanceof Patch) {
+            $entity = $this->campusRepository->find($uriVariables['id']);
+        } else {
+            $entity = new Campus();
+        }
+
+        $entity->setActif($data->actif);
+        $entity->setLibelle($data->libelle);
+
+        $this->campusRepository->save($entity, true);
+
+        return new \App\ApiResource\Campus($entity);
     }
 }

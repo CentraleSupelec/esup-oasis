@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -21,7 +21,6 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 class RoleCommissionValideConstraintValidator extends ConstraintValidator
 {
-
     protected const array VALID_VALUES = [
         Utilisateur::ROLE_ATTRIBUER_PROFIL,
         Utilisateur::ROLE_VALIDER_CONFORMITE_DEMANDE,
@@ -32,7 +31,8 @@ class RoleCommissionValideConstraintValidator extends ConstraintValidator
      * @param Constraint $constraint
      * @return void
      */
-    #[Override] public function validate(mixed $value, Constraint $constraint): void
+    #[Override]
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof RoleCommissionValideConstraint) {
             throw new UnexpectedTypeException($constraint, RoleCommissionValideConstraint::class);
@@ -48,12 +48,12 @@ class RoleCommissionValideConstraintValidator extends ConstraintValidator
 
         foreach ($value as $val) {
             if (!in_array($val, self::VALID_VALUES)) {
-                $this->context->buildViolation($constraint->message)
+                $this->context
+                    ->buildViolation($constraint->message)
                     ->setParameter('{{ role }}', $val)
                     ->setParameter('{{ valides }}', '[' . implode(', ', self::VALID_VALUES) . ']')
                     ->addViolation();
             }
         }
-
     }
 }

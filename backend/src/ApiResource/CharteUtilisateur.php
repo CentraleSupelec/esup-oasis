@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -28,26 +28,20 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ApiResource(
-    operations  : [
-        new GetCollection(
-            uriTemplate : self::COLLECTION_URI,
-            uriVariables: ['uid']
-        ),
-        new Get(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['uid', 'id']
-        ),
+    operations: [
+        new GetCollection(uriTemplate: self::COLLECTION_URI, uriVariables: ['uid'], map: false),
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['uid', 'id']),
         new Patch(
-            uriTemplate            : self::ITEM_URI,
-            uriVariables           : ['uid', 'id'],
-            denormalizationContext : ['groups' => [self::GROUP_IN]],
-            securityPostDenormalize: "is_granted('ROLE_ADMIN') or object.uid == user.getUid()"
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['uid', 'id'],
+            denormalizationContext: ['groups' => [self::GROUP_IN]],
+            securityPostDenormalize: "is_granted('ROLE_ADMIN') or object.uid == user.getUid()",
         ),
     ],
-    openapi     : new Operation(tags: ['Utilisateurs']),
-    provider    : CharteUtilisateurProvider::class,
-    processor   : CharteUtilisateurProcessor::class,
-    stateOptions: new Options(entityClass: CharteDemandeur::class)
+    openapi: new Operation(tags: ['Utilisateurs']),
+    provider: CharteUtilisateurProvider::class,
+    processor: CharteUtilisateurProcessor::class,
+    stateOptions: new Options(entityClass: CharteDemandeur::class),
 )]
 #[ApiFilter(CharteUtilisateurFilter::class)]
 class CharteUtilisateur
@@ -56,14 +50,59 @@ class CharteUtilisateur
     public const string ITEM_URI = '/utilisateurs/{uid}/chartes/{id}';
     public const string GROUP_IN = 'charte_utilisateur:in';
 
-    #[Ignore] public string $uid;
-    #[Ignore] public ?int $id;
+    #[Ignore]
+    public ?string $uid = null {
+        get {
+            if ($this->uid === null && $this->entity !== null) {
+                $this->uid = $this->entity
+                    ->getDemande()
+                    ->getDemandeur()
+                    ->getUid();
+            }
+            return $this->id ?? null;
+        }
+    }
 
-    public string $libelle;
-    public string $contenu;
+    #[Ignore]
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
 
-    public Demande $demande;
+    public ?string $libelle = null {
+        get {
+            if ($this->libelle === null && $this->entity !== null) {
+                $this->libelle = $this->entity->getLibelle();
+            }
+            return $this->libelle ?? null;
+        }
+    }
+    public ?string $contenu = null {
+        get {
+            if ($this->contenu === null && $this->entity !== null) {
+                $this->contenu = $this->entity->getContenu();
+            }
+            return $this->contenu ?? null;
+        }
+    }
+
+    public ?Demande $demande = null {
+        get {
+            if ($this->demande === null && $this->entity !== null && null !== $this->entity->getDemande()) {
+                $this->demande = new Demande($this->entity->getDemande());
+            }
+            return $this->demande ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_IN])]
     public ?DateTimeInterface $dateValidation = null;
+
+    public function __construct(
+        private readonly ?CharteDemandeur $entity = null,
+    ) {}
 }

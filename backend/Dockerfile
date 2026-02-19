@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp:1.9.1-builder-php8.4 AS builder
+FROM dunglas/frankenphp:1.11.2-builder-php8.4 AS builder
 COPY --from=caddy:builder /usr/bin/xcaddy /usr/bin/xcaddy
 
 RUN apt-get update && apt-get install --no-install-recommends -y git
@@ -9,14 +9,15 @@ RUN CGO_ENABLED=1 \
     CGO_LDFLAGS="$(php-config --ldflags) $(php-config --libs)" \
     xcaddy build \
     --output /usr/local/bin/frankenphp \
-    --with github.com/dunglas/frankenphp/caddy \
+    --with github.com/dunglas/frankenphp=./ \
+    --with github.com/dunglas/frankenphp/caddy=./caddy/ \
     --with github.com/dunglas/mercure/caddy \
     --with github.com/dunglas/vulcain/caddy \
     --with github.com/dunglas/caddy-cbrotli \
     --with github.com/darkweak/souin/plugins/caddy \
     --with github.com/darkweak/storages/otter/caddy
 
-FROM dunglas/frankenphp:1.9.1-php8.4 AS frankenphp_upstream
+FROM dunglas/frankenphp:1.11.2-php8.4 AS frankenphp_upstream
 COPY --from=builder --link /usr/local/bin/frankenphp /usr/local/bin/frankenphp
 
 #force non-https
@@ -25,7 +26,7 @@ ENV SERVER_NAME=":80"
 RUN apt-get update &&  \
     apt-get upgrade -y && \
     apt-get install -y libssl-dev libldap2-dev libsodium-dev zlib1g-dev curl libcurl4-openssl-dev git unzip libxml2-dev libpq-dev  \
-                libzip-dev libaio1t64 dos2unix libldap-common gnupg2 libxml2 libxml2-dev \
+                libzip-dev dos2unix libldap-common gnupg2 libxml2 libxml2-dev \
                 procps acl tzdata
 
 ENV TZ="Europe/Paris"
@@ -53,7 +54,7 @@ RUN dos2unix /usr/local/bin/docker-entrypoint && chmod 755 /usr/local/bin/docker
 COPY --link --chmod=755 ./docker/php-overrides.ini /usr/local/etc/php/conf.d/99-overrides.ini
 COPY --link --chmod=755 ./docker/php-overrides-prod.ini /usr/local/etc/php/conf.d/99-overrides-prod.ini
 
-ENV FRANKENPHP_CONFIG="worker ./public/index.php"
+#ENV FRANKENPHP_CONFIG="worker ./public/index.php"
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
 

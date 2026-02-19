@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -11,7 +11,6 @@
  */
 
 namespace App\ApiResource;
-
 
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata\ApiFilter;
@@ -23,36 +22,23 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\CaseInsensitiveOrderFilter;
-use App\State\Commission\CommissionProcessor;
-use App\State\Commission\CommissionProvider;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\ObjectMapper\Attribute\Map;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
-    operations            : [
-        new Get(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['id']
-        ),
-        new GetCollection(
-            uriTemplate: self::COLLECTION_URI
-        ),
-        new Patch(
-            uriTemplate: self::ITEM_URI,
-            security   : "is_granted('ROLE_ADMIN')",
-        ),
-        new Post(
-            uriTemplate: self::COLLECTION_URI,
-            security   : "is_granted('ROLE_ADMIN')",
-        ),
+    operations: [
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['id']),
+        new GetCollection(uriTemplate: self::COLLECTION_URI),
+        new Patch(uriTemplate: self::ITEM_URI, security: "is_granted('ROLE_ADMIN')"),
+        new Post(uriTemplate: self::COLLECTION_URI, security: "is_granted('ROLE_ADMIN')"),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    openapi               : new Operation(tags: ['Demandes']),
-    provider              : CommissionProvider::class,
-    processor             : CommissionProcessor::class,
-    stateOptions          : new Options(entityClass: \App\Entity\Commission::class)
+    openapi: new Operation(tags: ['Demandes']),
+    stateOptions: new Options(entityClass: \App\Entity\Commission::class),
 )]
 #[ApiFilter(CaseInsensitiveOrderFilter::class, properties: ['libelle'])]
+#[Map(target: \App\Entity\Commission::class)]
 class Commission
 {
     public const string COLLECTION_URI = '/commissions';
@@ -62,11 +48,36 @@ class Commission
 
     #[ApiProperty(identifier: true)]
     #[Groups([self::GROUP_OUT])]
-    public ?int $id = null;
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public string $libelle;
+    public ?string $libelle = null {
+        get {
+            if ($this->libelle === null && $this->entity !== null) {
+                $this->libelle = $this->entity->getLibelle();
+            }
+            return $this->libelle ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public bool $actif = true;
+    public ?bool $actif = null {
+        get {
+            if ($this->actif === null && $this->entity !== null) {
+                $this->actif = $this->entity->isActif();
+            }
+            return $this->actif ?? true;
+        }
+    }
+
+    public function __construct(
+        private readonly ?\App\Entity\Commission $entity = null,
+    ) {}
 }

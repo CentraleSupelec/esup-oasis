@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -19,7 +19,6 @@ use App\ApiResource\PieceJointeBeneficiaire;
 use App\Message\RessourceCollectionModifieeMessage;
 use App\Repository\FichierRepository;
 use App\Repository\PieceJointeBeneficiaireRepository;
-use App\State\TransformerService;
 use App\State\Utilisateur\UtilisateurManager;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -27,19 +26,15 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class PieceJointeBeneficiaireProcessor implements ProcessorInterface
 {
-
     use ClockAwareTrait;
 
-    public function __construct(private readonly PieceJointeBeneficiaireRepository $repository,
-                                private readonly UtilisateurManager                $utilisateurManager,
-                                private readonly FichierRepository                 $fichierRepository,
-                                private readonly Security                          $security,
-                                private readonly TransformerService                $transformerService,
-                                private readonly MessageBusInterface               $messageBus)
-    {
-
-    }
-
+    public function __construct(
+        private readonly PieceJointeBeneficiaireRepository $repository,
+        private readonly UtilisateurManager $utilisateurManager,
+        private readonly FichierRepository $fichierRepository,
+        private readonly Security $security,
+        private readonly MessageBusInterface $messageBus,
+    ) {}
 
     /**
      * POST et DELETE uniquement
@@ -50,8 +45,12 @@ class PieceJointeBeneficiaireProcessor implements ProcessorInterface
      * @param array $context
      * @return void
      */
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?PieceJointeBeneficiaire
-    {
+    public function process(
+        mixed $data,
+        Operation $operation,
+        array $uriVariables = [],
+        array $context = [],
+    ): ?PieceJointeBeneficiaire {
         if ($operation instanceof Delete) {
             $entity = $this->repository->find($data->id);
             $this->repository->remove($entity, true);
@@ -69,11 +68,10 @@ class PieceJointeBeneficiaireProcessor implements ProcessorInterface
 
         $this->repository->save($entity, true);
 
-        $resource = $this->transformerService->transform($entity, PieceJointeBeneficiaire::class);
+        $resource = new PieceJointeBeneficiaire($entity);
 
         $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($resource));
 
         return $resource;
-
     }
 }

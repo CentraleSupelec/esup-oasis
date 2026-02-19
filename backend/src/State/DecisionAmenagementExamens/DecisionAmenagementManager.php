@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -18,7 +18,6 @@ use App\Entity\Utilisateur;
 use App\Message\ModificationUtilisateurMessage;
 use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
-use App\State\TransformerService;
 use App\State\Utilisateur\UtilisateurManager;
 use App\Util\AnneeUniversitaireAwareTrait;
 use DateTime;
@@ -31,14 +30,13 @@ class DecisionAmenagementManager
     use ClockAwareTrait;
     use AnneeUniversitaireAwareTrait;
 
-    public function __construct(private readonly DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
-                                private readonly UtilisateurManager                   $utilisateurManager,
-                                private readonly MessageBusInterface                  $messageBus, private readonly TransformerService $transformerService)
-    {
+    public function __construct(
+        private readonly DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
+        private readonly UtilisateurManager $utilisateurManager,
+        private readonly MessageBusInterface $messageBus,
+    ) {}
 
-    }
-
-    public function parUidEtAnnee(string $uid, int $annee): DecisionAmenagementExamens|null
+    public function parUidEtAnnee(string $uid, int $annee): ?DecisionAmenagementExamens
     {
         $debutAnnee = $annee;
         $debutAnnee .= '-09-01';
@@ -54,8 +52,11 @@ class DecisionAmenagementManager
      * @param DateTimeInterface $finPeriode
      * @return void
      */
-    public function majEtatDecision(Utilisateur $beneficiaire, DateTimeInterface $debutPeriode, DateTimeInterface $finPeriode): void
-    {
+    public function majEtatDecision(
+        Utilisateur $beneficiaire,
+        DateTimeInterface $debutPeriode,
+        DateTimeInterface $finPeriode,
+    ): void {
         /**
          * Appelé si:
          * - avis ESE mis à jour
@@ -66,15 +67,19 @@ class DecisionAmenagementManager
 
         $now = $this->now();
         $dateConsideree = match (true) {
-            ($now >= $debutPeriode && $now <= $finPeriode) => $now,
-            default => $debutPeriode
+            $now >= $debutPeriode && $now <= $finPeriode => $now,
+            default => $debutPeriode,
         };
 
-        $amenagementsEnCours = array_filter($beneficiaire->getAmenagementsActifs(), fn($amenagement) => $amenagement->getType()->isExamens());
-
+        $amenagementsEnCours = array_filter($beneficiaire->getAmenagementsActifs(), fn($amenagement) => $amenagement
+            ->getType()
+            ->isExamens());
 
         //si pas d'avis ESE en cours ni d'aménagement d'examens en cours pour la période, pas de décision!
-        if ($beneficiaire->getEtatAvisEse($dateConsideree) !== AvisEse::ETAT_EN_COURS && count($amenagementsEnCours) === 0) {
+        if (
+            $beneficiaire->getEtatAvisEse($dateConsideree) !== AvisEse::ETAT_EN_COURS
+            && count($amenagementsEnCours) === 0
+        ) {
             // décision existante, si supprimable on supprime
             if (null !== $decision && $decision->getEtat() !== DecisionAmenagementExamens::ETAT_EDITE) {
                 $this->decisionAmenagementExamensRepository->remove($decision, true);
@@ -98,11 +103,8 @@ class DecisionAmenagementManager
 
         $this->messageBus->dispatch(new ModificationUtilisateurMessage($beneficiaire));
         //ici on veut aussi rafraichir le cache de l'utilisateur et de la decision elle-même
-        $decisionResource = $this->transformerService->transform($decision, \App\ApiResource\DecisionAmenagementExamens::class);
-        $this->messageBus->dispatch(new RessourceModifieeMessage($decisionResource));
-        $utilisateurResource = $this->transformerService->transform($beneficiaire, \App\ApiResource\Utilisateur::class);
+        $utilisateurResource = new \App\ApiResource\Utilisateur($beneficiaire);
         $this->messageBus->dispatch(new RessourceModifieeMessage($utilisateurResource));
-
     }
 
     public function getDecisionCourante(Utilisateur $utilisateur): ?DecisionAmenagementExamens
@@ -110,5 +112,4 @@ class DecisionAmenagementManager
         $bornes = $this->bornesAnneeDuJour();
         return $utilisateur->getDecisionAmenagementExamens($bornes['debut'], $bornes['fin']);
     }
-
 }

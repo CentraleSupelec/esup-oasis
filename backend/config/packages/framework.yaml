@@ -22,8 +22,6 @@ framework:
     #Proxy!
   trusted_proxies: '127.0.0.1,REMOTE_ADDR'
   trusted_headers: [ 'x-forwarded-proto', 'x-forwarded-host', 'x-forwarded-port', 'x-forwarded-prefix' ]
-  annotations:
-    enabled: false
 
 when@test:
   framework:

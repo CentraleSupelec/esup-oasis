@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -26,24 +26,24 @@ use App\Filter\NestedUtilisateurFilter;
 use App\State\Evenement\ActiviteBeneficiaireProvider;
 
 #[ApiResource(
-    operations          : [
+    operations: [
         new GetCollection(
-            uriTemplate      : '/suivis/beneficiaires',
-            openapi          : new Operation(tags: ['Suivis']),
-            paginationEnabled: false
+            uriTemplate: '/suivis/beneficiaires',
+            openapi: new Operation(tags: ['Suivis']),
+            paginationEnabled: false,
         ),
         new Get(
-            uriTemplate : '/suivis/beneficiaires/{id}',
+            uriTemplate: '/suivis/beneficiaires/{id}',
             uriVariables: ['id'],
-            status      : 405,
-            openapi     : false,
-            provider    : [self::class, 'methodNotAllowed'],
+            status: 405,
+            openapi: false,
+            provider: [self::class, 'methodNotAllowed'],
         ),
     ],
     normalizationContext: ['groups' => self::OUT],
-    security            : 'is_granted("ROLE_GESTIONNAIRE")',
-    provider            : ActiviteBeneficiaireProvider::class,
-    stateOptions        : new Options(entityClass: \App\Entity\Evenement::class)
+    security: 'is_granted("ROLE_GESTIONNAIRE")',
+    provider: ActiviteBeneficiaireProvider::class,
+    stateOptions: new Options(entityClass: \App\Entity\Evenement::class),
 )]
 #[ApiFilter(SearchFilter::class, properties: [
     'type' => 'exact',

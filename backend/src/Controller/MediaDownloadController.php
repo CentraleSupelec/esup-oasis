@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -24,14 +24,15 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class MediaDownloadController extends AbstractController
 {
-
     #[Route('/fichiers/{fileId}')]
-    public function getFile(int                      $fileId, FichierRepository $fichierRepository,
-                            StorageProviderInterface $storageProvider): Response
-    {
+    public function getFile(
+        int $fileId,
+        FichierRepository $fichierRepository,
+        StorageProviderInterface $storageProvider,
+    ): Response {
         $fichier = $fichierRepository->find($fileId);
         if (null === $fichier) {
-            throw new FileNotFoundException("/fichiers/" . $fileId);
+            throw new FileNotFoundException('/fichiers/' . $fileId);
         }
 
         $this->denyAccessUnlessGranted(Fichier::VOIR_FICHIER, $fichier);
@@ -44,11 +45,10 @@ class MediaDownloadController extends AbstractController
         $disposition = HeaderUtils::makeDisposition(
             disposition: HeaderUtils::DISPOSITION_INLINE,
             filename: $fichier->getNom(),
-            filenameFallback: $fichier->getId()
+            filenameFallback: $fichier->getId(),
         );
         $response->headers->set('Content-Disposition', $disposition);
         $response->headers->set('Content-Type', $fichier->getTypeMime());
         return $response;
     }
-
 }

@@ -125,3 +125,11 @@ App\Entity\Utilisateur:
     admin: false
     numeroEtudiant: 1234567
     roles: [ 'ROLE_DEMANDEUR' ]
+  demandeur-3:
+    uid: 'demandeur3'
+    email: 'demandeur3@app.fr'
+    nom: 'demandeur3'
+    prenom: 'demandeur3'
+    admin: false
+    numeroEtudiant: 12345678
+    roles: [ 'ROLE_DEMANDEUR' ]

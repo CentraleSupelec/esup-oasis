@@ -48,74 +48,73 @@ class TraductionContext implements Context
         $this->restContext->iSendARequestToWithParameters($method, $url, $data);
     }
 
-    #[Given("la réponse devrait être du JSON")]
+    #[Given('la réponse devrait être du JSON')]
     public function theResponseShouldBeInJson(): void
     {
         $this->jsonContext->theResponseShouldBeInJson();
     }
 
-    #[Given("les noeuds JSON devraient contenir:")]
+    #[Given('les noeuds JSON devraient contenir:')]
     public function theJsonNodesShouldContain(TableNode $nodes): void
     {
         $this->jsonContext->theJsonNodesShouldContain($nodes);
     }
 
-    #[Given("le noeud JSON :node devrait contenir :text")]
+    #[Given('le noeud JSON :node devrait contenir :text')]
     public function theJsonNodeShouldContain($node, $text): void
     {
         $this->jsonContext->theJsonNodeShouldContain($node, $text);
     }
 
-    #[Given("le noeud JSON :node ne devrait pas contenir :text")]
+    #[Given('le noeud JSON :node ne devrait pas contenir :text')]
     public function theJsonNodeShouldNotContain($node, $text): void
     {
         $this->jsonContext->theJsonNodeShouldNotContain($node, $text);
     }
 
-    #[Then("le noeud JSON :node devrait être égal à :expected")]
+    #[Then('le noeud JSON :node devrait être égal à :expected')]
     public function theJsonNodeShouldBeEqualTo($node, $expected): void
     {
         $this->jsonContext->theJsonNodeShouldBeEqualTo($node, $expected);
     }
 
-    #[Given("le noeud JSON :node devrait être vrai")]
+    #[Given('le noeud JSON :node devrait être vrai')]
     public function theJsonNodeShouldBeTrue($node)
     {
         $this->jsonContext->theJsonNodeShouldBeTrue($node);
     }
 
-    #[Given("le noeud JSON :node devrait être faux")]
+    #[Given('le noeud JSON :node devrait être faux')]
     public function theJsonNodeShouldBeFalse($node)
     {
         $this->jsonContext->theJsonNodeShouldBeFalse($node);
     }
 
-    #[Then("le noeud JSON :name devrait exister")]
+    #[Then('le noeud JSON :name devrait exister')]
     public function theJsonNodeShouldExist($name): mixed
     {
         return $this->jsonContext->theJsonNodeShouldExist($name);
     }
 
-    #[Then("le noeud JSON :name ne devrait pas exister")]
+    #[Then('le noeud JSON :name ne devrait pas exister')]
     public function theJsonNodeShouldNotExist($name): void
     {
         $this->jsonContext->theJsonNodeShouldNotExist($name);
     }
 
-    #[Then("le noeud JSON :node devrait avoir :count élément(s)")]
+    #[Then('le noeud JSON :node devrait avoir :count élément(s)')]
     public function theJsonNodeShouldHaveElements($node, $count): void
     {
         $this->jsonContext->theJsonNodeShouldHaveElements($node, $count);
     }
 
-
-    #[Given("le code de status de la réponse devrait être :code")]
+    #[Given('le code de status de la réponse devrait être :code')]
     public function assertResponseStatus($code)
     {
         $this->minkContext->assertResponseStatus($code);
     }
 
-    #[Given("le code de status de la réponse ne devrait pas être :code")]
+    #[Given('le code de status de la réponse ne devrait pas être :code')]
     public function assertResponseStatusIsNot($code)
     {
         $this->minkContext->assertResponseStatusIsNot($code);
@@ -151,5 +150,4 @@ class TraductionContext implements Context
         $this->jsonContext = $environment->getContext(JsonContext::class);
         $this->restContext = $restContext;
     }
-
 }

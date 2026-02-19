@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -25,32 +25,26 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    operations            : [
-        new GetCollection(
-            uriTemplate : self::COLLECTION_URI,
-            uriVariables: ['uid']
-        ),
-        new Get(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['uid', 'id']
-        ),
+    operations: [
+        new GetCollection(uriTemplate: self::COLLECTION_URI, uriVariables: ['uid']),
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['uid', 'id']),
         new Post(
-            uriTemplate : self::COLLECTION_URI,
+            uriTemplate: self::COLLECTION_URI,
             uriVariables: ['uid'],
-            read        : false,
-            processor   : PostTagUtilisateurProcessor::class
+            read: false,
+            processor: PostTagUtilisateurProcessor::class,
         ),
         new Delete(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'id'],
-            processor   : DeleteTagUtilisateurProcessor::class
+            processor: DeleteTagUtilisateurProcessor::class,
         ),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    openapi               : new Operation(tags: ['Utilisateurs']),
-    paginationEnabled     : false,
-    provider              : TagUtilisateurProvider::class
+    openapi: new Operation(tags: ['Utilisateurs']),
+    paginationEnabled: false,
+    provider: TagUtilisateurProvider::class,
 )]
 class TagUtilisateur
 {
@@ -67,7 +61,6 @@ class TagUtilisateur
     #[Assert\NotNull]
     public ?Tag $tag;
 
-
     public function __construct(?Utilisateur $utilisateur = null, ?Tag $tag = null)
     {
         $this->utilisateur = $utilisateur;
@@ -75,5 +68,4 @@ class TagUtilisateur
         $this->uid = $utilisateur?->uid;
         $this->id = $tag?->id;
     }
-
 }

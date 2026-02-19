@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -21,12 +21,12 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 readonly class HtmlToPdfConverter
 {
-    public function __construct(private HttpClientInterface $client,
-                                private string              $apiUri,
-                                private string              $appId,
-                                private string              $apiKey)
-    {
-    }
+    public function __construct(
+        private HttpClientInterface $client,
+        private string $apiUri,
+        private string $appId,
+        private string $apiKey,
+    ) {}
 
     /**
      * @param string $htmlContent
@@ -42,16 +42,18 @@ readonly class HtmlToPdfConverter
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function convert(string $htmlContent, ?string $header = null, ?string $footer = null,
-                            int    $marginTop = 0, int $marginBottom = 0, int $marginLeft = 0, int $marginRight = 0): string
-    {
-        $response = $this->client->request(
-            method: 'POST',
-            url: $this->apiUri . '/connect',
-            options: [
-                'json' => ['appId' => $this->appId, 'apiKey' => $this->apiKey],
-            ]
-        );
+    public function convert(
+        string $htmlContent,
+        ?string $header = null,
+        ?string $footer = null,
+        int $marginTop = 0,
+        int $marginBottom = 0,
+        int $marginLeft = 0,
+        int $marginRight = 0,
+    ): string {
+        $response = $this->client->request(method: 'POST', url: $this->apiUri . '/connect', options: [
+            'json' => ['appId' => $this->appId, 'apiKey' => $this->apiKey],
+        ]);
         if ($response->getStatusCode() !== 200) {
             throw new RuntimeException('Service de génération de PDF indisponible');
         }
@@ -73,18 +75,14 @@ readonly class HtmlToPdfConverter
             $json['footer'] = $footer;
         }
 
-        $response = $this->client->request(
-            method: 'POST',
-            url: $this->apiUri . '/conversions',
-            options: [
-                'json' => $json,
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $jwt,
-                    'accept' => 'application/pdf',
-                    'Content-Type' => 'application/ld+json',
-                ],
-            ]
-        );
+        $response = $this->client->request(method: 'POST', url: $this->apiUri . '/conversions', options: [
+            'json' => $json,
+            'headers' => [
+                'Authorization' => 'Bearer ' . $jwt,
+                'accept' => 'application/pdf',
+                'Content-Type' => 'application/ld+json',
+            ],
+        ]);
 
         return $response->getContent();
     }

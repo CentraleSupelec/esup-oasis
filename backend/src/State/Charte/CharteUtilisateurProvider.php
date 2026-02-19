@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -15,16 +15,22 @@ namespace App\State\Charte;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PaginatorInterface;
+use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\CharteUtilisateur;
-use App\ApiResource\Demande;
 use App\Entity\CharteDemandeur;
 use App\Filter\CharteUtilisateurFilter;
-use App\State\AbstractEntityProvider;
-use Exception;
-use Override;
+use App\State\MappedCollectionPaginator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class CharteUtilisateurProvider extends AbstractEntityProvider
+readonly class CharteUtilisateurProvider implements ProviderInterface
 {
+    public function __construct(
+        #[Autowire(service: 'api_platform.doctrine.orm.state.item_provider')]
+        private ProviderInterface $itemProvider,
+        #[Autowire(service: 'api_platform.doctrine.orm.state.collection_provider')]
+        private ProviderInterface $collectionProvider,
+    ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
@@ -33,49 +39,28 @@ class CharteUtilisateurProvider extends AbstractEntityProvider
             $context['filters'][CharteUtilisateurFilter::PROPERTY] = $uriVariables['uid'];
             unset($uriVariables['uid']);
 
-            return parent::provide($operation, $uriVariables, $context);
+            $results = $this->collectionProvider->provide($operation, $uriVariables, $context);
+            assert($results instanceof PaginatorInterface);
+            return new MappedCollectionPaginator($results, fn($entity) => new CharteUtilisateur($entity));
         }
 
         //on reconstruit une opération qui ne va pas exploser en vol
         $relevantVariables = ['id' => $uriVariables['id']];
 
         $link = new Link(parameterName: 'id', fromClass: CharteDemandeur::class, identifiers: ['id']);
-        $relevantOperation = (new (get_class($operation)))->withClass(CharteDemandeur::class)
+        $relevantOperation = new (get_class($operation))()
+            ->withClass(CharteDemandeur::class)
             ->withStateOptions($operation->getStateOptions())
             ->withUriVariables([$link]);
 
-        return parent::provide(
-            operation   : $relevantOperation,
+        $entity = $this->itemProvider->provide(
+            operation: $relevantOperation,
             uriVariables: $relevantVariables,
-            context     : $context
+            context: $context,
         );
-    }
-
-    #[Override] protected function getResourceClass(): string
-    {
-        return CharteUtilisateur::class;
-    }
-
-    #[Override] protected function getEntityClass(): string
-    {
-        return CharteDemandeur::class;
-    }
-
-    /**
-     * @param CharteDemandeur $entity
-     * @return CharteUtilisateur
-     * @throws Exception
-     */
-    #[Override] public function transform($entity): mixed
-    {
-        $resource = new CharteUtilisateur();
-        $resource->id = $entity->getId();
-        $resource->uid = $entity->getDemande()->getDemandeur()->getUid();
-        $resource->libelle = $entity->getLibelle();
-        $resource->contenu = $entity->getContenu();
-        $resource->dateValidation = $entity->getDateValidation();
-        $resource->demande = $this->transformerService->transform($entity->getDemande(), Demande::class);
-
-        return $resource;
+        return match ($entity) {
+            null => null,
+            default => new CharteUtilisateur($entity),
+        };
     }
 }

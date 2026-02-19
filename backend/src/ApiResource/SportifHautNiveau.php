@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -24,42 +24,30 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\CaseInsensitiveOrderFilter;
-use App\State\SportfHautNiveau\SportifHautNiveauProcessor;
-use App\State\SportfHautNiveau\SportifHautNiveauProvider;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\Ignore;
 
-
 #[ApiResource(
-    operations          : [
-        new GetCollection(
-            uriTemplate: self::COLLECTION_URI
-        ),
-        new Get(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['identifiantExterne']
-        ),
+    operations: [
+        new GetCollection(uriTemplate: self::COLLECTION_URI),
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['identifiantExterne']),
         new Post(
-            uriTemplate           : self::COLLECTION_URI,
+            uriTemplate: self::COLLECTION_URI,
             denormalizationContext: ['groups' => [self::GROUP_POST]],
-            read                  : false
+            read: false,
         ),
         new Patch(
-            uriTemplate           : self::ITEM_URI,
-            uriVariables          : ['identifiantExterne'],
-            denormalizationContext: ['groups' => [self::GROUP_PATCH]]
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['identifiantExterne'],
+            denormalizationContext: ['groups' => [self::GROUP_PATCH]],
         ),
-        new Delete(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['identifiantExterne']
-        ),
+        new Delete(uriTemplate: self::ITEM_URI, uriVariables: ['identifiantExterne']),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
-    openapi             : new Operation(tags: ['Referentiel']),
-    security            : "is_granted('ROLE_ADMIN')",
-    provider            : SportifHautNiveauProvider::class,
-    processor           : SportifHautNiveauProcessor::class,
-    stateOptions        : new Options(entityClass: \App\Entity\SportifHautNiveau::class)
+    openapi: new Operation(tags: ['Referentiel']),
+    security: "is_granted('ROLE_ADMIN')",
+    stateOptions: new Options(entityClass: \App\Entity\SportifHautNiveau::class),
 )]
 #[ApiFilter(CaseInsensitiveOrderFilter::class, properties: ['nom'])]
 #[ApiFilter(SearchFilter::class, properties: [
@@ -67,6 +55,7 @@ use Symfony\Component\Serializer\Attribute\Ignore;
     'prenom' => 'ipartial',
     'identifiantExterne' => 'ipartial',
 ])]
+#[Map(target: \App\Entity\SportifHautNiveau::class)]
 class SportifHautNiveau
 {
     public const string COLLECTION_URI = '/sportifs_haut_niveau';
@@ -76,18 +65,56 @@ class SportifHautNiveau
     public const string GROUP_POST = 'sportif_haut_niveau:post';
     public const string GROUP_PATCH = 'sportif_haut_niveau:patch';
 
-    #[Ignore] public ?int $id = null;
+    #[Ignore]
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
 
     #[ApiProperty(identifier: true)]
     #[Groups([self::GROUP_OUT, self::GROUP_POST])]
-    public string $identifiantExterne;
+    public string $identifiantExterne {
+        get {
+            if (!isset($this->identifiantExterne) && $this->entity !== null) {
+                $this->identifiantExterne = $this->entity->getIdentifiantExterne() ?? '';
+            }
+            return $this->identifiantExterne;
+        }
+    }
 
     #[Groups([self::GROUP_PATCH, self::GROUP_POST, self::GROUP_OUT])]
-    public ?string $nom = null;
+    public ?string $nom = null {
+        get {
+            if ($this->nom === null && $this->entity !== null) {
+                $this->nom = $this->entity->getNom();
+            }
+            return $this->nom ?? null;
+        }
+    }
     #[Groups([self::GROUP_PATCH, self::GROUP_POST, self::GROUP_OUT])]
-    public ?string $prenom = null;
+    public ?string $prenom = null {
+        get {
+            if ($this->prenom === null && $this->entity !== null) {
+                $this->prenom = $this->entity->getPrenom();
+            }
+            return $this->prenom ?? null;
+        }
+    }
     #[Groups([self::GROUP_PATCH, self::GROUP_POST, self::GROUP_OUT])]
-    public ?int $anneeNaissance = null;
+    public ?int $anneeNaissance = null {
+        get {
+            if ($this->anneeNaissance === null && $this->entity !== null) {
+                $this->anneeNaissance = $this->entity->getAnneeNaissance();
+            }
+            return $this->anneeNaissance ?? null;
+        }
+    }
 
-
+    public function __construct(
+        private readonly ?\App\Entity\SportifHautNiveau $entity = null,
+    ) {}
 }

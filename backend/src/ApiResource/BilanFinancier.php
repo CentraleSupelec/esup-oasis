@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -24,20 +24,18 @@ use App\Filter\PeriodeDansIntervalleFilter;
 use App\State\Evenement\BilanFinancierProvider;
 use DateTimeInterface;
 
-#[ApiResource(
-    operations: [
-        new GetCollection(
-            uriTemplate      : '/suivis/financiers/debut/{debut}/fin/{fin}',
-            formats          : ['jsonld', 'customcsv' => 'text/csv'],
-            uriVariables     : ['debut', 'fin'],
-            openapi          : new Operation(tags: ['Suivis'], description: 'Bilan financier'),
-            paginationEnabled: false,
-            security         : "is_granted('ROLE_GESTIONNAIRE')",
-            provider         : BilanFinancierProvider::class,
-            stateOptions     : new Options(entityClass: \App\Entity\Evenement::class)
-        ),
-    ]
-)]
+#[ApiResource(operations: [
+    new GetCollection(
+        uriTemplate: '/suivis/financiers/debut/{debut}/fin/{fin}',
+        formats: ['jsonld', 'customcsv' => 'text/csv'],
+        uriVariables: ['debut', 'fin'],
+        openapi: new Operation(tags: ['Suivis'], description: 'Bilan financier'),
+        paginationEnabled: false,
+        security: "is_granted('ROLE_GESTIONNAIRE')",
+        provider: BilanFinancierProvider::class,
+        stateOptions: new Options(entityClass: \App\Entity\Evenement::class),
+    ),
+])]
 #[ApiFilter(PeriodeDansIntervalleFilter::class, properties: ['intervalle'])]
 #[ApiFilter(BilanFinancierProfilBeneficiairesFilter::class)]
 #[ApiFilter(ExistsFilter::class, properties: ['dateAnnulation'])]

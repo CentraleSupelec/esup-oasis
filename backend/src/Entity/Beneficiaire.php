@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -28,7 +28,7 @@ class Beneficiaire
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(fetch: "EAGER", inversedBy: 'beneficiaires')]
+    #[ORM\ManyToOne(fetch: 'EAGER', inversedBy: 'beneficiaires')]
     #[ORM\JoinColumn(nullable: false)]
     private ?ProfilBeneficiaire $profil = null;
 
@@ -66,7 +66,6 @@ class Beneficiaire
 
     #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'beneficiaires')]
     private Collection $tags;
-
 
     public function __construct()
     {
@@ -115,12 +114,11 @@ class Beneficiaire
     {
         $this->fin = match ($fin) {
             null => null,
-            default => DateTime::createFromInterface($fin)
+            default => DateTime::createFromInterface($fin),
         };
 
         return $this;
     }
-
 
     public function getUtilisateur(): Utilisateur
     {
@@ -301,12 +299,8 @@ class Beneficiaire
 
     public function getAmenagementsActifs(): array
     {
-        return array_filter(
-            $this->getAmenagements()->toArray(),
-            fn(Amenagement $amenagement) => $amenagement->isActif()
-        );
+        return array_filter($this->getAmenagements()->toArray(), fn(Amenagement $amenagement) => $amenagement->isActif());
     }
-
 
     /**
      * @param DateTimeInterface $debut
@@ -316,8 +310,11 @@ class Beneficiaire
     public function getAmenagementsParIntervalle(DateTimeInterface $debut, DateTimeInterface $fin): iterable
     {
         foreach ($this->getAmenagements() as $amenagement) {
-            if (($amenagement->getDebut() <= $debut && ($amenagement->getFin() === null || $amenagement->getFin() > $debut))
-                || ($debut <= $amenagement->getDebut() && $fin > $amenagement->getDebut())) {
+            if (
+                $amenagement->getDebut() <= $debut
+                && ($amenagement->getFin() === null || $amenagement->getFin() > $debut)
+                || $debut <= $amenagement->getDebut() && $fin > $amenagement->getDebut()
+            ) {
                 yield $amenagement;
             }
         }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -21,10 +21,9 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 class PeriodesSansChevauchementConstraintValidator extends ConstraintValidator
 {
-
-    public function __construct(private readonly PeriodeManager $periodeManager)
-    {
-    }
+    public function __construct(
+        private readonly PeriodeManager $periodeManager,
+    ) {}
 
     /**
      * @inheritDoc
@@ -44,7 +43,8 @@ class PeriodesSansChevauchementConstraintValidator extends ConstraintValidator
             if ($chevauchement->getId() === $value->id) {
                 continue;
             }
-            $this->context->buildViolation(message: $constraint->message)
+            $this->context
+                ->buildViolation(message: $constraint->message)
                 ->setParameter('{{ debut }}', $chevauchement->getDebut()->format('d/m/Y'))
                 ->setParameter('{{ fin }}', $chevauchement->getFin()->format('d/m/Y'))
                 ->addViolation();

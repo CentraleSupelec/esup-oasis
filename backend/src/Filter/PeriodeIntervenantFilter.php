@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -15,26 +15,25 @@ namespace App\Filter;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 class PeriodeIntervenantFilter extends AbstractFilter
 {
-
     public const string PROPERTY = 'periodeIntervenantFilter';
 
     /**
      * @inheritDoc
      */
     protected function filterProperty(
-        string                      $property,
-                                    $value,
-        QueryBuilder                $queryBuilder,
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
-        string                      $resourceClass,
-        ?Operation                  $operation = null,
-        array                       $context = [],
-    ): void
-    {
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         if ($property !== self::PROPERTY) {
             return;
         }
@@ -47,12 +46,22 @@ class PeriodeIntervenantFilter extends AbstractFilter
         $utilisateurAlias2 = $queryNameGenerator->generateJoinAlias('utilisateur');
 
         $queryBuilder
-            ->join($alias . '.evenements', $evenementAlias)
+            ->leftJoin($alias . '.evenements', $evenementAlias)
             ->leftJoin($evenementAlias . '.intervenant', $intervenantAlias)
-            ->leftJoin($intervenantAlias . '.utilisateur', $utilisateurAlias)
+            ->leftJoin(
+                $intervenantAlias . '.utilisateur',
+                $utilisateurAlias,
+                Join::WITH,
+                $utilisateurAlias . '.uid = :uid',
+            )
             ->leftJoin($alias . '.interventionsForfait', $interventionAlias)
             ->leftJoin($interventionAlias . '.intervenant', $intervenantAlias2)
-            ->leftJoin($intervenantAlias2 . '.utilisateur', $utilisateurAlias2)
+            ->leftJoin(
+                $intervenantAlias2 . '.utilisateur',
+                $utilisateurAlias2,
+                Join::WITH,
+                $utilisateurAlias2 . '.uid = :uid',
+            )
             ->andWhere($utilisateurAlias . '.uid = :uid or ' . $utilisateurAlias2 . '.uid = :uid')
             ->setParameter('uid', $value);
     }

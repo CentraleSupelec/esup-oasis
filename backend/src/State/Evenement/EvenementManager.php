@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -46,20 +46,19 @@ class EvenementManager
     use MajBeneficiairesTrait;
     use AnneeUniversitaireAwareTrait;
 
-    public function __construct(private readonly EvenementRepository                  $evenementRepository,
-                                private readonly TypeEvenementRepository              $typeEvenementRepository,
-                                private readonly UtilisateurRepository                $utilisateurRepository,
-                                private readonly UtilisateurManager                   $utilisateurManager,
-                                private readonly BeneficiaireRepository               $beneficiaireRepository,
-                                private readonly CampusRepository                     $campusRepository,
-                                private readonly TypeEquipementRepository             $typeEquipementRepository,
-                                private readonly DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
-                                private readonly AmenagementRepository                $amenagementRepository,
-                                private readonly Security                             $security,
-                                private readonly MessageBusInterface                  $messageBus)
-    {
-
-    }
+    public function __construct(
+        private readonly EvenementRepository $evenementRepository,
+        private readonly TypeEvenementRepository $typeEvenementRepository,
+        private readonly UtilisateurRepository $utilisateurRepository,
+        private readonly UtilisateurManager $utilisateurManager,
+        private readonly BeneficiaireRepository $beneficiaireRepository,
+        private readonly CampusRepository $campusRepository,
+        private readonly TypeEquipementRepository $typeEquipementRepository,
+        private readonly DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
+        private readonly AmenagementRepository $amenagementRepository,
+        private readonly Security $security,
+        private readonly MessageBusInterface $messageBus,
+    ) {}
 
     /**
      * @param EvenementResource $data
@@ -98,7 +97,7 @@ class EvenementManager
             null => null,
             default => $this->utilisateurRepository->findOneBy([
                 'uid' => $data->intervenant->uid,
-            ])?->getIntervenant()
+            ])?->getIntervenant(),
         });
         $this->majSuppleants($data->suppleants, $entity);
         $this->majEnseignants($data->enseignants ?? [], $entity);
@@ -125,13 +124,12 @@ class EvenementManager
 
         $this->messageBus->dispatch(new ModificationEvenementMessage(
             evenement: $entity,
-            dateOrigine: ($creation === false && $dateOrigine != $entity->getDebut()) ? $dateOrigine : null,
-            creation: $creation
+            dateOrigine: $creation === false && $dateOrigine != $entity->getDebut() ? $dateOrigine : null,
+            creation: $creation,
         ));
 
         return $entity;
     }
-
 
     /**
      * @param Utilisateur[] $suppleants
@@ -222,8 +220,10 @@ class EvenementManager
      * @return TableauDeBord
      * @throws DateMalformedStringException
      */
-    public function tableauDeBord(?Utilisateur $utilisateur = null, TableauDeBord $tdb = new TableauDeBord()): TableauDeBord
-    {
+    public function tableauDeBord(
+        ?Utilisateur $utilisateur = null,
+        TableauDeBord $tdb = new TableauDeBord(),
+    ): TableauDeBord {
         $now = $this->now();
         $jourPrecedent = $now->modify('-1 day');
         $debutSemaine = new DatePoint('monday this week');
@@ -236,98 +236,103 @@ class EvenementManager
         $finMoisPrec = new DatePoint('last day of last month');
         $ilyaDeuxMois = (clone $now)->modify('-2 months');
 
-        $evenementsDuJour = $this->evenementRepository->evenementsDuJour($now, $utilisateur);
-        $evenementsJourPrec = $this->evenementRepository->evenementsDuJour($jourPrecedent, $utilisateur);
-        $evenementsSemaine = $this->evenementRepository->evenementsIntervalle($debutSemaine, $finSemaine, $utilisateur);
-        $evenementsSemainePrec = $this->evenementRepository->evenementsIntervalle($debutSemainePrec, $finSemainePrec, $utilisateur);
+        //todo: uniquement des count()
 
-        $tdb->evenementsJour = count($evenementsDuJour);
-        $tdb->evolutionJour = $tdb->evenementsJour - count($evenementsJourPrec);
-        $tdb->evenementsSemaine = count($evenementsSemaine);
-        $tdb->evolutionSemaine = $tdb->evenementsSemaine - count($evenementsSemainePrec);
-        $tdb->evenementsMois = $this->evenementRepository->countByDateInterval(debut: $debutMois, fin: $finMois, utilisateur: $utilisateur);
-        $tdb->evolutionMois = $tdb->evenementsMois - $this->evenementRepository->countByDateInterval(debut: $debutMoisPrec, fin: $finMoisPrec, utilisateur: $utilisateur);
+        $tdb->evenementsJour = $this->evenementRepository->countEvenementsDuJour($now, $utilisateur);
+        $tdb->evolutionJour =
+            $tdb->evenementsJour - $this->evenementRepository->countEvenementsDuJour($jourPrecedent, $utilisateur);
+        $tdb->evenementsSemaine = $this->evenementRepository->countByDateInterval(
+            debut: $debutSemaine,
+            fin: $finSemaine,
+            utilisateur: $utilisateur,
+        );
+        $tdb->evolutionSemaine =
+            $tdb->evenementsSemaine
+            - $this->evenementRepository->countByDateInterval(
+                debut: $debutSemainePrec,
+                fin: $finSemainePrec,
+                utilisateur: $utilisateur,
+            );
+        $tdb->evenementsMois = $this->evenementRepository->countByDateInterval(
+            debut: $debutMois,
+            fin: $finMois,
+            utilisateur: $utilisateur,
+        );
+        $tdb->evolutionMois =
+            $tdb->evenementsMois
+            - $this->evenementRepository->countByDateInterval(
+                debut: $debutMoisPrec,
+                fin: $finMoisPrec,
+                utilisateur: $utilisateur,
+            );
 
         $jPlus7 = $now->modify('+7 day');
         $jPlus30 = $now->modify('+30 day');
 
-        $tdb->evenementsNonAffectesJour = count(array_filter(
-                $evenementsDuJour,
-                fn(Evenement $evenement) => $evenement->getIntervenant() === null
-            )
+        $tdb->evenementsNonAffectesJour = $this->evenementRepository->countEvenementsDuJour($now, $utilisateur, true);
+        $tdb->evenementsNonAffectesSemaine = $this->evenementRepository->countByDateInterval(
+            debut: $now,
+            fin: $jPlus7,
+            nonAffectes: true,
+            utilisateur: $utilisateur,
         );
-        $tdb->evenementsNonAffectesSemaine = $this->evenementRepository->countByDateInterval(debut: $now, fin: $jPlus7, nonAffectes: true, utilisateur: $utilisateur);
-        $tdb->evenementsNonAffectesMois = $this->evenementRepository->countByDateInterval(debut: $now, fin: $jPlus30, nonAffectes: true, utilisateur: $utilisateur);
-        $tdb->totalEvenementsNonAffectes = $this->evenementRepository->countByDateInterval(debut: $now, nonAffectes: true, utilisateur: $utilisateur);
+        $tdb->evenementsNonAffectesMois = $this->evenementRepository->countByDateInterval(
+            debut: $now,
+            fin: $jPlus30,
+            nonAffectes: true,
+            utilisateur: $utilisateur,
+        );
+        $tdb->totalEvenementsNonAffectes = $this->evenementRepository->countByDateInterval(
+            debut: $now,
+            nonAffectes: true,
+            utilisateur: $utilisateur,
+        );
 
         $tdb->evenementsEnAttenteDeValidation = count($this->evenementRepository->findValidables($utilisateur));
 
-        $tdb->evenementsSansBeneficiaire = $this->evenementRepository->countByDateInterval(debut: $ilyaDeuxMois,
+        $tdb->evenementsSansBeneficiaire = $this->evenementRepository->countByDateInterval(
+            debut: $ilyaDeuxMois,
             utilisateur: $utilisateur,
-            sansBeneficiaire: true);
+            sansBeneficiaire: true,
+        );
 
-        $beneficiairesActifs = $this->beneficiaireRepository->actifs($now);
+        /**
+         * TODO: requêtes dédiées pour chaque item
+         */
 
         //bénéficiaires sans profil
-        $tdb->nbBeneficiairesIncomplets = count(
-            array_filter(
-                array: $beneficiairesActifs,
-                callback: fn(Beneficiaire $beneficiaire) => $beneficiaire->getProfil()->getId() === ProfilBeneficiaire::A_DETERMINER
-            )
-        );
+        $tdb->nbBeneficiaires = $this->beneficiaireRepository->countActifs($now);
 
         /**
          * Ajouts 2024 : nb bénéficiaires, nb intervenants en cours,
          * aménagements saisis sur benefs en cours, états avis / décisions
          */
-        $tdb->nbBeneficiaires = count(
-            array_unique(
-                array_map(
-                    fn(Beneficiaire $benef) => $benef->getUtilisateur()->getId(),
-                    $beneficiairesActifs
-                )
-            )
-        );
 
+        $tdb->nbBeneficiairesIncomplets = $this->beneficiaireRepository->countActifsParProfil(
+            $now,
+            ProfilBeneficiaire::A_DETERMINER,
+        );
         $tdb->nbAvisEseEnAttente = $this->utilisateurRepository->count([
             'etatAvisEse' => AvisEse::ETAT_EN_ATTENTE,
         ]);
 
         //décisions
         $bornesAnnee = $this->bornesAnneeDuJour($now);
-        $tdb->nbDecisionsAttenteValidation = count(
-            array_filter(
-                $beneficiairesActifs,
-                function ($beneficiaire) use ($bornesAnnee) {
-                    $decisionAmenagementExamens = $beneficiaire->getUtilisateur()->getDecisionAmenagementExamens(
-                        $bornesAnnee['debut'], $bornesAnnee['fin']
-                    );
-                    return $decisionAmenagementExamens?->getEtat() === DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS;
-                }
-            )
+        $tdb->nbDecisionsAttenteValidation = $this->beneficiaireRepository->countActifsParEtatDecisionAnneeU(
+            $now,
+            $bornesAnnee,
+            DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS,
         );
 
-//        $this->decisionAmenagementExamensRepository->count([
-//            'etat' => DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS,
-//        ]);
-        
-        $tdb->nbDecisionsAEditer = count(
-            array_filter(
-                $beneficiairesActifs,
-                function ($beneficiaire) use ($bornesAnnee) {
-                    $decisionAmenagementExamens = $beneficiaire->getUtilisateur()->getDecisionAmenagementExamens(
-                        $bornesAnnee['debut'], $bornesAnnee['fin']
-                    );
-                    return $decisionAmenagementExamens?->getEtat() === DecisionAmenagementExamens::ETAT_VALIDE;
-                }
-            )
+        $tdb->nbDecisionsAEditer = $this->beneficiaireRepository->countActifsParEtatDecisionAnneeU(
+            $now,
+            $bornesAnnee,
+            DecisionAmenagementExamens::ETAT_VALIDE,
         );
-//        $this->decisionAmenagementExamensRepository->count([
-//            'etat' => DecisionAmenagementExamens::ETAT_VALIDE,
-//        ]);
 
         //aménagements
-        $tdb->nbAmenagementsEnCours = count($this->amenagementRepository->findEnCours($now));
+        $tdb->nbAmenagementsEnCours = $this->amenagementRepository->countEnCours($now);
+        //        $tdb->nbAmenagementsEnCours = count($this->amenagementRepository->findEnCours($now));
 
         //intervenants
         $tdb->nbIntervenants = $this->utilisateurRepository->countIntervenantsActifs();
@@ -347,6 +352,4 @@ class EvenementManager
     {
         return $this->evenementRepository->occupationsUtilisateur($utilisateur, $debutIntervalle, $finIntervalle);
     }
-
-
 }

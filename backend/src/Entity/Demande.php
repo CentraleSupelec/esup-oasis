@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,49 +13,67 @@
 namespace App\Entity;
 
 use App\Repository\DemandeRepository;
+use App\State\EntityToResourceTransformer;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: DemandeRepository::class)]
+#[Map(target: \App\ApiResource\Demande::class, transform: [EntityToResourceTransformer::class, 'entityToResource'])]
 class Demande
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'demandes')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?CampagneDemande $campagne = null;
 
     #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'demandes')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?Utilisateur $demandeur = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Map(if: false)]
     private ?DateTimeInterface $dateDepot = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?EtatDemande $etat = null;
 
     #[ORM\OneToOne(mappedBy: 'demande', cascade: ['persist'])]
+    #[Map(if: false)]
     private ?Beneficiaire $beneficiaire = null;
 
-    #[ORM\OneToMany(mappedBy: 'demande', targetEntity: ModificationEtatDemande::class, orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: ModificationEtatDemande::class, mappedBy: 'demande', orphanRemoval: true)]
+    #[Map(if: false)]
     private Collection $modifications;
 
-    #[ORM\OneToMany(mappedBy: 'demande', targetEntity: CharteDemandeur::class, cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(
+        targetEntity: CharteDemandeur::class,
+        mappedBy: 'demande',
+        cascade: ['persist'],
+        orphanRemoval: true,
+    )]
+    #[Map(if: false)]
     private Collection $chartes;
 
     #[ORM\ManyToOne]
+    #[Map(if: false)]
     private ?ProfilBeneficiaire $profilAttribue = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Map(if: false)]
     private ?string $commentaire = null;
 
     public function __construct()
@@ -102,7 +120,7 @@ class Demande
     {
         $this->dateDepot = match ($dateDepot) {
             null => null,
-            default => DateTime::createFromInterface($dateDepot)
+            default => DateTime::createFromInterface($dateDepot),
         };
 
         return $this;
@@ -225,5 +243,4 @@ class Demande
 
         return $this;
     }
-
 }

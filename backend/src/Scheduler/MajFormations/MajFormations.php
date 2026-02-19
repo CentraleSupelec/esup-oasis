@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -21,12 +21,11 @@ use Symfony\Component\Scheduler\Attribute\AsPeriodicTask;
 #[AsPeriodicTask(frequency: '1 hour', schedule: 'maj_formations')]
 readonly class MajFormations
 {
-    public function __construct(private FormationRepository        $formationRepository,
-                                private AbstractSiScolDataProvider $scolProvider,
-                                private LoggerInterface            $logger)
-    {
-
-    }
+    public function __construct(
+        private FormationRepository $formationRepository,
+        private AbstractSiScolDataProvider $scolProvider,
+        private LoggerInterface $logger,
+    ) {}
 
     public function __invoke(): void
     {
@@ -38,9 +37,7 @@ readonly class MajFormations
                 $this->logger->warning('Backend scol indisponible - maj des formations abandonnée.');
                 return;
             }
-            $incomplete->setDiplome($data['diplome'])
-                ->setNiveau($data['niveau'])
-                ->setDiscipline($data['discipline']);
+            $incomplete->setDiplome($data['diplome'])->setNiveau($data['niveau'])->setDiscipline($data['discipline']);
             $this->formationRepository->save($incomplete);
             $nbMaj++;
         }
@@ -50,5 +47,4 @@ readonly class MajFormations
         }
         $this->logger->info($nbMaj . ' formations incomplètes mises à jour.');
     }
-
 }

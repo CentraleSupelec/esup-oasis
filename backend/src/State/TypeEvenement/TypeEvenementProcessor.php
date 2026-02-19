@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -19,8 +19,6 @@ use App\Message\RessourceCollectionModifieeMessage;
 use App\Message\RessourceModifieeMessage;
 use App\Repository\TauxHoraireRepository;
 use App\Repository\TypeEvenementRepository;
-use App\State\MappedEntityProcessor;
-use App\State\TransformerService;
 use ReflectionException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -30,7 +28,6 @@ readonly class TypeEvenementProcessor implements ProcessorInterface
     public function __construct(
         private TypeEvenementRepository $typeEvenementRepository,
         private TauxHoraireRepository $tauxHoraireRepository,
-        private TransformerService $transformerService,
         private MessageBusInterface $messageBus,
     ) {}
 
@@ -73,11 +70,6 @@ readonly class TypeEvenementProcessor implements ProcessorInterface
 
         $this->typeEvenementRepository->save($entity, true);
 
-        if ($data->id !== null) {
-            $this->messageBus->dispatch(new RessourceModifieeMessage($data));
-        }
-        $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($data));
-
-        return $this->transformerService->transform($entity, \App\ApiResource\TypeEvenement::class);
+        return new \App\ApiResource\TypeEvenement($entity);
     }
 }

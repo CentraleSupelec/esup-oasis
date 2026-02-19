@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -26,10 +26,11 @@ class PdfEncoder implements EncoderInterface
 {
     private string $projectRoot;
 
-    public function __construct(private readonly GotenbergPdfInterface $pdf,
-                                private readonly LoggerInterface       $logger,
-                                KernelInterface                        $appKernel)
-    {
+    public function __construct(
+        private readonly GotenbergPdfInterface $pdf,
+        private readonly LoggerInterface $logger,
+        KernelInterface $appKernel,
+    ) {
         $this->projectRoot = $appKernel->getProjectDir();
     }
 
@@ -38,7 +39,7 @@ class PdfEncoder implements EncoderInterface
         $template = match (true) {
             $data[0] instanceof ServicesFaits => 'ServicesFaits/index.html.twig',
             $data[0] instanceof DecisionAmenagementExamens => 'Decisions/index.html.twig',
-            default => new Exception('type non supporté')
+            default => new Exception('type non supporté'),
         };
 
         //si inconnu on sort...impossible en théorie
@@ -48,16 +49,17 @@ class PdfEncoder implements EncoderInterface
 
         $headerTemplate = match (true) {
             //$data[0] instanceof DecisionAmenagementExamens => 'Decisions/header.html.twig',
-            default => null
+            default => null,
         };
 
         $footerTemplate = match (true) {
             $data[0] instanceof DecisionAmenagementExamens => 'Decisions/footer.html.twig',
-            default => null
+            default => null,
         };
 
         if ($data[0] instanceof DecisionAmenagementExamens) {
-            $data['triangle_base64'] = base64_encode(file_get_contents($this->projectRoot . '/public/images/triangle-ub.svg'));
+            $data['triangle_base64'] = base64_encode(file_get_contents($this->projectRoot
+            . '/public/images/triangle-ub.svg'));
         }
 
         if ($data[0] instanceof ServicesFaits) {
@@ -81,7 +83,6 @@ class PdfEncoder implements EncoderInterface
             throw new RuntimeException('Erreur à la génération du PDF');
         }
     }
-
 
     public function supportsEncoding(string $format): bool
     {

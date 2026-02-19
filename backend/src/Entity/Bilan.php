@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,40 +12,52 @@
 
 namespace App\Entity;
 
+use App\ApiResource\BilanActivite;
 use App\Repository\BilanRepository;
+use App\State\EntityToResourceTransformer;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: BilanRepository::class)]
+#[Map(target: BilanActivite::class, transform: [EntityToResourceTransformer::class, 'entityToResource'])]
 class Bilan
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\OneToOne(inversedBy: 'bilan', cascade: ['persist', 'remove'])]
+    #[Map(if: false)]
     private ?Fichier $fichier = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Map(if: false)]
     private ?DateTimeInterface $dateDemande = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Map(if: false)]
     private ?DateTimeInterface $dateGeneration = null;
 
     #[ORM\ManyToOne(inversedBy: 'bilans')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?Utilisateur $demandeur = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Map(if: false)]
     private ?DateTimeInterface $debut = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Map(if: false)]
     private ?DateTimeInterface $fin = null;
 
     #[ORM\Column(nullable: true)]
+    #[Map(if: false)]
     private ?array $parametres = null;
 
     public function getId(): ?int
@@ -122,7 +134,7 @@ class Bilan
     {
         $this->dateGeneration = match ($dateGeneration) {
             null => null,
-            default => DateTime::createFromInterface($dateGeneration)
+            default => DateTime::createFromInterface($dateGeneration),
         };
 
         return $this;

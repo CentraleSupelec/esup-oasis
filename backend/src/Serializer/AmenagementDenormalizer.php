@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -20,15 +20,13 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 readonly class AmenagementDenormalizer implements DenormalizerInterface
 {
-
     public function __construct(
         #[Autowire(service: 'api_platform.jsonld.normalizer.item')]
         private AbstractItemNormalizer $itemNormalizer,
-    )
-    {
-    }
+    ) {}
 
-    #[Override] public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): mixed
+    #[Override]
+    public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): mixed
     {
         /**
          * @var Amenagement $amenagement
@@ -39,12 +37,18 @@ readonly class AmenagementDenormalizer implements DenormalizerInterface
         return $amenagement;
     }
 
-    #[Override] public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
-    {
+    #[Override]
+    public function supportsDenormalization(
+        mixed $data,
+        string $type,
+        ?string $format = null,
+        array $context = [],
+    ): bool {
         return $type === Amenagement::class;
     }
 
-    #[Override] public function getSupportedTypes(?string $format): array
+    #[Override]
+    public function getSupportedTypes(?string $format): array
     {
         return [
             Amenagement::class => true,

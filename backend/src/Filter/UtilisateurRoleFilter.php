@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -19,13 +19,17 @@ use Doctrine\ORM\QueryBuilder;
 
 class UtilisateurRoleFilter extends AbstractFilter
 {
-
     public const string PROPERTY = 'role';
 
-    protected function filterProperty(string                      $property, $value, QueryBuilder $queryBuilder,
-                                      QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass,
-                                      ?Operation                  $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         if ($property !== self::PROPERTY) {
             return;
         }
@@ -33,9 +37,10 @@ class UtilisateurRoleFilter extends AbstractFilter
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $roleParam = $queryNameGenerator->generateParameterName('role');
 
-        $queryBuilder->andWhere(sprintf('JSON_CONTAINS(%s.roles, :%s) = true', $rootAlias, $roleParam))
-            ->setParameter($roleParam, $value);
-
+        $queryBuilder->andWhere(sprintf('JSON_CONTAINS(%s.roles, :%s) = true', $rootAlias, $roleParam))->setParameter(
+            $roleParam,
+            $value,
+        );
     }
 
     public function getDescription(string $resourceClass): array

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -17,19 +17,20 @@ use App\Entity\Utilisateur as UtilisateurEntity;
 use Exception;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 final class ModifierUtilisateurVoter extends Voter
 {
     private array $rolesAIgnorer;
 
-    public function __construct(private readonly Security $security)
-    {
+    public function __construct(
+        private readonly Security $security,
+    ) {
         $this->rolesAIgnorer = [
             UtilisateurEntity::ROLE_DEMANDEUR,
             UtilisateurEntity::ROLE_USER,
         ];
-
     }
 
     protected function supports(string $attribute, mixed $subject): bool
@@ -39,13 +40,17 @@ final class ModifierUtilisateurVoter extends Voter
 
     /**
      * @param string $attribute
-     * @param Utilisateur[] $subject
+     * @param mixed $subject
      * @param TokenInterface $token
-     * @return bool
+     * @param Vote|null $vote* @return bool
      * @throws Exception
      */
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
-    {
+    protected function voteOnAttribute(
+        string $attribute,
+        mixed $subject,
+        TokenInterface $token,
+        ?Vote $vote = null,
+    ): bool {
         /**
          * Utilisé uniquement sur un PATCH, on passe un tableau [previous_object, object]
          */
@@ -80,8 +85,14 @@ final class ModifierUtilisateurVoter extends Voter
         /**
          * Roles
          */
-        $addedRoles = array_filter($new->roles, fn($role) => !in_array($role, $previous->roles) && $role !== UtilisateurEntity::ROLE_USER);
-        $removedRoles = array_filter($previous->roles, fn($role) => !in_array($role, $new->roles) && $role !== UtilisateurEntity::ROLE_USER);
+        $addedRoles = array_filter(
+            $new->roles,
+            fn($role) => !in_array($role, $previous->roles) && $role !== UtilisateurEntity::ROLE_USER,
+        );
+        $removedRoles = array_filter(
+            $previous->roles,
+            fn($role) => !in_array($role, $new->roles) && $role !== UtilisateurEntity::ROLE_USER,
+        );
 
         foreach ([...$addedRoles, ...$removedRoles] as $role) {
             if (!$this->canChange($role)) {
@@ -89,11 +100,9 @@ final class ModifierUtilisateurVoter extends Voter
             }
         }
 
-
         $user = $this->security->getUser();
         assert($user instanceof UtilisateurEntity);
-        return $this->security->isGranted(UtilisateurEntity::ROLE_PLANIFICATEUR)
-            || $user->getUid() === $new->uid;
+        return $this->security->isGranted(UtilisateurEntity::ROLE_PLANIFICATEUR) || $user->getUid() === $new->uid;
     }
 
     private function canChange(string $role): bool
@@ -106,22 +115,24 @@ final class ModifierUtilisateurVoter extends Voter
         }
 
         //les gestionnaires peuvent déclarer les renforts
-        if ($this->security->isGranted(UtilisateurEntity::ROLE_GESTIONNAIRE)
-            && $role == UtilisateurEntity::ROLE_RENFORT) {
+        if (
+            $this->security->isGranted(UtilisateurEntity::ROLE_GESTIONNAIRE)
+            && $role == UtilisateurEntity::ROLE_RENFORT
+        ) {
             return true;
         }
 
         //les renforts peuvent déclarer des bénéficiaires / les intervenants
-        if (($this->security->isGranted(UtilisateurEntity::ROLE_PLANIFICATEUR))
+        if (
+            $this->security->isGranted(UtilisateurEntity::ROLE_PLANIFICATEUR)
             && in_array($role, [
                 UtilisateurEntity::ROLE_BENEFICIAIRE,
                 UtilisateurEntity::ROLE_INTERVENANT,
-            ])) {
+            ])
+        ) {
             return true;
         }
 
         return false;
     }
-
-
 }

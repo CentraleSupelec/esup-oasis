@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -25,13 +25,14 @@ class CaseInsensitiveOrderFilter extends AbstractFilter
 {
     use OrderFilterTrait;
 
-    public function __construct(ManagerRegistry          $managerRegistry,
-                                string                   $orderParameterName = 'order',
-                                ?LoggerInterface         $logger = null,
-                                ?array                   $properties = null,
-                                ?NameConverterInterface  $nameConverter = null,
-                                private readonly ?string $orderNullsComparison = null)
-    {
+    public function __construct(
+        ManagerRegistry $managerRegistry,
+        string $orderParameterName = 'order',
+        ?LoggerInterface $logger = null,
+        ?array $properties = null,
+        ?NameConverterInterface $nameConverter = null,
+        private readonly ?string $orderNullsComparison = null,
+    ) {
         $this->orderParameterName = $orderParameterName;
         parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
     }
@@ -46,9 +47,15 @@ class CaseInsensitiveOrderFilter extends AbstractFilter
      * @param array $context
      * @return void
      */
-    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator,
-                                      string $resourceClass, ?Operation $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         if ($property !== $this->orderParameterName) {
             return;
         }
@@ -61,6 +68,5 @@ class CaseInsensitiveOrderFilter extends AbstractFilter
             $queryBuilder->addSelect($join . ' as hidden ' . $fieldAlias);
             $queryBuilder->addOrderBy($fieldAlias, $direction ?? 'asc');
         }
-
     }
 }

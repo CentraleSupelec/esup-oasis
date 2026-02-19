@@ -13,7 +13,6 @@ use App\Entity\Question;
 use App\Entity\Reponse;
 use App\Entity\TypeDemande;
 use App\Entity\Utilisateur;
-
 use App\State\Utilisateur\UtilisateurManager;
 use Behat\Behat\Context\Context;
 use Behat\Step\Given;
@@ -28,17 +27,25 @@ class DemandeContext implements Context
 
     private ObjectManager $manager;
 
-    public function __construct(private readonly UtilisateurManager $utilisateurManager,
-                                ManagerRegistry                     $doctrine)
-    {
+    public function __construct(
+        private readonly UtilisateurManager $utilisateurManager,
+        ManagerRegistry $doctrine,
+    ) {
         $this->manager = $doctrine->getManager();
     }
 
-    #[Given("l'utilisateur :uid a une demande :etat pour le type :idTypeDemande :commission commission et un membre :uidMembre")]
+    #[Given(
+        "l'utilisateur :uid a une demande :etat pour le type :idTypeDemande :commission commission et un membre :uidMembre",
+    )]
     #[Given("l'utilisateur :uid a une demande :etat pour le type :idTypeDemande :commission commission")]
     #[Given("l'utilisateur :uid a une demande :etat pour le type :idTypeDemande")]
-    public function creerDemandeUtilisateur(string $uid, string $etat, int $idTypeDemande, $commission = 'avec', ?string $membre = null): void
-    {
+    public function creerDemandeUtilisateur(
+        string $uid,
+        string $etat,
+        int $idTypeDemande,
+        $commission = 'avec',
+        ?string $membre = null,
+    ): void {
         $typeDemande = $this->getTypeDemande($idTypeDemande);
         $user = $this->utilisateurManager->parUid($uid);
         $campagneEnCours = $this->getCampagneEnCours($typeDemande, $commission == 'avec', $membre);
@@ -49,7 +56,7 @@ class DemandeContext implements Context
 
         $etat = match ($etat) {
             'réceptionnée' => EtatDemande::RECEPTIONNEE,
-            default => EtatDemande::EN_COURS
+            default => EtatDemande::EN_COURS,
         };
 
         $demande->setEtat($this->manager->getRepository(EtatDemande::class)->find($etat));
@@ -61,7 +68,7 @@ class DemandeContext implements Context
         $this->manager->getRepository(Demande::class)->save($demande, true);
     }
 
-    #[Given("le type de demande :idTypeDemande propose le profil :avecOuSans accompagnement")]
+    #[Given('le type de demande :idTypeDemande propose le profil :avecOuSans accompagnement')]
     public function modifierAccompagnementTypeDemande(int $idTypeDemande, string $avecOuSans)
     {
         $typeDemande = $this->getTypeDemande($idTypeDemande);
@@ -70,7 +77,9 @@ class DemandeContext implements Context
         $this->manager->getRepository(TypeDemande::class)->save($typeDemande, true);
     }
 
-    #[Given("l'utilisateur demandeur a répondu :ouiNon à la question souhait d'accompagnement pour la demande :idDemande")]
+    #[Given(
+        "l'utilisateur demandeur a répondu :ouiNon à la question souhait d'accompagnement pour la demande :idDemande",
+    )]
     public function repondreQuestionSouhaitAccompagnement(string $ouiNon, int $idDemande)
     {
         $demande = $this->manager->getRepository(Demande::class)->find($idDemande);
@@ -79,29 +88,26 @@ class DemandeContext implements Context
         $reponse = new Reponse();
         $reponse->setRepondant($demande->getDemandeur());
         $reponse->setDateModification($this->now());
-        $reponse->addOptionsChoisie(
-            $this->manager->getRepository(OptionReponse::class)->find(
-                match ($ouiNon) {
-                    'oui' => OptionReponse::OPTION_DEMANDE_ACCOMPAGNEMENT_OUI,
-                    default => OptionReponse::OPTION_DEMANDE_ACCOMPAGNEMENT_NON
-                }
-            )
-        );
+        $reponse->addOptionsChoisie($this->manager
+            ->getRepository(OptionReponse::class)
+            ->find(match ($ouiNon) {
+                'oui' => OptionReponse::OPTION_DEMANDE_ACCOMPAGNEMENT_OUI,
+                default => OptionReponse::OPTION_DEMANDE_ACCOMPAGNEMENT_NON,
+            }));
         $reponse->setQuestion($question);
         $reponse->setCampagne($demande->getCampagne());
 
         $this->manager->getRepository(Reponse::class)->save($reponse, true);
-
     }
 
-    #[Given("il y a une campagne en cours pour le type de demande :idTypeDemande")]
+    #[Given('il y a une campagne en cours pour le type de demande :idTypeDemande')]
     public function creerCampagneEnCoursPourType(int $idTypeDemande): void
     {
         $typeDemande = $this->getTypeDemande($idTypeDemande);
         $campagneEnCours = $this->getCampagneEnCours($typeDemande);
     }
 
-    #[Given(":demandeur a une réponse à la question :idQuestion pour le type de demande :idTypeDemande")]
+    #[Given(':demandeur a une réponse à la question :idQuestion pour le type de demande :idTypeDemande')]
     public function creerCampagneEnCoursEtReponsePourType(string $demandeur, int $idQuestion, int $idTypeDemande)
     {
         $typeDemande = $this->getTypeDemande($idTypeDemande);
@@ -116,18 +122,16 @@ class DemandeContext implements Context
         $this->manager->getRepository(Reponse::class)->save($reponseQuestion, true);
     }
 
-    #[Given("il existe :nb clubs sportifs :type")]
+    #[Given('il existe :nb clubs sportifs :type')]
     public function creerClubsSportifs(int $nb, string $type): void
     {
         [$pro, $formation] = match ($type) {
             'professionnels' => [true, false],
-            default => [false, true]
+            default => [false, true],
         };
         for ($i = 1; $i <= $nb; $i++) {
             $club = new ClubSportif();
-            $club->setLibelle("Club numéro " . $i)
-                ->setProfessionnel($pro)
-                ->setCentreFormation($formation);
+            $club->setLibelle('Club numéro ' . $i)->setProfessionnel($pro)->setCentreFormation($formation);
             $this->manager->getRepository(ClubSportif::class)->save($club, $i === $nb);
         }
     }
@@ -191,12 +195,15 @@ class DemandeContext implements Context
      * @return CampagneDemande
      * @throws DateMalformedStringException
      */
-    private function getCampagneEnCours(TypeDemande $typeDemande, $avecCommission = true, ?string $membre = null): CampagneDemande
-    {
+    private function getCampagneEnCours(
+        TypeDemande $typeDemande,
+        $avecCommission = true,
+        ?string $membre = null,
+    ): CampagneDemande {
         if (!($campagne = $typeDemande->getCampagneEnCoursPourDate($this->now()))) {
             $campagne = new CampagneDemande();
             $campagne->setTypeDemande($typeDemande);
-            $campagne->setLibelle("Campagne en cours pour " . $typeDemande->getLibelle());
+            $campagne->setLibelle('Campagne en cours pour ' . $typeDemande->getLibelle());
             $campagne->setDebut($this->now()->modify('- 2 days'));
             $campagne->setFin($this->now()->modify('+ 2 days'));
             $campagne->setDateCommission($this->now()->modify('+ 3 days'));
@@ -211,7 +218,6 @@ class DemandeContext implements Context
                 if ($membre !== null) {
                     $this->creerMembreCommission($membre, $commission);
                 }
-
             }
             $this->manager->getRepository(CampagneDemande::class)->save($campagne, true);
         }
@@ -222,7 +228,7 @@ class DemandeContext implements Context
      * @param int|Demande $demande
      * @return void
      */
-    #[Given("la demande :demande est complète")]
+    #[Given('la demande :demande est complète')]
     public function completerDemande(Demande|int $demande)
     {
         if (!$demande instanceof Demande) {
@@ -240,13 +246,11 @@ class DemandeContext implements Context
                 $reponse->setCampagne($demande->getCampagne());
                 $reponse->setQuestion($question->getQuestion());
                 $reponse->setDateModification($this->now());
-                $reponse->setCommentaire("reponse bidon");
+                $reponse->setCommentaire('reponse bidon');
                 $this->manager->getRepository(Reponse::class)->save($reponse, true);
             }
         }
 
         $this->manager->getRepository(Demande::class)->save($demande, true);
     }
-
-
 }

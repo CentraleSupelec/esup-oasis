@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -25,7 +25,6 @@ use App\Message\DemandeValideeMessage;
 use App\Message\EtatDemandeModifieMessage;
 use App\Message\RessourceCollectionModifieeMessage;
 use App\State\Demande\DemandeManager;
-use App\State\TransformerService;
 use App\State\Utilisateur\UtilisateurManager;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -33,12 +32,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[AsMessageHandler(handles: EtatDemandeModifieMessage::class, priority: 20)]
 readonly class EtatDemandeModifieMessageHandler
 {
-    public function __construct(private MessageBusInterface $messageBus,
-                                private DemandeManager      $demandeManager,
-                                private UtilisateurManager  $utilisateurManager,
-                                private TransformerService  $transformerService)
-    {
-    }
+    public function __construct(
+        private MessageBusInterface $messageBus,
+        private DemandeManager $demandeManager,
+        private UtilisateurManager $utilisateurManager,
+    ) {}
 
     public function __invoke(EtatDemandeModifieMessage $message): void
     {
@@ -46,15 +44,15 @@ readonly class EtatDemandeModifieMessageHandler
          * On logge la modif, puis on forwarde si nécessaire (envois de mails, etc...)
          */
         $log = $this->demandeManager->logModificationEtat(
-            idDemande      : $message->getIdDemande(),
-            idEtat         : $message->getIdEtat(),
+            idDemande: $message->getIdDemande(),
+            idEtat: $message->getIdEtat(),
             idEtatPrecedent: $message->getIdEtatprecedent(),
-            idProfil       : $message->getIdProfil(),
-            utilisateur    : $this->utilisateurManager->parUid($message->getUidUtilisateurModif()),
-            commentaire    : $message->getCommentaire()
+            idProfil: $message->getIdProfil(),
+            utilisateur: $this->utilisateurManager->parUid($message->getUidUtilisateurModif()),
+            commentaire: $message->getCommentaire(),
         );
 
-        $logResource = $this->transformerService->transform($log, ModificationEtatDemande::class);
+        $logResource = new ModificationEtatDemande($log);
         $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($logResource));
 
         $forwardMessage = match ($message->getIdEtat()) {
@@ -62,8 +60,14 @@ readonly class EtatDemandeModifieMessageHandler
             EtatDemande::CONFORME => new DemandeConformeMessage($message, $this->demandeManager),
             EtatDemande::NON_CONFORME => new DemandeNonConformeMessage($message, $this->demandeManager),
             EtatDemande::PROFIL_VALIDE => new DemandeProfilValideMessage($message, $this->demandeManager),
-            EtatDemande::ATTENTE_VALIDATION_CHARTE => new DemandeAttenteValidationCharteMessage($message, $this->demandeManager),
-            EtatDemande::ATTENTE_VALIDATION_ACCOMPAGNEMENT => new DemandeAttenteValidationAccompagnementMessage($message, $this->demandeManager),
+            EtatDemande::ATTENTE_VALIDATION_CHARTE => new DemandeAttenteValidationCharteMessage(
+                $message,
+                $this->demandeManager,
+            ),
+            EtatDemande::ATTENTE_VALIDATION_ACCOMPAGNEMENT => new DemandeAttenteValidationAccompagnementMessage(
+                $message,
+                $this->demandeManager,
+            ),
             EtatDemande::REFUSEE => new DemandeRefuseeMessage($message, $this->demandeManager),
             EtatDemande::VALIDEE => new DemandeValideeMessage($message, $this->demandeManager),
             default => null,

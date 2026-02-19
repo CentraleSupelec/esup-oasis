@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -23,17 +23,17 @@ class AntivirusService
     protected Scanner $clamav;
     private bool $online = true;
 
-    public function __construct(readonly string                      $server,
-                                readonly int                         $port,
-                                private readonly MessageBusInterface $messageBus)
-    {
+    public function __construct(
+        readonly string $server,
+        readonly int $port,
+        private readonly MessageBusInterface $messageBus,
+    ) {
         try {
-            $this->clamav = ScannerFactory::create(
-                [
-                    'driver' => 'remote',
-                    'url' => $server,
-                    'port' => $this->port,
-                ]);
+            $this->clamav = ScannerFactory::create([
+                'driver' => 'remote',
+                'url' => $server,
+                'port' => $this->port,
+            ]);
         } catch (Exception $e) {
             $this->messageBus->dispatch(new ErreurTechniqueMessage($e, 'Antivirus indisponible'));
             $this->online = false;
@@ -64,5 +64,4 @@ class AntivirusService
             return false;
         }
     }
-
 }
