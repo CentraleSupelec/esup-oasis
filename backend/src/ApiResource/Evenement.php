@@ -56,7 +56,12 @@ use Symfony\Component\Validator\Constraints as Assert;
             read: false,
             map: false,
         ),
-        new Patch(uriTemplate: self::ITEM_URI, uriVariables: ['id'], security: "is_granted('ROLE_PLANIFICATEUR')"),
+        new Patch(
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['id'],
+            security: "is_granted('ROLE_PLANIFICATEUR')",
+            map: false,
+        ),
         new Delete(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['id'],
@@ -287,7 +292,7 @@ final class Evenement
     #[Assert\All([new Assert\Type(TypeEquipement::class)])]
     public array $equipements = [] {
         get {
-            if (empty($this->equipements) && $this->entity !== null) {
+            if (empty($this->equipements) && $this->entity !== null && $this->entity->getEquipements() !== null) {
                 $this->equipements = array_map(
                     fn($e) => new TypeEquipement($e),
                     $this->entity->getEquipements()->toArray(),

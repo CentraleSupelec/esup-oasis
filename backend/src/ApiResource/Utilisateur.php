@@ -112,6 +112,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: self::ITEM_URI,
             securityPostDenormalize: "is_granted('" . self::CAN_PATCH_USER . "', [previous_object, object])",
             provider: UtilisateurProvider::class,
+            map: false,
         ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],

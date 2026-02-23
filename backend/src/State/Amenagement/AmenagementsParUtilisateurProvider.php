@@ -89,7 +89,7 @@ class AmenagementsParUtilisateurProvider implements ProviderInterface
             //on ne montre que les aménagements d'examen et pédagogiques
             $resource->amenagements = array_values(array_filter(
                 $resource->amenagements,
-                fn(Amenagement $amenagement) => (
+                fn($amenagement) => (
                     $amenagement->typeAmenagement->examens || $amenagement->typeAmenagement->pedagogique
                 ),
             ));

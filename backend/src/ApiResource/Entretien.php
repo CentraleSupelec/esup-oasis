@@ -42,6 +42,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
                 'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
             ],
             read: false,
+            map: false,
         ),
         new Get(uriTemplate: self::ITEM_URI, uriVariables: [
             'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),

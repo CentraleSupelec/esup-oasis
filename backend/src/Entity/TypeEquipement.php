@@ -13,27 +13,35 @@
 namespace App\Entity;
 
 use App\Repository\TypeEquipementRepository;
+use App\State\EntityToResourceTransformer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: TypeEquipementRepository::class)]
-#[Map(target: \App\ApiResource\TypeEquipement::class)]
+#[Map(target: \App\ApiResource\TypeEquipement::class, transform: [
+    EntityToResourceTransformer::class,
+    'entityToResource',
+])]
 class TypeEquipement
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Map(if: false)]
     private ?string $libelle = null;
 
     #[ORM\Column]
+    #[Map(if: false)]
     private ?bool $actif = null;
 
     #[ORM\ManyToMany(targetEntity: Evenement::class, mappedBy: 'equipements')]
+    #[Map(if: false)]
     private Collection $evenements;
 
     public function __construct()

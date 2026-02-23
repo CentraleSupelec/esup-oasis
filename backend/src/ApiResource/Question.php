@@ -102,7 +102,7 @@ class Question
         get {
             if ($this->optionsReponses === null && $this->entity !== null) {
                 $this->optionsReponses = array_map(
-                    fn(OptionReponse $option) => new OptionReponse($option),
+                    fn($option) => new OptionReponse($option),
                     $this->entity->getOptionsReponse()->toArray(),
                 );
             }

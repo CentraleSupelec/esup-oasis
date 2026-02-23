@@ -72,7 +72,6 @@ class InterventionForfaitProcessor implements ProcessorInterface
 
         if ($operation instanceof Delete) {
             $this->repository->remove($entity, true);
-            $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($data));
             return null;
         }
 
@@ -85,6 +84,9 @@ class InterventionForfaitProcessor implements ProcessorInterface
 
         $this->repository->save($entity, true);
 
-        return new InterventionForfait($entity);
+        $data = new InterventionForfait($entity);
+        $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($data));
+
+        return $data;
     }
 }
