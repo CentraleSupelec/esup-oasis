@@ -110,13 +110,13 @@ class UtilisateurProvider implements ProviderInterface
 
             $users = [];
             foreach ($this->utilisateurManager->search($context['filters']['term'], $etudiantsSeulement) as $user) {
-                $users[] = new Utilisateur($user);
+                $users[] = $this->transformWithDecision($user);
             }
             return $users;
         }
         //Get simple
         try {
-            return new Utilisateur($this->utilisateurManager->parUid($uriVariables['uid']));
+            return $this->transformWithDecision($this->utilisateurManager->parUid($uriVariables['uid']));
         } catch (UserNotFoundException) {
             throw new ItemNotFoundException('Utilisateur inconnu');
         }

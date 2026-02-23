@@ -107,7 +107,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             provider: AmenagementsParUtilisateurProvider::class,
             map: false,
         ),
-        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['uid'], provider: UtilisateurProvider::class),
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['uid'], provider: UtilisateurProvider::class, map: false),
         new Patch(
             uriTemplate: self::ITEM_URI,
             securityPostDenormalize: "is_granted('" . self::CAN_PATCH_USER . "', [previous_object, object])",
