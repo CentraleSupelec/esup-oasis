@@ -60,16 +60,19 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'id'],
             security: "is_granted('" . self::VOIR_AMENAGEMENTS_UTILISATEUR . "', request.attributes.get('uid'))",
+            map: false,
         ),
         new Patch(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'id'],
             security: "is_granted('" . self::MODIFIER_AMENAGEMENTS_UTILISATEUR . "', request.attributes.get('uid'))",
+            map: false,
         ),
         new Delete(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'id'],
             security: "is_granted('" . self::MODIFIER_AMENAGEMENTS_UTILISATEUR . "', request.attributes.get('uid'))",
+            map: false,
         ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
@@ -163,9 +166,9 @@ class Amenagement
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN, Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT])]
     #[Assert\NotNull]
-    public TypeAmenagement $typeAmenagement {
+    public ?TypeAmenagement $typeAmenagement = null {
         get {
-            if (!isset($this->typeAmenagement) && $this->entity !== null && $this->entity->getType()) {
+            if (null == $this->typeAmenagement && $this->entity !== null && $this->entity->getType()) {
                 $this->typeAmenagement = new TypeAmenagement($this->entity->getType());
             }
             return $this->typeAmenagement;

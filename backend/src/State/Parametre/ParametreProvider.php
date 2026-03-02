@@ -37,6 +37,11 @@ readonly class ParametreProvider implements ProviderInterface
             assert($results instanceof PaginatorInterface);
             return new MappedCollectionPaginator($results, fn($entity) => new Parametre($entity));
         }
-        return new Parametre($this->itemProvider->provide($operation, $uriVariables, $context));
+
+        $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
+        return match ($entity) {
+            null => null,
+            default => new Parametre($entity),
+        };
     }
 }

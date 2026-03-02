@@ -49,6 +49,10 @@ readonly class InterventionForfaitProvider implements ProviderInterface
             return new MappedCollectionPaginator($results, fn($entity) => new InterventionForfait($entity));
         }
 
-        return new InterventionForfait($this->itemProvider->provide($operation, $uriVariables, $context));
+        $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
+        return match ($entity) {
+            null => null,
+            default => new InterventionForfait($entity),
+        };
     }
 }

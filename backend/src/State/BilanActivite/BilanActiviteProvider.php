@@ -42,6 +42,9 @@ readonly class BilanActiviteProvider implements ProviderInterface
 
         $item = $this->itemProvider->provide($operation, $uriVariables, $context);
 
-        return new BilanActivite($item, $this->iriConverter);
+        return match ($item) {
+            null => null,
+            default => new BilanActivite($item, $this->iriConverter),
+        };
     }
 }

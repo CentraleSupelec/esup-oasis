@@ -69,9 +69,10 @@ class TypeDemandeProvider implements ProviderInterface
 
         $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
 
-        assert($entity instanceof \App\Entity\TypeDemande);
-
-        return $this->transform($entity);
+        return match ($entity) {
+            null => null,
+            default => $this->transform($entity),
+        };
     }
 
     /**

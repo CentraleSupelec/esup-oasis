@@ -73,18 +73,11 @@ readonly class OptionReponseProvider implements ProviderInterface
             ->withStateOptions($operation->getStateOptions())
             ->withUriVariables([$link]);
 
-        return $this->itemProvider->provide($correctOperation, $relevantVariables, $context);
-    }
-
-    /**
-     * @param \App\Entity\OptionReponse $entity
-     * @return OptionReponse
-     * @throws Exception
-     */
-    public function transform($entity): mixed
-    {
-        $resource = new OptionReponse($entity);
-        return $resource;
+        $entity = $this->itemProvider->provide($correctOperation, $relevantVariables, $context);
+        return match ($entity) {
+            null => null,
+            default => new OptionReponse($entity),
+        };
     }
 
     /**

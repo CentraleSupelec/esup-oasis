@@ -41,7 +41,7 @@ class TauxHorairesTest extends ApiTestCaseCustom
     {
         $client = $this->createClientWithCredentials('admin');
         $client->request('GET', '/types_evenements/2/taux/1');
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
     public function testAdminCanCreateNewTaux(): void

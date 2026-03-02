@@ -49,10 +49,14 @@ readonly class CampagneDemandeProvider implements ProviderInterface
             assert($results instanceof PaginatorInterface);
             return new MappedCollectionPaginator($results, fn($entity) => new CampagneDemande($entity));
         }
-        return new CampagneDemande($this->itemProvider->provide(
+        $entity = $this->itemProvider->provide(
             $operation->withUriVariables($operationUriVariables),
             $uriVariables,
             $context,
-        ));
+        );
+        return match ($entity) {
+            null => null,
+            default => new CampagneDemande($entity),
+        };
     }
 }

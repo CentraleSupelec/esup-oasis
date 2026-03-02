@@ -58,7 +58,7 @@ class TagUtilisateurProvider implements ProviderInterface
         //accès direct à un tag
         $matches = array_filter($tagsActifs, fn(\App\Entity\Tag $tag) => $tag->getId() === $uriVariables['id']);
         if (count($matches) === 0) {
-            throw new NotFoundHttpException('Tag non présent');
+            return null;
         }
         return $this->transform($utilisateur, current($matches));
     }

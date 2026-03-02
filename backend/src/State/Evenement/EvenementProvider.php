@@ -111,6 +111,9 @@ readonly class EvenementProvider implements ProviderInterface
 
         $result = $this->itemProvider->provide($operation, $uriVariables, $context);
 
-        return new Evenement($result);
+        return match ($result) {
+            null => null,
+            default => new Evenement($result),
+        };
     }
 }

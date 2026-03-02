@@ -42,6 +42,10 @@ readonly class ValeurParametreProvider implements ProviderInterface
             context: $context,
         );
 
+        if (null == $valeur) {
+            return null;
+        }
+
         assert($valeur instanceof \App\Entity\ValeurParametre);
 
         if ($valeur->getParametre()->getCle() !== $uriVariables['cle']) {

@@ -71,8 +71,6 @@ class AmenagementsParUtilisateurProvider implements ProviderInterface
         return new MappedCollectionPaginator($results, fn($entity) => $this->transform($this->utilisateurProvider->transformWithDecision(
             $entity,
         )));
-
-        //        return $paginator;
     }
 
     public function transform(Utilisateur $resource): Utilisateur

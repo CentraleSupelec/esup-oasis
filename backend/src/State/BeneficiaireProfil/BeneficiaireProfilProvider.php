@@ -43,11 +43,12 @@ readonly class BeneficiaireProfilProvider implements ProviderInterface
         );
 
         if ($benef?->getUtilisateur()?->getUid() !== $uriVariables['uid']) {
-            throw new UnprocessableEntityHttpException(
-                $uriVariables['uid'] . " n'a pas de beneficiaire d'id " . $uriVariables['id'],
-            );
+            return null; //404
         }
 
-        return new BeneficiaireProfil($benef);
+        return match ($benef) {
+            null => null,
+            default => new BeneficiaireProfil($benef),
+        };
     }
 }

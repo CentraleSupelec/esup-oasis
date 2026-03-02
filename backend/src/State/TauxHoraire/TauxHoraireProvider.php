@@ -36,18 +36,21 @@ readonly class TauxHoraireProvider implements ProviderInterface
             ->withStateOptions($operation->getStateOptions())
             ->withUriVariables([$link]);
 
-        $taux = new TauxHoraire($this->itemProvider->provide(
+        $entity = $this->itemProvider->provide(
             operation: $relevantOperation,
             uriVariables: $relevantVariables,
             context: $context,
-        ));
-
-        //devrait être une contrainte de validation
-        if ($taux->typeId !== (int) $uriVariables['typeId']) {
-            throw new UnprocessableEntityHttpException(
-                $uriVariables['typeId'] . " n'a pas de taux d'id " . $uriVariables['id'],
-            );
+        );
+        if (null === $entity) {
+            return null;
         }
+
+        $taux = new TauxHoraire($entity);
+
+        if ($taux->typeId !== (int) $uriVariables['typeId']) {
+            return null; //combinaison taux/type inexistante, 404
+        }
+
         return $taux;
     }
 }

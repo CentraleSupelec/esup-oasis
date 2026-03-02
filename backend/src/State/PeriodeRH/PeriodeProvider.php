@@ -37,6 +37,11 @@ readonly class PeriodeProvider implements ProviderInterface
             return new MappedCollectionPaginator($results, fn($entity) => new PeriodeRH($entity));
         }
 
-        return new PeriodeRH($this->itemProvider->provide($operation, $uriVariables, $context));
+        $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
+
+        return match ($entity) {
+            null => null,
+            default => new PeriodeRH($entity),
+        };
     }
 }
