@@ -59,7 +59,7 @@ class CharteUtilisateur
                     ->getDemandeur()
                     ->getUid();
             }
-            return $this->id ?? null;
+            return $this->uid ?? null;
         }
     }
 

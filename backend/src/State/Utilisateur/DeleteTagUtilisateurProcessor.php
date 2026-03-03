@@ -45,5 +45,6 @@ readonly class DeleteTagUtilisateurProcessor implements ProcessorInterface
         $this->utilisateurManager->supprimerTag($utilisateur, $tag);
         $utilisateurResource = new Utilisateur($utilisateur);
         $this->messageBus->dispatch(new RessourceModifieeMessage($utilisateurResource));
+        $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($data));
     }
 }

@@ -65,6 +65,9 @@ readonly class PostTagUtilisateurProcessor implements ProcessorInterface
         //la ressource utilisateur contient la liste des Tags (!= TagUtilisateur) qui lui sont associés
         $this->messageBus->dispatch(new RessourceModifieeMessage($utilisateurResource));
 
+        //pas d'entité liée, invalidation de la collection à la main !
+        $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($data));
+
         return $data;
     }
 }
