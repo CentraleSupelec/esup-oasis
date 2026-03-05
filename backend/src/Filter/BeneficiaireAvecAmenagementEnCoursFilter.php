@@ -16,7 +16,7 @@ use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\OpenApi\Model\Parameter;
-use App\ApiResource\Utilisateur;
+use App\Entity\Utilisateur;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\TypeInfo\TypeIdentifier;
@@ -36,8 +36,8 @@ class BeneficiaireAvecAmenagementEnCoursFilter extends AbstractFilter
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        /** @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection */
-        if (!$operation->getClass() === Utilisateur::class || $property !== self::PROPERTY) {
+        $entityClass = $operation->getStateOptions()?->getEntityClass() ?? $operation->getClass();
+        if ($entityClass !== Utilisateur::class || $property !== self::PROPERTY) {
             return;
         }
 

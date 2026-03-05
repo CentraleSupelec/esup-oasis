@@ -33,7 +33,8 @@ class PieceJointeBeneficiaireUidFilter extends AbstractFilter
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        if (!$operation->getClass() == PieceJointeBeneficiaire::class || $property !== self::PROPERTY) {
+        $entityClass = $operation->getStateOptions()?->getEntityClass() ?? $operation->getClass();
+        if (!$entityClass == PieceJointeBeneficiaire::class || $property !== self::PROPERTY) {
             return;
         }
 

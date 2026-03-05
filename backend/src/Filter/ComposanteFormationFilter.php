@@ -65,8 +65,12 @@ class ComposanteFormationFilter extends AbstractFilter
          * pour lesquels l'étudiant liés est inscrit à l'instant T dans la composante demandée
          */
 
+        $entityClass = $operation->getStateOptions()?->getEntityClass() ?? $operation->getClass();
         if (
-            !in_array($operation->getClass(), [Amenagement::class, Utilisateur::class])
+            !in_array($entityClass, [
+                Amenagement::class,
+                Utilisateur::class,
+            ])
             || !in_array($property, ['composante', 'formation'])
         ) {
             return;
@@ -89,7 +93,7 @@ class ComposanteFormationFilter extends AbstractFilter
             $inscriptionsAlias,
         );
 
-        if ($operation->getClass() == Amenagement::class) {
+        if ($entityClass == Amenagement::class) {
             $queryBuilder
                 ->join(sprintf('%s.beneficiaires', $alias), $benefAlias)
                 ->join(sprintf('%s.utilisateur', $benefAlias), $utilisateurAlias)

@@ -47,10 +47,17 @@ class PreloadAssociationsFilter extends AbstractFilter
 
         foreach ($value as $associationName => $association) {
             $aliases[$associationName] = $queryNameGenerator->generateJoinAlias($associationName);
-            $queryBuilder->leftJoin(
-                $aliases[$association['sourceEntity']] . '.' . $association['relationName'],
-                $aliases[$associationName],
-            );
+            if (($association['joinType'] ?? 'LEFT') === 'LEFT') {
+                $queryBuilder->leftJoin(
+                    $aliases[$association['sourceEntity']] . '.' . $association['relationName'],
+                    $aliases[$associationName],
+                );
+            } else {
+                $queryBuilder->innerJoin(
+                    $aliases[$association['sourceEntity']] . '.' . $association['relationName'],
+                    $aliases[$associationName],
+                );
+            }
             $queryBuilder->addSelect($aliases[$associationName]);
         }
 

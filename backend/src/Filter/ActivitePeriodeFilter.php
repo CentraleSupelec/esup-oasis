@@ -53,7 +53,7 @@ class ActivitePeriodeFilter extends AbstractFilter
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        $entityClass = $operation->getClass();
+        $entityClass = $operation->getStateOptions()?->getEntityClass() ?? $operation->getClass();
 
         if (!in_array($entityClass, [Evenement::class, InterventionForfait::class]) || $property !== 'periode') {
             return;

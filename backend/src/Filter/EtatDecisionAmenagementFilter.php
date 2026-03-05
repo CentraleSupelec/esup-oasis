@@ -23,7 +23,7 @@ use Symfony\Component\TypeInfo\TypeIdentifier;
 
 class EtatDecisionAmenagementFilter extends AbstractFilter
 {
-    protected const string PROPERTY = 'etatDecisionAmenagement';
+    public const string PROPERTY = 'etatDecisionAmenagement';
 
     protected function filterProperty(
         string $property,
@@ -50,21 +50,27 @@ class EtatDecisionAmenagementFilter extends AbstractFilter
         }
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $decisionAlias = $queryNameGenerator->generateJoinAlias('decision');
-        $decisionPlusRecenteAlias = $queryNameGenerator->generateJoinAlias('decision');
         $etatParam = $queryNameGenerator->generateParameterName('etat');
 
-        $queryBuilder
-            ->join(sprintf('%s.decisionsAmenagementExamens', $rootAlias), $decisionAlias)
-            ->leftJoin(
-                sprintf('%s.decisionsAmenagementExamens', $rootAlias),
-                $decisionPlusRecenteAlias,
-                Join::WITH,
-                sprintf('%s.debut > %s.debut', $decisionPlusRecenteAlias, $decisionAlias),
-            )
-            ->andWhere(sprintf('%s.id is null', $decisionPlusRecenteAlias))
-            ->andWhere(sprintf('%s.etat = :%s', $decisionAlias, $etatParam))
-            ->setParameter($etatParam, $value);
+        $em = $queryBuilder->getEntityManager();
+
+        // MAX(debut) pour CE bénéficiaire (tous états)
+        $maxQb = $em->createQueryBuilder();
+        $maxQb
+            ->select('MAX(decMax.debut)')
+            ->from(DecisionAmenagementExamens::class, 'decMax')
+            ->andWhere(sprintf('decMax.beneficiaire = %s', $rootAlias));
+
+        // EXISTS de la décision qui est à ce MAX(debut) et avec l'état demandé
+        $existsQb = $em->createQueryBuilder();
+        $existsQb
+            ->select('1')
+            ->from(DecisionAmenagementExamens::class, 'decLast')
+            ->andWhere(sprintf('decLast.beneficiaire = %s', $rootAlias))
+            ->andWhere(sprintf('decLast.debut = (%s)', $maxQb->getDQL()))
+            ->andWhere(sprintf('decLast.etat = :%s', $etatParam));
+
+        $queryBuilder->andWhere($queryBuilder->expr()->exists($existsQb->getDQL()))->setParameter($etatParam, $value);
     }
 
     public function getDescription(string $resourceClass): array
@@ -74,7 +80,7 @@ class EtatDecisionAmenagementFilter extends AbstractFilter
                 'property' => self::PROPERTY,
                 'type' => TypeIdentifier::STRING,
                 'required' => false,
-                'openapi' => new Parameter(name: self::PROPERTY, in: 'query', description: 'Etat avis ESE', schema: [
+                'openapi' => new Parameter(name: self::PROPERTY, in: 'query', description: 'Etat Décision', schema: [
                     'type' => 'string',
                 ]),
             ],

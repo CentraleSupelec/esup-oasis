@@ -43,8 +43,8 @@ class AmenagementUtilisateurFilter extends AbstractFilter
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        /** @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection */
-        if (!$operation->getClass() === Amenagement::class || $property !== self::PROPERTY) {
+        $entityClass = $operation->getStateOptions()?->getEntityClass() ?? $operation->getClass();
+        if ($entityClass !== Amenagement::class || $property !== self::PROPERTY) {
             return;
         }
 

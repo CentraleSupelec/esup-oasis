@@ -55,8 +55,8 @@ class UtilisateurConcerneParEvenementFilter extends AbstractFilter
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        /** @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection */
-        if (!$operation->getClass() === Evenement::class || $property !== 'utilisateurConcerne') {
+        $entityClass = $operation->getStateOptions()?->getEntityClass() ?? $operation->getClass();
+        if ($entityClass !== Evenement::class || $property !== 'utilisateurConcerne') {
             return;
         }
 

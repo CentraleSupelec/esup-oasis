@@ -17,7 +17,7 @@ use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\OpenApi\Model\Parameter;
-use App\ApiResource\Utilisateur;
+use App\Entity\Utilisateur;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
@@ -48,8 +48,8 @@ class ProfilBeneficiaireFilter extends AbstractFilter
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        /** @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection */
-        if (!$operation->getClass() === Utilisateur::class || $property !== 'profil') {
+        $entityClass = $operation->getStateOptions()?->getEntityClass() ?? $operation->getClass();
+        if ($entityClass !== Utilisateur::class || $property !== 'profil') {
             return;
         }
 

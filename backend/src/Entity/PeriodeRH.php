@@ -24,6 +24,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: PeriodeRHRepository::class)]
 #[Map(target: \App\ApiResource\PeriodeRH::class, transform: [EntityToResourceTransformer::class, 'entityToResource'])]
+#[ORM\Index(name: 'IDX_PERIODE_RH_DATE_ENVOI', columns: ['date_envoi'])]
 class PeriodeRH
 {
     #[ORM\Id]
@@ -44,7 +45,7 @@ class PeriodeRH
     #[Map(if: false)]
     private ?DateTimeInterface $butoir = null;
 
-    #[ORM\OneToMany(mappedBy: 'periodePriseEnCompteRH', targetEntity: Evenement::class)]
+    #[ORM\OneToMany(targetEntity: Evenement::class, mappedBy: 'periodePriseEnCompteRH')]
     #[Map(if: false)]
     private Collection $evenements;
 

@@ -21,6 +21,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BeneficiaireRepository::class)]
+#[ORM\Index(name: 'IDX_BENEFICIAIRE_DATES', columns: ['debut', 'fin'])]
+#[ORM\Index(name: 'IDX_BENEFICIAIRE_ACCOMPAGNEMENT', columns: ['avec_accompagnement'])]
+#[ORM\Index(name: 'IDX_BENEFICIAIRE_UTILISATEUR_INTERVALLE', columns: ['utilisateur_id', 'debut', 'fin'])]
 class Beneficiaire
 {
     #[ORM\Id]

@@ -20,6 +20,7 @@ use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\DecisionAmenagementExamens;
 use App\ApiResource\Utilisateur;
+use App\Filter\EtatDecisionAmenagementFilter;
 use App\Service\ErreurLdapException;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementManager;
 use App\State\MappedCollectionPaginator;
@@ -71,11 +72,6 @@ class UtilisateurProvider implements ProviderInterface
         }
         if ($operation->getName() === Utilisateur::COLLECTION_URI) {
             return $this->ldapProvide($operation, $uriVariables, $context);
-        }
-
-        //GetCollection sur /beneficiaires
-        if ($operation->getName() === Utilisateur::BENEFICIAIRE_COLLECTION_URI) {
-            $context['filters']['beneficiairefilter'] = true;
         }
 
         $results = $this->collectionProvider->provide($operation, $uriVariables, $context);

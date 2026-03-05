@@ -15,7 +15,7 @@ namespace App\Filter;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
-use App\ApiResource\Utilisateur;
+use App\Entity\Utilisateur;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -23,6 +23,8 @@ use Symfony\Component\Clock\ClockAwareTrait;
 class BeneficiaireFilter extends AbstractFilter
 {
     use ClockAwareTrait;
+
+    public const string PROPERTY = 'beneficiairefilter';
 
     protected function filterProperty(
         string $property,
@@ -33,10 +35,11 @@ class BeneficiaireFilter extends AbstractFilter
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        /** @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection */
-        if (!$operation->getClass() === Utilisateur::class || $property !== 'beneficiairefilter') {
+        $entityClass = $operation->getStateOptions()?->getEntityClass() ?? $operation->getClass();
+        if ($entityClass !== Utilisateur::class || $property !== self::PROPERTY) {
             return;
         }
+
         $alias = $queryBuilder->getRootAliases()[0];
         $beneficiaireAlias = $queryNameGenerator->generateJoinAlias('beneficiaire');
         $nowParam = $queryNameGenerator->generateParameterName('now');

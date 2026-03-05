@@ -34,7 +34,8 @@ class IntervenantFilter extends AbstractFilter
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        if (!$operation->getClass() == Utilisateur::class || $property !== self::PROPERTY) {
+        $entityClass = $operation->getStateOptions()?->getEntityClass() ?? $operation->getClass();
+        if ($entityClass !== Utilisateur::class || $property !== self::PROPERTY) {
             return;
         }
         $alias = $queryBuilder->getRootAliases()[0];

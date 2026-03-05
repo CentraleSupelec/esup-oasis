@@ -112,4 +112,32 @@ class UtilisateurRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult()['nb'];
     }
+
+    public function preload(array $userIds, array $associations)
+    {
+        $queryBuilder = $this->createQueryBuilder('root');
+
+        $aliases = [
+            'root' => 'root',
+        ];
+        foreach ($associations as $associationName => $association) {
+            $aliases[$associationName] = $associationName;
+            if (($association['joinType'] ?? 'LEFT') === 'LEFT') {
+                $queryBuilder->leftJoin(
+                    $aliases[$association['sourceEntity']] . '.' . $association['relationName'],
+                    $aliases[$associationName],
+                );
+            } else {
+                $queryBuilder->innerJoin(
+                    $aliases[$association['sourceEntity']] . '.' . $association['relationName'],
+                    $aliases[$associationName],
+                );
+            }
+            $queryBuilder->addSelect($aliases[$associationName]);
+        }
+
+        $queryBuilder->andWhere('root.uid IN (:uids)')->setParameter('uids', $userIds);
+
+        return $queryBuilder->getQuery()->getResult();
+    }
 }
