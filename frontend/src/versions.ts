@@ -41,12 +41,81 @@ export interface IVersion {
  */
 export const VERSIONS: IVersion[] = [
    {
-      version: "2.2.1",
+      version: "2.3.0",
+      date: "2026-03-xx",
+      description: "Amélioration des performances",
+      changes: [
+         {
+            description: "Amélioration globale des performances de l'application 🚀",
+            type: "fix",
+         },
+         {
+            description:
+               "Correction de l'affichage du montant d'une intervention (modale intervention)",
+            type: "fix",
+         },
+         {
+            description: "Amélioration de la gestion du cache",
+            type: "fix",
+         },
+      ],
+   },
+   {
+      version: "2.2.5",
+      date: "2026-02-02",
+      description: "Améliorations des performances",
+      changes: [
+         {
+            description:
+               "Amélioration globale des performances, notamment sur les statistiques du Tableau de bord",
+            type: "fix",
+         },
+         {
+            description: "Amélioration du cache",
+            type: "fix",
+         },
+      ],
+   },
+   {
+      version: "2.2.4",
+      date: "2025-11-20",
+      description: "Bugfix et améliorations mineures",
+      changes: [
+         {
+            description: "Correction du tri intervenants services faits",
+            type: "fix",
+         },
+      ],
+   },
+   {
+      version: "2.2.3",
+      date: "2025-10-21",
+      description: "Bugfix et améliorations mineures",
+      changes: [
+         {
+            description: "Calcul du début de l'année universitaire",
+            type: "fix",
+         },
+      ],
+   },
+   {
+      version: "2.2.2",
       date: "2025-06-11",
       description: "Bugfix et améliorations mineures",
       changes: [
          {
             description: "Gestion du cache lors de la création d'une nouvelle demande",
+            type: "fix",
+         },
+      ],
+   },
+   {
+      version: "2.2.1",
+      date: "2025-05-20",
+      description: "Bugfix et améliorations mineures",
+      changes: [
+         {
+            description: "Correction d'un bug dans le bilan d'activités",
             type: "fix",
          },
       ],
@@ -60,6 +129,10 @@ export const VERSIONS: IVersion[] = [
             description: "Gestion de l'accompagnement des bénéficiaires : filtre + modification",
             type: "add",
          },
+         {
+            description: "Corrections de bugs mineurs et améliorations des performances",
+            type: "fix",
+         },
       ],
    },
    {
@@ -68,7 +141,11 @@ export const VERSIONS: IVersion[] = [
       description: "Correctifs divers",
       changes: [
          {
-            description: "Amélioration de l'exportation des aménagements",
+            description: "Exportation des aménagements",
+            type: "add",
+         },
+         {
+            description: "Amélioration de l'exportation des aménagements par bénéficiaires",
             type: "fix",
          },
          {
