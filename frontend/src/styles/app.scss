@@ -1,10 +1,13 @@
+@use "sass:color";
+@use "sass:meta";
+@use "helpers";
+
+@use "variables";
 @import "noir-pro/styles.css";
 @import "opendyslexic/styles.css";
 @import "lexend/styles.css";
-@import "helpers";
-@import "variables";
-@import "root_variables";
-@import "accessibilite";
+@include meta.load-css("root_variables");
+@include meta.load-css("accessibilite");
 
 
 body {
@@ -15,7 +18,7 @@ body {
 }
 
 .full-app {
-  background-image: radial-gradient(#e0e0e0 0%, $light-grey 80%);
+  background-image: radial-gradient(#e0e0e0 0%, variables.$light-grey 80%);
 }
 
 .header-skip-nav {
@@ -94,7 +97,7 @@ body {
 }
 
 .text-primary, .text-primary input, .text-primary .ant-input-group-addon {
-  color: $primary !important;
+  color: variables.$primary !important;
 }
 
 .text-white {
@@ -102,11 +105,11 @@ body {
 }
 
 .text-primary-light {
-  color: $primary-light !important;
+  color: variables.$primary-light !important;
 }
 
 .text-primary-contrast {
-  color: $primary-contrast !important;
+  color: variables.$primary-contrast !important;
 }
 
 .text-app {
@@ -114,28 +117,28 @@ body {
 }
 
 .text-app-dark {
-  color: $orange !important;
+  color: variables.$orange !important;
 }
 
 
 .text-text, .text-text input, .text-text .ant-input-group-addon {
-  color: $text !important;
+  color: variables.$text !important;
 
   &:hover {
-    color: $text !important;
+    color: variables.$text !important;
   }
 }
 
 .text-warning {
-  color: $warning !important;
+  color: variables.$warning !important;
 }
 
 .text-success {
-  color: $success !important;
+  color: variables.$success !important;
 }
 
 .text-danger, .text-error {
-  color: $error !important;
+  color: variables.$error !important;
 }
 
 .bg-transparent {
@@ -152,28 +155,28 @@ body {
 }
 
 .bg-primary {
-  background-color: $primary !important;
+  background-color: variables.$primary !important;
 }
 
 .bg-primary-light {
-  background-color: $primary-light !important;
+  background-color: variables.$primary-light !important;
 
   .ant-table-column-sort {
-    background-color: $primary-light !important;
+    background-color: variables.$primary-light !important;
   }
 }
 
 .bg-primary-light-hover:hover {
-  background-color: $primary-light !important;
+  background-color: variables.$primary-light !important;
   transition: background-color .3s;
 }
 
 .bg-app-light {
-  background-color: $app-light !important;
+  background-color: variables.$app-light !important;
 }
 
 .bg-app {
-  background-color: $app !important;
+  background-color: variables.$app !important;
 }
 
 
@@ -182,19 +185,19 @@ body {
 }
 
 b, .bold {
-  font-weight: $fw-bold !important;
+  font-weight: variables.$fw-bold !important;
 }
 
 .semi-bold, .semi-bold .ant-select-selection-item {
-  font-weight: $fw-semi-bold !important;
+  font-weight: variables.$fw-semi-bold !important;
 }
 
 .fw-regular {
-  font-weight: $fw-regular;
+  font-weight: variables.$fw-regular;
 }
 
 .light {
-  font-weight: $fw-light;
+  font-weight: variables.$fw-light;
 }
 
 h3, h4 {
@@ -206,12 +209,12 @@ h3, h4 {
 }
 
 .ant-segmented {
-  background-color: $light-grey;
+  background-color: variables.$light-grey;
   font-weight: 300;
 
   .ant-segmented-item-selected {
     background-color: var(--color-app);
-    color: $text;
+    color: variables.$text;
     border-radius: 100em;
     font-weight: 400;
   }
@@ -224,86 +227,86 @@ h3, h4 {
 
 .bg-intervenant, .bg-ROLE_INTERVENANT {
   background-color: var(--color-intervenant);
-  color: $text;
+  color: variables.$text;
 }
 
 .bg-beneficiaire, .bg-ROLE_BENEFICIAIRE {
   background-color: var(--color-beneficiaire) !important;
-  color: $text;
+  color: variables.$text;
 }
 
 .bg-beneficiaire-light {
   background-color: var(--color-beneficiaire-light);
-  color: $text;
+  color: variables.$text;
 }
 
 .bg-demandeur, .bg-ROLE_DEMANDEUR {
   background-color: var(--color-demandeur) !important;
-  color: $text;
+  color: variables.$text;
 }
 
 .bg-demandeur-light {
   background-color: var(--color-demandeur-light);
-  color: $text;
+  color: variables.$text;
 }
 
 .bg-renfort, .bg-ROLE_RENFORT {
   background-color: var(--color-renfort);
-  color: $text;
+  color: variables.$text;
 }
 
 .bg-renfort-light {
   background-color: var(--color-renfort-light);
-  color: $text;
+  color: variables.$text;
 }
 
 .bg-intervenant-light {
   background-color: var(--color-intervenant-light);
-  color: $text;
+  color: variables.$text;
 }
 
 .bg-light-grey {
-  background-color: $light-grey !important;
+  background-color: variables.$light-grey !important;
 }
 
 .text-intervenant {
-  color: $intervenant;
+  color: variables.$intervenant;
 }
 
 .text-beneficiaire {
-  color: $beneficiaire;
+  color: variables.$beneficiaire;
 }
 
 .text-legende {
-  color: $legende !important;
+  color: variables.$legende !important;
 }
 
 .text-grey {
-  color: $light-color !important;
+  color: variables.$light-color !important;
 }
 
 .text-light {
-  color: $light-color;
+  color: variables.$light-color;
 }
 
 .border-intervenant {
-  border-color: $intervenant !important;
+  border-color: variables.$intervenant !important;
 }
 
 .border-beneficiaire {
-  border-color: $beneficiaire !important;
+  border-color: variables.$beneficiaire !important;
 }
 
 .border-error, .border-error-hover:hover {
-  border-color: $error !important;
+  border-color: variables.$error !important;
 }
 
 .border-text {
-  border-color: $text !important;
+  border-color: variables.$text !important;
 }
 
 .legende {
-  color: $legende;
+  color: variables.$legende;
   font-size: 0.9rem;
   font-style: italic;
   font-weight: initial;
@@ -371,7 +374,7 @@ h3, h4 {
 
 .ant-list.selectable {
   .ant-list-item {
-    border-radius: $radius;
+    border-radius: variables.$radius;
     padding: 10px;
     cursor: pointer;
 
@@ -382,11 +385,11 @@ h3, h4 {
 }
 
 .border-radius {
-  border-radius: $radius !important;
+  border-radius: variables.$radius !important;
 }
 
 .border-radius-left {
-  border-radius: $radius 0 0 $radius !important;
+  border-radius: variables.$radius 0 0 variables.$radius !important;
 }
 
 .ant-card-hoverable:hover {
@@ -403,15 +406,15 @@ th.pointer {
 }
 
 .avatar-campus {
-  background-color: $primary;
+  background-color: variables.$primary;
 }
 
 .ant-switch-danger.ant-switch.ant-switch-checked {
-  background-color: $warning !important;
+  background-color: variables.$warning !important;
 }
 
 .ant-space-item-split {
-  color: $light-grey-border-dark
+  color: variables.$light-grey-border-dark
 }
 
 .tab-bordered {
@@ -422,7 +425,7 @@ th.pointer {
   .ant-tabs-content-holder {
     border: 1px solid #f0f0f0;
     border-top: transparent;
-    border-radius: 0 $radius $radius $radius;
+    border-radius: 0 variables.$radius variables.$radius variables.$radius;
     padding: 20px;
     height: 62vh;
     overflow: auto;
@@ -438,7 +441,7 @@ th.pointer {
 .input-unstyled, .input-unstyled input, .input-unstyled .ant-input-group-addon {
   border: none !important;
   background-color: transparent !important;
-  color: $text;
+  color: variables.$text;
 }
 
 .table-responsive .ant-table {
@@ -452,9 +455,9 @@ th.pointer {
   tbody tr:hover {
     td {
       transition: background-color .3s;
-      border-top: 1px solid darken($light-grey-border-dark, 10%);
-      border-bottom: 1px solid darken($light-grey-border-dark, 10%);
-      background-color: darken($light-grey, 1%);
+      border-top: 1px solid color.adjust(variables.$light-grey-border-dark, $lightness: -10%);
+      border-bottom: 1px solid color.adjust(variables.$light-grey-border-dark, $lightness: -10%);
+      background-color: color.adjust(variables.$light-grey, $lightness: -1%);
     }
   }
 }
@@ -464,7 +467,7 @@ th.pointer {
 }
 
 .ant-table-caption {
-  background-color: $light-grey;
+  background-color: variables.$light-grey;
 }
 
 .float-button-fix .ant-float-btn-body {
@@ -490,11 +493,11 @@ th.pointer {
 }
 
 .ant-table table tbody tr, .appear {
-  animation: $anim-appear;
+  animation: helpers.$anim-appear;
 }
 
 .ant-avatar {
-  animation: $anim-avatar-appear;
+  animation: helpers.$anim-avatar-appear;
 
   &:has(img) {
     background-color: transparent !important;
@@ -502,17 +505,17 @@ th.pointer {
 
   img {
     object-fit: contain;
-    border-radius: $radius;
+    border-radius: variables.$radius;
   }
 }
 
 .ant-tag {
-  animation: $anim-appear;
+  animation: helpers.$anim-appear;
 }
 
 .ant-tag-yellow {
-  border-color: $app-contrast !important;
-  color: $app-contrast !important;
+  border-color: variables.$app-contrast !important;
+  color: variables.$app-contrast !important;
 }
 
 .ant-menu.ant-menu-sub.ant-menu-vertical {
@@ -544,7 +547,7 @@ th.pointer {
 }
 
 .table-row-deleted {
-  background-color: $light-grey;
+  background-color: variables.$light-grey;
   opacity: .75;
   filter: grayscale(1);
 }
@@ -579,14 +582,14 @@ th.pointer {
     border-left: 1px solid #f0f0f0;
     border-right: 1px solid #f0f0f0;
     border-bottom: 1px solid #f0f0f0;
-    border-radius: 0 0 $radius $radius;
+    border-radius: 0 0 variables.$radius variables.$radius;
     padding: 20px;
   }
 }
 
 .btn-danger-hover:hover {
-  border-color: $error !important;
-  color: $error !important;
+  border-color: variables.$error !important;
+  color: variables.$error !important;
 }
 
 .btn-label-hover {
@@ -611,15 +614,15 @@ th.pointer {
 
 .ant-list-bordered {
   border: 1px solid #f0f0f0;
-  border-radius: $radius;
+  border-radius: variables.$radius;
 }
 
 .ant-list-radius {
 
   .ant-list-item {
-    border: 1px solid $light-grey-border !important;
+    border: 1px solid variables.$light-grey-border !important;
     padding: 16px;
-    border-radius: $radius;
+    border-radius: variables.$radius;
 
     &:not(:last-child) {
       margin-bottom: 8px;
@@ -627,7 +630,7 @@ th.pointer {
 
     &:hover {
       transition: all .5s;
-      background-color: $light-grey;
+      background-color: variables.$light-grey;
       @extend .shadow-1;
     }
   }
@@ -676,9 +679,9 @@ th.pointer {
 }
 
 .tag-beneficiaire {
-  background-color: $app !important;
-  border-color: $app !important;
-  color: $text !important;
+  background-color: variables.$app !important;
+  border-color: variables.$app !important;
+  color: variables.$text !important;
 
   &.tag-beneficiaire-big {
     font-size: 1.05rem;
@@ -702,8 +705,8 @@ th.pointer {
 }
 
 .btb-1 {
-  border-top: 2px solid $light-grey-border;
-  border-bottom: 2px solid $light-grey-border;
+  border-top: 2px solid variables.$light-grey-border;
+  border-bottom: 2px solid variables.$light-grey-border;
 }
 
 .avisese-non-en-cours {
@@ -720,7 +723,7 @@ th.pointer {
 }
 
 .ant-badge-color-yellow {
-  color: $text !important;
+  color: variables.$text !important;
 }
 
 .ant-tag, .ant-tag .ant-typography {
@@ -733,7 +736,7 @@ th.pointer {
 
 
 .border-split-left {
-  border-left: 3px solid $light-grey-border-dark;
+  border-left: 3px solid variables.$light-grey-border-dark;
 
   &:before {
     content: '';
@@ -742,7 +745,7 @@ th.pointer {
     top: -3px;
     height: 3px;
     width: 11px;
-    background-color: lighten($light-grey-border-dark, 25%);
+    background-color: color.adjust(variables.$light-grey-border-dark, $lightness: 25%);
   }
 
   &:after {
@@ -752,12 +755,12 @@ th.pointer {
     bottom: -3px;
     height: 3px;
     width: 11px;
-    background-color: lighten($light-grey-border-dark, 25%);
+    background-color: color.adjust(variables.$light-grey-border-dark, $lightness: 25%);
   }
 }
 
 .ant-empty .ant-empty-description {
-  color: $text;
+  color: variables.$text;
 }
 
 
@@ -789,22 +792,22 @@ th.pointer {
 
 .ant-tag-red {
   background: var(--color-light-red) !important;
-  color: $text !important;
+  color: variables.$text !important;
   border-color: var(--color-red) !important;
 }
 
 .ant-tag-orange {
   background: var(--color-light-orange) !important;
-  color: $text !important;
+  color: variables.$text !important;
     border-color: var(--color-orange) !important;
 }
 
 .ant-tag-volcano {
   background: var(--color-light-deepOrange) !important;
-  color: $text !important;
+  color: variables.$text !important;
   border-color: var(--color-deepOrange) !important;
 }
 
 .ant-list .ant-list-item .ant-list-item-meta .ant-list-item-meta-description {
-  color: $legende;
+  color: variables.$legende;
 }
