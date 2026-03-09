@@ -112,7 +112,7 @@ export function amenagementsBeneficiaireTableColumns(props: {
    return [
       {
          title: "Bénéficiaire",
-         // fixed: "left",
+         fixed: "left",
          dataIndex: "key",
          sortDirections: ["ascend", "descend"],
          sorter: true,

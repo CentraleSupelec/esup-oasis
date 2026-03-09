@@ -145,7 +145,7 @@ export function AmenagementsBeneficiaireTable(props: {
       function handleScroll() {
          const table = document.querySelector("table") as HTMLElement;
          const tHead = document.querySelector(".ant-table-thead") as HTMLElement;
-         tHead.style.top = `${document.documentElement.scrollTop - (table.getBoundingClientRect().top + window.scrollY - 80)}px`;
+         tHead.style.top = `${document.documentElement.scrollTop - (table.getBoundingClientRect().top + window.scrollY)}px`;
       }
 
       window.addEventListener("scroll", handleScroll);
