@@ -38,28 +38,25 @@ use Symfony\Contracts\Service\Attribute\Required;
 
 class DemandeManager
 {
-
     use ClockAwareTrait;
 
     private UtilisateurManager $utilisateurManager;
 
-    public function __construct(private readonly DemandeRepository                 $demandeRepository,
-                                private readonly EtatDemandeRepository             $etatDemandeRepository,
-                                private readonly ModificationEtatDemandeRepository $modificationEtatDemandeRepository,
-                                private readonly ProfilBeneficiaireRepository      $profilBeneficiaireRepository,
-                                private readonly ReponseRepository                 $reponseRepository,
-                                private readonly MessageBusInterface               $messageBus,
-                                private readonly Security                          $security)
-    {
-
-    }
+    public function __construct(
+        private readonly DemandeRepository $demandeRepository,
+        private readonly EtatDemandeRepository $etatDemandeRepository,
+        private readonly ModificationEtatDemandeRepository $modificationEtatDemandeRepository,
+        private readonly ProfilBeneficiaireRepository $profilBeneficiaireRepository,
+        private readonly ReponseRepository $reponseRepository,
+        private readonly MessageBusInterface $messageBus,
+        private readonly Security $security,
+    ) {}
 
     #[Required]
     public function setUtilisateurManager(UtilisateurManager $utilisateurManager): void
     {
         $this->utilisateurManager = $utilisateurManager;
     }
-
 
     public function getDemande(int $idDemande): ?Demande
     {
@@ -76,10 +73,14 @@ class DemandeManager
         return $this->profilBeneficiaireRepository->find($idProfil);
     }
 
-    public function logModificationEtat(int     $idDemande, int $idEtat, int $idEtatPrecedent,
-                                        ?int    $idProfil, Utilisateur $utilisateur,
-                                        ?string $commentaire): ModificationEtatDemande
-    {
+    public function logModificationEtat(
+        int $idDemande,
+        int $idEtat,
+        int $idEtatPrecedent,
+        ?int $idProfil,
+        Utilisateur $utilisateur,
+        ?string $commentaire,
+    ): ModificationEtatDemande {
         $modif = new ModificationEtatDemande();
         $modif->setCommentaire($commentaire);
         $modif->setDemande($this->getDemande($idDemande));
@@ -87,9 +88,8 @@ class DemandeManager
         $modif->setEtatPrecedent($this->getEtatDemande($idEtatPrecedent));
         $modif->setProfil(match ($idProfil) {
             null => null,
-            default => $this->getProfil($idProfil)
-        }
-        );
+            default => $this->getProfil($idProfil),
+        });
         $modif->setUtilisateur($utilisateur);
         $modif->setDateModification($this->now());
 
@@ -106,10 +106,13 @@ class DemandeManager
         return match ($demande->getCampagne()->getTypeDemande()->isAccompagnementOptionnel()) {
             false => true,
             default => current($this->reponseRepository->findBy([
-                    'repondant' => $demande->getDemandeur(),
-                    'campagne' => $demande->getCampagne(),
-                    'question' => Question::QUESTION_DEMANDE_ACCOMPAGNEMENT,
-                ]))->getOptionsChoisies()->current()->getId() === OptionReponse::OPTION_DEMANDE_ACCOMPAGNEMENT_OUI
+                'repondant' => $demande->getDemandeur(),
+                'campagne' => $demande->getCampagne(),
+                'question' => Question::QUESTION_DEMANDE_ACCOMPAGNEMENT,
+            ]))
+                ->getOptionsChoisies()
+                ->current()
+                ->getId() === OptionReponse::OPTION_DEMANDE_ACCOMPAGNEMENT_OUI,
         };
     }
 
@@ -122,9 +125,13 @@ class DemandeManager
      * @return Demande
      * @throws ErreurLdapException
      */
-    public function modifierDemande(Demande $demande, int $idEtat, ?string $commentaire,
-                                    ?int    $profilId = null, Utilisateur|string|null $user = null): Demande
-    {
+    public function modifierDemande(
+        Demande $demande,
+        int $idEtat,
+        ?string $commentaire,
+        ?int $profilId = null,
+        Utilisateur|string|null $user = null,
+    ): Demande {
         $etat = $this->etatDemandeRepository->find($idEtat);
         $etatPrecedent = $demande->getEtat();
         $demande->setEtat($etat);
@@ -155,8 +162,8 @@ class DemandeManager
                     $demande->getEtat()->getId(),
                     $user->getUserIdentifier(),
                     $commentaire,
-                    $profilId ?? $demande->getProfilAttribue()?->getId()
-                )
+                    $profilId ?? $demande->getProfilAttribue()?->getId(),
+                ),
             );
         }
         return $demande;
@@ -173,9 +180,9 @@ class DemandeManager
                 'repondant' => $demande->getDemandeur(),
                 'campagne' => $demande->getCampagne(),
             ]),
-            fn(Reponse $reponse) => $reponse->getQuestion()->getTableOptions() === 'typologie_handicap'
+            fn(Reponse $reponse) => $reponse->getQuestion()->getTableOptions() === 'typologie_handicap',
         );
-        return empty($reponsesTypologies) ? [] : (current($reponsesTypologies))->getTypologiesHandicap()->toArray();
+        return empty($reponsesTypologies) ? [] : current($reponsesTypologies)->getTypologiesHandicap()->toArray();
     }
 
     /**
@@ -186,10 +193,9 @@ class DemandeManager
      */
     public function ajouterChartes(Demande $demande): void
     {
-        $chartesDemandeurExistantes = array_map(
-            fn(CharteDemandeur $charteDemandeur) => $charteDemandeur->getCharte()->getId(),
-            $demande->getChartes()->toArray()
-        );
+        $chartesDemandeurExistantes = array_map(fn(CharteDemandeur $charteDemandeur) => $charteDemandeur
+            ->getCharte()
+            ->getId(), $demande->getChartes()->toArray());
 
         foreach ($demande->getProfilAttribue()->getChartes() as $charte) {
             if (in_array($charte->getId(), $chartesDemandeurExistantes)) {
@@ -228,8 +234,10 @@ class DemandeManager
      * @return TableauDeBord
      * @throws ErreurLdapException
      */
-    public function tableauDeBord(?\App\ApiResource\Utilisateur $utilisateur, TableauDeBord $tdb = new TableauDeBord()): TableauDeBord
-    {
+    public function tableauDeBord(
+        ?\App\ApiResource\Utilisateur $utilisateur,
+        TableauDeBord $tdb = new TableauDeBord(),
+    ): TableauDeBord {
         if (null === $utilisateur) {
             $utilisateur = $this->security->getUser();
         } else {
@@ -238,17 +246,15 @@ class DemandeManager
 
         $demandesParEtat = $this->demandeRepository->countDemandesEnCoursParEtat($utilisateur);
 
-        $tdb->nbDemandesEnCours = array_sum(
-            array_map(fn(array $demande) => $demande['nb'], $demandesParEtat),
-        );
+        $tdb->nbDemandesEnCours = array_sum(array_map(fn(array $demande) => $demande['nb'], $demandesParEtat));
 
         $tdb->nbDemandesParEtat = [];
-        foreach ($demandesParEtat as $etatId => $nbDemandes) {
-            $etatUri = \App\ApiResource\EtatDemande::COLLECTION_URI . '/' . $etatId;
-            $tdb->nbDemandesParEtat[$etatUri] = $nbDemandes;
+
+        foreach ($demandesParEtat as $nbDemandes) {
+            $etatUri = \App\ApiResource\EtatDemande::COLLECTION_URI . '/' . $nbDemandes['id'];
+            $tdb->nbDemandesParEtat[$etatUri] = $nbDemandes['nb'];
         }
 
         return $tdb;
     }
-
 }
