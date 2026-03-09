@@ -69,7 +69,7 @@ export function DemandeTableFilters(props: {
          items={[
             {
                key: "filter_save",
-               ref: props.refs.favoris,
+               ref: props.refs.favoris as React.RefObject<HTMLDivElement>,
                label: (
                   <>
                      <FiltreFavoriDropDown
@@ -91,7 +91,7 @@ export function DemandeTableFilters(props: {
             },
             {
                key: "filters",
-               ref: props.refs.filtres,
+               ref: props.refs.filtres as React.RefObject<HTMLDivElement>,
                label: (
                   <>
                      <FilterOutlined className="float-right" style={{ marginTop: 4 }} aria-hidden />

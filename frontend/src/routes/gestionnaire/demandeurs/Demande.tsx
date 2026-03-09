@@ -20,8 +20,8 @@ import { DemandeurTour } from "../../../controls/Demande/Tour/DemandeurTour";
 import { env } from "../../../env";
 
 export type RefsTourDemande = {
-   avancement: React.RefObject<HTMLDivElement>;
-   dossier: React.RefObject<HTMLDivElement>;
+   avancement: React.RefObject<HTMLDivElement | null>;
+   dossier: React.RefObject<HTMLDivElement | null>;
 };
 
 /**

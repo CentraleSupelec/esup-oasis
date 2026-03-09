@@ -17,10 +17,10 @@ import { DemandeursTour } from "../../../controls/Demande/Tour/DemandeursTour";
 import { env } from "../../../env";
 
 export type RefsTourDemandes = {
-   table: React.RefObject<HTMLDivElement>;
-   filtres: React.RefObject<HTMLDivElement>;
-   filtresDetails: React.RefObject<HTMLDivElement>;
-   favoris: React.RefObject<HTMLDivElement>;
+   table: React.RefObject<HTMLDivElement | null>;
+   filtres: React.RefObject<HTMLDivElement | null>;
+   filtresDetails: React.RefObject<HTMLDivElement | null>;
+   favoris: React.RefObject<HTMLDivElement | null>;
 };
 
 /**
