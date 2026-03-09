@@ -249,9 +249,9 @@ class DemandeManager
         $tdb->nbDemandesEnCours = array_sum(array_map(fn(array $demande) => $demande['nb'], $demandesParEtat));
 
         $tdb->nbDemandesParEtat = [];
-        foreach ($demandesParEtat as $etatId => $nbDemandes) {
-            $etatUri = \App\ApiResource\EtatDemande::COLLECTION_URI . '/' . $etatId;
-            $tdb->nbDemandesParEtat[$etatUri] = $nbDemandes;
+        foreach ($demandesParEtat as $nbDemandes) {
+            $etatUri = \App\ApiResource\EtatDemande::COLLECTION_URI . '/' . $nbDemandes['id'];
+            $tdb->nbDemandesParEtat[$etatUri] = $nbDemandes['nb'];
         }
 
         return $tdb;
