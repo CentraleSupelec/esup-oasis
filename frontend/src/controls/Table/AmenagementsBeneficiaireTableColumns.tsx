@@ -78,6 +78,7 @@ export function amenagementsBeneficiaireTableColumns(props: {
    categoriesAmenagements: ICategorieAmenagement[];
    navigate: NavigateFunction;
    user: Utilisateur;
+   fixPremiereColonne: boolean;
 }): ColumnsType<IBeneficiaire> {
    function buildHierarchie(): AmenagementBeneficiaireHierarchie[] {
       const hierarchie: Record<string, any> = [];
@@ -112,7 +113,7 @@ export function amenagementsBeneficiaireTableColumns(props: {
    return [
       {
          title: "Bénéficiaire",
-         fixed: "left",
+         fixed: props.fixPremiereColonne ? "left": undefined,
          dataIndex: "key",
          sortDirections: ["ascend", "descend"],
          sorter: true,

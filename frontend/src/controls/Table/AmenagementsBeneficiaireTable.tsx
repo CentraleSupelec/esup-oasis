@@ -24,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { ModeAffichageAmenagement } from "../../routes/gestionnaire/beneficiaires/Amenagements";
 import { useAuth } from "../../auth/AuthProvider";
 import { Utilisateur } from "../../lib/Utilisateur";
+import useBreakpoint from "antd/es/grid/hooks/useBreakpoint";
 
 export type TypesDomainesAmenagements = {
    typeAmenagement: ITypeAmenagement;
@@ -111,6 +112,7 @@ export function AmenagementsBeneficiaireTable(props: {
 }) {
    const user = useAuth().user;
    const navigate = useNavigate();
+   const screens = useBreakpoint();
    const { data: amenagements, isFetching } = useApi().useGetCollection({
       path: "/amenagements/utilisateurs",
       query: filtreAmenagementToApi(
@@ -194,6 +196,7 @@ export function AmenagementsBeneficiaireTable(props: {
                categoriesAmenagements: props.categoriesAmenagements || [],
                navigate: navigate,
                user: user as Utilisateur,
+               fixPremiereColonne: screens.lg || false,
             })}
          />
       </>
