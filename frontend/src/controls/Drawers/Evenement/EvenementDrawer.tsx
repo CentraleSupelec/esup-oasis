@@ -48,7 +48,7 @@ export default function EvenementDrawer({ id }: IEvenementDrawer): ReactElement 
 
    return (
       <Drawer
-         destroyOnClose
+         destroyOnHidden
          title={"Évènement".toLocaleUpperCase()}
          placement="right"
          onClose={handleClose}
@@ -56,7 +56,7 @@ export default function EvenementDrawer({ id }: IEvenementDrawer): ReactElement 
          width="33%"
          className="oasis-drawer"
       >
-         <Space direction="vertical" className="text-center w-100 mb-3 mt-1">
+         <Space orientation="vertical" className="text-center w-100 mb-3 mt-1">
             <Avatar size={100} icon={<UserOutlined />} className="bg-evenement shadow-1" />
             <span className="fs-15 semi-bold">Jacques MARTIN</span>
          </Space>

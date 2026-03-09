@@ -124,7 +124,7 @@ export default function ReferentsTable({ onEdit }: TableReferentsProps) {
                            return <MinusOutlined />;
                         }
                         return (
-                           <Space direction="vertical" size={2} className="w-100">
+                           <Space orientation="vertical" size={2} className="w-100">
                               {values.map((value) => (
                                  <Flex key={value} justify="space-between" className="w-100">
                                     <GestionnaireItem gestionnaireId={value} />

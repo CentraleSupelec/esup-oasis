@@ -151,7 +151,7 @@ export default function UtilisateurDrawer({ id, onClose }: IUtilisateurDrawerPro
    if (getRole() === "intervenant")
       return (
          <Form form={form}>
-            <Alert message="Rôle de l'utilisateur inconnu" type="error" />
+            <Alert title="Rôle de l'utilisateur inconnu" type="error" />
          </Form>
       );
 
@@ -236,7 +236,7 @@ export default function UtilisateurDrawer({ id, onClose }: IUtilisateurDrawerPro
 
    return (
       <Drawer
-         destroyOnClose
+         destroyOnHidden
          title={
             role ? getRoleLabel(getRole() as RoleValues).toLocaleUpperCase() : "PROFIL UTILISATEUR"
          }
@@ -246,7 +246,7 @@ export default function UtilisateurDrawer({ id, onClose }: IUtilisateurDrawerPro
          size="large"
          className="oasis-drawer"
       >
-         <Space direction="vertical" className="text-center w-100 mb-3 mt-1">
+         <Space orientation="vertical" className="text-center w-100 mb-3 mt-1">
             <UtilisateurAvatarImage
                utilisateurId={utilisateur["@id"] as string}
                height={220}
@@ -291,7 +291,7 @@ export default function UtilisateurDrawer({ id, onClose }: IUtilisateurDrawerPro
                <Form.Item className="mt-2 text-center">
                   {isBeneficiaireSansProfil && (
                      <Alert
-                        message={
+                        title={
                            <>
                               Attention, un bénéficiaire doit au minimum avoir un <b>profil</b>.
                            </>
@@ -302,7 +302,7 @@ export default function UtilisateurDrawer({ id, onClose }: IUtilisateurDrawerPro
                   )}
                   {isIntervenantSansTypeEvenement && (
                      <Alert
-                        message={
+                        title={
                            <>
                               Attention, un intervenant doit au minimum être lié à une{" "}
                               <b>catégorie</b> d'évènement.

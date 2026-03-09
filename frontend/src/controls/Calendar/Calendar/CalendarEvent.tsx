@@ -154,7 +154,7 @@ export default memo(
                <div>
                   {event.data.dateAnnulation && (
                      <Alert
-                        message="Évènement annulé"
+                        title="Évènement annulé"
                         description="L'intervenant sera tout de même payé."
                         type="warning"
                         showIcon
@@ -163,14 +163,14 @@ export default memo(
                   )}
                   {!event.data.isAffecte() && (
                      <Alert
-                        message="Évènement en attente d'affectation"
+                        title="Évènement en attente d'affectation"
                         description="Aucun intervenant n'est affecté à cet évènement."
                         type="error"
                         showIcon
                         className="mb-2"
                      />
                   )}
-                  <Space direction="vertical" size="small">
+                  <Space orientation="vertical" size="small">
                      <Space size="large">
                         <div style={{ width: 100 }}>Date</div>
                         <span className="light">
@@ -196,7 +196,7 @@ export default memo(
                      {event.data.type !== TYPE_EVENEMENT_RENFORT && (
                         <Space size="large">
                            <div style={{ width: 100 }}>Bénéficiaire</div>
-                           <Space direction="vertical" className="light">
+                           <Space orientation="vertical" className="light">
                               {event.data.beneficiaires?.map((b) => (
                                  <EtudiantItem
                                     key={b}
@@ -225,7 +225,7 @@ export default memo(
                            Enseignant{(event.data.enseignants?.length || 0) > 1 ? "s" : ""}
                         </div>
                         <span className="light">
-                           <Space direction="vertical">
+                           <Space orientation="vertical">
                               {event.data.enseignants?.map((b) => (
                                  <GestionnaireItem key={b} gestionnaireId={b} />
                               )) || <MinusOutlined />}
@@ -234,7 +234,7 @@ export default memo(
                      </Space>
                      <Space size="large">
                         <div style={{ width: 100 }}>Localisation</div>
-                        <Space direction="horizontal">
+                        <Space orientation="horizontal">
                            <CampusItem className="light" campusId={event.data.campus} />
                            {event.data.salle && (
                               <>
@@ -247,7 +247,7 @@ export default memo(
 
                      <Space size="large">
                         <div style={{ width: 100 }}>Equipements</div>
-                        <Space direction="vertical" className="light">
+                        <Space orientation="vertical" className="light">
                            {event.data.equipements?.map((e) => (
                               <TypeEquipementItem key={e} typeEquipementId={e} />
                            ))}

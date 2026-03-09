@@ -114,7 +114,7 @@ export function beneficiaireTableColumns({
                      <Space
                         key={inscription["@id"]}
                         className="mt-05 mb-05"
-                        direction="vertical"
+                        orientation="vertical"
                         size={2}
                      >
                         <ComposanteItem composanteId={inscription?.formation?.composante} />

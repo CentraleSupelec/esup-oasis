@@ -60,7 +60,7 @@ export function DecisionEtablissementAvatar(props: {
       case EtatDecisionEtablissement.ATTENTE_VALIDATION_CAS:
          return (
             <Tooltip title="En attente validation CAS">
-               <Space size={2} direction={props.direction}>
+               <Space size={2} orientation={props.direction}>
                   <HourglassOutlined
                      aria-hidden
                      aria-label="En attente validation CAS"
@@ -74,7 +74,7 @@ export function DecisionEtablissementAvatar(props: {
       case EtatDecisionEtablissement.VALIDE:
          return (
             <Tooltip title="Validé CAS, à éditer">
-               <Space size={2} direction={props.direction}>
+               <Space size={2} orientation={props.direction}>
                   <FileDoneOutlined
                      aria-hidden
                      aria-label="Validé CAS, à éditer"
@@ -88,7 +88,7 @@ export function DecisionEtablissementAvatar(props: {
       case EtatDecisionEtablissement.EDITION_DEMANDEE:
          return (
             <Tooltip title="En cours d'envoi">
-               <Space size={2} direction={props.direction}>
+               <Space size={2} orientation={props.direction}>
                   <SendOutlined
                      aria-hidden
                      aria-label="En cours d'envoi"
@@ -102,7 +102,7 @@ export function DecisionEtablissementAvatar(props: {
       case EtatDecisionEtablissement.EDITE:
          return (
             <Tooltip title="Éditée">
-               <Space size={2} direction={props.direction}>
+               <Space size={2} orientation={props.direction}>
                   <CheckCircleFilled
                      aria-hidden
                      aria-label="Éditée"

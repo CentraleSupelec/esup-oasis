@@ -89,7 +89,7 @@ export function QuestionFile(props: { question: QuestionnaireQuestion }) {
 
          if (typeof file === "object" && (file as RcFile).size > MAX_FILE_SIZE * 1024 * 1024) {
             notification.error({
-               message: `Le fichier "${props.question.libelle}" dépasse la taille maximum autorisée (${MAX_FILE_SIZE} Mo).`,
+               title: `Le fichier "${props.question.libelle}" dépasse la taille maximum autorisée (${MAX_FILE_SIZE} Mo).`,
                icon: <UploadOutlined className="text-danger" aria-hidden />,
             });
             return;
@@ -119,7 +119,7 @@ export function QuestionFile(props: { question: QuestionnaireQuestion }) {
                         setSubmitting(false);
 
                         notification.success({
-                           message: `Le fichier a été chargé.`,
+                           title: `Le fichier a été chargé.`,
                            icon: <UploadOutlined className="text-success" aria-hidden />,
                         });
 
@@ -141,7 +141,7 @@ export function QuestionFile(props: { question: QuestionnaireQuestion }) {
             (error) => {
                setFileList((prev) => {
                   notification.error({
-                     message: `Erreur lors du chargement du fichier.`,
+                     title: `Erreur lors du chargement du fichier.`,
                      icon: <UploadOutlined className="text-danger" aria-hidden />,
                   });
 
@@ -199,7 +199,7 @@ export function QuestionFile(props: { question: QuestionnaireQuestion }) {
          {mode === "preview" && !props.question.reponse?.piecesJustificatives ? (
             <Form.Item
                label={
-                  <Space className="question" direction="horizontal">
+                  <Space className="question" orientation="horizontal">
                      <MinusOutlined aria-hidden={true} />
                      <div>{props.question.libelle}</div>
                   </Space>
@@ -301,7 +301,7 @@ export function QuestionFile(props: { question: QuestionnaireQuestion }) {
                   };
                }}
                label={
-                  <Space className="question" direction="horizontal">
+                  <Space className="question" orientation="horizontal">
                      <MinusOutlined aria-hidden={true} />
                      <div>{props.question.libelle}</div>
                   </Space>

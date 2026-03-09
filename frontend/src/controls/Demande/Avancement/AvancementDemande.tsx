@@ -10,7 +10,7 @@
 import { IDemande } from "../../../api/ApiTypeHelpers";
 import React, { useEffect, useState } from "react";
 import { useApi } from "../../../context/api/ApiProvider";
-import { Flex, Space, StepProps, Steps, Typography } from "antd";
+import { Flex, Space, Steps, Typography } from "antd";
 import {
    ETAT_ATTENTE_CHARTES,
    ETAT_DEMANDE_CONFORME,
@@ -130,7 +130,7 @@ export default function AvancementDemande({
                     ? "Demande d'accompagnement refusée"
                     : `Mise en place accompagnement`,
          },
-      ].filter((s) => s !== null) as StepProps[];
+      ].filter((s) => s !== null) as [];
    }
 
    if (!item) return <Spinner />;
@@ -183,14 +183,14 @@ export default function AvancementDemande({
             className="steps-avancement"
             items={getSteps(item?.etat as EtatDemande)}
             current={getEtatDemande(item?.etat as EtatDemande)?.etapeIndex}
-            labelPlacement="vertical"
+            titlePlacement="vertical"
             type={screens.md ? "navigation" : "default"}
-            direction="vertical" // screens.xl ? "horizontal" : "vertical"}
+            orientation="vertical" // screens.xl ? "horizontal" : "vertical"}
          />
          <Typography.Paragraph className={`mt-1 mb-0${screens.md ? " mt-3 text-center" : ""}`}>
             <span className="sr-only">État de votre demande :</span>
             {item?.etat && (
-               <Space direction="vertical">
+               <Space orientation="vertical">
                   <EtatDescription demande={item} />
                   {getEtatDemande(item?.etat as string)?.afficherDerniereModif && (
                      <DerniereModifDemandeLabel demandeId={item["@id"] as string} />

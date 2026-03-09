@@ -77,7 +77,7 @@ export function SportifsHautNiveauImport(props: {
             >
                <Alert
                   type="warning"
-                  message={<b className="semi-bold text-amber-dark">ATTENTION !</b>}
+                  title={<b className="semi-bold text-amber-dark">ATTENTION !</b>}
                   description={
                      <>
                         En important un nouveau fichier, vous allez SUPPRIMER l'ensemble des

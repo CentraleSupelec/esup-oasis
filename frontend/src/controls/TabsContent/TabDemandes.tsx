@@ -65,7 +65,7 @@ function TabDemandesItem({ demande }: ITabDemandesItemProps): ReactElement {
                <TypeDemandeItem typeDemandeId={demande.typeDemande} showAvatar={false} showInfos />
             }
             description={
-               <Space direction="vertical">
+               <Space orientation="vertical">
                   <Space>
                      <span>Date de dépôt</span>
                      <span className="semi-bold">

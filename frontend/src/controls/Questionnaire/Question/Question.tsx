@@ -91,7 +91,7 @@ export function Question(props: {
                   type="error"
                   icon={<ExclamationOutlined />}
                   showIcon
-                  message="Erreur"
+                  title="Erreur"
                   description="Type de question inconnu."
                />
             </Form.Item>

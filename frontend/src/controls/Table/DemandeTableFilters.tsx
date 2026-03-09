@@ -120,7 +120,7 @@ export function DemandeTableFilters(props: {
                         </Col>
 
                         <Col xs={24} sm={24} md={6}>
-                           <Space direction="vertical" size={0}>
+                           <Space orientation="vertical" size={0}>
                               <span>Types de demande</span>
                            </Space>
                         </Col>
@@ -154,7 +154,7 @@ export function DemandeTableFilters(props: {
                         </Col>
 
                         <Col xs={24} sm={24} md={6}>
-                           <Space direction="vertical" size={0}>
+                           <Space orientation="vertical" size={0}>
                               <span>États de la demande</span>
                            </Space>
                         </Col>
@@ -194,7 +194,7 @@ export function DemandeTableFilters(props: {
                         </Col>
 
                         <Col xs={24} sm={24} md={6}>
-                           <Space direction="vertical" size={0}>
+                           <Space orientation="vertical" size={0}>
                               <span aria-label="Chargés d'accompagnement">
                                  Chargé•es d'accompagnement
                               </span>
@@ -224,7 +224,7 @@ export function DemandeTableFilters(props: {
                         </Col>
 
                         <Col xs={24} sm={24} md={6}>
-                           <Space direction="vertical" size={0}>
+                           <Space orientation="vertical" size={0}>
                               <span>Disciplines sportives</span>
                            </Space>
                         </Col>
@@ -251,7 +251,7 @@ export function DemandeTableFilters(props: {
                         </Col>
 
                         <Col xs={24} sm={24} md={6}>
-                           <Space direction="vertical" size={0}>
+                           <Space orientation="vertical" size={0}>
                               <span>Composantes</span>
                            </Space>
                         </Col>
@@ -278,7 +278,7 @@ export function DemandeTableFilters(props: {
                         </Col>
 
                         <Col xs={24} sm={24} md={6}>
-                           <Space direction="vertical" size={0}>
+                           <Space orientation="vertical" size={0}>
                               <span>Formations</span>
                            </Space>
                         </Col>
@@ -308,7 +308,7 @@ export function DemandeTableFilters(props: {
                         </Col>
 
                         <Col xs={24} sm={24} md={6}>
-                           <Space direction="vertical" size={0}>
+                           <Space orientation="vertical" size={0}>
                               <span aria-label="Afficher les campagnes archivées">
                                  Afficher campagnes archivées
                               </span>

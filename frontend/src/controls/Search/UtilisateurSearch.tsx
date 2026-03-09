@@ -58,7 +58,7 @@ export function UtilisateurSearch({
 
    return (
       <Drawer
-         destroyOnClose
+         destroyOnHidden
          open={visible}
          onClose={handleClose}
          title={`Ajouter un utilisateur à ${env.REACT_APP_SERVICE}`}

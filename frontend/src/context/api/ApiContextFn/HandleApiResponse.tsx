@@ -92,7 +92,7 @@ export async function handleApiResponse(
             notif = {
                message: "Erreur d'authentification",
                description: (
-                  <Space direction="vertical">
+                  <Space orientation="vertical">
                      <div>Votre session a expiré. Veuillez vous reconnecter.</div>
                      <Button
                         icon={<LoginOutlined />}

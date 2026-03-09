@@ -121,7 +121,7 @@ function TauxHoraireFormItem({
                   title={<>Édition du taux horaire</>}
                   avatar={<EditOutlined />}
                   description={
-                     <Space direction="vertical" className="text-text">
+                     <Space orientation="vertical" className="text-text">
                         <Space>
                            <span>Début</span>
                            <DatePicker

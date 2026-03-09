@@ -82,7 +82,7 @@ export default function validationInterventionTableColumns({
             const dureeSupplementaire =
                (record.tempsSupplementaire || 0) + (record.tempsPreparation || 0);
             return (
-               <Space direction="vertical" size={0}>
+               <Space orientation="vertical" size={0}>
                   <Space>
                      {nbMinutes}
                      {dureeSupplementaire > 0 && <span> + {dureeSupplementaire}</span>} minutes

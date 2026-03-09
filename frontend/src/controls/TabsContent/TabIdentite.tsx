@@ -60,7 +60,10 @@ export function TabIdentite(props: {
 
    const mutateDemande = useApi().usePatch({
       path: "/demandes/{id}",
-      onSuccess: () => message.success("Commentaire enregistré").then(),
+      invalidationQueryKeys: [props.demandeId as string],
+      onSuccess: () => {
+         message.success("Commentaire enregistré").then();
+      },
    });
 
    const mutateUtilisateur = useApi().usePatch({
@@ -228,7 +231,7 @@ export function TabIdentite(props: {
                      <Descriptions.Item label="Régime d'inscription">
                         {utilisateur?.statutEtudiant}
                      </Descriptions.Item>
-                     <Descriptions.Item label="Inscriptions" labelStyle={{ width: 200 }}>
+                     <Descriptions.Item label="Inscriptions" styles={{ label: { width: 200 } }}>
                         <h3 className="sr-only">Inscriptions</h3>
                         <Flex vertical style={{ width: "100%", overflowY: "auto" }} wrap="wrap">
                            {utilisateur.inscriptions

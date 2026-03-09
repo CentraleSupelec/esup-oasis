@@ -126,7 +126,7 @@ export function amenagementTableColumns(props: {
             );
 
             return (
-               <Space size={0} direction="vertical" style={{ width: 225 }}>
+               <Space size={0} orientation="vertical" style={{ width: 225 }}>
                   <span className="light text-legende fs-09">
                      {
                         props.categoriesAmenagements?.find(
@@ -160,7 +160,7 @@ export function amenagementTableColumns(props: {
          dataIndex: "periode",
          render: (_value: string, record: IAmenagement) => {
             return (
-               <Space direction="vertical" size={4}>
+               <Space orientation="vertical" size={4}>
                   <Space size={4}>
                      {record.semestre1 && (
                         <Tooltip title="Semestre 1">

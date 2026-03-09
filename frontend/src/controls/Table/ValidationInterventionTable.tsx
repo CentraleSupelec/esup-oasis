@@ -76,7 +76,7 @@ export default function ValidationInterventionTable() {
       if (selectedRowsKeys.length === 0) {
          // Fin du traitement
          notification.success({
-            message:
+            title:
                typeTraitement === "validation"
                   ? "Validation des interventions"
                   : "Annulation des interventions",

@@ -127,7 +127,7 @@ export default function CalendarSider({ saisieEvtRenfort = false }: ICalendarSid
                <li
                   className={`filter ${classNameByStatus(appAffichageFiltres.filtres["campus[]"])}`}
                >
-                  <Space direction="vertical" size="small" className="w-100">
+                  <Space orientation="vertical" size="small" className="w-100">
                      <span className="label">Campus</span>
                      <CampusFilter
                         value={appAffichageFiltres.filtres["campus[]"]}
@@ -144,7 +144,7 @@ export default function CalendarSider({ saisieEvtRenfort = false }: ICalendarSid
                      appAffichageFiltres.filtres.intervenantBeneficiaire,
                   )}`}
                >
-                  <Space direction="vertical" size="small" className="w-100">
+                  <Space orientation="vertical" size="small" className="w-100">
                      <span className="label">Bénéficiaire / Intervenant</span>
                      <BeneficiaireIntervenantFilter
                         value={
@@ -172,7 +172,7 @@ export default function CalendarSider({ saisieEvtRenfort = false }: ICalendarSid
                      appAffichageFiltres.filtres["utilisateurCreation[]"],
                   )}`}
                >
-                  <Space direction="vertical" size="small" className="w-100">
+                  <Space orientation="vertical" size="small" className="w-100">
                      <span className="label">
                         Gestionnaire {env.REACT_APP_SERVICE}
                         <Tooltip title="Évènements que vous avez créés">
@@ -202,7 +202,7 @@ export default function CalendarSider({ saisieEvtRenfort = false }: ICalendarSid
             )}
 
             <li className={`filter ${classNameByStatus(appAffichageFiltres.filtres.type)}`}>
-               <Space direction="vertical" size="small" className="w-100">
+               <Space orientation="vertical" size="small" className="w-100">
                   <span className="label">
                      Catégories d'évènements
                      <Button

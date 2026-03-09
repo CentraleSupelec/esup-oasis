@@ -65,7 +65,7 @@ export function EvenementResumeAutresInformations(props: { evenement: Evenement 
             {user?.isIntervenant && props.evenement && (
                <>
                   <Descriptions.Item label="Durées">
-                     <Space direction="vertical">
+                     <Space orientation="vertical">
                         {props.evenement.tempsPreparation &&
                         props.evenement.tempsPreparation > 0 ? (
                            <Space>

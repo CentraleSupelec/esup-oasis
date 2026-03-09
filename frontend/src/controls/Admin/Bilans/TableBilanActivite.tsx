@@ -118,7 +118,7 @@ export function TableBilanActivite(props: {
       path: "/suivis/activite",
       invalidationQueryKeys: ["/suivis/activite"],
       onSuccess: () => {
-         message.success("Le bilan a bien été supprimé");
+         message.success("Le bilan a bien été supprimé").then();
       },
    });
 

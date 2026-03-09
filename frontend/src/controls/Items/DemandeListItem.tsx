@@ -129,7 +129,7 @@ export default function DemandeListItem(props: { demande?: IDemande; demandeId?:
             title={typeDemandeData.libelle}
             description={
                <>
-                  <Space direction="vertical" size={3}>
+                  <Space orientation="vertical" size={3}>
                      <Space align="start" className="mb-1">
                         <EtatDemandeAvatar
                            etatDemandeId={item.etat}

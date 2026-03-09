@@ -41,7 +41,7 @@ export function DossierDemandeTabPiecesJustificatives(): React.ReactElement {
             {questions.map((question) => (
                <List.Item key={question["@id"]}>
                   <div className="w-100 d-block">
-                     <Space className="question w-100 semi-bold" direction="horizontal">
+                     <Space className="question w-100 semi-bold" orientation="horizontal">
                         <MinusOutlined aria-hidden={true} />
                         <div>{question.libelle}</div>
                      </Space>

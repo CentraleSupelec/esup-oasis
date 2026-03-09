@@ -811,3 +811,7 @@ th.pointer {
 .ant-list .ant-list-item .ant-list-item-meta .ant-list-item-meta-description {
   color: variables.$legende;
 }
+
+.ant-table-has-fix-start {
+  overflow-y: hidden;
+}

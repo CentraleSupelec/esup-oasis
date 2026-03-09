@@ -45,7 +45,7 @@ export function BeneficiaireAvisEseAvatar(props: {
       case EtatAvisEse.ETAT_EN_ATTENTE:
          return (
             <Tooltip title={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en attente`}>
-               <Space size={2} direction={props.direction}>
+               <Space size={2} orientation={props.direction}>
                   <HourglassOutlined
                      aria-hidden
                      aria-label={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en attente`}
@@ -59,7 +59,7 @@ export function BeneficiaireAvisEseAvatar(props: {
       case EtatAvisEse.ETAT_EN_COURS:
          return (
             <Tooltip title={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en cours`}>
-               <Space size={2} direction={props.direction}>
+               <Space size={2} orientation={props.direction}>
                   <CheckCircleFilled
                      aria-hidden
                      aria-label={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en cours`}

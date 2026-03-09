@@ -67,7 +67,7 @@ export const EtatDemandeAvatar: React.FC<IEtatDemandeAvatar> = memo(
 
       if (afficherDerniereModification) {
          return (
-            <Space direction="vertical" size={2}>
+            <Space orientation="vertical" size={2}>
                <Tooltip title={item?.libelle}>
                   <Tag
                      className={className}

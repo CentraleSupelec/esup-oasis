@@ -61,7 +61,7 @@ export const DerniereModifDemandeLabel: React.FC<IDerniereModifDemandeLabel> = m
                <Alert
                   className="mt-2"
                   type="info"
-                  message={title || "Complément d'information"}
+                  title={title || "Complément d'information"}
                   description={
                      <span className={classNameValue}>
                         {dernModif.items[0].commentaire ?? ifEmpty}
