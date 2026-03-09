@@ -30,7 +30,7 @@ use Symfony\Component\Serializer\Attribute\Ignore;
             'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
         ]),
         new Get(uriTemplate: self::ITEM_URI, uriVariables: ['uid', 'cle']),
-        new Put(uriTemplate: self::ITEM_URI, uriVariables: ['uid', 'cle'], allowCreate: true),
+        new Put(uriTemplate: self::ITEM_URI, uriVariables: ['uid', 'cle'], allowCreate: true, map: false),
         new Delete(uriTemplate: self::ITEM_URI, uriVariables: ['uid', 'cle']),
     ],
     openapi: new Operation(tags: ['Utilisateurs']),
@@ -80,7 +80,7 @@ class ParametreUI
             if ($this->cle === null && $this->entity !== null) {
                 $this->cle = $this->entity->getCle();
             }
-            return $this->uid ?? null;
+            return $this->cle ?? null;
         }
     }
 
