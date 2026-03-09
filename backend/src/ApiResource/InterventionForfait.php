@@ -23,9 +23,11 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Entity\Beneficiaire;
 use App\Filter\InterventionForfaitNomIntervenantOrderFilter;
 use App\Filter\NestedUtilisateurFilter;
 use App\Filter\NomIntervenantFilter;
+use App\Filter\PreloadAssociationsFilter;
 use App\State\InterventionForfait\InterventionForfaitProcessor;
 use App\State\InterventionForfait\InterventionForfaitProvider;
 use DateTimeInterface;
@@ -68,6 +70,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(InterventionForfaitNomIntervenantOrderFilter::class, properties: ['intervenant.utilisateur.nom'])]
 #[ApiFilter(DateFilter::class, properties: ['periode.debut', 'periode.fin'])]
 #[Assert\Expression(expression: 'this.type.forfait == true', message: "Type d'événement incompatible")]
+#[ApiFilter(PreloadAssociationsFilter::class)]
 class InterventionForfait
 {
     public const string COLLECTION_URI = '/interventions_forfait';
@@ -105,13 +108,23 @@ class InterventionForfait
      */
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
     #[Assert\All([new Assert\Type(Utilisateur::class)])]
-    public array $beneficiaires = [] {
+    public array $beneficiaires {
         get {
-            if (empty($this->beneficiaires) && $this->entity !== null) {
-                $this->beneficiaires = array_map(
-                    fn($b) => new Utilisateur($b->getUtilisateur()),
+            if (!isset($this->beneficiaires) && $this->entity !== null) {
+                $utilisateursBeneficiaires = array_reduce(
                     $this->entity->getBeneficiaires()->toArray(),
+                    function ($carry, Beneficiaire $item) {
+                        if (!array_key_exists($item->getUtilisateur()->getId(), $carry)) {
+                            $carry[$item->getUtilisateur()->getId()] = $item->getUtilisateur();
+                        }
+                        return $carry;
+                    },
+                    [],
                 );
+                $this->beneficiaires = array_values(array_map(
+                    fn($b) => new Utilisateur($b),
+                    $utilisateursBeneficiaires,
+                ));
             }
             return $this->beneficiaires ?? [];
         }

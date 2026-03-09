@@ -19,6 +19,7 @@ use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Charte;
 use App\ApiResource\InterventionForfait;
 use App\ApiResource\Utilisateur;
+use App\Filter\PreloadAssociationsFilter;
 use App\State\MappedCollectionPaginator;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -44,6 +45,49 @@ readonly class InterventionForfaitProvider implements ProviderInterface
                 $user = $this->security->getUser();
                 $context['filters']['intervenant'] = Utilisateur::COLLECTION_URI . '/' . $user->getUserIdentifier();
             }
+
+            //preload
+            $context['filters'][PreloadAssociationsFilter::PROPERTY] = [
+                'intervenant' => [
+                    'sourceEntity' => 'root',
+                    'relationName' => 'intervenant',
+                    'joinType' => 'INNER',
+                ],
+                'utilisateurIntervenant' => [
+                    'sourceEntity' => 'intervenant',
+                    'relationName' => 'utilisateur',
+                ],
+                'beneficiaires' => [
+                    'sourceEntity' => 'root',
+                    'relationName' => 'beneficiaires',
+                ],
+                'utilisateurBeneficiaire' => [
+                    'sourceEntity' => 'beneficiaires',
+                    'relationName' => 'utilisateur',
+                ],
+                'intervenantBeneficiaire' => [
+                    'sourceEntity' => 'utilisateurBeneficiaire',
+                    'relationName' => 'intervenant',
+                ],
+                'utilisateurCreation' => [
+                    'sourceEntity' => 'root',
+                    'relationName' => 'utilisateurCreation',
+                    'joinType' => 'INNER',
+                ],
+                'intervenantUtilisateurCreation' => [
+                    'sourceEntity' => 'utilisateurCreation',
+                    'relationName' => 'intervenant',
+                ],
+                'utilisateurModification' => [
+                    'sourceEntity' => 'root',
+                    'relationName' => 'utilisateurModification',
+                ],
+                'intervenantUtilisateurModification' => [
+                    'sourceEntity' => 'utilisateurModification',
+                    'relationName' => 'intervenant',
+                ],
+            ];
+
             $results = $this->collectionProvider->provide($operation, $uriVariables, $context);
             assert($results instanceof PaginatorInterface);
             return new MappedCollectionPaginator($results, fn($entity) => new InterventionForfait($entity));
