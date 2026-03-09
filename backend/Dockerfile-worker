@@ -1,41 +1,26 @@
 FROM php:8.4-cli
-LABEL authors="mrossard"
-
-RUN apt-get update &&  \
-    apt upgrade -y && \
-    apt-get install -y libssl-dev libldap2-dev libsodium-dev zlib1g-dev curl libcurl4-openssl-dev git unzip libxml2-dev libpq-dev  \
-                libzip-dev libaio1t64 dos2unix libldap-common gnupg2 libxml2 libxml2-dev supervisor tzdata libicu-dev
 
 ENV TZ="Europe/Paris"
 RUN echo 'date.timezone = "Europe/Paris"'> /usr/local/etc/php/conf.d/timezone.ini
 
-RUN docker-php-ext-install zip opcache curl sodium intl ldap soap pdo_pgsql pgsql xml
+# extensions php
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
-RUN pecl install apcu && docker-php-ext-enable apcu
+RUN install-php-extensions apcu zip opcache curl sodium intl ldap soap pdo_pgsql pgsql xml oci8
 
-# install oracle instantclient + php oci8
-RUN mkdir /lib/oracle/
-
-ADD https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-basic-linux.x64-21.1.0.0.0.zip /lib/oracle/
-ADD https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-sdk-linux.x64-21.1.0.0.0.zip /lib/oracle/
-
-WORKDIR /lib/oracle
-RUN unzip instantclient-basic-linux.x64-21.1.0.0.0.zip \
-    && unzip instantclient-sdk-linux.x64-21.1.0.0.0.zip \
-    && rm -f *.zip \
-    && echo /lib/oracle/instantclient_21_1 > /etc/ld.so.conf.d/oracle-instantclient.conf \
-    && ldconfig \
-    && echo 'instantclient,/lib/oracle/instantclient_21_1' | pecl install -f oci8 \
-    && docker-php-ext-enable oci8
+# Nettoyage
+RUN rm -rf /var/lib/apt/lists/* && \
+    apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
 # Récupération du dossier application
 COPY ./ /application
 WORKDIR /application/
 
 # composer
+ENV COMPOSER_ALLOW_SUPERUSER=1
 COPY --from=composer /usr/bin/composer /usr/bin/composer
-RUN chmod +x /usr/bin/composer
-RUN /usr/bin/composer install --ignore-platform-reqs
+RUN chmod +x /usr/bin/composer \
+    && /usr/bin/composer install --ignore-platform-reqs --optimize-autoloader
 
 # droits du dossier var de symfony
 RUN chmod -R a+rw ./var/
@@ -43,8 +28,5 @@ RUN chmod -R a+rw ./var/
 # Configuration Supervisor
 COPY ./docker/worker/messenger-worker.conf /etc/supervisor/conf.d/
 
-# Nettoyage
-RUN rm -rf /var/lib/apt/lists/* && \
-    apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/messenger-worker.conf"]
