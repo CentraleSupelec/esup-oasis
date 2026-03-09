@@ -1,5 +1,10 @@
 FROM php:8.4-cli
 
+RUN apt-get update &&  \
+    apt upgrade -y && \
+    apt-get install -y supervisor tzdata
+
+
 ENV TZ="Europe/Paris"
 RUN echo 'date.timezone = "Europe/Paris"'> /usr/local/etc/php/conf.d/timezone.ini
 
