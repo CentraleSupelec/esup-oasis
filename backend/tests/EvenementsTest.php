@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * Copyright (c) 2026. Esup - Université de Bordeaux.
+ *
+ * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
+ *
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
+ */
+
 namespace App\Tests;
 
 class EvenementsTest extends ApiTestCaseCustom
@@ -109,6 +119,14 @@ class EvenementsTest extends ApiTestCaseCustom
         ]);
     }
 
+    public function testPlanificateurCanDeleteEvent(): void
+    {
+        $client = $this->createClientWithCredentials('renfort');
+        $client->request('DELETE', '/evenements/1');
+
+        $this->assertResponseStatusCodeSame(204);
+    }
+
     public function testIntervenantCanSeeOwnEvents(): void
     {
         $client = $this->createClientWithCredentials('intervenant');
@@ -116,16 +134,8 @@ class EvenementsTest extends ApiTestCaseCustom
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
-            'hydra:totalItems' => 1,
+            'hydra:totalItems' => 2,
         ]);
-    }
-
-    public function testPlanificateurCanDeleteEvent(): void
-    {
-        $client = $this->createClientWithCredentials('renfort');
-        $client->request('DELETE', '/evenements/1');
-
-        $this->assertResponseStatusCodeSame(204);
     }
 
     public function testCannotDeleteEventSentToHR(): void

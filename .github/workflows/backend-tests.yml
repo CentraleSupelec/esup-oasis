@@ -1,0 +1,59 @@
+name: Backend Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main", "2.2", "2.3" ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: app_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, bcmath, ldap
+          coverage: none
+
+      - name: Install Dependencies
+        working-directory: backend
+        run: composer install --no-interaction --no-progress --ignore-platform-req=ext-oci8
+
+      - name: Generate JWT keys
+        working-directory: backend
+        run: |
+          mkdir -p config/jwt
+          php bin/console lexik:jwt:generate-keypair --skip-if-exists
+
+      - name: Run Migrations
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://postgres:password@127.0.0.1:5432/app_test?serverVersion=15&charset=utf8
+          SOUIN_API_URL: http://localhost:2019/souin-api/souin
+        run: php bin/console doctrine:migrations:migrate --no-interaction
+
+      - name: Run Tests
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://postgres:password@127.0.0.1:5432/app?serverVersion=15&charset=utf8
+          SOUIN_API_URL: http://localhost:2019/souin-api/souin
+        run: vendor/bin/phpunit
