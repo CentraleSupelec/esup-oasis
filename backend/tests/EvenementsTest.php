@@ -119,14 +119,6 @@ class EvenementsTest extends ApiTestCaseCustom
         ]);
     }
 
-    public function testPlanificateurCanDeleteEvent(): void
-    {
-        $client = $this->createClientWithCredentials('renfort');
-        $client->request('DELETE', '/evenements/1');
-
-        $this->assertResponseStatusCodeSame(204);
-    }
-
     public function testIntervenantCanSeeOwnEvents(): void
     {
         $client = $this->createClientWithCredentials('intervenant');
@@ -134,8 +126,16 @@ class EvenementsTest extends ApiTestCaseCustom
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
-            'hydra:totalItems' => 2,
+            'hydra:totalItems' => 1,
         ]);
+    }
+
+    public function testPlanificateurCanDeleteEvent(): void
+    {
+        $client = $this->createClientWithCredentials('renfort');
+        $client->request('DELETE', '/evenements/1');
+
+        $this->assertResponseStatusCodeSame(204);
     }
 
     public function testCannotDeleteEventSentToHR(): void
