@@ -5,6 +5,7 @@ App\Entity\Utilisateur:
     nom: 'admin'
     prenom: 'admin'
     admin: true
+    destinataireTechnique: true
     roles: [ 'ROLE_ADMIN', 'ROLE_GESTIONNAIRE', 'ROLE_PLANIFICATEUR', 'ROLE_USER' ]
   gestionnaire:
     uid: 'gestionnaire'
@@ -43,6 +44,7 @@ App\Entity\Utilisateur:
     email: 'intervenant@app.fr'
     nom: 'intervenant'
     prenom: 'intervenant'
+    dateNaissance: <date_create('2000-01-01')>
     admin: false
     emailPerso: 'darkwarrior192@hotmail.fr'
     roles: [ 'ROLE_INTERVENANT' ]
@@ -58,6 +60,7 @@ App\Entity\Utilisateur:
     email: 'beneficiaire@app.fr'
     nom: 'beneficiaire'
     prenom: 'beneficiaire'
+    numeroAnonyme: 12345678
     admin: false
     roles: [ 'ROLE_BENEFICIAIRE' ]
   beneficiaire-2:
@@ -114,6 +117,7 @@ App\Entity\Utilisateur:
     email: 'demandeur@app.fr'
     nom: 'demandeur'
     prenom: 'demandeur'
+    dateNaissance: <date_create('2000-01-01')>
     admin: false
     numeroEtudiant: 123456
     roles: [ 'ROLE_DEMANDEUR' ]
@@ -133,3 +137,39 @@ App\Entity\Utilisateur:
     admin: false
     numeroEtudiant: 12345678
     roles: [ 'ROLE_DEMANDEUR' ]
+  demandeur-modification:
+    uid: 'demandeur-modification'
+    email: 'demandeur-modification@app.fr'
+    nom: 'demandeur'
+    prenom: 'modification'
+    admin: false
+    roles: [ 'ROLE_USER' ]
+  demandeur-admin-update:
+    uid: 'demandeur-admin-update'
+    email: 'demandeur-admin-update@app.fr'
+    nom: 'demandeur'
+    prenom: 'admin-update'
+    admin: false
+    roles: [ 'ROLE_USER' ]
+  demandeur-complet:
+    uid: 'demandeur-complet'
+    email: 'demandeur-complet@app.fr'
+    nom: 'demandeur'
+    prenom: 'complet'
+    admin: false
+    numeroEtudiant: 87654321
+    roles: [ 'ROLE_USER' ]
+  membrecommission:
+    uid: 'membrecommission'
+    email: 'membrecommission@app.fr'
+    nom: 'membre'
+    prenom: 'commission'
+    admin: false
+    roles: [ 'ROLE_MEMBRE_COMMISSION' ]
+  utilisateur-beneficiaire-decision:
+    uid: 'beneficiaire-decision'
+    email: 'beneficiaire-decision@app.fr'
+    nom: 'beneficiaire'
+    prenom: 'decision'
+    admin: false
+    roles: [ 'ROLE_BENEFICIAIRE' ]

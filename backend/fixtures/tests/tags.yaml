@@ -1,0 +1,10 @@
+App\Entity\Tag:
+  tag1:
+    libelle: 'un tag'
+    actif: true
+    categorie: '@categorie_tag_1'
+
+App\Entity\CategorieTag:
+  categorie_tag_1:
+    libelle: 'une catégorie tag'
+    actif: true

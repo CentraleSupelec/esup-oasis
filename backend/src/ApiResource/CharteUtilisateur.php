@@ -100,7 +100,14 @@ class CharteUtilisateur
     }
 
     #[Groups([self::GROUP_IN])]
-    public ?DateTimeInterface $dateValidation = null;
+    public ?DateTimeInterface $dateValidation = null {
+        get {
+            if ($this->dateValidation === null && $this->entity !== null) {
+                $this->dateValidation = $this->entity->getDateValidation();
+            }
+            return $this->dateValidation;
+        }
+    }
 
     public function __construct(
         private readonly ?CharteDemandeur $entity = null,

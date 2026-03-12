@@ -37,7 +37,12 @@ use Symfony\Component\Serializer\Attribute\Ignore;
             read: false,
             map: false,
         ),
-        new Patch(uriTemplate: self::ITEM_URI, uriVariables: ['id', 'typeId'], security: "is_granted('ROLE_ADMIN')"),
+        new Patch(
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['id', 'typeId'],
+            security: "is_granted('ROLE_ADMIN')",
+            map: false,
+        ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],

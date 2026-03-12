@@ -12,6 +12,7 @@
 
 namespace App\ApiResource;
 
+use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
@@ -20,7 +21,13 @@ use DateTimeInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(operations: [
-    new Get(uriTemplate: self::ITEM_URI, uriVariables: ['id'], openapi: false, provider: InscriptionProvider::class),
+    new Get(
+        uriTemplate: self::ITEM_URI,
+        uriVariables: ['id'],
+        openapi: false,
+        provider: InscriptionProvider::class,
+        stateOptions: new Options(entityClass: \App\Entity\Inscription::class),
+    ),
 ])]
 final class Inscription
 {

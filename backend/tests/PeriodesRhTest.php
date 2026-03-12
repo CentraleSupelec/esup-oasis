@@ -12,6 +12,8 @@
 
 namespace App\Tests;
 
+use Symfony\Component\HttpFoundation\Response;
+
 class PeriodesRhTest extends ApiTestCaseCustom
 {
     public function testNonPlanificateurCannotListPeriodes(): void
@@ -34,6 +36,18 @@ class PeriodesRhTest extends ApiTestCaseCustom
         ]);
     }
 
+    public function testGetItem(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('GET', '/periodes/1');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@id' => '/periodes/1',
+            '@type' => 'PeriodeRH',
+        ]);
+    }
+
     public function testAdminCanCreatePeriode(): void
     {
         $client = $this->createClientWithCredentials('admin');
@@ -50,6 +64,19 @@ class PeriodesRhTest extends ApiTestCaseCustom
             '@type' => 'PeriodeRH',
             'debut' => '2012-01-01T00:00:00+00:00',
         ]);
+    }
+
+    public function testAdminCanPatchPeriode(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('PATCH', '/periodes/1', [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [
+                'butoir' => '2023-01-10T23:59:59+00:00',
+            ],
+        ]);
+
+        $this->assertResponseIsSuccessful();
     }
 
     public function testCannotHaveButoirAfterFin(): void

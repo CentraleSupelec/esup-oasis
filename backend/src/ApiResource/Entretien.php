@@ -34,6 +34,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             uriVariables: [
                 'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
             ],
+            security: "is_granted('ROLE_GESTIONNAIRE') or request.attributes.get('uid') == user.getUid()",
             map: false,
         ),
         new Post(
@@ -41,6 +42,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             uriVariables: [
                 'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
             ],
+            security: "is_granted('ROLE_GESTIONNAIRE')",
             read: false,
             map: false,
         ),

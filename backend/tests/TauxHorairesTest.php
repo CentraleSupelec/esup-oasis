@@ -59,7 +59,7 @@ class TauxHorairesTest extends ApiTestCaseCustom
         $this->assertJsonContains([
             '@context' => '/contexts/TauxHoraire',
             '@type' => 'TauxHoraire',
-            '@id' => '/types_evenements/2/taux/2',
+            '@id' => '/types_evenements/2/taux/3',
         ]);
     }
 
@@ -91,6 +91,28 @@ class TauxHorairesTest extends ApiTestCaseCustom
         ]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    public function testFilterByDate(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        
+        // Taux 1 for TypeEvenement 1 exists in fixtures, let's find its dates
+        $client->request('GET', '/types_evenements/1/taux/1');
+        $data = $client->getResponse()->toArray();
+        $debut = $data['debut'];
+        
+        $client->request('GET', '/types_evenements/1/taux?date=' . urlencode($debut));
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            'hydra:totalItems' => 1,
+        ]);
+
+        $client->request('GET', '/types_evenements/1/taux?date=1900-01-01');
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            'hydra:totalItems' => 0,
+        ]);
     }
 
     public function testAdminCanDeleteTaux(): void

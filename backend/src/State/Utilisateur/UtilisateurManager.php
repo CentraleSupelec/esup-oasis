@@ -222,8 +222,10 @@ readonly class UtilisateurManager
         if (in_array('ROLE_RENFORT', $data->roles)) {
             $typeEvenement = new TypeEvenement();
             $typeEvenement->id = \App\Entity\TypeEvenement::TYPE_RENFORT;
-            $data->typesEvenements[] = $typeEvenement;
-            $data->roles[] = 'ROLE_INTERVENANT';
+            $newTypes = $data->typesEvenements;
+            $newTypes[] = $typeEvenement;
+            $data->typesEvenements = $newTypes;
+            $data->roles = array_merge($data->roles, ['ROLE_INTERVENANT']);
             $this->messageBus->dispatch(new RoleUtilisateursModifiesMessage(Utilisateur::ROLE_RENFORT));
         }
 
@@ -299,6 +301,8 @@ readonly class UtilisateurManager
             $entity->setAbonneRecapHebdo(true);
             $this->messageBus->dispatch(new RoleUtilisateursModifiesMessage(Utilisateur::ROLE_BENEFICIAIRE));
         }
+
+        $entity->setRoles($entity->getRolesCalcules());
 
         $this->utilisateurRepository->save($entity, true);
 

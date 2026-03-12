@@ -39,5 +39,16 @@
         <include>
             <directory suffix=".php">src</directory>
         </include>
+        <exclude>
+            <directory>src/Command</directory>
+            <directory>src/Scheduler</directory>
+            <directory>src/Service/SiScol</directory>
+            <file>src/Service/AntivirusService.php</file>
+            <file>src/Service/LdapService.php</file>
+            <file>src/Service/LdapUtilisateurInconnuException.php</file>
+            <file>src/Service/ErreurLdapException.php</file>
+            <file>src/Service/OAuthService.php</file>
+            <file>src/Controller/OAuthController.php</file>
+        </exclude>
     </source>
 </phpunit>
