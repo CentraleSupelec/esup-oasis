@@ -25,7 +25,6 @@ import { env } from "./env";
  */
 export interface IVersion {
    version: string;
-   date: string;
    description: string;
    changes?: {
       description: string;
@@ -42,7 +41,6 @@ export interface IVersion {
 export const VERSIONS: IVersion[] = [
    {
       version: "2.3.0",
-      date: "2026-03-xx",
       description: "Amélioration des performances",
       changes: [
          {
@@ -75,7 +73,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.2.5",
-      date: "2026-02-02",
       description: "Améliorations des performances",
       changes: [
          {
@@ -91,7 +88,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.2.4",
-      date: "2025-11-20",
       description: "Bugfix et améliorations mineures",
       changes: [
          {
@@ -102,7 +98,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.2.3",
-      date: "2025-10-21",
       description: "Bugfix et améliorations mineures",
       changes: [
          {
@@ -113,7 +108,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.2.2",
-      date: "2025-06-11",
       description: "Bugfix et améliorations mineures",
       changes: [
          {
@@ -124,7 +118,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.2.1",
-      date: "2025-05-20",
       description: "Bugfix et améliorations mineures",
       changes: [
          {
@@ -135,7 +128,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.2.0",
-      date: "2025-05-06",
       description: "Accompagnement des bénéficiaires",
       changes: [
          {
@@ -150,7 +142,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.1.7",
-      date: "2025-01-22",
       description: "Correctifs divers",
       changes: [
          {
@@ -169,7 +160,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.1.2",
-      date: "2024-11-13",
       description: "Correctifs divers",
       changes: [
          {
@@ -184,7 +174,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.1.0",
-      date: "2024-11-07",
       description: "Version packagée pour distribution ESUP",
       changes: [
          {
@@ -199,7 +188,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.0.1",
-      date: "2024-07-02",
       description: "Bilan activité du service",
       changes: [
          {
@@ -216,7 +204,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.0.0",
-      date: "2024-06-17",
       description: "Gestion des demandes et des aménagements",
       changes: [
          {
@@ -252,7 +239,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "1.1.0",
-      date: "2023-10-12",
       description: "Bilans",
       changes: [
          {
@@ -264,12 +250,10 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "1.0.1",
-      date: "2023-09-12",
       description: "Correctifs divers  ",
    },
    {
       version: "1.0.0",
-      date: "2023-09-01",
       description: "Mise en production du lot 1 🚀",
       changes: [
          {
@@ -304,8 +288,7 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "0.4.0",
-      date: "2023-08-28",
-      description: "Domaine Bénéficaire",
+      description: "Domaine Bénéficiaire",
       changes: [
          {
             description: "Consultation des évènements",
@@ -319,7 +302,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "0.3.0",
-      date: "2023-07-21",
       description: "Domaine Intervenant",
       changes: [
          {
@@ -342,7 +324,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "0.2.1",
-      date: "2023-07-11",
       description: "Pré-version 2 - Correctifs",
       changes: [
          {
@@ -359,7 +340,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "0.2.0",
-      date: "2023-07-06",
       description: "Pré-version 2",
       changes: [
          {
@@ -376,7 +356,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "0.1.1",
-      date: "2023-06-26",
       description: "Pré-version 1 - Correctifs",
       changes: [
          {
@@ -388,7 +367,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "0.1.0",
-      date: "2023-06-23",
       description: "Pré-version 1",
       changes: [
          {
