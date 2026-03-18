@@ -50,13 +50,26 @@ export const VERSIONS: IVersion[] = [
             type: "fix",
          },
          {
+            description: "Amélioration de la gestion du cache",
+            type: "fix",
+         },
+         {
             description:
                "Correction de l'affichage du montant d'une intervention (modale intervention)",
             type: "fix",
          },
          {
-            description: "Amélioration de la gestion du cache",
+            description: "Correction du menu Accessibilité sur mobile",
             type: "fix",
+         },
+         {
+            description: "Amélioration de l'utilisation des aménagements par bénéficiaires",
+            type: "add",
+         },
+         {
+            description:
+               "Ajout d'un message si le navigateur n'est pas congiguré sur la timezone de Paris",
+            type: "add",
          },
       ],
    },
