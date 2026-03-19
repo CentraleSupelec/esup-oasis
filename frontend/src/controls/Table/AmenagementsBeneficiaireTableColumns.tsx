@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
- * For full copyright and license information please view the LICENSE file distributed with the source code.
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
  *
- * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -126,9 +127,7 @@ export function amenagementsBeneficiaireTableColumns(props: {
                  return {
                     className: "pointer",
                     onClick: () => {
-                       props.navigate(
-                          (record.key as string).replace("/utilisateurs/", "/beneficiaires/"),
-                       );
+                        props.navigate(`/beneficiaires/${record.uid as string}`);
                     },
                  };
               }
@@ -151,13 +150,7 @@ export function amenagementsBeneficiaireTableColumns(props: {
                            icon={<Icon component={ExternalLink} className="fs-08" />}
                            onClick={(e) => {
                               e.stopPropagation();
-                              window.open(
-                                 (record.key as string).replace(
-                                    "/utilisateurs/",
-                                    "/beneficiaires/",
-                                 ),
-                                 "_blank",
-                              );
+                               window.open(`/beneficiaires/${record.uid as string}`, "_blank");
                            }}
                         />
                      </Tooltip>

@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
- * For full copyright and license information please view the LICENSE file distributed with the source code.
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
  *
- * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
  */
 
 import React, { useEffect, useState } from "react";
@@ -83,7 +84,7 @@ export default function DemandeListItem(props: { demande?: IDemande; demandeId?:
          case ETAT_DEMANDE_EN_COURS:
             return (
                <Button
-                  onClick={() => navigate(`${item?.["@id"]}/saisie`)}
+                   onClick={() => navigate(`/demandes/${item?.id}/saisie`)}
                   aria-label={`Continuer la saisie de la demande : ${typeDemandeData?.libelle}`}
                >
                   Continuer la saisie
@@ -92,7 +93,7 @@ export default function DemandeListItem(props: { demande?: IDemande; demandeId?:
          case ETAT_DEMANDE_NON_CONFORME:
             return (
                <Button
-                  onClick={() => navigate(`${item?.["@id"]}/saisie`)}
+                   onClick={() => navigate(`/demandes/${item?.id}/saisie`)}
                   aria-label={`Reprendre la saisie de la demande : ${typeDemandeData?.libelle}`}
                >
                   Reprendre la saisie
@@ -103,7 +104,7 @@ export default function DemandeListItem(props: { demande?: IDemande; demandeId?:
                <Badge dot status="processing">
                   <Button
                      className="semi-bold"
-                     onClick={() => navigate(item?.["@id"] as string)}
+                     onClick={() => navigate(`/demandes/${item?.id}`)}
                      aria-label={`Valider la charte de la demande : ${typeDemandeData?.libelle}`}
                   >
                      Valider la charte
@@ -113,7 +114,7 @@ export default function DemandeListItem(props: { demande?: IDemande; demandeId?:
          default:
             return (
                <Button
-                  onClick={() => navigate(item?.["@id"] as string)}
+                   onClick={() => navigate(`/demandes/${item?.id}`)}
                   aria-label={`Suivre l'avancement de la demande : ${typeDemandeData?.libelle}`}
                >
                   Suivre ma demande

@@ -24,6 +24,7 @@ les valeurs est généré au lancement du conteneur.
 |-----------------------------|------------------------------------------------------|-----------------------------------------------------|-----------------|
 | `REACT_APP_ENVIRONMENT`     | Environnement d'exécution de l'application           | production                                          | Oui             |
 | `REACT_APP_API`             | URL de l'API de l'application (backend)              | https://api.esup-portail.org                        | Oui             |
+| `REACT_APP_API_PREFIX`      | Prefixe du backend                                   | /api                                                | Non             |
 | `REACT_APP_FRONTEND`        | URL de l'application (frontend)                      | https://oasis.esup-portail.org                      | Oui             |
 | `REACT_APP_OAUTH_CLIENT_ID` | Identifiant du client OAuth                          | oasis                                               | Oui             |
 | `REACT_APP_OAUTH_PROVIDER`  | URL du fournisseur OAuth                             | https://cas.esup-portail.org/cas/oauth2.0/authorize | Oui             |

@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
- * For full copyright and license information please view the LICENSE file distributed with the source code.
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
  *
- * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
  */
 
 import { IAmenagement, ICategorieAmenagement, ITypeAmenagement } from "../../api/ApiTypeHelpers";
@@ -51,9 +52,7 @@ export function amenagementTableColumns(props: {
                className: props.isGestionnaire ? "pointer" : undefined,
                onClick: () => {
                   if (!props.isGestionnaire) return;
-                  props.navigate(
-                     (record.beneficiaire?.["@id"] as string).replace("/utilisateurs/", "/beneficiaires/"),
-                  );
+                   props.navigate(`/beneficiaires/${record.beneficiaire?.uid}`);
                },
             };
          },
@@ -76,7 +75,7 @@ export function amenagementTableColumns(props: {
                            onClick={(e) => {
                               e.stopPropagation();
                               window.open(
-                                 record.beneficiaire?.["@id"]?.replace("/utilisateurs/", "/beneficiaires/"),
+                                  `/beneficiaires/${record.beneficiaire?.uid as string}`,
                                  "_blank",
                               );
                            }}
@@ -233,7 +232,7 @@ export function amenagementTableColumns(props: {
                      icon={<EyeOutlined />}
                      onClick={() =>
                         props.navigate(
-                           `${(record.beneficiaire?.["@id"])?.replace("/utilisateurs/", "/beneficiaires/")}?amenagement=${record["@id"]}&domaine=${
+                            `/beneficiaires/${record.beneficiaire?.uid}?amenagement=${record["@id"]}&domaine=${
                               getDomaineAmenagement(
                                  props.typesAmenagements?.find(
                                     (ta) => ta["@id"] === record.typeAmenagement,
@@ -251,7 +250,7 @@ export function amenagementTableColumns(props: {
                         icon={<Icon component={ExternalLink} className="fs-08" />}
                         onClick={() => {
                            window.open(
-                              `${(record.beneficiaire?.["@id"])?.replace("/utilisateurs/", "/beneficiaires/")}?amenagement=${record["@id"]}&domaine=${
+                               `/beneficiaires/${record.beneficiaire?.uid}?amenagement=${record["@id"]}&domaine=${
                                  getDomaineAmenagement(
                                     props.typesAmenagements?.find(
                                        (ta) => ta["@id"] === record.typeAmenagement,
