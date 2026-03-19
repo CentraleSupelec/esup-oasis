@@ -33,7 +33,7 @@ export default function PostulerButton(props: { typeDemande: ITypeDemande; deman
       path: "/demandes",
       invalidationQueryKeys: ["/utilisateurs/{uid}/demandes", "/demandes"],
       onSuccess: (data) => {
-         navigate(`${data["@id"]}/saisie`);
+         navigate(`/demandes/${data.id}/saisie`);
       },
    });
 
@@ -57,7 +57,7 @@ export default function PostulerButton(props: { typeDemande: ITypeDemande; deman
    return demandeTrouvee ? (
       <Button
          icon={<EyeOutlined aria-hidden />}
-         onClick={() => navigate(demandeTrouvee?.["@id"] as string)}
+         onClick={() => navigate(`/demandes/${demandeTrouvee?.id}`)}
       >
          Voir la demande
       </Button>

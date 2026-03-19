@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker files
+Dockerfile
+Dockerfile-dev
+Dockerfile-worker
+.dockerignore
+.env.local
+.env.test
+.env.test.local
+
+# Cache and logs
+var/cache/*
+var/log/*
+var/phpunit.cache/
+.phpunit.result.cache
+
+# Temporary files
+tmp/
+
+# Composer dependencies (will be installed in container)
+vendor/
+
+# Documentation and metadata
+*.md
+README*
+LICENSE
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# PHP CS Fixer / Quality tools configs
+.php-cs-fixer.php
+.php-cs-fixer.cache
+phpstan.neon
+phpstan.neon.dist

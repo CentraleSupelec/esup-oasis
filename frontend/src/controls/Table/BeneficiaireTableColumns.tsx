@@ -255,10 +255,7 @@ export function beneficiaireTableColumns({
                            className="text-light"
                            icon={<Icon component={ExternalLink} className="fs-08" />}
                            onClick={() => {
-                              window.open(
-                                 record["@id"]?.replace("/utilisateurs/", "/beneficiaires/"),
-                                 "_blank",
-                              );
+                              window.open(`/beneficiaires/${record.uid}`, "_blank");
                            }}
                         />
                      </Tooltip>

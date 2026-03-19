@@ -57,6 +57,7 @@ type EnvType = {
 
    // Variables liées à l'environnement d'exécution
    REACT_APP_API: string;
+   REACT_APP_API_PREFIX: string;
    REACT_APP_OAUTH_PROVIDER: string;
    REACT_APP_OAUTH_CLIENT_ID: string;
    REACT_APP_FRONTEND: string;
@@ -69,4 +70,4 @@ declare global {
    }
 }
 
-export const env: EnvType = { ...process.env, ...window.env };
+export const env: EnvType = { ...{ REACT_APP_API_PREFIX: "" }, ...process.env, ...window.env };

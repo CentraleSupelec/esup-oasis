@@ -51,9 +51,7 @@ export function amenagementTableColumns(props: {
                className: props.isGestionnaire ? "pointer" : undefined,
                onClick: () => {
                   if (!props.isGestionnaire) return;
-                  props.navigate(
-                     (record.beneficiaire?.["@id"] as string).replace("/utilisateurs/", "/beneficiaires/"),
-                  );
+                  props.navigate(`/beneficiaires/${record.beneficiaire?.uid}`);
                },
             };
          },
@@ -76,7 +74,7 @@ export function amenagementTableColumns(props: {
                            onClick={(e) => {
                               e.stopPropagation();
                               window.open(
-                                 record.beneficiaire?.["@id"]?.replace("/utilisateurs/", "/beneficiaires/"),
+                                 `/beneficiaires/${record.beneficiaire?.uid as string}`,
                                  "_blank",
                               );
                            }}
@@ -233,7 +231,7 @@ export function amenagementTableColumns(props: {
                      icon={<EyeOutlined />}
                      onClick={() =>
                         props.navigate(
-                           `${(record.beneficiaire?.["@id"])?.replace("/utilisateurs/", "/beneficiaires/")}?amenagement=${record["@id"]}&domaine=${
+                           `/beneficiaires/${record.beneficiaire?.uid}?amenagement=${record["@id"]}&domaine=${
                               getDomaineAmenagement(
                                  props.typesAmenagements?.find(
                                     (ta) => ta["@id"] === record.typeAmenagement,
@@ -251,7 +249,7 @@ export function amenagementTableColumns(props: {
                         icon={<Icon component={ExternalLink} className="fs-08" />}
                         onClick={() => {
                            window.open(
-                              `${(record.beneficiaire?.["@id"])?.replace("/utilisateurs/", "/beneficiaires/")}?amenagement=${record["@id"]}&domaine=${
+                              `/beneficiaires/${record.beneficiaire?.uid}?amenagement=${record["@id"]}&domaine=${
                                  getDomaineAmenagement(
                                     props.typesAmenagements?.find(
                                        (ta) => ta["@id"] === record.typeAmenagement,

@@ -125,9 +125,7 @@ export function amenagementsBeneficiaireTableColumns(props: {
                  return {
                     className: "pointer",
                     onClick: () => {
-                       props.navigate(
-                          (record.key as string).replace("/utilisateurs/", "/beneficiaires/"),
-                       );
+                       props.navigate(`/beneficiaires/${record.uid as string}`);
                     },
                  };
               }
@@ -150,13 +148,7 @@ export function amenagementsBeneficiaireTableColumns(props: {
                            icon={<Icon component={ExternalLink} className="fs-08" />}
                            onClick={(e) => {
                               e.stopPropagation();
-                              window.open(
-                                 (record.key as string).replace(
-                                    "/utilisateurs/",
-                                    "/beneficiaires/",
-                                 ),
-                                 "_blank",
-                              );
+                              window.open(`/beneficiaires/${record.uid as string}`, "_blank");
                            }}
                         />
                      </Tooltip>

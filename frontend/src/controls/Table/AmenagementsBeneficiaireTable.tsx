@@ -42,6 +42,7 @@ export function buildAmenagementsBenefDatasource(
    return abs.map((rd) => {
       const data: {
          key: string;
+         uid: string;
          nom: string;
          prenom: string;
          email: string;
@@ -51,6 +52,7 @@ export function buildAmenagementsBenefDatasource(
          tags?: string[];
       } = {
          key: rd["@id"] as string,
+         uid: rd.uid as string,
          nom: rd.nom as string,
          prenom: rd.prenom as string,
          email: rd.email as string,

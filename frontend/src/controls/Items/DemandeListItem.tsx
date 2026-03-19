@@ -83,7 +83,7 @@ export default function DemandeListItem(props: { demande?: IDemande; demandeId?:
          case ETAT_DEMANDE_EN_COURS:
             return (
                <Button
-                  onClick={() => navigate(`${item?.["@id"]}/saisie`)}
+                  onClick={() => navigate(`/demandes/${item?.id}/saisie`)}
                   aria-label={`Continuer la saisie de la demande : ${typeDemandeData?.libelle}`}
                >
                   Continuer la saisie
@@ -92,7 +92,7 @@ export default function DemandeListItem(props: { demande?: IDemande; demandeId?:
          case ETAT_DEMANDE_NON_CONFORME:
             return (
                <Button
-                  onClick={() => navigate(`${item?.["@id"]}/saisie`)}
+                  onClick={() => navigate(`/demandes/${item?.id}/saisie`)}
                   aria-label={`Reprendre la saisie de la demande : ${typeDemandeData?.libelle}`}
                >
                   Reprendre la saisie
@@ -103,7 +103,7 @@ export default function DemandeListItem(props: { demande?: IDemande; demandeId?:
                <Badge dot status="processing">
                   <Button
                      className="semi-bold"
-                     onClick={() => navigate(item?.["@id"] as string)}
+                     onClick={() => navigate(`/demandes/${item?.id}`)}
                      aria-label={`Valider la charte de la demande : ${typeDemandeData?.libelle}`}
                   >
                      Valider la charte
@@ -113,7 +113,7 @@ export default function DemandeListItem(props: { demande?: IDemande; demandeId?:
          default:
             return (
                <Button
-                  onClick={() => navigate(item?.["@id"] as string)}
+                  onClick={() => navigate(`/demandes/${item?.id}`)}
                   aria-label={`Suivre l'avancement de la demande : ${typeDemandeData?.libelle}`}
                >
                   Suivre ma demande

@@ -89,7 +89,9 @@ export function Campagne(props: {
                              <Button
                                 icon={<EyeOutlined />}
                                 onClick={() => {
-                                   navigate(`/administration/referentiels${commission?.["@id"]}`);
+                                   navigate(
+                                      `/administration/referentiels/commissions/${commission?.id}`,
+                                   );
                                 }}
                              >
                                 Voir
@@ -100,7 +102,7 @@ export function Campagne(props: {
                                    icon={<Icon component={ExternalLink} className="fs-08" />}
                                    onClick={() => {
                                       window.open(
-                                         `/administration/referentiels${commission?.["@id"]}`,
+                                         `/administration/referentiels/commissions/${commission?.id}`,
                                          "_blank",
                                       );
                                    }}

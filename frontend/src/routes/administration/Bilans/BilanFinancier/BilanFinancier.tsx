@@ -30,6 +30,7 @@ export default function BilanFinancier(): React.ReactElement {
    const [form] = Form.useForm();
    const auth = useAuth();
    const [fetching, setFetching] = useState(false);
+   const apiPrefix = env.REACT_APP_API_PREFIX.replace(/\/$/, "");
 
    function fetchBilan(
       options: { path: PathBilan; filtre?: FiltreBilan },
@@ -38,7 +39,7 @@ export default function BilanFinancier(): React.ReactElement {
    ) {
       setFetching(true);
       apiDownloader(
-         `${env.REACT_APP_API}/suivis/financiers/debut/${options.path.debut}/fin/${
+         `${env.REACT_APP_API + apiPrefix}/suivis/financiers/debut/${options.path.debut}/fin/${
             options.path.fin
          }?${
             options.filtre && options.filtre["profil[]"]

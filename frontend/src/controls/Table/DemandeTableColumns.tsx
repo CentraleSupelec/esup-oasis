@@ -95,7 +95,7 @@ export function demandeTableColumns({
                         icon={<Icon component={ExternalLink} className="fs-08" />}
                         onClick={(e) => {
                            e.stopPropagation();
-                           window.open(record["@id"], "_blank");
+                           window.open(`/demandes/${record.id}`, "_blank");
                         }}
                      />
                   </Tooltip>
@@ -218,7 +218,7 @@ export function demandeTableColumns({
                         className="text-light"
                         icon={<Icon component={ExternalLink} className="fs-08" />}
                         onClick={() => {
-                           window.open(record["@id"], "_blank");
+                           window.open(`/demandes/${record.id}`, "_blank");
                         }}
                      />
                   </Tooltip>

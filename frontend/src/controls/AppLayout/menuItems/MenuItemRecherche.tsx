@@ -61,7 +61,7 @@ export const menuItemRecherche = (
             onSelect={(individuId, role) => {
                function proceed(type: string) {
                   if (utilisateur.isGestionnaire) {
-                     navigate(individuId?.replace("/utilisateurs", type) as string);
+                     navigate(`${type}/${individuId}`);
                   } else {
                      dispatch(
                         setDrawerUtilisateur({

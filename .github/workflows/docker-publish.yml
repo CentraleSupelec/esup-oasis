@@ -1,4 +1,4 @@
-name: Docker Build and Publish
+name: Docker Build and Publish (Native Multi-Arch)
 
 on:
   push:
@@ -6,30 +6,53 @@ on:
     tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  # github.repository est sous la forme <owner>/<repo>
   IMAGE_BASE: ${{ github.repository }}
 
-jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+permissions:
+  contents: read
+  packages: write
 
+jobs:
+  build-native:
+    name: Build ${{ matrix.arch }} - ${{ matrix.image_suffix }}
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - image_suffix: backend
+          - arch: amd64
+            runner: ubuntu-latest
+            image_suffix: backend
             context: ./backend
             dockerfile: ./backend/Dockerfile
-          - image_suffix: backend-worker
+          - arch: amd64
+            runner: ubuntu-latest
+            image_suffix: backend-worker
             context: ./backend
             dockerfile: ./backend/Dockerfile-worker
-          - image_suffix: frontend
+          - arch: amd64
+            runner: ubuntu-latest
+            image_suffix: frontend
+            context: ./frontend
+            dockerfile: ./frontend/Dockerfile
+
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            image_suffix: backend
+            context: ./backend
+            dockerfile: ./backend/Dockerfile
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            image_suffix: backend-worker
+            context: ./backend
+            dockerfile: ./backend/Dockerfile-worker
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            image_suffix: frontend
             context: ./frontend
             dockerfile: ./frontend/Dockerfile
 
@@ -54,12 +77,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/${{ matrix.image_suffix }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+            # On force le format long pour la correspondance lors de la fusion
+            type=sha,format=long,suffix=-${{ matrix.arch }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -67,7 +86,44 @@ jobs:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/${{ matrix.arch }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=build-${{ matrix.image_suffix }}-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=build-${{ matrix.image_suffix }}-${{ matrix.arch }}
+
+  merge-manifests:
+    name: Merge Manifests - ${{ matrix.image_suffix }}
+    runs-on: ubuntu-latest
+    needs: build-native
+    if: github.event_name != 'pull_request'
+    strategy:
+      fail-fast: false
+      matrix:
+        image_suffix: [backend, backend-worker, frontend]
+
+    steps:
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/${{ matrix.image_suffix }}
+          tags: |
+            type=ref,event=branch
+            type=sha,format=long
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+
+      - name: Create and push Multi-Arch Manifest
+        run: |
+          TAG_LIST=$(echo "${{ steps.meta.outputs.tags }}" | xargs -I {} echo "-t {}" | xargs)
+          
+          docker buildx imagetools create $TAG_LIST \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/${{ matrix.image_suffix }}:sha-${{ github.sha }}-amd64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/${{ matrix.image_suffix }}:sha-${{ github.sha }}-arm64

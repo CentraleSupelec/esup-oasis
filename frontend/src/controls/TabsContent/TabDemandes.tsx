@@ -40,11 +40,11 @@ function TabDemandesItem({ demande }: ITabDemandesItemProps): ReactElement {
    const navigate = useNavigate();
    return (
       <List.Item
-         onClick={() => navigate(demande["@id"] as string)}
+         onClick={() => navigate(`/demandes/${demande.id}`)}
          className="pointer"
          extra={
             <Button.Group>
-               <Button icon={<EyeOutlined />} onClick={() => navigate(demande["@id"] as string)}>
+               <Button icon={<EyeOutlined />} onClick={() => navigate(`/demandes/${demande.id}`)}>
                   Voir
                </Button>
                <Tooltip title="Ouvrir dans un nouvel onglet">
@@ -53,7 +53,7 @@ function TabDemandesItem({ demande }: ITabDemandesItemProps): ReactElement {
                      icon={<Icon component={ExternalLink} className="fs-08" />}
                      onClick={(e) => {
                         e.stopPropagation();
-                        window.open(demande["@id"], "_blank");
+                        window.open(`/demandes/${demande.id}`, "_blank");
                      }}
                   />
                </Tooltip>

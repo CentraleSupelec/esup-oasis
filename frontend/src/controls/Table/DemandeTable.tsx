@@ -223,7 +223,7 @@ export default function DemandeTable(props: { refs: RefsTourDemandes; affichageT
                      }, 500);
                   },
                   onDemandeSelected: (demande: IDemande) => {
-                     navigate(demande["@id"] as string);
+                     navigate(`/demandes/${demande.id}` as string);
                   },
                })}
                onChange={(

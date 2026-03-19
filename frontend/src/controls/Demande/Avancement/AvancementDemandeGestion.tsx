@@ -230,12 +230,7 @@ function EtapeDDescription(props: {
                <Button
                   size="small"
                   onClick={() => {
-                     navigate(
-                        (props.demande.demandeur?.["@id"] as string).replace(
-                           "/utilisateurs/",
-                           "/beneficiaires/",
-                        ),
-                     );
+                     navigate(`/beneficiaires/${props.demande.demandeur?.uid as string}`);
                   }}
                >
                   Voir bénéficiaire

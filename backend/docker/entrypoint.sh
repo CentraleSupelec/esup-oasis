@@ -3,6 +3,9 @@
 # Dump de l'environnement
 #composer dump-env prod
 
+# force la création de la table de cache
+php /app/bin/console app:test-cache
+
 # Déclencher les migrations de schéma
 php /app/bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 
