@@ -80,6 +80,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/${{ matrix.image_suffix }}
           tags: |
+            type=ref,event=tag,suffix=-${{ matrix.arch }}
             type=sha,format=long,suffix=-${{ matrix.arch }}
 
       - name: Build and push Docker image
@@ -105,7 +106,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image_suffix: [backend, backend-worker, frontend]
+        image_suffix: [ backend, backend-worker, frontend ]
 
     steps:
       - name: Log into registry ${{ env.REGISTRY }}
@@ -121,18 +122,22 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/${{ matrix.image_suffix }}
           tags: |
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
             type=ref,event=branch
             type=sha,format=long
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
 
       - name: Create and push Multi-Arch Manifest
         run: |
-          # 1. On force le nom de l'image en minuscules pour Docker 
+          # 1. On force le nom de l'image en minuscules pour Docker
           IMAGE_NAME=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/${{ matrix.image_suffix }}" | tr '[:upper:]' '[:lower:]')
-          
+
           # 2. On prépare la liste des tags finaux
           TAG_LIST=$(echo "${{ steps.meta.outputs.tags }}" | xargs -I {} echo "-t {}" | xargs)
-          
+
           # 3. On fusionne les images AMD64 et ARM64 (en format long)
           docker buildx imagetools create $TAG_LIST \
             $IMAGE_NAME:sha-${{ github.sha }}-amd64 \
