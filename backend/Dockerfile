@@ -43,9 +43,7 @@ COPY composer.json composer.lock symfony.lock ./
 RUN composer install \
     --no-interaction \
     --no-progress \
-    --prefer-dist \
     --optimize-autoloader \
-    --classmap-authoritative\
     --no-scripts
 
 
