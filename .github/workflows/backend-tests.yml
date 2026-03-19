@@ -25,12 +25,12 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.5'
           extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, bcmath, ldap
           coverage: none
 
