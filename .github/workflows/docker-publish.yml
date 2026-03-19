@@ -17,6 +17,9 @@ permissions:
   packages: write
 
 jobs:
+  # ========================================================
+  # JOB 1 : Builds natifs en parallèle (AMD64 et ARM64)
+  # ========================================================
   build-native:
     name: Build ${{ matrix.arch }} - ${{ matrix.image_suffix }}
     runs-on: ${{ matrix.runner }}
@@ -77,7 +80,6 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/${{ matrix.image_suffix }}
           tags: |
-            # On force le format long pour la correspondance lors de la fusion
             type=sha,format=long,suffix=-${{ matrix.arch }}
 
       - name: Build and push Docker image
@@ -92,6 +94,9 @@ jobs:
           cache-from: type=gha,scope=build-${{ matrix.image_suffix }}-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=build-${{ matrix.image_suffix }}-${{ matrix.arch }}
 
+  # ========================================================
+  # JOB 2 : Fusion des manifests (Multi-Arch)
+  # ========================================================
   merge-manifests:
     name: Merge Manifests - ${{ matrix.image_suffix }}
     runs-on: ubuntu-latest
@@ -122,8 +127,13 @@ jobs:
 
       - name: Create and push Multi-Arch Manifest
         run: |
+          # 1. On force le nom de l'image en minuscules pour Docker 
+          IMAGE_NAME=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/${{ matrix.image_suffix }}" | tr '[:upper:]' '[:lower:]')
+          
+          # 2. On prépare la liste des tags finaux
           TAG_LIST=$(echo "${{ steps.meta.outputs.tags }}" | xargs -I {} echo "-t {}" | xargs)
           
+          # 3. On fusionne les images AMD64 et ARM64 (en format long)
           docker buildx imagetools create $TAG_LIST \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/${{ matrix.image_suffix }}:sha-${{ github.sha }}-amd64 \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/${{ matrix.image_suffix }}:sha-${{ github.sha }}-arm64
+            $IMAGE_NAME:sha-${{ github.sha }}-amd64 \
+            $IMAGE_NAME:sha-${{ github.sha }}-arm64
