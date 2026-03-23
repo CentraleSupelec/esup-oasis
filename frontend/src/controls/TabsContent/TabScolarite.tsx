@@ -13,6 +13,7 @@ import { IInscription, IUtilisateur } from "../../api/ApiTypeHelpers";
 import { getLibellePeriode, isEnCoursSurPeriode } from "../../utils/dates";
 import ComposanteItem from "../Items/ComposanteItem";
 import { env } from "../../env";
+import { CheckOutlined, PlusOutlined } from "@ant-design/icons";
 
 interface ITabScolariteProps {
    utilisateur: IUtilisateur;
@@ -41,11 +42,20 @@ export function ScolariteListItem({
             avatar={
                isEnCoursSurPeriode(inscription.debut, inscription.fin) ? (
                   <Tooltip title="En cours">
-                     <Avatar size="small" className="bg-success" />
+                     <Avatar
+                        size="small"
+                        className="bg-success"
+                        icon={<CheckOutlined className="fs-08" />}
+                     >
+                        <CheckOutlined className="mt-1" />
+                     </Avatar>
                   </Tooltip>
                ) : (
                   <Tooltip title="Terminé">
-                     <Avatar size="small" />
+                     <Avatar
+                        size="small"
+                        icon={<PlusOutlined rotate={45} className="fs-08 text-text" />}
+                     />
                   </Tooltip>
                )
             }
