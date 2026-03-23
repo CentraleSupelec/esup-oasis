@@ -225,7 +225,7 @@ function EtapeDDescription(props: {
 
    if (props.etatDemande.id === ETAT_DEMANDE_VALIDEE) {
       return (
-         <Space direction="vertical">
+         <Space orientation="vertical">
             <Typography.Text type="success">Accompagnement validé</Typography.Text>
             {beneficiaire && beneficiaire.roles?.includes("ROLE_BENEFICIAIRE") && (
                <Button
@@ -242,7 +242,7 @@ function EtapeDDescription(props: {
    }
 
    return (
-      <Space direction="vertical">
+      <Space orientation="vertical">
          Accompagnement à valider
          {questUtils?.isGrantedQuestionnaire(FONCTIONNALITES.STATUER_ACCOMPAGNEMENT) && (
             <ValidationAccompagnementButton demande={props.demande} />
@@ -283,46 +283,46 @@ export default function AvancementDemandeGestion(props: {
 
    return (
       <div ref={props.refs?.avancement}>
-         <Steps className="stepper-gestionnaire">
-            <Steps.Step
-               key="A"
-               title="Saisie"
-               status={calculerEtatStep("A")}
-               description={<EtapeADescription etatDemande={etatDemande} demande={demande} />}
-            />
-            <Steps.Step
-               key="B"
-               title="Conformité"
-               status={calculerEtatStep("B")}
-               description={<EtapeBDescription demande={demande} etatDemande={etatDemande} />}
-            />
-            {((typeDemande?.profilsCibles || []).length > 1 || campagne?.commission) && (
-               <Steps.Step
-                  title="Profil"
-                  status={etatDemande.etape >= "C" ? "finish" : "wait"}
-                  description={<EtapeCDescription demande={demande} etatDemande={etatDemande} />}
-               />
-            )}
-            {demande.etat === ETAT_ATTENTE_CHARTES && (
-               <Steps.Step
-                  title="Charte(s)"
-                  status="process"
-                  description={<>Attente validation charte(s)</>}
-               />
-            )}
-            <Steps.Step
-               title="Accompagnement"
-               status={calculerEtatStep("D")}
-               description={
-                  <EtapeDDescription
-                     demande={demande}
-                     etatDemande={etatDemande}
-                     typeDemande={typeDemande as ITypeDemande}
-                     campagne={campagne as ICampagneDemande}
-                  />
-               }
-            />
-         </Steps>
+         <Steps
+            className="stepper-gestionnaire"
+            items={
+               [
+                  {
+                     title: "Saisie",
+                     status: calculerEtatStep("A"),
+                     content: <EtapeADescription etatDemande={etatDemande} demande={demande} />,
+                  },
+                  {
+                     title: "Conformité",
+                     status: calculerEtatStep("B"),
+                     content: <EtapeBDescription demande={demande} etatDemande={etatDemande} />,
+                  },
+                  ((typeDemande?.profilsCibles || []).length > 1 || campagne?.commission) && {
+                     title: "Profil",
+                     status: etatDemande.etape >= "C" ? "finish" : "wait",
+                     content: <EtapeCDescription demande={demande} etatDemande={etatDemande} />,
+                  },
+                  demande.etat === ETAT_ATTENTE_CHARTES && {
+                     title: "Charte(s)",
+                     status: "process",
+                     content: <>Attente validation charte(s)</>,
+                  },
+                  {
+                     title: "Accompagnement",
+                     status: calculerEtatStep("D"),
+                     content: (
+                        <EtapeDDescription
+                           demande={demande}
+                           etatDemande={etatDemande}
+                           typeDemande={typeDemande as ITypeDemande}
+                           campagne={campagne as ICampagneDemande}
+                        />
+                     ),
+                  },
+               ].filter((step) => step) as []
+            }
+         ></Steps>
+
          {(etatDemande.id === ETAT_DEMANDE_NON_CONFORME ||
             etatDemande.id === ETAT_DEMANDE_ATTENTE_COMMISSION) && (
             <DerniereModifDemandeLabel

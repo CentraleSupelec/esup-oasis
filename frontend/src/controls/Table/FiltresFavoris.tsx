@@ -36,7 +36,7 @@ export function FiltresFavoris(props: {
             type="info"
             className="mb-2"
             showIcon
-            message="Enregistrement des filtres"
+            title="Enregistrement des filtres"
             description={
                <>
                   Pour retrouver rapidement vos informations, vous pouvez enregistrer des filtres de

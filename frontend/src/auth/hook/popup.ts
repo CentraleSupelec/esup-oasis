@@ -23,6 +23,6 @@ export const openAuthPopup = (url: string) => {
       `height=${POPUP_HEIGHT},width=${POPUP_WIDTH},top=${top},left=${left}`,
    );
 };
-export const closeAuthPopup = (popupRef: React.MutableRefObject<Window | null | undefined>) => {
+export const closeAuthPopup = (popupRef: React.RefObject<Window | null | undefined>) => {
    popupRef.current?.close();
 };

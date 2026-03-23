@@ -171,7 +171,7 @@ export default function EvenementDupliquerModal({
 
    return (
       <Modal
-         destroyOnClose
+         destroyOnHidden
          title={
             <>
                {!afficherAide && (
@@ -201,9 +201,8 @@ export default function EvenementDupliquerModal({
       >
          {afficherAide && (
             <Alert
-               closable
-               onClose={() => setAfficherAide(false)}
-               message="Dupliquer un évènement"
+               closable={{ onClose: () => setAfficherAide(false) }}
+               title="Dupliquer un évènement"
                description={
                   <>
                      Cette fonctionnalité vous permet de dupliquer un évènement sur plusieurs jours.

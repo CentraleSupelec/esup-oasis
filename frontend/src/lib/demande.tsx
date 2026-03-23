@@ -262,7 +262,7 @@ export function EtatDescription({ demande }: IEtatDescriptionProps) {
    switch (demande.etat) {
       case ETAT_DEMANDE_EN_COURS:
          return (
-            <Space direction="vertical">
+            <Space orientation="vertical">
                <span>{description}.</span>
                <Button
                   className="mt-2"

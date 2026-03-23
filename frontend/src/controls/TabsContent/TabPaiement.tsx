@@ -54,7 +54,7 @@ export function TabPaiement({ evenement, form, setEvenement }: ITabPaiement): Re
                <Alert
                   closable
                   icon={<InfoCircleFilled />}
-                  message="Informations importantes sur le paiement des interventions"
+                  title="Informations importantes sur le paiement des interventions"
                   action={
                      <Button
                         icon={details ? <UpOutlined /> : <DownOutlined />}

@@ -139,12 +139,12 @@ export function PeriodesRhEdition({ periode, setPeriode }: PeriodesRhEditionProp
             <div className="mt-4">
                <Typography.Text strong>Envoyé à la RH ?</Typography.Text>
 
-               <Space direction="vertical" className="mt-2">
+               <Space orientation="vertical" className="mt-2">
                   <Alert
                      type="warning"
                      icon={<WarningFilled />}
                      showIcon
-                     message="Envoi des évènements à la RH"
+                     title="Envoi des évènements à la RH"
                      description="Les évènements contenus dans la période ne seront plus modifiables."
                   />
                   <Switch

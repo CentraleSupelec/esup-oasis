@@ -131,7 +131,7 @@ function BeneficiaireProfilCardItem({
                </div>
             }
             description={
-               <Space direction="vertical">
+               <Space orientation="vertical">
                   {getLibellePeriode(data?.debut, data?.fin)}
                   <Space wrap className="text-text">
                      <span>Suivi par :</span>

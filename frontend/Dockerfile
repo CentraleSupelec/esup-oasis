@@ -1,38 +1,43 @@
-# Build
-FROM node:22.11 AS build
-
-## Copy App Code
-COPY . /app
+# --- Étape 1 : Build ---
+FROM node:22.11-alpine AS build
 
 WORKDIR /app
 
-## Install dependencies
-RUN yarn install
+# On copie uniquement les fichiers de dépendances pour profiter du cache Docker
+COPY package.json yarn.lock ./
 
-## Build App
+# Installation des dépendances (frozen-lockfile pour garantir l'intégrité)
+RUN yarn install --frozen-lockfile
+
+# Copie du reste du code et build
+COPY . .
 RUN yarn build
 
+# --- Étape 2 : Production ---
+FROM nginx:alpine
 
-FROM nginx:latest
-
-# Copy the build files to the container
-COPY --from=build /app/build/ /usr/share/nginx/html
+# Installation de Node.js (version légère sur Alpine) uniquement pour react-inject-env
+# Alternative : installer react-inject-env globalement ou copier node_modules sélectivement
+RUN apk add --no-cache nodejs npm
 
 WORKDIR /usr/share/nginx/html
 
-# Copy the ngnix.conf to the container
+# Copie des fichiers compilés
+COPY --from=build /app/build/ .
+
+# Configuration Nginx
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Install npx (pour pouvoir utiliser react-inject-env dans l'entrypoint)
-RUN curl -sL https://deb.nodesource.com/setup_lts.x | bash - && apt-get install -y nodejs
-
-# Clean up
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Copy the docker-entrypoint.sh to the container
+# Script d'entrée
 COPY --link --chmod=755 docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
-RUN chmod 755 /usr/local/bin/docker-entrypoint
+
+# On s'assure que l'utilisateur nginx a les droits sur le dossier web
+# (Nécessaire si on veut passer en mode non-root plus tard)
+RUN chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/log/nginx /etc/nginx/conf.d
 
 EXPOSE 80
+
+# On peut aussi envisager de passer en USER nginx ici,
+# mais cela demande d'ajuster le port (>1024) et les permissions des dossiers de logs/cache de nginx.
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]

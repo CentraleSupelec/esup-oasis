@@ -79,7 +79,7 @@ export function IntervenantTableFilter(props: {
                            />
                         </Col>
                         <Col xs={24} sm={24} md={6}>
-                           <Space direction="vertical" size={0}>
+                           <Space orientation="vertical" size={0}>
                               <span>Statut</span>
                            </Space>
                         </Col>
@@ -109,7 +109,7 @@ export function IntervenantTableFilter(props: {
                            />
                         </Col>
                         <Col xs={24} sm={24} md={6}>
-                           <Space direction="vertical" size={0}>
+                           <Space orientation="vertical" size={0}>
                               <span>Campus d'intervention</span>
                            </Space>
                         </Col>
@@ -139,7 +139,7 @@ export function IntervenantTableFilter(props: {
                         </Col>
 
                         <Col xs={24} sm={24} md={6}>
-                           <Space direction="vertical" size={0}>
+                           <Space orientation="vertical" size={0}>
                               <span>Compétences</span>
                            </Space>
                         </Col>
@@ -169,7 +169,7 @@ export function IntervenantTableFilter(props: {
                         </Col>
 
                         <Col xs={24} sm={24} md={6}>
-                           <Space direction="vertical" size={0}>
+                           <Space orientation="vertical" size={0}>
                               <span>Catégories d'évènements</span>
                            </Space>
                         </Col>

@@ -63,7 +63,7 @@ function CommissionsEditionMembreRole(props: { membre: ICommissionMembre }) {
 
    if (editing) {
       return (
-         <Space direction="vertical">
+         <Space orientation="vertical">
             <div className="mt-1">
                <Checkbox
                   className="mr-1"

@@ -28,7 +28,7 @@ export default function TypeDemande(): React.ReactElement {
             type="error"
             icon={<ExclamationOutlined />}
             showIcon
-            message="Erreur"
+            title="Erreur"
             description="Erreur lors de la récupération du questionnaire."
          />
       );

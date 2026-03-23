@@ -145,7 +145,7 @@ export function AuthProvider({
                   if (userData.roles && userData.roles.length === 1) {
                      // Le seul rôle est ROLE_USER, l'utilisateur n'est pas affecté
                      notification.error({
-                        message: "Erreur",
+                        title: "Erreur",
                         description:
                            "Vous ne possédez pas de rôle valide pour vous connecter à l'application.",
                      });
@@ -221,7 +221,7 @@ export function AuthProvider({
                      setErrorUser("Utilisateur inconnu");
                      setLoadingUser(false);
                      notification.error({
-                        message: <b>Erreur de connexion</b>,
+                        title: <b>Erreur de connexion</b>,
                         duration: 0,
                         description: (
                            <p aria-label="Vous n'êtes pas autorisé à accéder à cette application">
@@ -251,7 +251,7 @@ export function AuthProvider({
                .catch((err) => {
                   setErrorUser("Application non accessible");
                   notification.error({
-                     message: <b>Erreur de connexion</b>,
+                     title: <b>Erreur de connexion</b>,
                      duration: 0,
                      description: <p>L'application est actuellement inaccessible.</p>,
                   });

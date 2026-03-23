@@ -105,7 +105,7 @@ export default function IntervenantRechercherDrawer({
 
    return (
       <Drawer
-         destroyOnClose
+         destroyOnHidden
          title={"Intervenant".toLocaleUpperCase()}
          placement="right"
          onClose={handleClose}
@@ -113,7 +113,7 @@ export default function IntervenantRechercherDrawer({
          size="large"
          className="oasis-drawer"
       >
-         <Space direction="vertical" className="text-center w-100 mb-3 mt-1">
+         <Space orientation="vertical" className="text-center w-100 mb-3 mt-1">
             <Avatar size={100} icon={<SearchOutlined />} className="bg-intervenant shadow-1" />
          </Space>
          {!intervenantsProposes && (

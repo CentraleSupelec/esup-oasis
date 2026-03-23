@@ -1,5 +1,5 @@
 import { useApi } from "../context/api/ApiProvider";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Progress } from "antd";
 
 export default function SplitFetcher(props: {

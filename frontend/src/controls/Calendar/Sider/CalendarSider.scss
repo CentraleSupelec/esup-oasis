@@ -1,5 +1,6 @@
-@import "/src/styles/variables";
-@import "/src/styles/helpers";
+@use "../../../../src/styles/variables";
+@use "../../../../src/styles/colors";
+@use "../../../../src/styles/helpers";
 
 .calendar-sider {
 
@@ -17,7 +18,7 @@
 
   .with-value {
     .label, .ant-select-selection-item {
-      font-weight: $fw-semi-bold;
+      font-weight: variables.$fw-semi-bold;
     }
   }
 
@@ -46,7 +47,7 @@
 
 
   &.ant-layout-sider {
-    background: $light-grey;
+    background: variables.$light-grey;
   }
 
   .filters {
@@ -66,11 +67,11 @@
 
     .label {
       font-size: 1.05rem;
-      color: $text;
+      color: variables.$text;
     }
   }
 
-  @each $key, $val in $colors-regular {
+  @each $key, $val in colors.$colors-regular {
     .checkbox-#{$key} {
       .ant-checkbox-inner {
         background-color: #{$val};

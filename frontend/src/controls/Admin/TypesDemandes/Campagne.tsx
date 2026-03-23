@@ -186,7 +186,7 @@ export function Campagne(props: {
          ) : (
             <Alert
                className="w-100"
-               message={props.title}
+               title={props.title}
                description="Aucune campagne déclarée."
                type={props.showError ? "error" : "info"}
                showIcon

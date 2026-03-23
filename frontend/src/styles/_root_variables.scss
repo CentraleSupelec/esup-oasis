@@ -1,35 +1,37 @@
-@import "variables";
+@use "sass:color";
+@use "colors";
+@use "variables";
 
 :root {
-  --color-intervenant: #{$intervenant};
-  --color-intervenant-light: #{$intervenant-light};
-  --color-beneficiaire: #{$beneficiaire};
-  --color-beneficiaire-light: #{$beneficiaire-light};
-  --color-renfort: #{$renfort};
-  --color-renfort-light: #{$renfort-light};
-  --color-demandeur: #{$demandeur};
-  --color-demandeur-light: #{$demandeur-light};
+  --color-intervenant: #{variables.$intervenant};
+  --color-intervenant-light: #{variables.$intervenant-light};
+  --color-beneficiaire: #{variables.$beneficiaire};
+  --color-beneficiaire-light: #{variables.$beneficiaire-light};
+  --color-renfort: #{variables.$renfort};
+  --color-renfort-light: #{variables.$renfort-light};
+  --color-demandeur: #{variables.$demandeur};
+  --color-demandeur-light: #{variables.$demandeur-light};
 
-  --color-danger: #{$error};
-  --color-danger-light: #{$error-light};
+  --color-danger: #{variables.$error};
+  --color-danger-light: #{variables.$error-light};
 
   // --- Pour les types d'évènements
 
-  @each $key, $val in $colors-regular {
+  @each $key, $val in colors.$colors-regular {
     --color-#{$key}: #{$val};
   }
-  @each $key, $val in $colors-light {
+  @each $key, $val in colors.$colors-light {
     --color-light-#{$key}: #{$val};
   }
-  @each $key, $val in $colors-xlight {
+  @each $key, $val in colors.$colors-xlight {
     --color-xlight-#{$key}: #{$val};
   }
-  @each $key, $val in $colors-dark {
+  @each $key, $val in colors.$colors-dark {
     --color-dark-#{$key}: #{$val};
   }
 }
 
-@each $key, $val in $colors-regular {
+@each $key, $val in colors.$colors-regular {
   .text-#{$key} {
     color: #{$val} !important;
   }
@@ -41,7 +43,7 @@
   }
 }
 
-@each $key, $val in $colors-dark {
+@each $key, $val in colors.$colors-dark {
   .text-#{$key}-dark, .text-#{$key}-dark .ant-select-selection-item {
     color: #{$val} !important;
   }
@@ -53,7 +55,7 @@
   }
 }
 
-@each $key, $val in $colors-light {
+@each $key, $val in colors.$colors-light {
   .text-#{$key}-light {
     color: #{$val} !important;
   }
@@ -65,7 +67,7 @@
   }
 }
 
-@each $key, $val in $colors-xlight {
+@each $key, $val in colors.$colors-xlight {
   .text-#{$key}-xlight {
     color: #{$val} !important;
   }
@@ -74,11 +76,11 @@
   }
 }
 
-@each $key, $val in $colors-xlight {
+@each $key, $val in colors.$colors-xlight {
   .text-#{$key}-xxlight {
-    color: lighten($val, 3.5%) !important;
+    color: color.adjust($val, $lightness: 3.5%) !important;
   }
   .bg-#{$key}-xxlight {
-    background-color: lighten($val, 3.5%) !important;
+    background-color: color.adjust($val, $lightness: 3.5%) !important;
   }
 }

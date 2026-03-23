@@ -1,4 +1,4 @@
-@import "variables";
+@use "variables";
 
 .w-100 {
   width: 100%;
@@ -272,15 +272,15 @@
 }
 
 .border-primary {
-  border-color: $primary !important;
+  border-color: variables.$primary !important;
 }
 
 .border-light {
-  border-color: $light-color !important;
+  border-color: variables.$light-color !important;
 }
 
 .border-light-grey {
-  border-color: $light-grey-border !important;
+  border-color: variables.$light-grey-border !important;
 }
 
 .border-0, .border-0 td {
@@ -304,7 +304,7 @@
 }
 
 .border-radius {
-  border-radius: $radius;
+  border-radius: variables.$radius;
 }
 
 .text-right {
@@ -344,15 +344,15 @@
 }
 
 .bg-success {
-  background-color: $success !important;
+  background-color: variables.$success !important;
 }
 
 .bg-error {
-  background-color: $error !important;
+  background-color: variables.$error !important;
 }
 
 .bg-warning {
-  background-color: $warning !important;
+  background-color: variables.$warning !important;
 }
 
 .line-height-08 {

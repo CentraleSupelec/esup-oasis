@@ -44,8 +44,8 @@ function DocumentList(props: {
                   <List.Item.Meta
                      title={document.libelle}
                      description={
-                        <Space direction="vertical" className="w-100">
-                           <Space direction="horizontal" size={4}>
+                        <Space orientation="vertical" className="w-100">
+                           <Space orientation="horizontal" size={4}>
                               Déposé le {dayjs(document.dateDepot).format("DD/MM/YYYY")} par{" "}
                               <EtudiantItem
                                  utilisateurId={document.utilisateurCreation}

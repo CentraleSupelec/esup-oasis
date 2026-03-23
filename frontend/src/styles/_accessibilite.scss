@@ -1,6 +1,7 @@
 // --- Surcharge des styles pour l'accessibilité ---
 
-@import "variables";
+@use "variables";
+@use "colors";
 
 $fontDyslexieArial: "Arial";
 $fontDyslexieOpenDys: "OpenDys";
@@ -10,11 +11,11 @@ body.accessibilite-contraste {
   color: #000 !important;
 
   .full-app {
-    background: $white !important;
+    background: variables.$white !important;
   }
 
   .text-primary, .logo, .rbc-today .week-header, .rbc-today .week-header .date, .ant-btn-link, .today-carret, a, .ant-empty-description {
-    color: $primary-contrast !important;
+    color: variables.$primary-contrast !important;
   }
 
   .ant-picker-calendar .today, .ant-picker-calendar table.ant-picker-content thead tr th {
@@ -22,11 +23,11 @@ body.accessibilite-contraste {
   }
 
   .bg-primary, .ant-float-btn-primary, .ant-picker-calendar .has-event:after {
-    background-color: $primary-contrast !important;
+    background-color: variables.$primary-contrast !important;
   }
 
   .border-primary {
-    border-color: $primary-contrast !important;
+    border-color: variables.$primary-contrast !important;
   }
 
   .bg-primary-light, .ant-alert-info {
@@ -56,11 +57,11 @@ body.accessibilite-contraste {
   }
 
   .ant-segmented .ant-segmented-item-selected {
-    background-color: $primary-contrast;
+    background-color: variables.$primary-contrast;
     color: white;
   }
 
-  @each $key, $val in $colors-dark {
+  @each $key, $val in colors.$colors-dark {
     .checkbox-#{$key} {
       .ant-checkbox-inner {
         background-color: #{$val};
@@ -173,7 +174,7 @@ body.accessibilite-contraste {
   }
 
   .ant-steps .ant-steps-item-finish .ant-steps-item-icon {
-    background-color: $primary-contrast !important;
+    background-color: variables.$primary-contrast !important;
     & > .ant-steps-icon {
       color: #fff !important;
     }

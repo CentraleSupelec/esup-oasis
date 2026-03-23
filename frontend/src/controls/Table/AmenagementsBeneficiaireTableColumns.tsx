@@ -164,7 +164,7 @@ export function amenagementsBeneficiaireTableColumns(props: {
          dataIndex: "inscription",
          render: (value: any) => {
             return value ? (
-               <Space direction="vertical" size={2}>
+               <Space orientation="vertical" size={2}>
                   <ComposanteItem composanteId={value?.formation?.composante["@id"]} />
                   <EllipsisMiddle
                      className="light"

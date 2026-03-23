@@ -43,7 +43,7 @@ export default function Demandes() {
                type="info"
                showIcon={screens.lg}
                icon={<InfoCircleOutlined aria-hidden />}
-               message={`L'accompagnement ${env.REACT_APP_SERVICE}`}
+               title={`L'accompagnement ${env.REACT_APP_SERVICE}`}
                description={
                   <>
                      <p className="semi-bold">

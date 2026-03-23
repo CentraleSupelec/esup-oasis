@@ -14,14 +14,14 @@ import { AuthContextType } from "../../auth/AuthProvider";
 import { UtilisateurAvatar } from "../Avatars/UtilisateurAvatar";
 import { Flex, Space } from "antd";
 import { IUtilisateur } from "../../api/ApiTypeHelpers";
-import { ItemType, MenuItemType } from "antd/es/menu/interface";
+import { ItemType } from "antd/es/menu/interface";
 
 /**
  * A function that returns a menu profile object based on the user authentication context.
  * @param {AuthContextType} auth - The authentication context.
- * @returns {ItemType<MenuItemType>[]} The menu profile object, or null if impersonation is not enabled.
+ * @returns {ItemType[]} The menu profile object, or null if impersonation is not enabled.
  */
-export const menuProfils = (auth: AuthContextType): ItemType<MenuItemType>[] => {
+export const menuProfils = (auth: AuthContextType): ItemType[] => {
    return auth.impersonate
       ? [
            {
@@ -101,7 +101,7 @@ export const LabelUtilisateurMenu = ({
          <Space
             className={`user-space${isImpersonate ? " text-warning" : ""}`}
             size={2}
-            direction="vertical"
+            orientation="vertical"
          >
             <span className="identite">{`${auth.user?.prenom} ${auth.user?.nom?.toLocaleUpperCase()}`}</span>
             <span className="role">

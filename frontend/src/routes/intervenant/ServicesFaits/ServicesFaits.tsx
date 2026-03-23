@@ -173,7 +173,7 @@ export function ServicesFaits(): ReactElement {
             <TimezoneAlert />
             <Tabs
                defaultActiveKey={defaultTab}
-               tabPosition={screens.lg ? "left" : undefined}
+               tabPlacement={screens.lg ? "start" : undefined}
                items={[
                   {
                      key: "en-cours",
@@ -187,7 +187,7 @@ export function ServicesFaits(): ReactElement {
                               type="info"
                               showIcon
                               className="mb-2"
-                              message="Services sur la période en cours"
+                              title="Services sur la période en cours"
                               description={
                                  <>
                                     Les services ci-dessous sont ceux de la période{" "}
@@ -233,7 +233,7 @@ export function ServicesFaits(): ReactElement {
                               type="info"
                               showIcon
                               className="mb-2"
-                              message="Historique des services faits"
+                              title="Historique des services faits"
                               description={
                                  <>
                                     Les services faits ci-dessous ont été envoyés à la RH.

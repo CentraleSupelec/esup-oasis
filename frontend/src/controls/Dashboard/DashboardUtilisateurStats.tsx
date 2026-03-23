@@ -84,7 +84,7 @@ export default function DashboardUtilisateurStats({
                type="error"
                showIcon
                icon={<WarningFilled />}
-               message="Évènement sans bénéficiaire détecté !"
+               title="Évènement sans bénéficiaire détecté !"
                description={`Corrigez cette situation avant l'envoi de la période à la RH.`}
                action={
                   <Button
@@ -478,11 +478,11 @@ export default function DashboardUtilisateurStats({
                                  stats?.evenementsEnAttenteDeValidation &&
                                  stats?.evenementsEnAttenteDeValidation > 0 ? (
                                     <Tooltip
-                                       title={`${stats?.evenementsEnAttenteDeValidation} ${`${pluriel(
+                                       title={`${stats?.evenementsEnAttenteDeValidation} ${pluriel(
                                           stats?.evenementsEnAttenteDeValidation,
                                           "intervention",
                                           "interventions",
-                                       )} de renforts à valider`}`}
+                                       )} de renforts à valider`}
                                     >
                                        <WarningFilled className="text-warning mr-1" />
                                     </Tooltip>

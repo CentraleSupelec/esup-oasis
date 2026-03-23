@@ -63,14 +63,14 @@ export default function UtilisateurCreerDrawer({
 
    return (
       <Drawer
-         destroyOnClose
+         destroyOnHidden
          title={getRoleLabel(type).toLocaleUpperCase()}
          placement="right"
          onClose={handleClose}
          open={open}
          className="oasis-drawer"
       >
-         <Space direction="vertical" className="text-center w-100 mb-3 mt-1">
+         <Space orientation="vertical" className="text-center w-100 mb-3 mt-1">
             <Avatar
                size={100}
                icon={<UserAddOutlined />}

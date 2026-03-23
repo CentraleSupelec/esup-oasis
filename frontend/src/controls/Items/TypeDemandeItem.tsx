@@ -78,7 +78,7 @@ export default function TypeDemandeItem(props: {
             {props.showInfos && (
                <Popover
                   content={
-                     <Space direction="vertical">
+                     <Space orientation="vertical">
                         <span>{getDescription(item)}</span>
                         <Space>
                            <div className="semi-bold mt-1">Profils ciblés</div>
@@ -103,7 +103,7 @@ export default function TypeDemandeItem(props: {
          {props.showInfos && (
             <Popover
                content={
-                  <Space direction="vertical">
+                  <Space orientation="vertical">
                      <span>{getDescription(item)}</span>
                      <Space>
                         <div className="semi-bold mt-1">Profils ciblés</div>

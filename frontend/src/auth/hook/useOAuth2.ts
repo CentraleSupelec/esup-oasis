@@ -76,7 +76,7 @@ const enhanceAuthorizeUrl = (
    scope: string,
    state: string,
    responseType: Oauth2Props["responseType"],
-   extraQueryParametersRef: React.MutableRefObject<Oauth2Props["extraQueryParameters"]>,
+   extraQueryParametersRef: React.RefObject<Oauth2Props["extraQueryParameters"]>,
 ) => {
    const query = objectToQuery({
       response_type: responseType,

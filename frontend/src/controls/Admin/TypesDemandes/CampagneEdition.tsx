@@ -70,7 +70,7 @@ export function CampagneEdition({
          dayjs(values.dateArchivage).isBefore(dayjs(values.fin))
       ) {
          notification.error({
-            message: "Erreur",
+            title: "Erreur",
             description: "La date d'archivage doit être postérieure à la date de fin de campagne.",
          });
          return;
@@ -81,7 +81,7 @@ export function CampagneEdition({
          dayjs(values.dateArchivage).isBefore(dayjs(values.dateCommission))
       ) {
          notification.error({
-            message: "Erreur",
+            title: "Erreur",
             description: "La date d'archivage doit être postérieure à la date de la commission.",
          });
          return;

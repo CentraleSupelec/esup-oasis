@@ -141,7 +141,7 @@ export function BeneficiaireProfilFormItemEdit({
             title={profilBeneficiaire ? "Editer un profil" : "Ajouter un profil"}
             description={
                <>
-                  <Space direction="vertical" className="w-100">
+                  <Space orientation="vertical" className="w-100">
                      <Select
                         placeholder="Sélectionnez un profil"
                         options={profils?.items.map((p) => ({ value: p["@id"], label: p.libelle }))}
@@ -183,7 +183,7 @@ export function BeneficiaireProfilFormItemEdit({
                            changeOnBlur
                         />
                      </Space>
-                     <Space direction="vertical" className="w-100 mt-2">
+                     <Space orientation="vertical" className="w-100 mt-2">
                         <span className="semi-bold" aria-label="Chargé d'accompagnement associé">
                            Chargé•e d'accompagnement associée
                         </span>
@@ -207,7 +207,7 @@ export function BeneficiaireProfilFormItemEdit({
                         />
                      </Space>
 
-                     <Space direction="vertical" className="w-100 mt-2">
+                     <Space orientation="vertical" className="w-100 mt-2">
                         <Checkbox
                            checked={avecAccompagnement}
                            onChange={(value) => {

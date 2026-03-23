@@ -154,7 +154,7 @@ export function TabAmenagements(props: {
                                              </Flex>
                                           }
                                           description={
-                                             <Space direction="vertical" className="text-text">
+                                             <Space orientation="vertical" className="text-text">
                                                 {a.debut || a.fin ? (
                                                    <Space align="start" size={[8, 2]} wrap>
                                                       <CalendarOutlined />

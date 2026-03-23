@@ -136,7 +136,7 @@ export function TabDisponibilites({
             type="warning"
             icon={<WarningFilled />}
             showIcon
-            message="Archivage de l'intervenant"
+            title="Archivage de l'intervenant"
             description={
                "Un intervenant archivé ne peut plus" +
                " être affecté à des nouveaux" +

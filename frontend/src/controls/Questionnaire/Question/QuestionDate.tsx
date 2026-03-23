@@ -33,7 +33,7 @@ export function QuestionDate(props: { question: QuestionnaireQuestion }) {
             required={props.question.obligatoire}
             rootClassName="question-item"
             label={
-               <Space className="question" direction="horizontal">
+               <Space className="question" orientation="horizontal">
                   <MinusOutlined aria-hidden={true} />
                   <div>{props.question.libelle}</div>
                </Space>
@@ -41,17 +41,18 @@ export function QuestionDate(props: { question: QuestionnaireQuestion }) {
             name={props.question["@id"]}
          >
             <DatePicker
-               disabled={submitting}
                data-question={props.question["@id"]}
                data-type={props.question.typeReponse}
-               // disabled={mode === "preview"}
+               disabled={mode === "preview" || submitting}
                format="DD/MM/YYYY"
                onChange={(date) => {
                   setSubmitting(true);
                   questUtils?.envoyerReponse(
                      props.question["@id"] as string,
                      props.question.typeReponse as string,
-                     createDateFromStringAsUTC(date.format("YYYY-MM-DD")).toISOString(),
+                     date
+                        ? createDateFromStringAsUTC(date.format("YYYY-MM-DD")).toISOString()
+                        : undefined,
                      () => setSubmitting(false),
                   );
                }}

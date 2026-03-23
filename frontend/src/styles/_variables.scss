@@ -1,4 +1,5 @@
-@import "colors";
+@use "sass:map";
+@use "colors";
 
 // --- Variables principales l'application : couleurs, ...
 
@@ -40,16 +41,16 @@ $fw-light: 300;
 
 // --- Couleurs utilisées dans l'application
 
-$orange: map-get($colors-regular, "orange");
+$orange: map.get(colors.$colors-regular, "orange");
 
-$intervenant: map-get($colors-regular, "indigo");
-$intervenant-light: map-get($colors-xlight, "indigo");
+$intervenant: map.get(colors.$colors-regular, "indigo");
+$intervenant-light: map.get(colors.$colors-xlight, "indigo");
 
-$renfort: map-get($colors-regular, "pink");
-$renfort-light: map-get($colors-xlight, "pink");
+$renfort: map.get(colors.$colors-regular, "pink");
+$renfort-light: map.get(colors.$colors-xlight, "pink");
 
-$beneficiaire: map-get($colors-regular, "purple");
-$beneficiaire-light: map-get($colors-xlight, "purple");
+$beneficiaire: map.get(colors.$colors-regular, "purple");
+$beneficiaire-light: map.get(colors.$colors-xlight, "purple");
 
-$demandeur: map-get($colors-regular, "amber");
-$demandeur-light: map-get($colors-xlight, "amber");
+$demandeur: map.get(colors.$colors-regular, "amber");
+$demandeur-light: map.get(colors.$colors-xlight, "amber");
