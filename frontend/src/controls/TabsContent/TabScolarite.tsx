@@ -45,7 +45,7 @@ export function ScolariteListItem({
                      <Avatar
                         size="small"
                         className="bg-success"
-                        icon={<CheckOutlined className="fs-08" />}
+                        icon={<CheckOutlined className="fs-08" aria-hidden />}
                      >
                         <CheckOutlined className="mt-1" />
                      </Avatar>
@@ -54,7 +54,7 @@ export function ScolariteListItem({
                   <Tooltip title="Terminé">
                      <Avatar
                         size="small"
-                        icon={<PlusOutlined rotate={45} className="fs-08 text-text" />}
+                        icon={<PlusOutlined rotate={45} className="fs-08 text-text" aria-hidden />}
                      />
                   </Tooltip>
                )

@@ -96,14 +96,14 @@ function BeneficiaireProfilCardItem({
                      <Avatar
                         className="bg-success"
                         size="small"
-                        icon={<CheckOutlined className="fs-08" />}
+                        icon={<CheckOutlined className="fs-08" aria-hidden />}
                      />
                   </Tooltip>
                ) : (
                   <Tooltip title="Terminé" placement="left">
                      <Avatar
                         size="small"
-                        icon={<PlusOutlined rotate={45} className="fs-08 text-text" />}
+                        icon={<PlusOutlined rotate={45} className="fs-08 text-text" aria-hidden />}
                      />
                   </Tooltip>
                )
