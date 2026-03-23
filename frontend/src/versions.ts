@@ -66,7 +66,7 @@ export const VERSIONS: IVersion[] = [
          },
          {
             description:
-               "Ajout d'un message si le navigateur n'est pas congiguré sur la timezone de Paris",
+               "Ajout d'un message si le navigateur n'est pas configuré sur la timezone de Paris",
             type: "add",
          },
       ],
