@@ -45,7 +45,7 @@ export function FiltreFavoriDropDown(props: {
             })),
          }}
       >
-         <HeartOutlined aria-hidden />
+         <HeartOutlined className={props.className} aria-hidden />
       </Dropdown>
    );
 }
