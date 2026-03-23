@@ -1,0 +1,7 @@
+App\Entity\DecisionAmenagementExamens:
+  decision1:
+    debut: <date_create('2025-09-01')>
+    fin: <date_create('2026-08-31')>
+    dateModification: <date_create('2026-01-01')>
+    beneficiaire: '@utilisateur-beneficiaire-decision'
+    etat: 'VALIDE'

@@ -25,7 +25,6 @@ import { env } from "./env";
  */
 export interface IVersion {
    version: string;
-   date: string;
    description: string;
    changes?: {
       description: string;
@@ -41,8 +40,74 @@ export interface IVersion {
  */
 export const VERSIONS: IVersion[] = [
    {
-      version: "2.2.1",
-      date: "2025-06-11",
+      version: "2.3.0",
+      description: "Amélioration des performances",
+      changes: [
+         {
+            description: "Amélioration globale des performances de l'application 🚀",
+            type: "fix",
+         },
+         {
+            description: "Amélioration de la gestion du cache",
+            type: "fix",
+         },
+         {
+            description:
+               "Correction de l'affichage du montant d'une intervention (modale intervention)",
+            type: "fix",
+         },
+         {
+            description: "Correction du menu Accessibilité sur mobile",
+            type: "fix",
+         },
+         {
+            description: "Amélioration de l'utilisation des aménagements par bénéficiaires",
+            type: "add",
+         },
+         {
+            description:
+               "Ajout d'un message si le navigateur n'est pas configuré sur la timezone de Paris",
+            type: "add",
+         },
+      ],
+   },
+   {
+      version: "2.2.5",
+      description: "Améliorations des performances",
+      changes: [
+         {
+            description:
+               "Amélioration globale des performances, notamment sur les statistiques du Tableau de bord",
+            type: "fix",
+         },
+         {
+            description: "Amélioration du cache",
+            type: "fix",
+         },
+      ],
+   },
+   {
+      version: "2.2.4",
+      description: "Bugfix et améliorations mineures",
+      changes: [
+         {
+            description: "Correction du tri intervenants services faits",
+            type: "fix",
+         },
+      ],
+   },
+   {
+      version: "2.2.3",
+      description: "Bugfix et améliorations mineures",
+      changes: [
+         {
+            description: "Calcul du début de l'année universitaire",
+            type: "fix",
+         },
+      ],
+   },
+   {
+      version: "2.2.2",
       description: "Bugfix et améliorations mineures",
       changes: [
          {
@@ -52,23 +117,39 @@ export const VERSIONS: IVersion[] = [
       ],
    },
    {
+      version: "2.2.1",
+      description: "Bugfix et améliorations mineures",
+      changes: [
+         {
+            description: "Correction d'un bug dans le bilan d'activités",
+            type: "fix",
+         },
+      ],
+   },
+   {
       version: "2.2.0",
-      date: "2025-05-06",
       description: "Accompagnement des bénéficiaires",
       changes: [
          {
             description: "Gestion de l'accompagnement des bénéficiaires : filtre + modification",
             type: "add",
          },
+         {
+            description: "Corrections de bugs mineurs et améliorations des performances",
+            type: "fix",
+         },
       ],
    },
    {
       version: "2.1.7",
-      date: "2025-01-22",
       description: "Correctifs divers",
       changes: [
          {
-            description: "Amélioration de l'exportation des aménagements",
+            description: "Exportation des aménagements",
+            type: "add",
+         },
+         {
+            description: "Amélioration de l'exportation des aménagements par bénéficiaires",
             type: "fix",
          },
          {
@@ -79,7 +160,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.1.2",
-      date: "2024-11-13",
       description: "Correctifs divers",
       changes: [
          {
@@ -94,7 +174,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.1.0",
-      date: "2024-11-07",
       description: "Version packagée pour distribution ESUP",
       changes: [
          {
@@ -109,7 +188,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.0.1",
-      date: "2024-07-02",
       description: "Bilan activité du service",
       changes: [
          {
@@ -126,7 +204,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "2.0.0",
-      date: "2024-06-17",
       description: "Gestion des demandes et des aménagements",
       changes: [
          {
@@ -162,7 +239,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "1.1.0",
-      date: "2023-10-12",
       description: "Bilans",
       changes: [
          {
@@ -174,12 +250,10 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "1.0.1",
-      date: "2023-09-12",
       description: "Correctifs divers  ",
    },
    {
       version: "1.0.0",
-      date: "2023-09-01",
       description: "Mise en production du lot 1 🚀",
       changes: [
          {
@@ -214,8 +288,7 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "0.4.0",
-      date: "2023-08-28",
-      description: "Domaine Bénéficaire",
+      description: "Domaine Bénéficiaire",
       changes: [
          {
             description: "Consultation des évènements",
@@ -229,7 +302,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "0.3.0",
-      date: "2023-07-21",
       description: "Domaine Intervenant",
       changes: [
          {
@@ -252,7 +324,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "0.2.1",
-      date: "2023-07-11",
       description: "Pré-version 2 - Correctifs",
       changes: [
          {
@@ -269,7 +340,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "0.2.0",
-      date: "2023-07-06",
       description: "Pré-version 2",
       changes: [
          {
@@ -286,7 +356,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "0.1.1",
-      date: "2023-06-26",
       description: "Pré-version 1 - Correctifs",
       changes: [
          {
@@ -298,7 +367,6 @@ export const VERSIONS: IVersion[] = [
    },
    {
       version: "0.1.0",
-      date: "2023-06-23",
       description: "Pré-version 1",
       changes: [
          {

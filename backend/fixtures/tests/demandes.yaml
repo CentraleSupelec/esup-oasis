@@ -10,3 +10,9 @@ App\Entity\Demande:
     etat: '@demande_receptionnee'
     dateDepot: <date_create('2030-01-15 10:00:00')>
     profilAttribue: '@profil1'
+
+  demande_archivee_1:
+    campagne: '@campagne_archivee_sportifs'
+    demandeur: '@demandeur-3'
+    etat: '@demande_receptionnee'
+    dateDepot: <date_create('2010-01-15 10:00:00')>

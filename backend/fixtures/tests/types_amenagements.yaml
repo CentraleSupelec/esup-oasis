@@ -1,0 +1,16 @@
+App\Entity\TypeAmenagement:
+  type_amenagement_1:
+    libelle: 'Temps majoré'
+    libelleLong: 'Temps majoré pour les examens'
+    actif: true
+    pedagogique: false
+    examens: true
+    aideHumaine: false
+    categorie: '@categorie_amenagement_1'
+  type_amenagement_2:
+    libelle: 'Prise de notes'
+    actif: true
+    pedagogique: true
+    examens: false
+    aideHumaine: true
+    categorie: '@categorie_amenagement_1'

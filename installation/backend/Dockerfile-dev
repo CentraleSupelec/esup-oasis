@@ -1,0 +1,9 @@
+ARG APP_VERSION=latest
+FROM ghcr.io/esupportail/esup-oasis/backend:${APP_VERSION}
+
+# ajout xdebug
+RUN install-php-extensions xdebug
+
+# suppression params de prod
+RUN rm /usr/local/etc/php/conf.d/99-overrides-prod.ini
+ENV FRANKENPHP_CONFIG=""

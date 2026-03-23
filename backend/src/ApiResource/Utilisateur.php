@@ -57,7 +57,6 @@ use App\State\Utilisateur\UtilisateurProvider;
 use App\State\Utilisateur\UtilisateurRoleProvider;
 use App\Validator\NumeroAnonymeUniqueConstraint;
 use DateTimeInterface;
-use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 

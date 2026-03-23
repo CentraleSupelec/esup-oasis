@@ -246,7 +246,7 @@ export function QuestionFile(props: { question: QuestionnaireQuestion }) {
                                            !value.some(
                                               (f: string | RcFile) =>
                                                  typeof f === "string" &&
-                                                 f.startsWith("/telechargements/"),
+                                                 f.startsWith(`${env.REACT_APP_API_PREFIX}/telechargements/`),
                                            )
                                         ) {
                                            return Promise.reject(

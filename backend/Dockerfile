@@ -1,7 +1,9 @@
 FROM dunglas/frankenphp:1.11.3-builder-php8.4 AS builder
 COPY --from=caddy:builder /usr/bin/xcaddy /usr/bin/xcaddy
 
-RUN apt-get update && apt-get install --no-install-recommends -y git
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN CGO_ENABLED=1 \
     XCADDY_GO_BUILD_FLAGS="-ldflags \"-w -s -extldflags '-Wl,-z,stack-size=0x80000'\" -tags=nobadger,nomysql,nopgx" \
@@ -20,46 +22,40 @@ RUN CGO_ENABLED=1 \
 FROM dunglas/frankenphp:1.11.3-php8.4 AS frankenphp_upstream
 COPY --from=builder --link /usr/local/bin/frankenphp /usr/local/bin/frankenphp
 
-#force non-https
-ENV SERVER_NAME=":80"
+#force non-https, TZ, ...
+ENV SERVER_NAME=":80" \
+    TZ="Europe/Paris" \
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    FRANKENPHP_CONFIG="worker ./public/index.php"
 
-RUN apt-get update &&  \
-    apt-get upgrade -y && \
-    apt-get install -y libssl-dev libldap2-dev libsodium-dev zlib1g-dev curl libcurl4-openssl-dev git unzip libxml2-dev libpq-dev  \
-                libzip-dev dos2unix libldap-common gnupg2 libxml2 libxml2-dev \
-                procps acl tzdata
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends tzdata dos2unix && \
+    install-php-extensions apcu zip opcache intl ldap soap pdo_pgsql pgsql bcmath oci8 pcntl sockets && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
-ENV TZ="Europe/Paris"
-
-RUN install-php-extensions apcu zip opcache intl ldap soap pdo_pgsql pgsql bcmath oci8 pcntl sockets
-
-# Récupération du dossier application
-COPY ./ /app
 WORKDIR /app
 
-# composer
-ENV COMPOSER_ALLOW_SUPERUSER=1
-COPY --from=composer /usr/bin/composer /usr/bin/composer
-RUN chmod +x /usr/bin/composer \
-    && /usr/bin/composer install --ignore-platform-reqs --optimize-autoloader
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# droits du dossier var de symfony
-RUN chmod -R a+rw ./var/
+# D’abord les fichiers de dépendances pour maximiser le cache Docker
+COPY composer.json composer.lock symfony.lock ./
 
-# copie de l'entrypoint au bon endroit
+RUN composer install \
+    --no-interaction \
+    --no-progress \
+    --optimize-autoloader \
+    --no-scripts
+
+
+# Puis le reste de l’application
+COPY ./ ./
+
 COPY --link --chmod=755 ./docker/entrypoint.sh /usr/local/bin/docker-entrypoint
-RUN dos2unix /usr/local/bin/docker-entrypoint && chmod 755 /usr/local/bin/docker-entrypoint
+COPY --link --chmod=644 ./docker/php-overrides.ini /usr/local/etc/php/conf.d/99-overrides.ini
+COPY --link --chmod=644 ./docker/php-overrides-prod.ini /usr/local/etc/php/conf.d/99-overrides-prod.ini
 
-# params php additionnels
-COPY --link --chmod=755 ./docker/php-overrides.ini /usr/local/etc/php/conf.d/99-overrides.ini
-COPY --link --chmod=755 ./docker/php-overrides-prod.ini /usr/local/etc/php/conf.d/99-overrides-prod.ini
-
-#ENV FRANKENPHP_CONFIG="worker ./public/index.php"
+RUN dos2unix /usr/local/bin/docker-entrypoint && \
+    chmod 755 /usr/local/bin/docker-entrypoint
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
-
-CMD [ "frankenphp", "run", "--config", "/app/docker/Caddyfile" ]
-
-# Nettoyage
-RUN rm -rf /var/lib/apt/lists/* \
-    && apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+CMD ["frankenphp", "run", "--config", "/app/docker/Caddyfile"]

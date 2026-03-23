@@ -1,0 +1,6 @@
+App\Entity\CharteDemandeur:
+  charte_demandeur_1:
+    demande: '@demande_receptionnee_1'
+    charte: '@charte1'
+    libelle: 'Charte de test'
+    contenu: 'Contenu de la charte figé'

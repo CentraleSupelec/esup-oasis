@@ -41,6 +41,7 @@ App\Entity\Question:
     libelle: "Votre numéro machin bidule du ministère :"
     aide: "N lettres / chiffres, confirme votre statut 'haut niveau'"
     type_reponse: "text"
+    table_options: "sportif_haut_niveau"
     obligatoire: true
     reponse_conservable: false
   question_sportifs_3:

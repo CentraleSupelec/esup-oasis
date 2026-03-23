@@ -58,7 +58,7 @@ class ValidationDemandePossibleConstraintValidator extends ConstraintValidator
         }
 
         foreach ($value->demande->etapes as $etape) {
-            foreach ($etape->questions as $question) {
+            foreach ($etape->questions ?? [] as $question) {
                 try {
                     $this->validerQuestion($value->demande, $question, $constraint);
                 } catch (Exception) {

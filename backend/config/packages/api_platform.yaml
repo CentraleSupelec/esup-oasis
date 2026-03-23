@@ -27,11 +27,6 @@ api_platform:
   serializer:
     hydra_prefix: true
 
-  http_cache:
-    invalidation:
-      urls: [ '%env(SOUIN_API_URL)%' ]
-      purger: api_platform.http_cache.purger.souin
-
   # The list of exceptions mapped to their HTTP status code.
   exception_to_status:
     Symfony\Component\Serializer\Exception\ExceptionInterface: 400
@@ -40,3 +35,23 @@ api_platform:
     ApiPlatform\Exception\FilterValidationException: 400
     Doctrine\ORM\OptimisticLockException: 409
     App\State\PeriodeRH\ConfigurationIncompleteException: 422
+
+when@dev:
+  api_platform:
+    http_cache:
+      invalidation:
+        urls: [ '%env(SOUIN_API_URL)%' ]
+        purger: api_platform.http_cache.purger.souin
+
+when@prod:
+  api_platform:
+    http_cache:
+      invalidation:
+        urls: [ '%env(SOUIN_API_URL)%' ]
+        purger: api_platform.http_cache.purger.souin
+
+when@test:
+  api_platform:
+    http_cache:
+      invalidation:
+        enabled: false

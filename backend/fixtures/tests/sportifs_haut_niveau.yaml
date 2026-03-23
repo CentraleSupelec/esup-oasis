@@ -1,0 +1,11 @@
+App\Entity\SportifHautNiveau:
+  shn1:
+    identifiantExterne: 'SHN_OK'
+    nom: 'DOE'
+    prenom: 'John'
+    anneeNaissance: 2000
+  shn2:
+    identifiantExterne: 'SHN_WRONG_YEAR'
+    nom: 'DOE'
+    prenom: 'Jane'
+    anneeNaissance: 1990

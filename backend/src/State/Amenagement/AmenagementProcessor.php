@@ -54,8 +54,8 @@ class AmenagementProcessor implements ProcessorInterface
 
         //DELETE
         if ($operation instanceof Delete) {
-            $this->amenagementRepository->remove($entity, true);
             $this->messageBus->dispatch(new AmenagementModifieMessage($entity));
+            $this->amenagementRepository->remove($entity, true);
             //liste des aménagements par utilisateurs impactée!
             $this->messageBus->dispatch(new RessourceModifieeMessage($data->beneficiaire));
             $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($data->beneficiaire));

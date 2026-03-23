@@ -6,3 +6,9 @@ App\Entity\CampagneDemande:
     dateCommission: <date_create('2030-03-01 08:00')>
     commission: '@commission_sport'
     libelle: 'Campagne sportifs 2030'
+
+  campagne_artistes:
+    typeDemande: '@type_demande_artistes'
+    debut: <date_create('2020-01-01 08:00')>
+    fin: <date_create('2030-02-01 08:00')>
+    libelle: 'Campagne artistes 2030'

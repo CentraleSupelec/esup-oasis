@@ -24,8 +24,6 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\CaseInsensitiveOrderFilter;
 use App\State\TypeAmenagement\TypeAmenagementProcessor;
-use App\State\TypeAmenagement\TypeAmenagementProvider;
-use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -33,17 +31,17 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(uriTemplate: self::COLLECTION_URI),
         new Get(uriTemplate: self::ITEM_URI, uriVariables: ['id' => 'id']),
-        new Post(uriTemplate: self::COLLECTION_URI, security: "is_granted('ROLE_ADMIN')"),
-        new Patch(uriTemplate: self::ITEM_URI, security: "is_granted('ROLE_ADMIN')"),
+        new Post(uriTemplate: self::COLLECTION_URI, security: "is_granted('ROLE_ADMIN')", map: false),
+        new Patch(uriTemplate: self::ITEM_URI, security: "is_granted('ROLE_ADMIN')", map: false),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
     openapi: new Operation(tags: ['Referentiel']),
+    processor: TypeAmenagementProcessor::class,
     stateOptions: new Options(entityClass: \App\Entity\TypeAmenagement::class),
 )]
 #[ApiFilter(CaseInsensitiveOrderFilter::class, properties: ['libelle'])]
 #[ApiFilter(BooleanFilter::class, properties: ['examens', 'pedagogique', 'aideHumaine'])]
-#[Map(target: \App\Entity\TypeAmenagement::class)]
 class TypeAmenagement
 {
     public const string COLLECTION_URI = '/types_amenagements';
@@ -110,7 +108,7 @@ class TypeAmenagement
             if ($this->pedagogique === null && $this->entity !== null) {
                 $this->pedagogique = $this->entity->isPedagogique();
             }
-            return $this->pedagogique ?? null;
+            return $this->pedagogique ?? false;
         }
     }
 
@@ -120,7 +118,7 @@ class TypeAmenagement
             if ($this->examens === null && $this->entity !== null) {
                 $this->examens = $this->entity->isExamens();
             }
-            return $this->examens ?? null;
+            return $this->examens ?? false;
         }
     }
 
@@ -130,7 +128,7 @@ class TypeAmenagement
             if ($this->aideHumaine === null && $this->entity !== null) {
                 $this->aideHumaine = $this->entity->isAideHumaine();
             }
-            return $this->aideHumaine ?? null;
+            return $this->aideHumaine ?? false;
         }
     }
 
