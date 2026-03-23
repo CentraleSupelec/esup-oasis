@@ -42,7 +42,7 @@ export const menuItemRecherche = (
          <Tooltip title="Rechercher un demandeur, un bénéficiaire ou un intervenant à partir de son nom, son prénom ou son email">
             <Button
                type="text"
-               className="bg-transparent"
+               className="bg-transparent pr-0 line-height-1"
                aria-label="Rechercher un étudiant"
                onClick={() => setModeRecherche(!modeRecherche)}
             >
@@ -62,7 +62,7 @@ export const menuItemRecherche = (
             onSelect={(individuId, role) => {
                function proceed(type: string) {
                   if (utilisateur.isGestionnaire) {
-                      navigate(`${type}/${individuId}`);
+                     navigate(`${type}/${individuId}`);
                   } else {
                      dispatch(
                         setDrawerUtilisateur({

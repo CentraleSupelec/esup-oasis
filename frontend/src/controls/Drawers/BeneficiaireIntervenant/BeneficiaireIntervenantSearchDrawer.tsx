@@ -74,7 +74,9 @@ export default function BeneficiaireIntervenantSearchDrawer({
          autoFocus
          allowClear={value === recherche}
          showSearch
-         suffixIcon={value !== recherche && value.length > 1 ? <EnterOutlined /> : null}
+         suffixIcon={
+            value !== recherche && value.length > 1 ? <EnterOutlined className="text-text" /> : null
+         }
          placeholder="Rechercher..."
          className={className}
          loading={isFetchingBeneficiaire || isFetchingIntervenant || isFetchingDemandeurs}
@@ -125,8 +127,8 @@ export default function BeneficiaireIntervenantSearchDrawer({
             <Select.OptGroup key="beneficiaires" label="Bénéficiaires">
                {beneficiaires?.items.map((beneficiaire) => (
                   <Select.Option
-                      key={`beneficiaire§${beneficiaire.uid}`}
-                      value={`beneficiaire§${beneficiaire.uid}`}
+                     key={`beneficiaire§${beneficiaire.uid}`}
+                     value={`beneficiaire§${beneficiaire.uid}`}
                   >
                      <EtudiantItem
                         utilisateur={beneficiaire}
@@ -141,8 +143,8 @@ export default function BeneficiaireIntervenantSearchDrawer({
             <Select.OptGroup key="intervenants" label="Intervenants">
                {intervenants?.items.map((intervenant) => (
                   <Select.Option
-                      key={`intervenant§${intervenant.uid}`}
-                      value={`intervenant§${intervenant.uid}`}
+                     key={`intervenant§${intervenant.uid}`}
+                     value={`intervenant§${intervenant.uid}`}
                   >
                      <EtudiantItem
                         utilisateur={intervenant}
@@ -157,8 +159,8 @@ export default function BeneficiaireIntervenantSearchDrawer({
             <Select.OptGroup key="demandeurs" label="Demandeurs">
                {demandeurs?.items.map((demandeur) => (
                   <Select.Option
-                      key={`demandeur§${demandeur.uid}`}
-                      value={`demandeur§${demandeur.uid}`}
+                     key={`demandeur§${demandeur.uid}`}
+                     value={`demandeur§${demandeur.uid}`}
                   >
                      <EtudiantItem
                         utilisateur={demandeur}

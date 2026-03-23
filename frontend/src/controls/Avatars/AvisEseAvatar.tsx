@@ -47,7 +47,7 @@ export function AvisEseAvatar(props: {
       return (
          <Tooltip title={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en attente`}>
             <Avatar
-               icon={<HourglassOutlined aria-hidden />}
+               icon={<HourglassOutlined className="fs-08" aria-hidden />}
                className="bg-warning text-text"
                size={props.size || "default"}
             />
@@ -59,7 +59,7 @@ export function AvisEseAvatar(props: {
       return (
          <Tooltip title={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en cours`}>
             <Avatar
-               icon={<CheckOutlined aria-hidden />}
+               icon={<CheckOutlined className="fs-08" aria-hidden />}
                className="bg-success text-white"
                size={props.size || "default"}
             />
@@ -70,7 +70,7 @@ export function AvisEseAvatar(props: {
       return (
          <Tooltip title={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} n'est pas en cours`}>
             <Avatar
-               icon={<MinusOutlined aria-hidden />}
+               icon={<MinusOutlined className="fs-08" aria-hidden />}
                size={props.size || "default"}
                className="bg-warning text-white"
             />
@@ -80,7 +80,7 @@ export function AvisEseAvatar(props: {
 
    return (
       <Avatar
-         icon={<HourglassOutlined aria-hidden />}
+         icon={<HourglassOutlined className="fs-08" aria-hidden />}
          size={props.size || "default"}
          className="bg-warning text-white"
       />
