@@ -11,3 +11,27 @@ App\Entity\ValeurParametre:
     valeur: '1 day'
     debut: <date_create('2020-01-01 08:00')>
     parametre: '@frequence_rappel_envoi_rh'
+  valeur_coeff_charges:
+    valeur: '1.5'
+    debut: <date_create('2020-01-01 08:00')>
+    parametre: '@coefficient_charges'
+  valeur_pres_qualite:
+    valeur: 'Président'
+    debut: <date_create('2020-01-01 08:00')>
+    parametre: '@president_qualite'
+  valeur_pres_nom:
+    valeur: 'John Doe'
+    debut: <date_create('2020-01-01 08:00')>
+    parametre: '@president_nom'
+  valeur_resp_qualite:
+    valeur: 'Responsable'
+    debut: <date_create('2020-01-01 08:00')>
+    parametre: '@responsable_phase_qualite'
+  valeur_resp_nom:
+    valeur: 'Jane Smith'
+    debut: <date_create('2020-01-01 08:00')>
+    parametre: '@responsable_phase_nom'
+  valeur_dest_bcc:
+    valeur: 'copy@app.fr'
+    debut: <date_create('2020-01-01 08:00')>
+    parametre: '@destinataires_copie_decisions'

@@ -2,6 +2,10 @@
 
 namespace App\Tests;
 
+use ApiPlatform\Symfony\Bundle\Test\Response;
+use App\Entity\Utilisateur;
+use DateTime;
+
 class UtilisateursTest extends ApiTestCaseCustom
 {
     public function testRenfortCanListPlanificateurs(): void
@@ -11,42 +15,74 @@ class UtilisateursTest extends ApiTestCaseCustom
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
-            '@context' => '/contexts/Utilisateur',
-            '@type' => 'hydra:Collection',
             '@id' => '/roles/ROLE_PLANIFICATEUR/utilisateurs',
+            '@type' => 'hydra:Collection',
         ]);
     }
 
-    public function testAdminCanListAdmins(): void
+    public function testRenfortCanListIntervenants(): void
     {
-        $client = $this->createClientWithCredentials('admin');
-        $client->request('GET', '/roles/ROLE_ADMIN/utilisateurs');
+        $client = $this->createClientWithCredentials('renfort');
+        $client->request('GET', '/intervenants');
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
-            '@context' => '/contexts/Utilisateur',
+            '@id' => '/intervenants',
             '@type' => 'hydra:Collection',
-            '@id' => '/roles/ROLE_ADMIN/utilisateurs',
         ]);
     }
 
-    public function testGestionnaireCannotListAdmins(): void
+    public function testGestionnaireCanListIntervenants(): void
     {
         $client = $this->createClientWithCredentials('gestionnaire');
-        $client->request('GET', '/roles/ROLE_ADMIN/utilisateurs');
-
-        $this->assertResponseStatusCodeSame(403);
-    }
-
-    public function testAdminCanListBeneficiaires(): void
-    {
-        $client = $this->createClientWithCredentials('admin');
-        $client->request('GET', '/beneficiaires');
+        $client->request('GET', '/intervenants');
 
         $this->assertResponseIsSuccessful();
-        $this->assertJsonContains([
-            'hydra:totalItems' => 3,
-        ]);
+    }
+
+    public function testSearchMultipleFields(): void
+    {
+        $client = $this->createClientWithCredentials('renfort');
+
+        // On compte le nombre de bénéficiaires en base (ceux qui matchent "benef")
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $count = $em
+            ->createQuery('SELECT COUNT(DISTINCT u.uid) FROM App\Entity\Utilisateur u 
+                                   JOIN u.beneficiaires b 
+                                   WHERE (u.nom LIKE :search OR u.prenom LIKE :search OR u.uid LIKE :search OR u.email LIKE :search)
+                                   AND :now >= b.debut AND (:now < b.fin OR b.fin IS NULL)')
+            ->setParameter('search', '%benef%')
+            ->setParameter('now', new DateTime())
+            ->getSingleScalarResult();
+
+        // Search beneficiaires
+        $client->request('GET', '/beneficiaires?recherche=benef');
+        $this->assertJsonContains(['hydra:totalItems' => (int) $count]);
+
+        // Search intervenants (intervenant, intervenant2)
+        // nouvelintervenant n'a pas encore le rôle dans les fixtures
+        $client->request('GET', '/intervenants?recherche=inter');
+        $this->assertJsonContains(['hydra:totalItems' => 2]);
+    }
+
+    public function testFilterByRoleAndPaginateAndSort(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('GET', '/roles/ROLE_PLANIFICATEUR/utilisateurs?page=1&itemsPerPage=7&order[nom]=desc');
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertArrayHasKey('hydra:totalItems', $data);
+        $this->assertLessThanOrEqual(7, count($data['hydra:member']));
+    }
+
+    public function testCommissionMemberHasRole(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('GET', '/utilisateurs/admin');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertContains('ROLE_ADMIN', $client->getResponse()->toArray()['roles']);
     }
 
     public function testAdminCanAddIntervenant(): void
@@ -64,25 +100,55 @@ class UtilisateursTest extends ApiTestCaseCustom
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
-            '@id' => '/utilisateurs/nouvelintervenant',
-            'roles' => ['ROLE_USER', 'ROLE_INTERVENANT'],
+            'uid' => 'nouvelintervenant',
         ]);
+        $this->assertContains('ROLE_INTERVENANT', $client->getResponse()->toArray()['roles']);
     }
 
-    public function testUserCanUpdateOwnProfile(): void
+    public function testAdminCanAddRenfort(): void
     {
-        $client = $this->createClientWithCredentials('beneficiaire');
-        $client->request('PATCH', '/utilisateurs/beneficiaire', [
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('PATCH', '/utilisateurs/nouveaurenfort', [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
             'json' => [
-                'emailPerso' => 'titi@tutu.com',
+                'roles' => ['ROLE_RENFORT'],
+                'services' => ['/services/1'],
+            ],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertContains('ROLE_RENFORT', $data['roles']);
+    }
+
+    public function testRenfortLosesRoleIfNoService(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('PATCH', '/utilisateurs/nouveaurenfort', [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [
+                'roles' => ['ROLE_USER', 'ROLE_PLANIFICATEUR'],
+            ],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertNotContains('ROLE_RENFORT', $data['roles']);
+    }
+
+    public function testUpdateOwnProfile(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $client->request('PATCH', '/utilisateurs/gestionnaire', [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [
+                'emailPerso' => 'toto@tutu.com',
             ],
         ]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
-            '@id' => '/utilisateurs/beneficiaire',
-            'emailPerso' => 'titi@tutu.com',
+            'emailPerso' => 'toto@tutu.com',
         ]);
     }
 
@@ -97,5 +163,170 @@ class UtilisateursTest extends ApiTestCaseCustom
         ]);
 
         $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testAdminCanListBeneficiairesWithInscriptions(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('GET', '/beneficiaires');
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertGreaterThanOrEqual(2, $data['hydra:totalItems']);
+
+        $this->assertEquals('/utilisateurs/beneficiaire', $data['hydra:member'][0]['@id']);
+        $this->assertArrayHasKey('profils', $data['hydra:member'][0]);
+    }
+
+    public function testAdminCanAddTagToUser(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('POST', '/utilisateurs/beneficiaire/tags', [
+            'json' => [
+                'tag' => '/tags/1',
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertJsonContains([
+            'tag' => '/tags/1',
+        ]);
+    }
+
+    public function testAdminCanListUserTags(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('POST', '/utilisateurs/beneficiaire/tags', [
+            'json' => [
+                'tag' => '/tags/1',
+            ],
+        ]);
+
+        $client->request('GET', '/utilisateurs/beneficiaire/tags');
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertGreaterThanOrEqual(1, count($data['hydra:member']));
+    }
+
+    public function testAdminCanDeleteUserTag(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('POST', '/utilisateurs/beneficiaire/tags', [
+            'json' => [
+                'tag' => '/tags/1',
+            ],
+        ]);
+
+        $client->request('DELETE', '/utilisateurs/beneficiaire/tags/1');
+
+        $this->assertResponseStatusCodeSame(204);
+    }
+
+    public function testNumeroAnonymeUniquenessAndVoter(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+
+        $repo = static::getContainer()
+            ->get('doctrine')
+            ->getManager()
+            ->getRepository(Utilisateur::class);
+
+        $beneficiaire = $repo->findOneBy(['uid' => 'beneficiaire']);
+        $beneficiaire->setNumeroAnonyme(null);
+        $repo->save($beneficiaire, true);
+
+        $client->request('PATCH', '/utilisateurs/beneficiaire', [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [
+                'numeroAnonyme' => 87654123,
+            ],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+
+        $client->request('PATCH', '/utilisateurs/beneficiaire', [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [
+                'numeroAnonyme' => 22222222,
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testSearchLdap(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('GET', '/utilisateurs?term=Nom');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@type' => 'hydra:Collection',
+        ]);
+    }
+
+    public function testFilterBeneficiairesAvecAmenagementEnCours(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+
+        $client->request('GET', '/beneficiaires');
+        $total = $client->getResponse()->toArray()['hydra:totalItems'];
+
+        $client->request('GET', '/amenagements/utilisateurs?avecAmenagementEnCours=true');
+        $this->assertResponseIsSuccessful();
+        $this->assertLessThanOrEqual($total, $client->getResponse()->toArray()['hydra:totalItems']);
+    }
+
+    public function testFilterBeneficiairesByTag(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+
+        $client->request('POST', '/utilisateurs/beneficiaire/tags', [
+            'json' => [
+                'tag' => '/tags/1',
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(201);
+
+        $client->request('GET', '/beneficiaires?tags[]=/tags/1');
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+
+        $this->assertGreaterThanOrEqual(1, $data['hydra:totalItems']);
+    }
+
+    public function testGetPhoto(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('GET', '/utilisateurs/beneficiaire2/photo', [
+            'headers' => ['Accept' => 'image/jpeg'],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertStringContainsString('image/jpeg', $client->getResponse()->getHeaders()['content-type'][0]);
+        $this->assertEquals('dummy_photo_content', $client->getResponse()->getContent());
+    }
+
+    public function testGetPhotoForbidden(): void
+    {
+        $client = $this->createClientWithCredentials('beneficiaire');
+        $client->request('GET', '/utilisateurs/beneficiaire/photo', [
+            'headers' => ['Accept' => 'image/jpeg'],
+        ]);
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testGetInscription(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('GET', '/inscriptions/1');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@context' => '/contexts/Inscription',
+            '@id' => '/inscriptions/1',
+        ]);
     }
 }

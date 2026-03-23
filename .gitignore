@@ -1,3 +1,7 @@
 ###> ide
 .idea
 ###< ide
+
+installation/frontend/.env
+installation/backend/.env
+installation/.env

@@ -36,10 +36,14 @@ use Symfony\Component\Serializer\Attribute\Ignore;
             ],
             map: false,
         ),
-        new Get(uriTemplate: self::ITEM_URI, uriVariables: [
-            'commissionId' => new Link(fromProperty: 'id', toProperty: 'commission', fromClass: Commission::class),
-            'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
-        ]),
+        new Get(
+            uriTemplate: self::ITEM_URI,
+            uriVariables: [
+                'commissionId' => new Link(fromProperty: 'id', toProperty: 'commission', fromClass: Commission::class),
+                'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
+            ],
+            map: false,
+        ),
         new Put(
             uriTemplate: self::ITEM_URI,
             uriVariables: [
@@ -47,8 +51,10 @@ use Symfony\Component\Serializer\Attribute\Ignore;
                 'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
             ],
             denormalizationContext: ['groups' => [self::GROUP_IN]],
+            security: 'is_granted("ROLE_ADMIN")',
             processor: MembreCommissionPutProcessor::class,
             allowCreate: true,
+            map: false,
         ),
         new Delete(
             uriTemplate: self::ITEM_URI,
@@ -56,7 +62,9 @@ use Symfony\Component\Serializer\Attribute\Ignore;
                 'commissionId' => new Link(fromProperty: 'id', toProperty: 'commission', fromClass: Commission::class),
                 'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
             ],
+            security: 'is_granted("ROLE_ADMIN")',
             processor: MembreCommissionDeleteProcessor::class,
+            map: false,
         ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],

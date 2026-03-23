@@ -22,8 +22,6 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\CaseInsensitiveOrderFilter;
 use App\State\TypeSuiviAmenagement\TypeSuiviAmenagementProcessor;
-use App\State\TypeSuiviAmenagement\TypeSuiviAmenagementProvider;
-use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -31,16 +29,16 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(uriTemplate: self::COLLECTION_URI),
         new Get(uriTemplate: self::ITEM_URI, uriVariables: ['id']),
-        new Post(uriTemplate: self::COLLECTION_URI, security: "is_granted('ROLE_ADMIN')"),
-        new Patch(uriTemplate: self::ITEM_URI, security: "is_granted('ROLE_ADMIN')"),
+        new Post(uriTemplate: self::COLLECTION_URI, security: "is_granted('ROLE_ADMIN')", map: false),
+        new Patch(uriTemplate: self::ITEM_URI, security: "is_granted('ROLE_ADMIN')", map: false),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
     openapi: new Operation(tags: ['Referentiel']),
+    processor: TypeSuiviAmenagementProcessor::class,
     stateOptions: new Options(entityClass: \App\Entity\TypeSuiviAmenagement::class),
 )]
 #[ApiFilter(CaseInsensitiveOrderFilter::class, properties: ['libelle'])]
-#[Map(target: \App\Entity\TypeSuiviAmenagement::class, transform: [self::class, 'toEntity'])]
 class TypeSuiviAmenagement
 {
     public const string COLLECTION_URI = '/types_suivi_amenagements';
@@ -80,15 +78,4 @@ class TypeSuiviAmenagement
     public function __construct(
         private readonly ?\App\Entity\TypeSuiviAmenagement $entity = null,
     ) {}
-
-    public static function toEntity(self $resource): \App\Entity\TypeSuiviAmenagement
-    {
-        if ($resource->entity === null) {
-            $entity = new \App\Entity\TypeSuiviAmenagement();
-            $entity->setActif($resource->actif);
-            $entity->setLibelle($resource->libelle);
-            return $entity;
-        }
-        return $resource->entity;
-    }
 }

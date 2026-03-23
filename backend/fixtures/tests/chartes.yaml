@@ -1,0 +1,5 @@
+App\Entity\Charte:
+  charte1:
+    libelle: 'Charte de test'
+    contenu: 'Contenu de la charte'
+    profilsAssocies: ['@profil1']

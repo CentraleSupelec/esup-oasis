@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
- * For full copyright and license information please view the LICENSE file distributed with the source code.
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
  *
- * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
  */
 
 import React, { ReactElement, useState } from "react";
@@ -124,8 +125,8 @@ export default function BeneficiaireIntervenantSearchDrawer({
             <Select.OptGroup key="beneficiaires" label="Bénéficiaires">
                {beneficiaires?.items.map((beneficiaire) => (
                   <Select.Option
-                     key={`beneficiaire§${beneficiaire["@id"]}`}
-                     value={`beneficiaire§${beneficiaire["@id"]}`}
+                      key={`beneficiaire§${beneficiaire.uid}`}
+                      value={`beneficiaire§${beneficiaire.uid}`}
                   >
                      <EtudiantItem
                         utilisateur={beneficiaire}
@@ -140,8 +141,8 @@ export default function BeneficiaireIntervenantSearchDrawer({
             <Select.OptGroup key="intervenants" label="Intervenants">
                {intervenants?.items.map((intervenant) => (
                   <Select.Option
-                     key={`intervenant§${intervenant["@id"]}`}
-                     value={`intervenant§${intervenant["@id"]}`}
+                      key={`intervenant§${intervenant.uid}`}
+                      value={`intervenant§${intervenant.uid}`}
                   >
                      <EtudiantItem
                         utilisateur={intervenant}
@@ -156,8 +157,8 @@ export default function BeneficiaireIntervenantSearchDrawer({
             <Select.OptGroup key="demandeurs" label="Demandeurs">
                {demandeurs?.items.map((demandeur) => (
                   <Select.Option
-                     key={`demandeur§${demandeur["@id"]}`}
-                     value={`demandeur§${demandeur["@id"]}`}
+                      key={`demandeur§${demandeur.uid}`}
+                      value={`demandeur§${demandeur.uid}`}
                   >
                      <EtudiantItem
                         utilisateur={demandeur}

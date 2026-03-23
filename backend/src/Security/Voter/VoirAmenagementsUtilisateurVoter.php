@@ -40,6 +40,10 @@ class VoirAmenagementsUtilisateurVoter extends Voter
             return true;
         }
 
+        if ($token->getUserIdentifier() === $subject) {
+            return true;
+        }
+
         //Pour les référents composantes, on vérifie en fonction des inscriptions actives du bénéficiaire
         if (in_array(Utilisateur::ROLE_REFERENT_COMPOSANTE, $token->getRoleNames())) {
             //ok pour la fonctionnalité, mais sur ce bénéficiaire?

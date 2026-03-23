@@ -1,0 +1,117 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: oasis-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app} -d ${POSTGRES_DB:-app}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    container_name: oasis-gotenberg
+    restart: unless-stopped
+
+  clamav:
+    image: clamav/clamav
+    container_name: oasis-clamav
+    restart: unless-stopped
+    platform: linux/amd64
+
+  backend:
+    platform: linux/amd64
+    container_name: oasis-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        APP_VERSION: ${APP_VERSION:-2.2}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      gotenberg:
+        condition: service_started
+      clamav:
+        condition: service_started
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@postgres:5432/${POSTGRES_DB:-app}?serverVersion=15&charset=utf8}
+      CLAMAV_SERVER: ${CLAMAV_SERVER:-clamav}
+      CLAMAV_PORT: ${CLAMAV_PORT:-3310}
+      GOTENBERG_DSN: ${GOTENBERG_DSN:-http://gotenberg:3000}
+      SERVER_NAME: ":80" # Attention : Nécessaire pour éviter que le backend tente de générer un certificat !
+    ports:
+      - "${BACKEND_PORT:-8000}:80"
+    volumes:
+      - backend-jwt:/app/config/jwt
+      - ../backend/fixtures:/app/fixtures
+      - ../backend/docker/entrypoint.sh:/usr/local/bin/docker-entrypoint:ro #todo: supprimer quand on aura une image de base à jour
+      - ../backend/src/Command:/app/src/Command #todo: supprimer quand on aura une image de base à jour
+
+
+  backend-worker:
+    platform: linux/amd64
+    container_name: oasis-backend-worker
+    build:
+      context: ./backend
+      dockerfile: Dockerfile-worker
+      args:
+        APP_VERSION: ${APP_VERSION:-2.2}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      backend:
+        condition: service_started
+      clamav:
+        condition: service_started
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@postgres:5432/${POSTGRES_DB:-app}?serverVersion=15&charset=utf8}
+      CLAMAV_SERVER: ${CLAMAV_SERVER:-clamav}
+      CLAMAV_PORT: ${CLAMAV_PORT:-3310}
+      GOTENBERG_DSN: ${GOTENBERG_DSN:-http://gotenberg:3000}
+    env_file:
+      - .env
+
+  frontend:
+    platform: linux/amd64
+    container_name: oasis-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        APP_VERSION: ${APP_VERSION:-2.2}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    env_file:
+      - .env
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+
+  caddy:
+    platform: linux/amd64
+    container_name: oasis-caddy
+    build:
+      context: ./caddy
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: ${SERVER_NAME:-localhost}
+    ports:
+      - "443:443"
+
+volumes:
+  db-data:
+  backend-jwt:

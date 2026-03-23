@@ -23,6 +23,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\CaseInsensitiveOrderFilter;
+use App\State\CategorieAmenagement\CategorieAmenagementProcessor;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
 
@@ -30,11 +31,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
     operations: [
         new GetCollection(uriTemplate: self::COLLECTION_URI),
         new Get(uriTemplate: self::ITEM_URI, uriVariables: ['id']),
-        new Post(uriTemplate: self::COLLECTION_URI, security: "is_granted('ROLE_ADMIN')"),
-        new Patch(uriTemplate: self::ITEM_URI, uriVariables: ['id'], security: "is_granted('ROLE_ADMIN')"),
+        new Post(uriTemplate: self::COLLECTION_URI, security: "is_granted('ROLE_ADMIN')", map: false),
+        new Patch(uriTemplate: self::ITEM_URI, uriVariables: ['id'], security: "is_granted('ROLE_ADMIN')", map: false),
     ],
     denormalizationContext: ['groups' => self::GROUP_IN],
     openapi: new Operation(tags: ['Referentiel']),
+    processor: CategorieAmenagementProcessor::class,
     stateOptions: new Options(entityClass: \App\Entity\CategorieAmenagement::class),
 )]
 #[ApiFilter(CaseInsensitiveOrderFilter::class, properties: ['libelle'])]
@@ -43,7 +45,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
     'typesAmenagement.pedagogique',
     'typesAmenagement.aideHumaine',
 ])]
-#[Map(target: \App\Entity\CategorieAmenagement::class, transform: [self::class, 'toEntity'])]
 class CategorieAmenagement
 {
     public const string COLLECTION_URI = '/categories_amenagements';
@@ -81,17 +82,6 @@ class CategorieAmenagement
     }
 
     public function __construct(
-        private readonly ?\App\Entity\CategorieAmenagement $entity,
+        private readonly ?\App\Entity\CategorieAmenagement $entity = null,
     ) {}
-
-    public static function toEntity(self $resource): \App\Entity\CategorieAmenagement
-    {
-        if ($resource->entity === null) {
-            $entity = new \App\Entity\CategorieAmenagement();
-            $entity->setActif($resource->actif);
-            $entity->setLibelle($resource->libelle);
-            return $entity;
-        }
-        return $resource->entity;
-    }
 }

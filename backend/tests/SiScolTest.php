@@ -31,4 +31,23 @@ class SiScolTest extends ApiTestCaseCustom
             '@id' => '/formations',
         ]);
     }
+
+    public function testAdminCanPatchComposanteReferents(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('PATCH', '/composantes/1', [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [
+                'referents' => ['/utilisateurs/admin'],
+            ],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@id' => '/composantes/1',
+        ]);
+        $data = $client->getResponse()->toArray();
+        $referents = array_map(fn($r) => is_string($r) ? $r : $r['@id'], $data['referents']);
+        $this->assertContains('/utilisateurs/admin', $referents);
+    }
 }

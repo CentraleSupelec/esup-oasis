@@ -23,7 +23,7 @@ use Ldap\Connection;
  *
  * @property string ldapHost
  * @property int    ldapPort
- * @property bool   ldapSSL
+ * @property string   ldapSSL
  * @property string ldapUsername
  * @property string ldapPassword
  * @property string ldapDn
@@ -35,15 +35,18 @@ class LdapService
 {
     private ?Connection $ldap;
     private bool $bind;
+    private bool $ldapSSL;
 
     public function __construct(
         private readonly string $ldapHost,
         private readonly int $ldapPort,
-        private readonly bool $ldapSSL,
+        string $ldapSSL,
         private readonly string $ldapUsername,
         private readonly string $ldapPassword,
         private readonly string $ldapDn,
-    ) {}
+    ) {
+        $this->ldapSSL = $ldapSSL == 'true';
+    }
 
     /**
      * Retourne les attributs demandés pour une uid.
