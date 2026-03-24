@@ -34,7 +34,9 @@
       "redux": "^4.2.1",
       "sass": "^1.97.3",
       "typescript": "^5.9.3",
-      "use-local-storage-state": "^18.3.3"
+      "use-local-storage-state": "^18.3.3",
+      "underscore": "^1.13.8",
+      "flatted": "^3.4.2"
    },
    "devDependencies": {
       "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
@@ -71,7 +73,7 @@
       "eslint": "eslint -c ./eslintrc.js --ignore-path ./.eslintignore  ./src/**/*.ts*",
       "eslint:fix": "eslint -c ./eslintrc.js --ignore-path ./.eslintignore --fix  ./src/**/*.tsx ./src/**/*.ts",
       "start": "react-scripts start",
-      "start:https": "sudo PORT=443 HOST='appliphase.kdev.u-bordeaux.fr' HTTPS=true ./node_modules/.bin/react-scripts start",
+      "start:https": "sudo PORT=443 HOST='lutins-devoauth.u-bordeaux.fr' HTTPS=true ./node_modules/.bin/react-scripts start",
       "build": "GENERATE_SOURCEMAP=false react-scripts build",
       "eject": "react-scripts eject",
       "svg": "svgo -r -f src/assets/images && svgo -r -f public/images"
