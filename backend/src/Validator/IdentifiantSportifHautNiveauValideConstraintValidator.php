@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -21,11 +21,9 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 class IdentifiantSportifHautNiveauValideConstraintValidator extends ConstraintValidator
 {
-
-    public function __construct(private readonly SportifHautNiveauRepository $sportifHautNiveauRepository)
-    {
-
-    }
+    public function __construct(
+        private readonly SportifHautNiveauRepository $sportifHautNiveauRepository,
+    ) {}
 
     public function validate(mixed $value, Constraint $constraint): void
     {
@@ -51,9 +49,7 @@ class IdentifiantSportifHautNiveauValideConstraintValidator extends ConstraintVa
         ]);
 
         if (null === $sportif || $sportif->getAnneeNaissance() != $value->repondant->dateNaissance->format('Y')) {
-            $this->context->buildViolation($constraint->message)
-                ->addViolation();
+            $this->context->buildViolation($constraint->message)->addViolation();
         }
-
     }
 }

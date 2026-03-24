@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -21,17 +21,23 @@ use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use RuntimeException;
 use Symfony\Component\Clock\ClockAwareTrait;
-use Symfony\Component\PropertyInfo\Type;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 
 class EtatAvisEseUtilisateurFilter extends AbstractFilter
 {
-
     use ClockAwareTrait;
 
     protected const string PROPERTY = 'etatAvisEse';
 
-    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         $etats = [AvisEse::ETAT_EN_COURS, AvisEse::ETAT_EN_ATTENTE, AvisEse::ETAT_AUCUN];
 
         if ($property !== self::PROPERTY || !in_array($value, $etats)) {
@@ -57,57 +63,87 @@ class EtatAvisEseUtilisateurFilter extends AbstractFilter
             AvisEse::ETAT_AUCUN => $this->addFilterAucun(...),
             AvisEse::ETAT_EN_ATTENTE => $this->addFilterEnAttente(...),
             AvisEse::ETAT_EN_COURS => $this->addFilterEnCours(...),
-            default => throw new RuntimeException('impossible')
+            default => throw new RuntimeException('impossible'),
         };
 
         $addFilters($queryBuilder, $queryNameGenerator, $alias, $avisAlias, $fichierAlias, $nowParam);
-
     }
 
-    protected function addFilterAucun(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator,
-                                      string       $rootAlias, string $avisAlias, string $fichierAlias, string $nowParam): void
-    {
-        $queryBuilder->leftJoin(sprintf('%s.avisEse', $rootAlias), $avisAlias)
+    protected function addFilterAucun(
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $rootAlias,
+        string $avisAlias,
+        string $fichierAlias,
+        string $nowParam,
+    ): void {
+        $queryBuilder
+            ->leftJoin(sprintf('%s.avisEse', $rootAlias), $avisAlias)
             ->andWhere(sprintf('%s.id is null', $avisAlias));
     }
 
-    protected function addFilterEnCours(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator,
-                                        string       $rootAlias, string $avisAlias, string $fichierAlias, string $nowParam): void
-    {
-        $queryBuilder->leftJoin(sprintf('%s.avisEse', $rootAlias), $avisAlias)
+    protected function addFilterEnCours(
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $rootAlias,
+        string $avisAlias,
+        string $fichierAlias,
+        string $nowParam,
+    ): void {
+        $queryBuilder
+            ->leftJoin(sprintf('%s.avisEse', $rootAlias), $avisAlias)
             ->leftJoin(sprintf('%s.fichier', $avisAlias), $fichierAlias)
             ->setParameter($nowParam, $this->now())
-            ->andWhere(sprintf('%1$s.id is not null and (%2$s.fin > :%3$s or %2$s.fin is null)', $fichierAlias, $avisAlias, $nowParam));
-
+            ->andWhere(sprintf(
+                '%1$s.id is not null and (%2$s.fin > :%3$s or %2$s.fin is null)',
+                $fichierAlias,
+                $avisAlias,
+                $nowParam,
+            ));
     }
 
-    protected function addFilterEnAttente(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator,
-                                          string       $rootAlias, string $avisAlias, string $fichierAlias, string $nowParam): void
-    {
+    protected function addFilterEnAttente(
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $rootAlias,
+        string $avisAlias,
+        string $fichierAlias,
+        string $nowParam,
+    ): void {
         $avisEnCoursAlias = $queryNameGenerator->generateJoinAlias('avisEnCours');
 
-        $queryBuilder->join(sprintf('%s.avisEse', $rootAlias), $avisAlias)
+        $queryBuilder
+            ->join(sprintf('%s.avisEse', $rootAlias), $avisAlias)
             ->leftJoin(sprintf('%s.fichier', $avisAlias), $fichierAlias)
-            ->leftJoin(sprintf('%s.avisEse', $rootAlias), $avisEnCoursAlias,
-                Join::WITH, sprintf('%1$s.id is not null and (%2$s.fin > :%3$s or %2$s.fin is null)', $fichierAlias, $avisAlias, $nowParam))
-            ->andWhere(sprintf('%1$s.id is not null and (%2$s.id is null or %1$s.fin <= :%3$s)', $avisAlias, $fichierAlias, $nowParam))
+            ->leftJoin(
+                sprintf('%s.avisEse', $rootAlias),
+                $avisEnCoursAlias,
+                Join::WITH,
+                sprintf(
+                    '%1$s.id is not null and (%2$s.fin > :%3$s or %2$s.fin is null)',
+                    $fichierAlias,
+                    $avisAlias,
+                    $nowParam,
+                ),
+            )
+            ->andWhere(sprintf(
+                '%1$s.id is not null and (%2$s.id is null or %1$s.fin <= :%3$s)',
+                $avisAlias,
+                $fichierAlias,
+                $nowParam,
+            ))
             ->andWhere(sprintf('%s.id is null', $avisEnCoursAlias))
             ->setParameter($nowParam, $this->now());
     }
-
 
     public function getDescription(string $resourceClass): array
     {
         return [
             self::PROPERTY => [
                 'property' => self::PROPERTY,
-                'type' => Type::BUILTIN_TYPE_STRING,
+                'type' => TypeIdentifier::STRING,
                 'required' => false,
-                'openapi' => new Parameter(
-                    name: self::PROPERTY,
-                    in: 'query',
-                    description: 'Etat avis ESE',
-                ),
+                'openapi' => new Parameter(name: self::PROPERTY, in: 'query', description: 'Etat avis ESE'),
             ],
         ];
     }

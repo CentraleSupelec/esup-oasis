@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -49,19 +49,15 @@ class CategorieAmenagementRepository extends ServiceEntityRepository
         $qb->join('c.typesAmenagement', 'types');
 
         if (null !== $examens) {
-            $qb->andWhere('types.examens = :examens')
-                ->setParameter('examens', $examens);
+            $qb->andWhere('types.examens = :examens')->setParameter('examens', $examens);
         }
         if (null !== $aideHumaine) {
-            $qb->andWhere('types.aideHumaine = :aidehumaine')
-                ->setParameter('aidehumaine', $aideHumaine);
+            $qb->andWhere('types.aideHumaine = :aidehumaine')->setParameter('aidehumaine', $aideHumaine);
         }
         if (null !== $pedagogique) {
-            $qb->andWhere('types.pedagogique = :pedagogique')
-                ->setParameter('pedagogique', $pedagogique);
+            $qb->andWhere('types.pedagogique = :pedagogique')->setParameter('pedagogique', $pedagogique);
         }
 
         return $qb->getQuery()->getResult();
-
     }
 }

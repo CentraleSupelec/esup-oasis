@@ -34,7 +34,7 @@ export function QuestionBlocage(props: { question: QuestionnaireQuestion }) {
                icon={<WarningFilled />}
                showIcon
                type="warning"
-               message={props.question.libelle}
+               title={props.question.libelle}
                description={
                   <span dangerouslySetInnerHTML={{ __html: props.question.aide as string }} />
                }

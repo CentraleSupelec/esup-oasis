@@ -192,7 +192,7 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
 
       case EtatDecisionEtablissement.EDITION_DEMANDEE:
          return (
-            <Space direction="vertical" size={0}>
+            <Space orientation="vertical" size={0}>
                <Button
                   loading={loading}
                   icon={<FileDoneOutlined />}

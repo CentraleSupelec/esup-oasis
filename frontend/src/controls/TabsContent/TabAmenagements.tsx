@@ -132,7 +132,12 @@ export function TabAmenagements(props: {
                                                 align="start"
                                              >
                                                 <div>
-                                                   <h5 className="mt-0 mb-0 fs-11">{ta.libelle}</h5>
+                                                   <h5
+                                                      className="mt-0 mb-0 fs-11"
+                                                      style={{ whiteSpace: "pre-wrap" }}
+                                                   >
+                                                      {ta.libelle}
+                                                   </h5>
                                                    <span
                                                       className={`text-${props.domaineAmenagement.couleur}-dark fs-09`}
                                                    >
@@ -149,7 +154,7 @@ export function TabAmenagements(props: {
                                              </Flex>
                                           }
                                           description={
-                                             <Space direction="vertical" className="text-text">
+                                             <Space orientation="vertical" className="text-text">
                                                 {a.debut || a.fin ? (
                                                    <Space align="start" size={[8, 2]} wrap>
                                                       <CalendarOutlined />

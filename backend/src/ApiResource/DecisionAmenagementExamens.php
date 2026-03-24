@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -19,29 +19,31 @@ use ApiPlatform\Metadata\Patch;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProcessor;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProvider;
 use App\Validator\EtatDecisionValideConstraint;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ApiResource(
-    operations            : [
+    operations: [
         new Get(
-            uriTemplate  : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             outputFormats: ['jsonld', 'pdf' => 'application/pdf'],
-            uriVariables : ['uid', 'annee'],
+            uriVariables: ['uid', 'annee'],
         ),
         new Patch(
-            uriTemplate            : self::ITEM_URI,
-            uriVariables           : ['uid', 'annee'],
-            securityPostDenormalize: "is_granted('" . self::MODIFIER_DECISION . "', object)"
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['uid', 'annee'],
+            securityPostDenormalize: "is_granted('" . self::MODIFIER_DECISION . "', object)",
         ),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    security              : "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "')",
-    provider              : DecisionAmenagementExamensProvider::class,
-    processor             : DecisionAmenagementExamensProcessor::class,
-    stateOptions          : new Options(entityClass: \App\Entity\DecisionAmenagementExamens::class)
+    security: "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "')",
+    provider: DecisionAmenagementExamensProvider::class,
+    processor: DecisionAmenagementExamensProcessor::class,
+    stateOptions: new Options(entityClass: \App\Entity\DecisionAmenagementExamens::class),
 )]
+#[Map(target: \App\Entity\DecisionAmenagementExamens::class)]
 class DecisionAmenagementExamens
 {
     public const string ITEM_URI = '/utilisateurs/{uid}/decisions/{annee}';
@@ -50,14 +52,56 @@ class DecisionAmenagementExamens
     public const string GROUP_IN = 'decision:in';
     public const string GROUP_OUT = 'decision:out';
 
-    #[Ignore] public ?int $id = null;
-    #[Ignore] public string $uid;
-    #[Ignore] public int $annee;
+    #[Ignore]
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
+    #[Ignore]
+    public string $uid {
+        get {
+            if (!isset($this->uid) && $this->entity !== null && $this->entity->getBeneficiaire()) {
+                $this->uid = $this->entity->getBeneficiaire()->getUid();
+            }
+            return $this->uid;
+        }
+    }
+    #[Ignore]
+    public int $annee {
+        get {
+            if (!isset($this->annee) && $this->entity !== null && $this->entity->getDebut()) {
+                $this->annee = (int) $this->entity->getDebut()->format('Y');
+            }
+            return $this->annee;
+        }
+    }
 
     #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT, self::GROUP_IN])]
     #[EtatDecisionValideConstraint]
-    public string $etat;
+    public string $etat {
+        get {
+            if (!isset($this->etat) && $this->entity !== null) {
+                $this->etat = $this->entity->getEtat() ?? '';
+            }
+            return $this->etat;
+        }
+    }
 
     #[Groups([self::GROUP_OUT])]
-    public ?string $urlContenu = null;
+    public ?string $urlContenu = null {
+        get {
+            if ($this->urlContenu === null && $this->entity !== null && $this->entity->getFichier()) {
+                $this->urlContenu = '/fichiers/' . $this->entity->getFichier()->getId();
+            }
+            return $this->urlContenu ?? null;
+        }
+    }
+
+    public function __construct(
+        private readonly ?\App\Entity\DecisionAmenagementExamens $entity = null,
+    ) {}
 }

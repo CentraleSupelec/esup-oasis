@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -23,10 +23,18 @@ class CharteUtilisateurFilter extends AbstractFilter
 {
     public const string PROPERTY = 'uidUtilisateurCharte';
 
-    #[Override] protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
-    {
-        /** @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection */
-        if (!$operation->getClass() === CharteDemandeur::class || $property !== self::PROPERTY) {
+    #[Override]
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
+        $entityClass = $operation->getStateOptions()?->getEntityClass() ?? $operation->getClass();
+        if ($entityClass !== CharteDemandeur::class || $property !== self::PROPERTY) {
             return;
         }
 
@@ -35,13 +43,15 @@ class CharteUtilisateurFilter extends AbstractFilter
         $utilisateurAlias = $queryNameGenerator->generateJoinAlias('utilisateur');
         $uidParam = $queryNameGenerator->generateParameterName('uid');
 
-        $queryBuilder->join($alias . '.demande', $demandeAlias)
+        $queryBuilder
+            ->join($alias . '.demande', $demandeAlias)
             ->innerJoin(sprintf('%s.demandeur', $demandeAlias), $utilisateurAlias)
             ->andWhere(sprintf('%s.uid = :%s', $utilisateurAlias, $uidParam))
             ->setParameter($uidParam, $value);
     }
 
-    #[Override] public function getDescription(string $resourceClass): array
+    #[Override]
+    public function getDescription(string $resourceClass): array
     {
         return [];
     }

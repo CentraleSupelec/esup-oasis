@@ -298,7 +298,7 @@ export default function InterventionsForfaitEdit({
                      type="warning"
                      showIcon
                      icon={<ExclamationOutlined />}
-                     message="Aucun bénéficiaire associé"
+                     title="Aucun bénéficiaire associé"
                      description="Vous devez associer les bénéficiaires de cette intervention."
                   />
                )}

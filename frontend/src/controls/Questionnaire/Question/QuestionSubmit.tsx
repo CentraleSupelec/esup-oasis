@@ -49,7 +49,7 @@ export function QuestionSubmit(props: { question: QuestionnaireQuestion }) {
                      );
                   } else {
                      notification.error({
-                        message: "Erreur",
+                        title: "Erreur",
                         description:
                            "Certaines informations du questionnaire n'ont pas été complétées. Veuillez les renseigner avant de valider votre demande.",
                      });

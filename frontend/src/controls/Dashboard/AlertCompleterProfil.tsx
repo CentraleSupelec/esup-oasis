@@ -24,10 +24,10 @@ export default function AlertCompleterProfil(): ReactElement {
          <Alert
             type="info"
             showIcon
-            message="Profil incomplet"
+            title="Profil incomplet"
             description={
                <div>
-                  <Space direction="vertical">
+                  <Space orientation="vertical">
                      <Typography.Text>
                         <b>Votre profil est incomplet</b>. Veuillez compléter votre/vos campus et
                         vos compétences afin que les évènements qui vous seront attribués vous

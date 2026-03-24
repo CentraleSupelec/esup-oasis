@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -24,12 +24,12 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 class EvenementSansChevauchementConstraintValidator extends ConstraintValidator
 {
-    public function __construct(private readonly EvenementManager $evenementManager)
-    {
+    public function __construct(
+        private readonly EvenementManager $evenementManager,
+    ) {}
 
-    }
-
-    #[Override] public function validate(mixed $value, Constraint $constraint): void
+    #[Override]
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof EvenementSansChevauchementConstraint) {
             throw new UnexpectedTypeException($constraint, EvenementSansChevauchementConstraint::class);
@@ -52,14 +52,19 @@ class EvenementSansChevauchementConstraintValidator extends ConstraintValidator
 
         //intervenant
         if (null !== $value->intervenant) {
-            $this->traiterConflits($value->intervenant, $debutEvenement, $finEvenement, $value->id ?? null, $constraint);
+            $this->traiterConflits(
+                $value->intervenant,
+                $debutEvenement,
+                $finEvenement,
+                $value->id ?? null,
+                $constraint,
+            );
         }
 
         //Beneficiaires
         foreach ($value->beneficiaires ?? [] as $beneficiaire) {
             $this->traiterConflits($beneficiaire, $debutEvenement, $finEvenement, $value->id ?? null, $constraint);
         }
-
     }
 
     /**
@@ -70,21 +75,23 @@ class EvenementSansChevauchementConstraintValidator extends ConstraintValidator
      * @param EvenementSansChevauchementConstraint $constraint
      * @return void
      */
-    private function traiterConflits(Utilisateur $utilisateur, DateTimeInterface $debut, DateTimeInterface $fin,
-                                     ?int        $evenementId, EvenementSansChevauchementConstraint $constraint): void
-    {
+    private function traiterConflits(
+        Utilisateur $utilisateur,
+        DateTimeInterface $debut,
+        DateTimeInterface $fin,
+        ?int $evenementId,
+        EvenementSansChevauchementConstraint $constraint,
+    ): void {
         $conflits = array_filter(
             $this->evenementManager->occupationsUtilisateur($utilisateur, $debut, $fin),
-            fn($conflit) => $conflit->getId() !== $evenementId
+            fn($conflit) => $conflit->getId() !== $evenementId,
         );
 
         if (!empty($conflits)) {
-            $this->context->buildViolation($constraint->message)
+            $this->context
+                ->buildViolation($constraint->message)
                 ->setParameter('{{ string }}', $utilisateur->nomAffichage())
                 ->addViolation();
         }
-
     }
-
-
 }

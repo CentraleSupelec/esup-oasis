@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
- * For full copyright and license information please view the LICENSE file distributed with the source code.
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
  *
- * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
  */
 
 import React, { useEffect, useState } from "react";
@@ -126,25 +127,25 @@ export function AuthProvider({
          setLoadingUser(true);
 
          // Récupération des infos de l'utilisateur
-         fetch(
-            new URL(
-               env.REACT_APP_API_PREFIX + `/utilisateurs/${impersonate || login}`,
-               env.REACT_APP_API,
-            ),
-            {
-               method: "GET",
-               credentials: "include",
-               headers: {
-                  "Content-Type": "application/ld+json",
-               },
-            },
-         )
+          fetch(
+              new URL(
+                  env.REACT_APP_API_PREFIX + `/utilisateurs/${impersonate || login}`,
+                  env.REACT_APP_API,
+              ),
+              {
+                  method: "GET",
+                  credentials: "include",
+                  headers: {
+                      "Content-Type": "application/ld+json",
+                  },
+              },
+          )
             .then((userResponse) => {
                userResponse.json().then((userData: IUtilisateur) => {
                   if (userData.roles && userData.roles.length === 1) {
                      // Le seul rôle est ROLE_USER, l'utilisateur n'est pas affecté
                      notification.error({
-                        message: "Erreur",
+                        title: "Erreur",
                         description:
                            "Vous ne possédez pas de rôle valide pour vous connecter à l'application.",
                      });
@@ -201,26 +202,26 @@ export function AuthProvider({
          if (!loadingUser && payload && payload.access_token) {
             // Récupération du token d'authentification
             setLoadingUser(true);
-            fetch(
-               new URL(env.REACT_APP_API_PREFIX + "/connect/oauth/token?json=1", env.REACT_APP_API),
-               {
-                  method: "POST",
-                  credentials: "include",
-                  headers: {
-                     "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                     accessToken: payload?.access_token,
-                  }),
-               },
-            )
+             fetch(
+                 new URL(env.REACT_APP_API_PREFIX + "/connect/oauth/token?json=1", env.REACT_APP_API),
+                 {
+                     method: "POST",
+                     credentials: "include",
+                     headers: {
+                         "Content-Type": "application/json",
+                     },
+                     body: JSON.stringify({
+                         accessToken: payload?.access_token,
+                     }),
+                 },
+             )
                .then((response) => {
                   if (response.status === 401) {
                      // Utilisateur inconnu
                      setErrorUser("Utilisateur inconnu");
                      setLoadingUser(false);
                      notification.error({
-                        message: <b>Erreur de connexion</b>,
+                        title: <b>Erreur de connexion</b>,
                         duration: 0,
                         description: (
                            <p aria-label="Vous n'êtes pas autorisé à accéder à cette application">
@@ -250,7 +251,7 @@ export function AuthProvider({
                .catch((err) => {
                   setErrorUser("Application non accessible");
                   notification.error({
-                     message: <b>Erreur de connexion</b>,
+                     title: <b>Erreur de connexion</b>,
                      duration: 0,
                      description: <p>L'application est actuellement inaccessible.</p>,
                   });

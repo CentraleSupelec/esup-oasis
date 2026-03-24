@@ -34,7 +34,7 @@ export function QuestionText(props: { question: QuestionnaireQuestion }) {
             required={props.question.obligatoire}
             rootClassName="question-item"
             label={
-               <Space className="question" direction="horizontal">
+               <Space className="question" orientation="horizontal">
                   <MinusOutlined aria-hidden={true} />
                   <div>{props.question.libelle}</div>
                </Space>

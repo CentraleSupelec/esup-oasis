@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -14,6 +14,7 @@ namespace App\Repository;
 
 use App\ApiResource\Utilisateur;
 use App\Entity\Evenement;
+use App\Entity\PeriodeRH;
 use App\Entity\TypeEvenement;
 use DateTime;
 use DateTimeImmutable;
@@ -58,7 +59,8 @@ class EvenementRepository extends ServiceEntityRepository
 
     public function findAllNotLocked(?Utilisateur $utilisateur = null): array
     {
-        return $this->createQueryBuilder('e')
+        return $this
+            ->createQueryBuilder('e')
             ->where('e.periodePriseEnCompteRH is null')
             ->getQuery()
             ->getResult();
@@ -66,7 +68,8 @@ class EvenementRepository extends ServiceEntityRepository
 
     public function findAllLocked(): array
     {
-        return $this->createQueryBuilder('e')
+        return $this
+            ->createQueryBuilder('e')
             ->where('e.periodePriseEnCompteRH is not null')
             ->getQuery()
             ->getResult();
@@ -78,7 +81,8 @@ class EvenementRepository extends ServiceEntityRepository
      */
     public function findAllNotLockedBefore(?DateTimeInterface $finPeriode): array
     {
-        return $this->createQueryBuilder('e')
+        return $this
+            ->createQueryBuilder('e')
             ->where('e.periodePriseEnCompteRH is null')
             ->andWhere('e.debut < :finPeriode')
             ->andWhere('e.fin < :finPeriode')
@@ -87,13 +91,19 @@ class EvenementRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function countByDateInterval(DateTimeInterface $debut, ?DateTimeInterface $fin = null, $nonAffectes = false,
-                                        ?Utilisateur      $utilisateur = null, $avecRenforts = false, $sansBeneficiaire = false)
-    {
+    public function countByDateInterval(
+        DateTimeInterface $debut,
+        ?DateTimeInterface $fin = null,
+        $nonAffectes = false,
+        ?Utilisateur $utilisateur = null,
+        $avecRenforts = false,
+        $sansBeneficiaire = false,
+    ) {
         if (null === $fin) {
-            $fin = (new DateTime($debut->format('Y-m-d')))->modify('+10 years');
+            $fin = new DateTime($debut->format('Y-m-d'))->modify('+10 years');
         }
-        $qb = $this->createQueryBuilder('e')
+        $qb = $this
+            ->createQueryBuilder('e')
             ->select('count(distinct e.id) as nb')
             ->where('e.debut between :debutJournee and :finJournee and e.dateAnnulation is null')
             ->setParameter('debutJournee', $debut->format('Y-m-d 00:00'))
@@ -103,17 +113,18 @@ class EvenementRepository extends ServiceEntityRepository
             $qb->andWhere('e.intervenant is null');
         }
         if (!$avecRenforts) {
-            $qb->join('e.type', 'type', JOIN::WITH, 'type.id != :typeId')
-                ->setParameter('typeId', TypeEvenement::TYPE_RENFORT);
+            $qb->join('e.type', 'type', JOIN::WITH, 'type.id != :typeId')->setParameter(
+                'typeId',
+                TypeEvenement::TYPE_RENFORT,
+            );
         }
         if ($sansBeneficiaire) {
-            $qb->andWhere('e.beneficiaires is empty')
-                ->andWhere('type.forfait = false');
+            $qb->andWhere('e.beneficiaires is empty')->andWhere('type.forfait = false');
         }
 
         $this->addUtilisateurFilter($utilisateur, $qb);
 
-        return ($qb->getQuery()->getOneOrNullResult())['nb'];
+        return $qb->getQuery()->getOneOrNullResult()['nb'];
     }
 
     /**
@@ -122,14 +133,15 @@ class EvenementRepository extends ServiceEntityRepository
      */
     public function findValidables(?Utilisateur $utilisateur = null): array
     {
-
-        $qb = $this->createQueryBuilder('e')
+        $qb = $this
+            ->createQueryBuilder('e')
             ->join('e.type', 'type')
             ->where('e.dateValidation is null and type.avecValidation = true and e.dateAnnulation is null');
 
         //On est sur les interventions des renforts, validation par les CAS du même service / les admins
         if (null !== $utilisateur && !in_array(\App\Entity\Utilisateur::ROLE_ADMIN, $utilisateur->roles)) {
-            $qb->join('e.utilisateurCreation', 'renfort')
+            $qb
+                ->join('e.utilisateurCreation', 'renfort')
                 ->join('renfort.services', 'srv')
                 ->join('srv.utilisateurs', 'u', Join::WITH, 'u.uid = :uid')
                 ->setParameter('uid', $utilisateur->uid);
@@ -147,14 +159,15 @@ class EvenementRepository extends ServiceEntityRepository
     {
         if (null !== $utilisateur && !in_array(\App\Entity\Utilisateur::ROLE_ADMIN, $utilisateur->roles)) {
             //where evenement.beneficiaire.gestionnaire.service = utilisateur.service or evenement.intervenant.utilisateur = utilisateur!
-            $qb->join('e.beneficiaires', 'b')
+            $qb
+                ->join('e.beneficiaires', 'b')
                 ->join('b.gestionnaire', 'g')
-                ->join('g.services', 's') //null par défaut pour les admins - voir s'il faut changer la logique un jour...
+                ->join('g.services', 's')
                 ->join('s.utilisateurs', 'u')
-                ->leftJoin('e.intervenant', 'intervenant') //intervenant est nullable
+                ->leftJoin('e.intervenant', 'intervenant')
                 ->leftJoin('intervenant.utilisateur', 'u2')
                 ->andWhere('u.uid = :uid or u2.uid = :uid')
-                ->setParameter('uid', $utilisateur->uid);
+                ->setParameter('uid', $utilisateur->uid); //null par défaut pour les admins - voir s'il faut changer la logique un jour... //intervenant est nullable
         }
     }
 
@@ -164,9 +177,13 @@ class EvenementRepository extends ServiceEntityRepository
      * @param bool $sansIntervenants
      * @return Evenement[]
      */
-    public function evenementsAVenir(DateTimeImmutable $depuis, DateTimeImmutable $jusqua, bool $sansIntervenants): array
-    {
-        $qb = $this->createQueryBuilder('e')
+    public function evenementsAVenir(
+        DateTimeImmutable $depuis,
+        DateTimeImmutable $jusqua,
+        bool $sansIntervenants,
+    ): array {
+        $qb = $this
+            ->createQueryBuilder('e')
             ->andWhere('e.dateAnnulation is null')
             ->andWhere('e.debut < :fin')
             ->andWhere('e.debut > :debut')
@@ -176,7 +193,6 @@ class EvenementRepository extends ServiceEntityRepository
 
         if (!$sansIntervenants) {
             $qb->andWhere('e.intervenant is not null');
-
         }
 
         return $qb->getQuery()->getResult();
@@ -191,13 +207,18 @@ class EvenementRepository extends ServiceEntityRepository
     public function occupationsUtilisateur(Utilisateur $utilisateur, $debutIntervalle, $finIntervalle): array
     {
         $where = "(:debut between date_add(e.debut, (0 - e.tempsPreparation), 'MINUTE') and date_add(e.fin, e.tempsSupplementaire, 'MINUTE')";
-        $where .= " or e.debut between :debut and :fin)";
+        $where .= ' or e.debut between :debut and :fin)';
 
-        $qb = $this->createQueryBuilder('e')
+        $qb = $this
+            ->createQueryBuilder('e')
             ->leftJoin('e.beneficiaires', 'benef')
             ->leftJoin('e.intervenant', 'i')
-            ->join(join: 'App\Entity\Utilisateur', alias: 'u', conditionType: Join::WITH,
-                condition: 'u.uid = :uid and (u = benef.utilisateur or u = i.utilisateur)')
+            ->join(
+                join: 'App\Entity\Utilisateur',
+                alias: 'u',
+                conditionType: Join::ON,
+                condition: 'u.uid = :uid and (u = benef.utilisateur or u = i.utilisateur)',
+            )
             ->setParameter('uid', $utilisateur->uid)
             ->andWhere($where)
             ->setParameter('debut', $debutIntervalle)
@@ -224,20 +245,26 @@ class EvenementRepository extends ServiceEntityRepository
      * @param bool $avecRenforts
      * @return array
      */
-    public function evenementsIntervalle(DateTimeInterface $debutSemaine, DateTimeInterface $finSemaine,
-                                         ?Utilisateur      $utilisateur, $avecRenforts = false): array
-    {
-        $qb = $this->createQueryBuilder('e')
+    public function evenementsIntervalle(
+        DateTimeInterface $debutSemaine,
+        DateTimeInterface $finSemaine,
+        ?Utilisateur $utilisateur,
+        $avecRenforts = false,
+    ): array {
+        $qb = $this
+            ->createQueryBuilder('e')
             ->distinct('e.id')
-            ->andWhere("e.debut between :debutJournee and :finJournee and e.dateAnnulation is null")
+            ->andWhere('e.debut between :debutJournee and :finJournee and e.dateAnnulation is null')
             ->setParameter('debutJournee', $debutSemaine->format('Y-m-d 00:00'))
             ->setParameter('finJournee', $finSemaine->format('Y-m-d 23:59'));
 
         $this->addUtilisateurFilter($utilisateur, $qb);
 
         if (!$avecRenforts) {
-            $qb->join('e.type', 'type', JOIN::WITH, 'type.id != :typeId')
-                ->setParameter('typeId', TypeEvenement::TYPE_RENFORT);
+            $qb->join('e.type', 'type', JOIN::WITH, 'type.id != :typeId')->setParameter(
+                'typeId',
+                TypeEvenement::TYPE_RENFORT,
+            );
         }
 
         return $qb->getQuery()->getResult();
@@ -245,14 +272,41 @@ class EvenementRepository extends ServiceEntityRepository
 
     public function countByIdBeneficiaire(?int $id)
     {
-        $qb = $this->createQueryBuilder('e')
+        $qb = $this
+            ->createQueryBuilder('e')
             ->select('count(e.id) as nb')
             ->join('e.beneficiaires', 'b')
             ->andWhere('b.id = :id')
             ->andWhere('e.dateAnnulation is null')
             ->setParameter('id', $id);
 
-        return ($qb->getQuery()->getOneOrNullResult())['nb'];
+        return $qb->getQuery()->getOneOrNullResult()['nb'];
     }
 
+    public function countEvenementsDuJour(DateTimeInterface $now, ?Utilisateur $utilisateur, bool $nonAffectes = false)
+    {
+        return $this->countByDateInterval($now, $now, $nonAffectes, $utilisateur);
+    }
+
+    public function parPeriodeEtIntervenant(PeriodeRH $periode, ?string $uid = null)
+    {
+        if ($uid) {
+            $qb = $this
+                ->createQueryBuilder('e')
+                ->join('e.intervenant', 'i')
+                ->join('i.utilisateur', 'u', JOIN::WITH, 'u.uid = :uid')
+                ->andWhere('e.periodePriseEnCompteRH = :periode')
+                ->setParameter('periode', $periode)
+                ->setParameter('uid', $uid);
+        } else {
+            $qb = $this
+                ->createQueryBuilder('e')
+                ->andWhere('e.periodePriseEnCompteRH = :periode')
+                ->join('e.intervenant', 'i')
+                ->join('i.utilisateur', 'u', JOIN::WITH, 'u.gestionnaire = false')
+                ->setParameter('periode', $periode);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

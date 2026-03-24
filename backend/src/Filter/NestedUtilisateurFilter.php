@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -21,18 +21,20 @@ use ApiPlatform\OpenApi\Model\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\PropertyInfo\Type;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 
 class NestedUtilisateurFilter extends AbstractFilter
 {
-
     use PropertyHelperTrait;
 
-    public function __construct(private readonly IriConverterInterface $iriConverter, ManagerRegistry $managerRegistry,
-                                ?LoggerInterface                       $logger = null, ?array $properties = null,
-                                ?NameConverterInterface                $nameConverter = null)
-    {
+    public function __construct(
+        private readonly IriConverterInterface $iriConverter,
+        ManagerRegistry $managerRegistry,
+        ?LoggerInterface $logger = null,
+        ?array $properties = null,
+        ?NameConverterInterface $nameConverter = null,
+    ) {
         parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
     }
 
@@ -46,10 +48,15 @@ class NestedUtilisateurFilter extends AbstractFilter
      * @param array $context
      * @return void
      */
-    protected function filterProperty(string                      $property, $value, QueryBuilder $queryBuilder,
-                                      QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass,
-                                      ?Operation                  $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         if (!in_array($property, array_keys($this->getProperties()))) {
             return;
         }
@@ -90,7 +97,6 @@ class NestedUtilisateurFilter extends AbstractFilter
         $queryBuilder->join(sprintf('%s.%s', $alias, $targetField), $joinAlias);
 
         $queryBuilder->andWhere($joinAlias . '.uid in (' . $uidInList . ')');
-
     }
 
     public function getDescription(string $resourceClass): array
@@ -99,29 +105,19 @@ class NestedUtilisateurFilter extends AbstractFilter
         foreach ($this->getProperties() as $property => $value) {
             $description[$property] = [
                 'property' => $property,
-                'type' => Type::BUILTIN_TYPE_STRING,
+                'type' => TypeIdentifier::STRING,
                 'required' => false,
                 'is_collection' => false,
-                'openapi' => new Parameter(
-                    name: $property,
-                    in: 'query',
-                    description: 'IRI utilisateur',
-                ),
+                'openapi' => new Parameter(name: $property, in: 'query', description: 'IRI utilisateur'),
             ];
             $description[$property . '[]'] = [
                 'property' => $property,
-                'type' => Type::BUILTIN_TYPE_STRING,
+                'type' => TypeIdentifier::STRING,
                 'required' => false,
                 'is_collection' => true,
-                'openapi' => new Parameter(
-                    name: $property,
-                    in: 'query',
-                    description: 'IRIs utilisateur',
-                )
+                'openapi' => new Parameter(name: $property, in: 'query', description: 'IRIs utilisateur'),
             ];
         }
         return $description;
     }
-
-
 }

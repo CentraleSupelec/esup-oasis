@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
- * For full copyright and license information please view the LICENSE file distributed with the source code.
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
  *
- * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -78,6 +79,7 @@ export function amenagementsBeneficiaireTableColumns(props: {
    categoriesAmenagements: ICategorieAmenagement[];
    navigate: NavigateFunction;
    user: Utilisateur;
+   fixPremiereColonne: boolean;
 }): ColumnsType<IBeneficiaire> {
    function buildHierarchie(): AmenagementBeneficiaireHierarchie[] {
       const hierarchie: Record<string, any> = [];
@@ -112,7 +114,7 @@ export function amenagementsBeneficiaireTableColumns(props: {
    return [
       {
          title: "Bénéficiaire",
-         // fixed: "left",
+         fixed: props.fixPremiereColonne ? "left": undefined,
          dataIndex: "key",
          sortDirections: ["ascend", "descend"],
          sorter: true,
@@ -125,7 +127,7 @@ export function amenagementsBeneficiaireTableColumns(props: {
                  return {
                     className: "pointer",
                     onClick: () => {
-                       props.navigate(`/beneficiaires/${record.uid as string}`);
+                        props.navigate(`/beneficiaires/${record.uid as string}`);
                     },
                  };
               }
@@ -148,7 +150,7 @@ export function amenagementsBeneficiaireTableColumns(props: {
                            icon={<Icon component={ExternalLink} className="fs-08" />}
                            onClick={(e) => {
                               e.stopPropagation();
-                              window.open(`/beneficiaires/${record.uid as string}`, "_blank");
+                               window.open(`/beneficiaires/${record.uid as string}`, "_blank");
                            }}
                         />
                      </Tooltip>
@@ -162,7 +164,7 @@ export function amenagementsBeneficiaireTableColumns(props: {
          dataIndex: "inscription",
          render: (value: any) => {
             return value ? (
-               <Space direction="vertical" size={2}>
+               <Space orientation="vertical" size={2}>
                   <ComposanteItem composanteId={value?.formation?.composante["@id"]} />
                   <EllipsisMiddle
                      className="light"

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,6 +13,7 @@
 namespace App\Entity;
 
 use App\Repository\CampagneDemandeRepository;
+use App\State\EntityToResourceTransformer;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -20,8 +21,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Clock\ClockAwareTrait;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: CampagneDemandeRepository::class)]
+#[Map(target: \App\ApiResource\CampagneDemande::class, transform: [
+    EntityToResourceTransformer::class,
+    'entityToResource',
+])]
 class CampagneDemande
 {
     use ClockAwareTrait;
@@ -29,34 +35,44 @@ class CampagneDemande
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'campagnes')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?TypeDemande $typeDemande = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Map(if: false)]
     private ?DateTimeInterface $debut = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Map(if: false)]
     private ?DateTimeInterface $fin = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Map(if: false)]
     private ?string $libelle = null;
 
     #[ORM\OneToMany(mappedBy: 'campagne', targetEntity: Demande::class)]
+    #[Map(if: false)]
     private Collection $demandes;
 
     #[ORM\ManyToOne(inversedBy: 'campagnes')]
+    #[Map(if: false)]
     private ?Commission $commission = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Map(if: false)]
     private ?DateTimeInterface $dateCommission = null;
 
     #[ORM\Column(nullable: true)]
+    #[Map(if: false)]
     private ?int $anneeCible = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Map(if: false)]
     private ?DateTimeInterface $dateArchivage = null;
 
     public function __construct()
@@ -168,7 +184,7 @@ class CampagneDemande
     {
         $this->dateCommission = match ($dateCommission) {
             null => null,
-            default => DateTime::createFromInterface($dateCommission)
+            default => DateTime::createFromInterface($dateCommission),
         };
 
         return $this;
@@ -206,7 +222,7 @@ class CampagneDemande
     {
         return match ($this->getDateCommission()) {
             null => false,
-            default => $this->now() <= $this->getDateCommission()
+            default => $this->now() <= $this->getDateCommission(),
         };
     }
 
@@ -219,7 +235,7 @@ class CampagneDemande
     {
         $this->dateArchivage = match ($dateArchivage) {
             null => null,
-            default => DateTime::createFromInterface($dateArchivage)
+            default => DateTime::createFromInterface($dateArchivage),
         };
 
         return $this;

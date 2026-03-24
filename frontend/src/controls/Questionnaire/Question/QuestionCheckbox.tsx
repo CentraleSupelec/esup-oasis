@@ -31,7 +31,7 @@ export function QuestionCheckbox(props: { question: QuestionnaireQuestion }) {
             rootClassName="question-item"
             name={props.question["@id"]}
             label={
-               <Space className="question" direction="horizontal">
+               <Space className="question" orientation="horizontal">
                   <MinusOutlined aria-hidden={true} />
                   <div>{props.question.libelle}</div>
                </Space>

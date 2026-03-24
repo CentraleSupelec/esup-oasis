@@ -47,6 +47,9 @@ services:
       $ldapPassword: '%env(resolve:LDAP_PASSWORD)%'
       $ldapDn: '%env(resolve:LDAP_DN)%'
 
+  App\Service\SiScol\AbstractSiScolDataProvider:
+    alias: App\Service\SiScol\ApogeeProvider
+
   App\Service\SiScol\ApogeeProvider:
     arguments:
       $username: '%env(resolve:APOGEE_USER)%'
@@ -55,7 +58,7 @@ services:
 
   App\State\Utilisateur\UtilisateurManager:
     arguments:
-      $scolProvider: '@App\Service\SiScol\ApogeeProvider'
+      $scolProvider: '@App\Service\SiScol\AbstractSiScolDataProvider'
 
   App\Command\InitDonneesCommand:
     arguments:
@@ -77,12 +80,6 @@ services:
     arguments:
       $envoyer: '%env(resolve:APP_ENVOYER_MAILS_TEST)%'
 
-  App\Service\HtmlToPdfConverter:
-    arguments:
-      $apiUri: '%env(resolve:HTMLTOPDFAPI_URL)%'
-      $appId: '%env(resolve:HTMLTOPDFAPI_APPID)%'
-      $apiKey: '%env(resolve:HTMLTOPDFAPI_APIKEY)%'
-
   App\Serializer\DemandeDenormalizer:
     arguments:
       $itemNormalizer: '@api_platform.jsonld.normalizer.item'
@@ -99,7 +96,7 @@ services:
 
   App\Scheduler\MajFormations\MajFormations:
     arguments:
-      $scolProvider: '@App\Service\SiScol\ApogeeProvider'
+      $scolProvider: '@App\Service\SiScol\AbstractSiScolDataProvider'
 
   App\Service\FileStorage\FileSystemStorageProvider:
     arguments:
@@ -114,3 +111,21 @@ services:
     arguments:
       $server: '%env(resolve:CLAMAV_SERVER)%'
       $port: '%env(resolve:CLAMAV_PORT)%'
+  App\Service\Photo\PhotoProviderInterface:
+    alias: App\Service\Photo\UnicampusProvider
+
+when@test:
+  services:
+    App\Test\NoopPurger: ~
+    api_platform.http_cache.purger.souin:
+      alias: App\Test\NoopPurger
+    ApiPlatform\HttpCache\PurgerInterface:
+      alias: App\Test\NoopPurger
+    App\Service\SiScol\AbstractSiScolDataProvider:
+      alias: App\Service\SiScol\FakeSiScolDataProvider
+    Sensiolabs\GotenbergBundle\GotenbergPdfInterface:
+      class: App\Test\GotenbergPdfMock
+    App\Service\LdapService:
+      class: App\Test\FakeLdapService
+    App\Service\Photo\PhotoProviderInterface:
+      alias: App\Test\FakePhotoProvider

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -19,19 +19,16 @@ use App\ApiResource\Utilisateur;
 use App\Message\RessourceCollectionModifieeMessage;
 use App\Message\RessourceModifieeMessage;
 use App\Repository\TagRepository;
-use App\State\TransformerService;
 use Override;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class DeleteTagUtilisateurProcessor implements ProcessorInterface
 {
-
-    public function __construct(private UtilisateurManager  $utilisateurManager,
-                                private TagRepository       $tagRepository,
-                                private TransformerService  $transformerService,
-                                private MessageBusInterface $messageBus)
-    {
-    }
+    public function __construct(
+        private UtilisateurManager $utilisateurManager,
+        private TagRepository $tagRepository,
+        private MessageBusInterface $messageBus,
+    ) {}
 
     /**
      * @param TagUtilisateur $data
@@ -40,13 +37,14 @@ readonly class DeleteTagUtilisateurProcessor implements ProcessorInterface
      * @param array $context
      * @return void
      */
-    #[Override] public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
+    #[Override]
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
         $utilisateur = $this->utilisateurManager->parUid($data->uid);
         $tag = $this->tagRepository->find($data->id);
         $this->utilisateurManager->supprimerTag($utilisateur, $tag);
-        $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($data));
-        $utilisateurResource = $this->transformerService->transform($utilisateur, Utilisateur::class);
+        $utilisateurResource = new Utilisateur($utilisateur);
         $this->messageBus->dispatch(new RessourceModifieeMessage($utilisateurResource));
+        $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($data));
     }
 }

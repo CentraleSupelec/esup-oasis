@@ -187,7 +187,7 @@ export default function EvenementModal({ id, initialEvenement }: IEvenementModal
    return (
       <Modal
          key={evenement["@id"] || "evenenement-modal"}
-         destroyOnClose
+         destroyOnHidden
          open={evenement !== undefined}
          width="66%"
          className="oasis-modal"
@@ -223,7 +223,7 @@ export default function EvenementModal({ id, initialEvenement }: IEvenementModal
                         evenement={evenement}
                         onCopy={() => {
                            notification.success({
-                              message: "Informations de l'évènement copiées dans le presse-papier",
+                              title: "Informations de l'évènement copiées dans le presse-papier",
                            });
                         }}
                      />

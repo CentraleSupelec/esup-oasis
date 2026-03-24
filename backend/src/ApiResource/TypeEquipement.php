@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -24,45 +24,39 @@ use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\CaseInsensitiveOrderFilter;
 use App\State\TypeEquipement\TypeEquipementProcessor;
 use App\State\TypeEquipement\TypeEquipementProvider;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\ObjectMapper\Attribute\Map;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    operations            : [
+    operations: [
         new GetCollection(
             uriTemplate: self::COLLECTION_URI,
-            openapi    : new Operation(
-                tags       : ['Referentiel'],
-                summary    : "Liste des types d'équipements",
+            openapi: new Operation(
+                tags: ['Referentiel'],
+                summary: "Liste des types d'équipements",
                 description: "Retourne la liste des types d'équipements",
-            )
+            ),
         ),
         new Get(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['id' => 'id'],
-            openapi     : new Operation(
-                tags       : ['Referentiel'],
-                summary    : "Détail d'un types d'équipements",
-                description: "Retourne le détail du type d'équipement demandé"
-            )
-        ),
-        new Post(
-            uriTemplate: self::COLLECTION_URI,
-            security   : "is_granted('ROLE_ADMIN')",
-        ),
-        new Patch(
             uriTemplate: self::ITEM_URI,
-            security   : "is_granted('ROLE_ADMIN')",
+            uriVariables: ['id' => 'id'],
+            openapi: new Operation(
+                tags: ['Referentiel'],
+                summary: "Détail d'un types d'équipements",
+                description: "Retourne le détail du type d'équipement demandé",
+            ),
         ),
+        new Post(uriTemplate: self::COLLECTION_URI, security: "is_granted('ROLE_ADMIN')"),
+        new Patch(uriTemplate: self::ITEM_URI, security: "is_granted('ROLE_ADMIN')"),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    openapi               : new Operation(tags: ['Referentiel']),
-    provider              : TypeEquipementProvider::class,
-    processor             : TypeEquipementProcessor::class,
-    stateOptions          : new Options(entityClass: \App\Entity\TypeEquipement::class)
+    openapi: new Operation(tags: ['Referentiel']),
+    stateOptions: new Options(entityClass: \App\Entity\TypeEquipement::class),
 )]
 #[ApiFilter(CaseInsensitiveOrderFilter::class, properties: ['libelle'])]
+#[Map(target: \App\Entity\TypeEquipement::class)]
 final class TypeEquipement
 {
     public const string COLLECTION_URI = '/types_equipements';
@@ -72,10 +66,37 @@ final class TypeEquipement
 
     #[ApiProperty(identifier: true)]
     #[Groups([self::GROUP_OUT])]
-    public int $id;
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
+
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
     #[Assert\NotBlank]
-    public string $libelle;
+    public ?string $libelle = null {
+        get {
+            if ($this->libelle === null && $this->entity !== null) {
+                $this->libelle = $this->entity->getLibelle();
+            }
+            return $this->libelle ?? null;
+        }
+    }
+
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public bool $actif = true;
+    public ?bool $actif = null {
+        get {
+            if ($this->actif === null && $this->entity !== null) {
+                $this->actif = $this->entity->isActif();
+            }
+            return $this->actif ?? true;
+        }
+    }
+
+    public function __construct(
+        private readonly ?\App\Entity\TypeEquipement $entity = null,
+    ) {}
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -14,7 +14,6 @@ namespace App\Filter;
 
 use ApiPlatform\Metadata\FilterInterface;
 use ApiPlatform\OpenApi\Model\Parameter;
-use Symfony\Component\PropertyInfo\Type;
 
 class DemandeFormatFilter implements FilterInterface
 {
@@ -23,13 +22,14 @@ class DemandeFormatFilter implements FilterInterface
         return [
             'format_simple' => [
                 'property' => 'format simplifié',
-                'type' => Type::BUILTIN_TYPE_BOOL,
+                'type' => 'bool',
                 'required' => false,
                 'is_collection' => false,
                 'openapi' => new Parameter(
-                    name: 'format',
+                    name: 'format_simple',
                     in: 'query',
                     description: 'format simplifié',
+                    schema: ['type' => 'bool'],
                 ),
             ],
         ];

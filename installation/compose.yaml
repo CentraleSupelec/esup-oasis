@@ -28,7 +28,6 @@ services:
     platform: linux/amd64
 
   backend:
-    platform: linux/amd64
     container_name: oasis-backend
     build:
       context: ./backend
@@ -61,7 +60,6 @@ services:
 
 
   backend-worker:
-    platform: linux/amd64
     container_name: oasis-backend-worker
     build:
       context: ./backend
@@ -85,7 +83,6 @@ services:
       - .env
 
   frontend:
-    platform: linux/amd64
     container_name: oasis-frontend
     build:
       context: ./frontend
@@ -101,7 +98,6 @@ services:
       - "${FRONTEND_PORT:-8080}:80"
 
   caddy:
-    platform: linux/amd64
     container_name: oasis-caddy
     build:
       context: ./caddy

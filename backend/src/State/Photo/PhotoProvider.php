@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -22,14 +22,13 @@ use Override;
 
 readonly class PhotoProvider implements ProviderInterface
 {
+    public function __construct(
+        private PhotoProviderInterface $photoProvider,
+        private UtilisateurManager $utilisateurManager,
+    ) {}
 
-    public function __construct(private PhotoProviderInterface $photoProvider,
-                                private UtilisateurManager     $utilisateurManager)
-    {
-
-    }
-
-    #[Override] public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
+    #[Override]
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         //GET sur un item seulement, uid de l'utilisateur dans $uriVariables
         $utilisateur = $this->utilisateurManager->parUid($uriVariables['uid']);

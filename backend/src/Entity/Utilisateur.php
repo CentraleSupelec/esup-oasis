@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,6 +13,7 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
+use App\State\EntityToResourceTransformer;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -21,10 +22,12 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Clock\ClockAwareTrait;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
 #[UniqueEntity('numeroAnonyme')]
+#[Map(target: \App\ApiResource\Utilisateur::class, transform: [EntityToResourceTransformer::class, 'entityToResource'])]
 class Utilisateur implements UserInterface
 {
     use ClockAwareTrait;
@@ -47,147 +50,201 @@ class Utilisateur implements UserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Map(if: false)]
     private ?string $uid = null;
 
     #[ORM\Column(length: 255)]
+    #[Map(if: false)]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
+    #[Map(if: false)]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Map(if: false)]
     private ?string $prenom = null;
 
-    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Beneficiaire::class,
-        cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(["debut" => "DESC"])]
+    #[ORM\OneToMany(
+        targetEntity: Beneficiaire::class,
+        mappedBy: 'utilisateur',
+        cascade: ['persist', 'remove'],
+        orphanRemoval: true,
+    )]
+    #[ORM\OrderBy(['debut' => 'DESC'])]
+    #[Map(if: false)]
     private Collection $beneficiaires;
 
     #[ORM\OneToOne(mappedBy: 'utilisateur', cascade: ['persist', 'remove'])]
+    #[Map(if: false)]
     private ?Intervenant $intervenant = null;
 
     #[ORM\Column(options: ['default' => false])]
+    #[Map(if: false)]
     private ?bool $admin = false;
 
     #[ORM\ManyToMany(targetEntity: Service::class, inversedBy: 'utilisateurs')]
+    #[Map(if: false)]
     private Collection $services;
 
-    #[ORM\OneToMany(mappedBy: 'gestionnaire', targetEntity: Beneficiaire::class)]
+    #[ORM\OneToMany(targetEntity: Beneficiaire::class, mappedBy: 'gestionnaire')]
+    #[Map(if: false)]
     private Collection $beneficiairesGeres;
 
-    #[ORM\OneToMany(mappedBy: 'etudiant', targetEntity: Inscription::class, cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Inscription::class, mappedBy: 'etudiant', cascade: ['persist'], orphanRemoval: true)]
+    #[Map(if: false)]
     private Collection $inscriptions;
 
     #[ORM\Column(nullable: true)]
+    #[Map(if: false)]
     private ?int $numeroEtudiant = null;
 
-    #[ORM\OneToMany(mappedBy: 'utilisateurCreation', targetEntity: Evenement::class)]
+    #[ORM\OneToMany(targetEntity: Evenement::class, mappedBy: 'utilisateurCreation')]
+    #[Map(if: false)]
     private Collection $evenementsCrees;
 
-    #[ORM\OneToMany(mappedBy: 'utilisateurModification', targetEntity: Evenement::class)]
+    #[ORM\OneToMany(targetEntity: Evenement::class, mappedBy: 'utilisateurModification')]
+    #[Map(if: false)]
     private Collection $evenementsModifies;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Map(if: false)]
     private ?string $emailPerso = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Map(if: false)]
     private ?string $telPerso = null;
 
     #[ORM\Column(options: ['default' => false])]
+    #[Map(if: false)]
     private bool $abonneImmediat = false;
 
     #[ORM\Column(options: ['default' => false])]
+    #[Map(if: false)]
     private bool $abonneVeille = false;
 
     #[ORM\Column(options: ['default' => false])]
+    #[Map(if: false)]
     private bool $abonneAvantVeille = false;
 
     #[ORM\Column(options: ['default' => false])]
+    #[Map(if: false)]
     private bool $abonneRecapHebdo = false;
 
     #[ORM\Column(options: ['default' => false])]
+    #[Map(if: false)]
     private ?bool $destinataireTechnique = false;
 
-    #[ORM\OneToMany(mappedBy: 'repondant', targetEntity: Reponse::class, fetch: 'EXTRA_LAZY', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Reponse::class, mappedBy: 'repondant', fetch: 'EXTRA_LAZY', orphanRemoval: true)]
+    #[Map(if: false)]
     private Collection $reponses;
 
-    #[ORM\OneToMany(mappedBy: 'demandeur', targetEntity: Demande::class, fetch: 'EXTRA_LAZY', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Demande::class, mappedBy: 'demandeur', fetch: 'EXTRA_LAZY', orphanRemoval: true)]
+    #[Map(if: false)]
     private Collection $demandes;
 
-    #[ORM\OneToMany(mappedBy: 'proprietaire', targetEntity: Fichier::class)]
+    #[ORM\OneToMany(targetEntity: Fichier::class, mappedBy: 'proprietaire')]
+    #[Map(if: false)]
     private Collection $fichiers;
 
-    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: MembreCommission::class,
-        cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(
+        targetEntity: MembreCommission::class,
+        mappedBy: 'utilisateur',
+        cascade: ['persist'],
+        orphanRemoval: true,
+    )]
+    #[Map(if: false)]
     private Collection $membreCommissions;
 
     #[ORM\Column(length: 1, nullable: true)]
+    #[Map(if: false)]
     private ?string $genre = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Map(if: false)]
     private ?DateTimeInterface $dateNaissance = null;
 
-    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: AvisEse::class, orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: AvisEse::class, mappedBy: 'utilisateur', orphanRemoval: true)]
+    #[Map(if: false)]
     private Collection $avisEse;
 
     /**
      * @var Collection<int, Entretien>
      */
-    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Entretien::class, orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Entretien::class, mappedBy: 'utilisateur', orphanRemoval: true)]
+    #[Map(if: false)]
     private Collection $entretiens;
 
     /**
      * @var Collection<int, ParametreUI>
      */
-    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: ParametreUI::class, orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: ParametreUI::class, mappedBy: 'utilisateur', orphanRemoval: true)]
+    #[Map(if: false)]
     private Collection $parametresUI;
 
     /**
      * @var Collection<int, Composante>
      */
     #[ORM\ManyToMany(targetEntity: Composante::class, mappedBy: 'referents')]
+    #[Map(if: false)]
     private Collection $composantes;
 
     /**
      * @var Collection<int, DecisionAmenagementExamens>
      */
-    #[ORM\OneToMany(mappedBy: 'beneficiaire', targetEntity: DecisionAmenagementExamens::class, orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: DecisionAmenagementExamens::class, mappedBy: 'beneficiaire', orphanRemoval: true)]
+    #[Map(if: false)]
     private Collection $decisionsAmenagementExamens;
 
     /**
      * @var Collection<int, PieceJointeBeneficiaire>
      */
-    #[ORM\OneToMany(mappedBy: 'beneficiaire', targetEntity: PieceJointeBeneficiaire::class, cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(
+        targetEntity: PieceJointeBeneficiaire::class,
+        mappedBy: 'beneficiaire',
+        cascade: ['persist'],
+        orphanRemoval: true,
+    )]
+    #[Map(if: false)]
     private Collection $piecesJointes;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Map(if: false)]
     private ?string $contactUrgence = null;
 
     #[ORM\Column(nullable: true)]
+    #[Map(if: false)]
     private ?bool $boursier = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Map(if: false)]
     private ?string $statutEtudiant = null;
 
     #[ORM\Column(unique: true, nullable: true)]
+    #[Map(if: false)]
     private ?int $numeroAnonyme = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['jsonb' => true])]
+    #[Map(if: false)]
     private ?array $roles = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Map(if: false)]
     private ?string $etatAvisEse = null;
 
     /**
      * @var Collection<int, Bilan>
      */
-    #[ORM\OneToMany(mappedBy: 'demandeur', targetEntity: Bilan::class)]
+    #[ORM\OneToMany(targetEntity: Bilan::class, mappedBy: 'demandeur')]
+    #[Map(if: false)]
     private Collection $bilans;
 
     #[ORM\Column(options: ['default' => false])]
+    #[Map(if: false)]
     private ?bool $gestionnaire = false;
 
     public function __construct()
@@ -235,7 +292,7 @@ class Utilisateur implements UserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string)$this->uid;
+        return (string) $this->uid;
     }
 
     /**
@@ -342,7 +399,6 @@ class Utilisateur implements UserInterface
 
         return $this;
     }
-
 
     public function getNom(): ?string
     {
@@ -749,7 +805,10 @@ class Utilisateur implements UserInterface
 
         //demande en cours?
         foreach ($this->getDemandes() as $demande) {
-            if ($demande->getEtat()->getId() === EtatDemande::EN_COURS || $demande->getEtat()->getId() === EtatDemande::NON_CONFORME) {
+            if (
+                $demande->getEtat()->getId() === EtatDemande::EN_COURS
+                || $demande->getEtat()->getId() === EtatDemande::NON_CONFORME
+            ) {
                 return true;
             }
         }
@@ -852,7 +911,10 @@ class Utilisateur implements UserInterface
         $now = $this->now();
         $benefs = [];
         foreach ($this->getBeneficiaires() as $beneficiaire) {
-            if ($now >= $beneficiaire->getDebut() && (null == $beneficiaire->getFin() || $now < $beneficiaire->getFin())) {
+            if (
+                $now >= $beneficiaire->getDebut()
+                && (null == $beneficiaire->getFin() || $now < $beneficiaire->getFin())
+            ) {
                 $benefs[] = $beneficiaire;
             }
         }
@@ -952,7 +1014,7 @@ class Utilisateur implements UserInterface
         foreach ($this->getBeneficiairesActifs() as $beneficiaire) {
             $amenagementsActifs = array_filter(
                 $beneficiaire->getAmenagementsActifs(),
-                fn($amenagement) => !array_key_exists($amenagement->getId(), $amenagements)
+                fn($amenagement) => !array_key_exists($amenagement->getId(), $amenagements),
             );
             foreach ($amenagementsActifs as $amenagementsActif) {
                 $amenagements[$amenagementsActif->getId()] = $amenagementsActif;
@@ -1068,7 +1130,7 @@ class Utilisateur implements UserInterface
         $now = $this->now();
         return array_filter(
             $this->getInscriptions()->toArray(),
-            fn(Inscription $ins) => $now >= $ins->getDebut() && $now <= $ins->getFin()
+            fn(Inscription $ins) => $now >= $ins->getDebut() && $now <= $ins->getFin(),
         );
     }
 
@@ -1102,8 +1164,10 @@ class Utilisateur implements UserInterface
         return $this;
     }
 
-    public function getDecisionAmenagementExamens(DateTimeInterface $debut, DateTimeInterface $fin): DecisionAmenagementExamens|null
-    {
+    public function getDecisionAmenagementExamens(
+        DateTimeInterface $debut,
+        DateTimeInterface $fin,
+    ): ?DecisionAmenagementExamens {
         foreach ($this->getDecisionsAmenagementExamens() as $decision) {
             if ($debut == $decision->getDebut() && $fin == $decision->getFin()) {
                 return $decision;
@@ -1195,19 +1259,22 @@ class Utilisateur implements UserInterface
      * @param DateTime $fin
      * @return Beneficiaire[]
      */
-    public function getBeneficiairesParIntervalle(DateTimeInterface $debut, DateTimeInterface $fin,
-                                                  bool              $avecAccompagnement = true): array
-    {
+    public function getBeneficiairesParIntervalle(
+        DateTimeInterface $debut,
+        DateTimeInterface $fin,
+        bool $avecAccompagnement = true,
+    ): array {
         return array_filter(
             $this->getBeneficiaires()->toArray(),
             fn(Beneficiaire $benef) => (
                 (!$avecAccompagnement || $benef->isAvecAccompagnement())
                 && (
-                    ($debut >= $benef->getDebut() && ($debut < $benef->getFin() || $benef->getFin() === null))
-                    ||
-                    ($benef->getDebut() >= $debut && $benef->getDebut() < $fin)
+                    $debut >= $benef->getDebut()
+                    && ($debut < $benef->getFin() || $benef->getFin() === null)
+                    || $benef->getDebut() >= $debut
+                    && $benef->getDebut() < $fin
                 )
-            )
+            ),
         );
     }
 
@@ -1277,12 +1344,11 @@ class Utilisateur implements UserInterface
         return $this;
     }
 
-
     public function countEntretiens(DateTimeInterface $debut, DateTimeInterface $fin): int
     {
         $entretiensDansIntervalle = array_filter(
             $this->getEntretiens()->toArray(),
-            fn(Entretien $entretien) => $debut <= $entretien->getDate() && $entretien->getDate() <= $fin
+            fn(Entretien $entretien) => $debut <= $entretien->getDate() && $entretien->getDate() <= $fin,
         );
 
         return count($entretiensDansIntervalle);

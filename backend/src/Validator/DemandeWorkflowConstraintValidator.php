@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -11,7 +11,6 @@
  */
 
 namespace App\Validator;
-
 
 use App\ApiResource\Demande;
 use App\Entity\EtatDemande;
@@ -24,12 +23,12 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 class DemandeWorkflowConstraintValidator extends ConstraintValidator
 {
-    public function __construct(private readonly DemandeManager $demandeManager)
-    {
+    public function __construct(
+        private readonly DemandeManager $demandeManager,
+    ) {}
 
-    }
-
-    #[Override] public function validate(mixed $value, Constraint $constraint): void
+    #[Override]
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof DemandeWorkflowConstraint) {
             throw new UnexpectedTypeException($constraint, DemandeWorkflowConstraint::class);
@@ -48,9 +47,18 @@ class DemandeWorkflowConstraintValidator extends ConstraintValidator
             PHP_INT_MIN => [EtatDemande::EN_COURS],
             EtatDemande::EN_COURS => [EtatDemande::EN_COURS, EtatDemande::RECEPTIONNEE, EtatDemande::REFUSEE],
             EtatDemande::RECEPTIONNEE => [EtatDemande::RECEPTIONNEE, EtatDemande::CONFORME, EtatDemande::NON_CONFORME],
-            EtatDemande::CONFORME => [EtatDemande::CONFORME, EtatDemande::ATTENTE_COMMISSION, EtatDemande::PROFIL_VALIDE, EtatDemande::REFUSEE],
+            EtatDemande::CONFORME => [
+                EtatDemande::CONFORME,
+                EtatDemande::ATTENTE_COMMISSION,
+                EtatDemande::PROFIL_VALIDE,
+                EtatDemande::REFUSEE,
+            ],
             EtatDemande::NON_CONFORME => [EtatDemande::RECEPTIONNEE],
-            EtatDemande::ATTENTE_COMMISSION => [EtatDemande::ATTENTE_COMMISSION, EtatDemande::PROFIL_VALIDE, EtatDemande::REFUSEE],
+            EtatDemande::ATTENTE_COMMISSION => [
+                EtatDemande::ATTENTE_COMMISSION,
+                EtatDemande::PROFIL_VALIDE,
+                EtatDemande::REFUSEE,
+            ],
             EtatDemande::REFUSEE => [EtatDemande::REFUSEE],
             EtatDemande::VALIDEE => [EtatDemande::VALIDEE],
             EtatDemande::ATTENTE_VALIDATION_CHARTE => [EtatDemande::ATTENTE_VALIDATION_CHARTE, EtatDemande::VALIDEE],
@@ -59,7 +67,10 @@ class DemandeWorkflowConstraintValidator extends ConstraintValidator
 
         $etatOrigine = match ($value->id) {
             null => PHP_INT_MIN,
-            default => $this->demandeManager->getDemande($value->id)->getEtat()->getId()
+            default => $this->demandeManager
+                ->getDemande($value->id)
+                ->getEtat()
+                ->getId(),
         };
 
         $nouvelEtat = $value->etat?->id ?? EtatDemande::EN_COURS;
@@ -69,15 +80,14 @@ class DemandeWorkflowConstraintValidator extends ConstraintValidator
         }
 
         //On ne peut pas passer conforme une demande incomplète
-        if (in_array($nouvelEtat, [EtatDemande::CONFORME, EtatDemande::RECEPTIONNEE])
-            && !$value->complete) {
-            $this->context->buildViolation($constraint->messageDemandeIncomplete)
+        if (in_array($nouvelEtat, [EtatDemande::CONFORME, EtatDemande::RECEPTIONNEE]) && !$value->complete) {
+            $this->context
+                ->buildViolation($constraint->messageDemandeIncomplete)
                 ->setParameter('{{ etat }}', match ($nouvelEtat) {
-                    EtatDemande::CONFORME => "conforme",
-                    default => 'réceptionnée'
+                    EtatDemande::CONFORME => 'conforme',
+                    default => 'réceptionnée',
                 })
                 ->addViolation();
         }
-
     }
 }

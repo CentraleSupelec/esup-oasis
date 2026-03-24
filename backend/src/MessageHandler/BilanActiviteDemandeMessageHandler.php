@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -34,7 +34,6 @@ use App\Serializer\BilanActiviteNormalizer;
 use App\Serializer\Encoder\CustomCsvEncoder;
 use App\Service\FileStorage\StorageProviderError;
 use App\Service\FileStorage\StorageProviderInterface;
-use App\State\TransformerService;
 use App\State\Utilisateur\UtilisateurManager;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -49,22 +48,21 @@ use Symfony\Component\Messenger\Stamp\DelayStamp;
 #[AsMessageHandler(handles: BilanActiviteDemandeMessage::class)]
 readonly class BilanActiviteDemandeMessageHandler
 {
-
     use ClockAwareTrait;
 
     private QueryNameGeneratorInterface $queryNameGenerator;
 
-    public function __construct(private BilanRepository          $bilanRepository,
-                                private FichierRepository        $fichierRepository,
-                                private UtilisateurRepository    $utilisateurRepository,
-                                private UtilisateurManager       $utilisateurManager,
-                                private TransformerService       $transformerService,
-                                private IriConverterInterface    $iriConverter,
-                                private ManagerRegistry          $managerRegistry,
-                                private LoggerInterface          $logger,
-                                private StorageProviderInterface $storageProvider,
-                                private MessageBusInterface      $messageBus)
-    {
+    public function __construct(
+        private BilanRepository $bilanRepository,
+        private FichierRepository $fichierRepository,
+        private UtilisateurRepository $utilisateurRepository,
+        private UtilisateurManager $utilisateurManager,
+        private IriConverterInterface $iriConverter,
+        private ManagerRegistry $managerRegistry,
+        private LoggerInterface $logger,
+        private StorageProviderInterface $storageProvider,
+        private MessageBusInterface $messageBus,
+    ) {
         $this->queryNameGenerator = new QueryNameGenerator();
     }
 
@@ -142,7 +140,10 @@ readonly class BilanActiviteDemandeMessageHandler
         $context = [];
 
         //filtre sur l'intervalle, obligatoire
-        $filters[BilanActiviteIntervalleFilter::class] = new BilanActiviteIntervalleFilter($this->managerRegistry, $this->logger);
+        $filters[BilanActiviteIntervalleFilter::class] = new BilanActiviteIntervalleFilter(
+            $this->managerRegistry,
+            $this->logger,
+        );
         $context['filters'][BilanActiviteIntervalleFilter::PROPERTY] = [$bilan->getDebut(), $bilan->getFin()];
 
         //filtres optionnels
@@ -152,20 +153,27 @@ readonly class BilanActiviteDemandeMessageHandler
             }
             $filter = match ($param) {
                 'gestionnaires' => new NestedUtilisateurFilter(
-                    $this->iriConverter, $this->managerRegistry, $this->logger,
-                    properties: ['gestionnaires' => 'beneficiaires.gestionnaire']
+                    $this->iriConverter,
+                    $this->managerRegistry,
+                    $this->logger,
+                    properties: ['gestionnaires' => 'beneficiaires.gestionnaire'],
                 ),
-                'profils' => new NestedFieldSearchFilter($this->managerRegistry, $this->iriConverter, $this->logger,
+                'profils' => new NestedFieldSearchFilter(
+                    $this->managerRegistry,
+                    $this->iriConverter,
+                    $this->logger,
                     properties: [
                         'profils' => [
                             'type' => 'relation',
                             'mapping' => 'beneficiaires.profil',
                             'desc' => 'profil du bénéficiaire',
                         ],
-                    ]
+                    ],
                 ),
                 'formations', 'composantes' => new DerniereInscriptionSearchFilter(
-                    $this->managerRegistry, $this->iriConverter, $this->logger,
+                    $this->managerRegistry,
+                    $this->iriConverter,
+                    $this->logger,
                     properties: [
                         'composante' => [
                             'type' => 'relation',
@@ -177,7 +185,7 @@ readonly class BilanActiviteDemandeMessageHandler
                             'mapping' => 'inscriptions.formation',
                             'desc' => 'Formation',
                         ],
-                    ]
+                    ],
                 ),
             };
 
@@ -186,7 +194,6 @@ readonly class BilanActiviteDemandeMessageHandler
             }
 
             $context['filters'][$param] = $valeurs;
-
         }
 
         foreach ($filters as $filter) {
@@ -211,12 +218,12 @@ readonly class BilanActiviteDemandeMessageHandler
                 $utilisateur = $this->utilisateurManager->initNumeroAnonyme($utilisateur);
             }
             $user->numero = $utilisateur->getNumeroAnonyme();
-            $user->anneeNaissance = (int)(($utilisateur->getDateNaissance())?->format('Y') ?? 0);
+            $user->anneeNaissance = (int) ($utilisateur->getDateNaissance()?->format('Y') ?? 0);
             $user->sexe = $utilisateur->getGenre();
             $derniereInscription = $utilisateur->getDerniereInscription();
             $user->derniereInscription = match ($derniereInscription) {
                 null => null,
-                default => $this->transformerService->transform($derniereInscription, Inscription::class)
+                default => new Inscription($derniereInscription),
             };
 
             $user->regimeInscription = $utilisateur->getStatutEtudiant();
@@ -225,17 +232,13 @@ readonly class BilanActiviteDemandeMessageHandler
             if (count($beneficiaires) > 0) {
                 usort($beneficiaires, fn(Beneficiaire $a, Beneficiaire $b) => $a->getDebut() <=> $b->getDebut());
                 foreach ($beneficiaires as $beneficiaire) {
-                    $user->profils[] = $this->transformerService->transform(
-                        $beneficiaire, BeneficiaireProfil::class
-                    );
+                    $user->profils[] = new BeneficiaireProfil($beneficiaire);
                 }
-                $user->gestionnaire = (end($user->profils))?->gestionnaire;
+                $user->gestionnaire = end($user->profils)?->gestionnaire;
             }
 
             foreach ($utilisateur->getAmenagementsParIntervalle($bilan->debut, $bilan->fin) as $amenagement) {
-                $user->amenagements[] = $this->transformerService->transform(
-                    $amenagement, Amenagement::class
-                );
+                $user->amenagements[] = new Amenagement($amenagement);
             }
 
             $user->nbEntretiens = $utilisateur->countEntretiens($bilan->debut, $bilan->fin);

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -18,7 +18,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\OpenApi\Model\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Clock\ClockAwareTrait;
-use Symfony\Component\PropertyInfo\Type;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 
 class IntervenantArchiveFilter extends AbstractFilter
 {
@@ -29,21 +29,27 @@ class IntervenantArchiveFilter extends AbstractFilter
         return [
             'intervenantArchive' => [
                 'property' => 'intervenantArchive',
-                'type' => Type::BUILTIN_TYPE_BOOL,
+                'type' => TypeIdentifier::BOOL,
                 'required' => false,
                 'openapi' => new Parameter(
                     name: 'intervenantArchive',
                     in: 'query',
                     description: "filtre sur l'état de l'intervenant à l'instant T",
+                    schema: ['type' => 'bool'],
                 ),
             ],
         ];
     }
 
-    protected function filterProperty(string                      $property, $value, QueryBuilder $queryBuilder,
-                                      QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass,
-                                      ?Operation                  $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         if ($property !== 'intervenantArchive') {
             return;
         }
@@ -54,9 +60,17 @@ class IntervenantArchiveFilter extends AbstractFilter
 
         $queryBuilder->join($alias . '.intervenant', $intervenantAlias);
         if ($value === 'false') {
-            $queryBuilder->andWhere($intervenantAlias . '.fin is null or ' . $intervenantAlias . '.fin > :' . $nowParam);
+            $queryBuilder->andWhere($intervenantAlias
+            . '.fin is null or '
+            . $intervenantAlias
+            . '.fin > :'
+            . $nowParam);
         } else {
-            $queryBuilder->andWhere($intervenantAlias . '.fin is not null and ' . $intervenantAlias . '.fin <= :' . $nowParam);
+            $queryBuilder->andWhere($intervenantAlias
+            . '.fin is not null and '
+            . $intervenantAlias
+            . '.fin <= :'
+            . $nowParam);
         }
         $queryBuilder->setParameter($nowParam, $this->now());
     }

@@ -1,29 +1,33 @@
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
- * For full copyright and license information please view the LICENSE file distributed with the source code.
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
  *
- * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
    IAmenagementsBenefificiaire,
    ICategorieAmenagement,
-   IFormation, IInscription,
+   IFormation,
+   IInscription,
    ITypeAmenagement,
 } from "../../api/ApiTypeHelpers";
 import { useApi } from "../../context/api/ApiProvider";
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FiltreAmenagement, filtreAmenagementToApi } from "./AmenagementTableLayout";
-import { Table } from "antd";
+import { Table, Slider } from "antd";
 import { DomaineAmenagementInfos, getDomaineAmenagement } from "../../lib/amenagements";
 import { amenagementsBeneficiaireTableColumns } from "./AmenagementsBeneficiaireTableColumns";
 import { useNavigate } from "react-router-dom";
 import { ModeAffichageAmenagement } from "../../routes/gestionnaire/beneficiaires/Amenagements";
 import { useAuth } from "../../auth/AuthProvider";
 import { Utilisateur } from "../../lib/Utilisateur";
+import useBreakpoint from "antd/es/grid/hooks/useBreakpoint";
+import "./AmenagementsBeneficiaireTable.scss";
 
 export type TypesDomainesAmenagements = {
    typeAmenagement: ITypeAmenagement;
@@ -42,7 +46,7 @@ export function buildAmenagementsBenefDatasource(
    return abs.map((rd) => {
       const data: {
          key: string;
-         uid: string;
+          uid: string;
          nom: string;
          prenom: string;
          email: string;
@@ -52,7 +56,7 @@ export function buildAmenagementsBenefDatasource(
          tags?: string[];
       } = {
          key: rd["@id"] as string,
-         uid: rd.uid as string,
+          uid: rd.uid as string,
          nom: rd.nom as string,
          prenom: rd.prenom as string,
          email: rd.email as string,
@@ -113,6 +117,31 @@ export function AmenagementsBeneficiaireTable(props: {
 }) {
    const user = useAuth().user;
    const navigate = useNavigate();
+   const screens = useBreakpoint();
+   const [scrollInfo, setScrollInfo] = useState({ left: 0, max: 0, visible: true });
+   const tableWrapperRef = useRef<HTMLDivElement>(null);
+
+   const updateScrollInfo = useCallback(() => {
+      // Scroll horizontal
+      const tableElement = tableWrapperRef.current?.querySelector(".ant-table") as HTMLElement;
+      if (tableElement) {
+         const vMax = document.documentElement.scrollHeight - window.innerHeight;
+         const vScrollRatio = vMax > 0 ? window.scrollY / vMax : 0;
+         setScrollInfo({
+            left: tableElement.scrollLeft,
+            max: tableElement.scrollWidth - tableElement.clientWidth,
+            visible: vScrollRatio < 0.95,
+         });
+      }
+
+      // Sticky header du scroll vertical
+      const table = tableWrapperRef.current?.querySelector("table") as HTMLElement;
+      const tHead = table?.querySelector(".ant-table-thead") as HTMLElement;
+      if (tHead && table) {
+         tHead.style.top = `${document.documentElement.scrollTop - (table.getBoundingClientRect().top + window.scrollY)}px`;
+      }
+   }, []);
+
    const { data: amenagements, isFetching } = useApi().useGetCollection({
       path: "/amenagements/utilisateurs",
       query: filtreAmenagementToApi(
@@ -142,19 +171,26 @@ export function AmenagementsBeneficiaireTable(props: {
       [amenagements?.items, typesAmenagementsUtilises],
    );
 
-   // Sticky header
+   // Sticky header & Scroll horizontal
    useEffect(() => {
-      function handleScroll() {
-         const table = document.querySelector("table") as HTMLElement;
-         const tHead = document.querySelector(".ant-table-thead") as HTMLElement;
-         tHead.style.top = `${document.documentElement.scrollTop - (table.getBoundingClientRect().top + window.scrollY - 80)}px`;
-      }
+      const tableElement = tableWrapperRef.current?.querySelector(".ant-table") as HTMLElement;
+      if (!tableElement) return;
 
-      window.addEventListener("scroll", handleScroll);
+      tableElement.addEventListener("scroll", updateScrollInfo);
+      window.addEventListener("scroll", updateScrollInfo);
+      const observer = new ResizeObserver(updateScrollInfo);
+      observer.observe(tableElement);
+      const internalTable = tableElement.querySelector("table");
+      if (internalTable) observer.observe(internalTable);
+
+      updateScrollInfo();
+
       return () => {
-         window.removeEventListener("scroll", handleScroll);
+         tableElement.removeEventListener("scroll", updateScrollInfo);
+         window.removeEventListener("scroll", updateScrollInfo);
+         observer.disconnect();
       };
-   }, []);
+   }, [dataSource, updateScrollInfo]);
 
    useEffect(() => {
       if (props.setCount) {
@@ -163,7 +199,7 @@ export function AmenagementsBeneficiaireTable(props: {
    }, [amenagements, props]);
 
    return (
-      <>
+      <div ref={tableWrapperRef} className="position-relative">
          <Table
             loading={isFetching}
             className="table-responsive table-thead-sticky mt-2"
@@ -196,8 +232,37 @@ export function AmenagementsBeneficiaireTable(props: {
                categoriesAmenagements: props.categoriesAmenagements || [],
                navigate: navigate,
                user: user as Utilisateur,
+               fixPremiereColonne: screens.lg || false,
             })}
          />
-      </>
+         {scrollInfo.max > 0 && scrollInfo.visible && (
+            <div
+               className="scrollbar-container-horizontal"
+            >
+               <div
+                  className="scrollbar-horizontal"
+               >
+                  <Slider
+                     min={0}
+                     max={scrollInfo.max}
+                     value={scrollInfo.left}
+                     onChange={(value) => {
+                        const tableElement = tableWrapperRef.current?.querySelector(
+                           ".ant-table",
+                        ) as HTMLElement;
+                        if (tableElement) {
+                           tableElement.scrollLeft = value;
+                           setScrollInfo((prev) => ({ ...prev, left: value }));
+                        }
+                     }}
+                     tooltip={{
+                        formatter: (value) =>
+                           `${Math.round(((value || 0) * 100) / scrollInfo.max)}%`,
+                     }}
+                  />
+               </div>
+            </div>
+         )}
+      </div>
    );
 }

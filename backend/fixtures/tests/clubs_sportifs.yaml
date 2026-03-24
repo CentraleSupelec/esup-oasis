@@ -1,0 +1,5 @@
+App\Entity\ClubSportif:
+  club_1:
+    libelle: 'Club Sportif 1'
+    actif: true
+    professionnel: true

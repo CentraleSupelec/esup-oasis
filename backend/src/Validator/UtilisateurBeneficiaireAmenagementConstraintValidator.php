@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -14,7 +14,6 @@ namespace App\Validator;
 
 use App\ApiResource\Amenagement;
 use App\ApiResource\Utilisateur;
-use App\State\TransformerService;
 use App\State\Utilisateur\UtilisateurManager;
 use App\Util\AnneeUniversitaireAwareTrait;
 use Symfony\Component\Validator\Constraint;
@@ -27,10 +26,9 @@ class UtilisateurBeneficiaireAmenagementConstraintValidator extends ConstraintVa
     use UtilisateurBeneficiaireValidatorTrait;
     use AnneeUniversitaireAwareTrait;
 
-    public function __construct(private readonly UtilisateurManager $utilisateurManager,
-                                private readonly TransformerService $transformerService)
-    {
-    }
+    public function __construct(
+        private readonly UtilisateurManager $utilisateurManager,
+    ) {}
 
     public function validate(mixed $value, Constraint $constraint): void
     {
@@ -52,16 +50,16 @@ class UtilisateurBeneficiaireAmenagementConstraintValidator extends ConstraintVa
                 true => $this->getDebutSemestre1(),
                 false => $this->getDebutSemestre2(),
             },
-            default => $value->debut
+            default => $value->debut,
         };
-        $utilisateur = $this->transformerService->transform($this->utilisateurManager->parUid($value->uid), Utilisateur::class);
+        $entity = $this->utilisateurManager->parUid($value->uid);
+        $utilisateur = new Utilisateur($entity);
 
         if (!$this->utilisateurValide($utilisateur, $dateObservee)) {
-            $this->context->buildViolation($constraint->message)
+            $this->context
+                ->buildViolation($constraint->message)
                 ->setParameter('{{ string }}', $utilisateur->uid)
                 ->addViolation();
         }
-
-
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -19,9 +19,14 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DecisionAmenagementExamensRepository::class)]
+#[ORM\Index(name: 'IDX_DECISION_BENEFICIAIRE_DEBUT', columns: ['beneficiaire_id', 'debut'])]
+#[ORM\Index(name: 'IDX_DECISION_AMENAGEMENT_EXAMENS_ETAT', columns: ['etat'])]
+#[ORM\Index(name: 'IDX_DECISION_BENEFICIAIRE_ETAT_DEBUT', columns: ['beneficiaire_id', 'etat', 'debut'])]
+#[ORM\Index(name: 'IDX_DECISION_BENEFICIAIRE_ETAT', columns: ['beneficiaire_id', 'etat'])]
+#[ORM\Index(name: 'IDX_DECISION_AMENAGEMENT_EXAMENS_DEBUT', columns: ['debut'])]
+#[ORM\Index(name: 'IDX_DECISION_AMENAGEMENT_EXAMENS_DEBUT_FIN', columns: ['debut', 'fin'])]
 class DecisionAmenagementExamens
 {
-
     public const string ETAT_ATTENTE_VALIDATION_CAS = 'ATTENTE_VALIDATION_CAS';
     public const string ETAT_VALIDE = 'VALIDE';
     public const string ETAT_EDITE = 'EDITE';

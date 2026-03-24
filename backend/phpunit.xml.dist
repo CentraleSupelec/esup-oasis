@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
+<!--
+  ~ Copyright (c) 2026. Esup - Université de Bordeaux.
+  ~
+  ~ This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
+  ~  For full copyright and license information please view the LICENSE file distributed with the source code.
+  ~
+  ~  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+  ~
+  -->
+
+<!-- https://phpunit.readthedocs.io/en/10.5/configuration.html -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          backupGlobals="false"
          colors="true"
          bootstrap="tests/bootstrap.php"
-         convertDeprecationsToExceptions="false"
+         cacheDirectory="var/phpunit.cache"
 >
     <php>
         <ini name="display_errors" value="1"/>
@@ -14,30 +24,31 @@
         <server name="APP_ENV" value="test" force="true"/>
         <server name="SHELL_VERBOSITY" value="-1"/>
         <server name="SYMFONY_PHPUNIT_REMOVE" value=""/>
-        <server name="SYMFONY_PHPUNIT_VERSION" value="9.5"/>
-        <server name="SYMFONY_DEPRECATIONS_HELPER" value="weak"/>
+        <server name="SYMFONY_PHPUNIT_VERSION" value="10.5"/>
+        <server name="SYMFONY_DEPRECATIONS_HELPER" value="disabled=1"/>
     </php>
 
     <testsuites>
         <testsuite name="Project Test Suite">
             <directory>tests</directory>
+            <exclude>tests/Behat</exclude>
         </testsuite>
     </testsuites>
 
-    <coverage processUncoveredFiles="true">
+    <source>
         <include>
             <directory suffix=".php">src</directory>
         </include>
-    </coverage>
-
-    <listeners>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
-    </listeners>
-
-    <!-- Run `composer require symfony/panther` before enabling this extension -->
-    <!--
-    <extensions>
-        <extension class="Symfony\Component\Panther\ServerExtension" />
-    </extensions>
-    -->
+        <exclude>
+            <directory>src/Command</directory>
+            <directory>src/Scheduler</directory>
+            <directory>src/Service/SiScol</directory>
+            <file>src/Service/AntivirusService.php</file>
+            <file>src/Service/LdapService.php</file>
+            <file>src/Service/LdapUtilisateurInconnuException.php</file>
+            <file>src/Service/ErreurLdapException.php</file>
+            <file>src/Service/OAuthService.php</file>
+            <file>src/Controller/OAuthController.php</file>
+        </exclude>
+    </source>
 </phpunit>

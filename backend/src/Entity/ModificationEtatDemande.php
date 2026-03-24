@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,41 +13,55 @@
 namespace App\Entity;
 
 use App\Repository\ModificationEtatDemandeRepository;
+use App\State\EntityToResourceTransformer;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: ModificationEtatDemandeRepository::class)]
+#[Map(target: \App\ApiResource\ModificationEtatDemande::class, transform: [
+    EntityToResourceTransformer::class,
+    'entityToResource',
+])]
 class ModificationEtatDemande
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'modifications')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?Demande $demande = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?EtatDemande $etat = null;
 
     #[ORM\ManyToOne]
+    #[Map(if: false)]
     private ?EtatDemande $etatPrecedent = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?Utilisateur $utilisateur = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Map(if: false)]
     private ?string $commentaire = null;
 
     #[ORM\ManyToOne]
+    #[Map(if: false)]
     private ?ProfilBeneficiaire $profil = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Map(if: false)]
     private ?DateTimeInterface $dateModification = null;
 
     public function getId(): ?int

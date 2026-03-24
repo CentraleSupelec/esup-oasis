@@ -1,0 +1,5 @@
+App\Entity\AvisEse:
+  avis_ese_beneficiaire2:
+    utilisateur: '@beneficiaire-2'
+    debut: <date_create('2024-09-01')>
+    libelle: 'Avis ESE Beneficiaire 2'

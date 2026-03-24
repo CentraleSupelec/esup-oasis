@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,32 +13,44 @@
 namespace App\Entity;
 
 use App\Repository\EtapeDemandeRepository;
+use App\State\EntityToResourceTransformer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: EtapeDemandeRepository::class)]
+#[Map(target: \App\ApiResource\EtapeDemande::class, transform: [
+    EntityToResourceTransformer::class,
+    'entityToResource',
+])]
 class EtapeDemande
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Map(if: false)]
     private ?string $libelle = null;
 
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $ordre = null;
 
     #[ORM\ManyToMany(targetEntity: TypeDemande::class, inversedBy: 'etapes')]
+    #[Map(if: false)]
     private Collection $demande;
 
     #[ORM\OneToMany(mappedBy: 'etape', targetEntity: QuestionEtapeDemande::class)]
     #[ORM\OrderBy(['ordre' => 'asc'])]
+    #[Map(if: false)]
     private Collection $questionsEtape;
 
     #[ORM\Column(options: ['default' => false])]
+    #[Map(if: false)]
     private ?bool $siDemandeAccompagnement = false;
 
     public function __construct()
@@ -139,7 +151,10 @@ class EtapeDemande
         /**
          * @var Question[] $questions
          */
-        $questions = array_map(fn(QuestionEtapeDemande $qe) => $qe->getQuestion(), $this->getQuestionsEtape()->toArray());
+        $questions = array_map(
+            fn(QuestionEtapeDemande $qe) => $qe->getQuestion(),
+            $this->getQuestionsEtape()->toArray(),
+        );
         foreach ($questions as $question) {
             yield $question;
             foreach ($question->getQuestionsLiees($reponses) as $liee) {

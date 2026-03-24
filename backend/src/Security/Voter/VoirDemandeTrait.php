@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -18,7 +18,6 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 trait VoirDemandeTrait
 {
-
     protected function peutVoirDemande(TokenInterface $token, Demande $demande): bool
     {
         //les gestionnaires et admins peuvent tout faire
@@ -27,8 +26,10 @@ trait VoirDemandeTrait
         }
 
         //les renforts peuvent voir tous les types sans visibilité limitée
-        if (in_array(Utilisateur::ROLE_RENFORT_DEMANDES, $token->getRoleNames()) &&
-            !$demande->typeDemande->visibiliteLimitee) {
+        if (
+            in_array(Utilisateur::ROLE_RENFORT_DEMANDES, $token->getRoleNames())
+            && !$demande->typeDemande->visibiliteLimitee
+        ) {
             return true;
         }
 
@@ -38,7 +39,10 @@ trait VoirDemandeTrait
         }
 
         //les membres de commission peuvent voir tout ce qui est lié aux mêmes commissions qu'eux
-        if (null !== $demande->campagne->commission && in_array(Utilisateur::ROLE_MEMBRE_COMMISSION, $token->getRoleNames())) {
+        if (
+            null !== $demande->campagne->commission
+            && in_array(Utilisateur::ROLE_MEMBRE_COMMISSION, $token->getRoleNames())
+        ) {
             /**
              * @var Utilisateur $user
              */
@@ -52,5 +56,4 @@ trait VoirDemandeTrait
 
         return false;
     }
-
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,52 +12,36 @@
 
 namespace App\State\PeriodeRH;
 
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\PeriodeRH;
-use App\ApiResource\Utilisateur;
-use App\State\AbstractEntityProvider;
-use Exception;
+use App\State\MappedCollectionPaginator;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class PeriodeProvider extends AbstractEntityProvider
+readonly class PeriodeProvider implements ProviderInterface
 {
+    function __construct(
+        #[Autowire(service: 'api_platform.doctrine.orm.state.item_provider')]
+        private ProviderInterface $itemProvider,
+        #[Autowire(service: 'api_platform.doctrine.orm.state.collection_provider')]
+        private ProviderInterface $collectionProvider,
+    ) {}
 
-    function __construct(#[Autowire(service: 'api_platform.doctrine.orm.state.item_provider')] ProviderInterface       $itemProvider,
-                         #[Autowire(service: 'api_platform.doctrine.orm.state.collection_provider')] ProviderInterface $collectionProvider)
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
+        if ($operation instanceof GetCollection) {
+            $results = $this->collectionProvider->provide($operation, $uriVariables, $context);
+            assert($results instanceof PaginatorInterface);
+            return new MappedCollectionPaginator($results, fn($entity) => new PeriodeRH($entity));
+        }
 
-        parent::__construct($itemProvider, $collectionProvider);
-    }
+        $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
 
-    /**
-     * @param \App\Entity\PeriodeRH $entity
-     * @return PeriodeRH
-     * @throws Exception
-     */
-    public function transform($entity): PeriodeRH
-    {
-        $resource = new PeriodeRH();
-        $resource->id = $entity->getId();
-        $resource->debut = $entity->getDebut();
-        $resource->fin = $entity->getFin();
-        $resource->butoir = $entity->getButoir();
-        $resource->dateEnvoi = $entity->getDateEnvoi();
-        $resource->utilisateurEnvoi = match ($entity->getDateEnvoi()) {
+        return match ($entity) {
             null => null,
-            default => $this->transformerService->transform($entity->getUtilisateurEnvoi(), Utilisateur::class)
+            default => new PeriodeRH($entity),
         };
-        $resource->envoyee = (null !== $entity->getDateEnvoi());
-
-        return $resource;
-    }
-
-    protected function getResourceClass(): string
-    {
-        return PeriodeRH::class;
-    }
-
-    protected function getEntityClass(): string
-    {
-        return \App\Entity\PeriodeRH::class;
     }
 }

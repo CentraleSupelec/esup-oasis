@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -23,33 +23,22 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\State\Charte\CharteProcessor;
 use App\State\Charte\CharteProvider;
+use Symfony\Component\ObjectMapper\Attribute\Map;
+use Symfony\Component\ObjectMapper\Transform\MapCollection;
 use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ApiResource(
-    operations  : [
-        new GetCollection(
-            uriTemplate: self::COLLECTION_URI
-        ),
-        new Get(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['id']
-        ),
-        new Post(
-            uriTemplate: self::COLLECTION_URI
-        ),
-        new Patch(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['id']
-        ),
-        new Delete(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['id']
-        ),
+    operations: [
+        new GetCollection(uriTemplate: self::COLLECTION_URI, map: false),
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['id']),
+        new Post(uriTemplate: self::COLLECTION_URI, map: false),
+        new Patch(uriTemplate: self::ITEM_URI, uriVariables: ['id']),
+        new Delete(uriTemplate: self::ITEM_URI, uriVariables: ['id']),
     ],
-    openapi     : new Operation(tags: ['Referentiel']),
-    provider    : CharteProvider::class,
-    processor   : CharteProcessor::class,
-    stateOptions: new Options(entityClass: \App\Entity\Charte::class)
+    openapi: new Operation(tags: ['Referentiel']),
+    provider: CharteProvider::class,
+    processor: CharteProcessor::class,
+    stateOptions: new Options(entityClass: \App\Entity\Charte::class),
 )]
 class Charte
 {
@@ -57,15 +46,54 @@ class Charte
     public const string ITEM_URI = '/chartes/{id}';
 
     #[ApiProperty(identifier: true)]
-    #[Ignore] public ?int $id = null;
+    #[Ignore]
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
 
-    public string $libelle;
+    public string $libelle {
+        get {
+            if (!isset($this->libelle) && $this->entity !== null) {
+                $this->libelle = $this->entity->getLibelle() ?? '';
+            }
+            return $this->libelle;
+        }
+    }
 
-    public string $contenu;
+    public string $contenu {
+        get {
+            if (!isset($this->contenu) && $this->entity !== null) {
+                $this->contenu = $this->entity->getContenu() ?? '';
+            }
+            return $this->contenu;
+        }
+    }
 
     /**
      * @var ProfilBeneficiaire[]
      */
-    public array $profilsAssocies;
+    public array $profilsAssocies {
+        get {
+            if (
+                !isset($this->profilsAssocies)
+                && $this->entity !== null
+                && $this->entity->getProfilsAssocies() !== null
+            ) {
+                $this->profilsAssocies = array_map(
+                    fn($p) => new ProfilBeneficiaire($p),
+                    $this->entity->getProfilsAssocies()->toArray(),
+                );
+            }
+            return $this->profilsAssocies ?? [];
+        }
+    }
 
+    public function __construct(
+        private readonly ?\App\Entity\Charte $entity = null,
+    ) {}
 }

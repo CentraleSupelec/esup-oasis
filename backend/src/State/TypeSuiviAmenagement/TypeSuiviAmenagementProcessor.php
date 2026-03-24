@@ -14,23 +14,36 @@ namespace App\State\TypeSuiviAmenagement;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\TypeSuiviAmenagement;
-use App\State\MappedEntityProcessor;
+use App\ApiResource\TypeSuiviAmenagement;
+use App\Repository\TypeSuiviAmenagementRepository;
 use Override;
 
 readonly class TypeSuiviAmenagementProcessor implements ProcessorInterface
 {
-    public function __construct(private MappedEntityProcessor $processor)
-    {
-    }
+    public function __construct(
+        private TypeSuiviAmenagementRepository $repository,
+    ) {}
 
-    #[Override] public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
+    #[Override]
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        return $this->processor->process(
-            data: $data,
-            operation: $operation,
-            entityClass: TypeSuiviAmenagement::class,
-            uriVariables: $uriVariables,
-            context: $context);
+        /**
+         * Uniquement POST et PATCH
+         */
+
+        $entity = match ($data->id) {
+            null => new \App\Entity\TypeSuiviAmenagement(),
+            default => $this->repository->find($data->id),
+        };
+
+        $entity->setLibelle($data->libelle);
+
+        $entity->setActif($data->actif);
+
+        $this->repository->save($entity, true);
+
+        $resource = new TypeSuiviAmenagement($entity);
+
+        return $resource;
     }
 }

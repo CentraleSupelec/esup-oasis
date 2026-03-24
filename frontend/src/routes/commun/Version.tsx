@@ -9,9 +9,8 @@
 
 import React, { ReactElement } from "react";
 import "../administration/Administration.scss";
-import { Card, Col, Layout, List, Row, Tag, Typography } from "antd";
+import { Card, Col, Layout, List, Row, Typography } from "antd";
 import { VERSIONS } from "../../versions";
-import dayjs from "dayjs";
 import {
    ArrowRightOutlined,
    BugOutlined,
@@ -59,9 +58,6 @@ export default function Version(): ReactElement {
                                     className="mt-0 text-primary"
                                     style={{ fontSize: 18 }}
                                  >
-                                    <Tag className="float-right" color="blue">
-                                       {dayjs(version.date).format("DD MMMM YYYY")}
-                                    </Tag>
                                     Version {version.version} - {version.description}
                                  </Typography.Text>
                               }

@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * Copyright (c) 2026. Esup - Université de Bordeaux.
+ *
+ * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
+ *
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
+ */
+
 namespace App\Filter;
 
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
@@ -9,7 +19,6 @@ use Doctrine\ORM\QueryBuilder;
 
 class PeriodeEnvoyeeFilter extends AbstractFilter
 {
-
     public const string PROPERTY = 'periodeEnvoyeeFilter';
 
     protected function filterProperty(
@@ -27,8 +36,7 @@ class PeriodeEnvoyeeFilter extends AbstractFilter
 
         $alias = $queryBuilder->getRootAliases()[0];
 
-        $queryBuilder
-            ->andWhere($alias.'.dateEnvoi is not null');
+        $queryBuilder->andWhere($alias . '.dateEnvoi is not null');
     }
 
     /**

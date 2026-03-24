@@ -9,10 +9,10 @@ use App\Entity\TypeEvenement;
 use App\Entity\Utilisateur;
 use App\Repository\PeriodeRHRepository;
 use Behat\Behat\Context\Context;
-use Behat\Step\Given;
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
+use Behat\Step\Given;
 use Behatch\Context\RestContext;
 use DateTime;
 use DateTimeImmutable;
@@ -27,7 +27,6 @@ use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 
 class EvenementContext implements Context
 {
-
     use ClockAwareTrait;
     use ClockSensitiveTrait;
 
@@ -39,29 +38,32 @@ class EvenementContext implements Context
         $this->manager = $doctrine->getManager();
     }
 
-    #[Given("today is :strDate")]
+    #[Given('today is :strDate')]
     function setCurrentDate($strDate)
     {
         $clock = static::mockTime(new DateTimeImmutable($strDate));
         Clock::set($clock);
     }
 
-
-    #[Given("there is an event for user :username :when")]
-    #[Given("there is an event for user :username :when with :intervenant")]
+    #[Given('there is an event for user :username :when')]
+    #[Given('there is an event for user :username :when with :intervenant')]
     function createEventForUser($username, $when, $intervenant = null): Evenement
     {
-        $user = $this->manager->getRepository(Utilisateur::class)->findOneBy([
-            'uid' => $username,
-        ]);
-        if (null !== $intervenant) {
-            $intervenant = $this->manager->getRepository(Utilisateur::class)->findOneBy([
-                'uid' => $intervenant,
+        $user = $this->manager
+            ->getRepository(Utilisateur::class)
+            ->findOneBy([
+                'uid' => $username,
             ]);
+        if (null !== $intervenant) {
+            $intervenant = $this->manager
+                ->getRepository(Utilisateur::class)
+                ->findOneBy([
+                    'uid' => $intervenant,
+                ]);
         }
         $typeid = match ($username) {
             'renfort' => TypeEvenement::TYPE_RENFORT,
-            default => 1
+            default => 1,
         };
         $type = $this->manager->getRepository(TypeEvenement::class)->find($typeid);
         $campus = $this->manager->getRepository(Campus::class)->find(1);
@@ -91,7 +93,7 @@ class EvenementContext implements Context
         return $evenement;
     }
 
-    #[Given("there is an event on a locked period for user :username")]
+    #[Given('there is an event on a locked period for user :username')]
     function thereIsAnEventOnLockedPeriod($username): void
     {
         $this->createEventForUser($username, 'today');
@@ -102,7 +104,7 @@ class EvenementContext implements Context
         $this->manager->flush();
     }
 
-    #[Given("there is a valid PeriodeRH for :forDate")]
+    #[Given('there is a valid PeriodeRH for :forDate')]
     function createValidPeriodeIfNeeded(DateTimeInterface|string $forDate): PeriodeRH
     {
         if (!$forDate instanceof DateTimeInterface) {
@@ -116,8 +118,8 @@ class EvenementContext implements Context
         $periodeRH = $periodeRepo->findPeriodePourDate($forDate);
         if (null === $periodeRH) {
             $periode = new PeriodeRH();
-            $periode->setDebut((clone($forDate))->modify('-1 day'));
-            $periode->setFin((clone($forDate))->modify('+1 day'));
+            $periode->setDebut((clone $forDate)->modify('-1 day'));
+            $periode->setFin((clone $forDate)->modify('+1 day'));
             $periode->setButoir($periode->getFin());
             $this->manager->persist($periode);
             $this->manager->flush();
@@ -125,7 +127,6 @@ class EvenementContext implements Context
         }
         return $periodeRH;
     }
-
 
     /**
      * @Given there is a periode that locks today
@@ -157,7 +158,6 @@ class EvenementContext implements Context
         ';
         $body = new PyStringNode([$body], 0);
         $this->restContext->iSendARequestToWithBody('POST', '/evenements', $body);
-
     }
 
     /**
@@ -177,5 +177,4 @@ class EvenementContext implements Context
         $restContext = $environment->getContext(RestContext::class);
         $this->restContext = $restContext;
     }
-
 }

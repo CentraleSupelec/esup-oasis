@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,31 +13,40 @@
 namespace App\Entity;
 
 use App\Repository\ComposanteRepository;
+use App\State\EntityToResourceTransformer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\ObjectMapper\Attribute\Map;
+use Symfony\Component\ObjectMapper\Transform\MapCollection;
 
 #[ORM\Entity(repositoryClass: ComposanteRepository::class)]
+#[Map(target: \App\ApiResource\Composante::class, transform: [EntityToResourceTransformer::class, 'entityToResource'])]
 class Composante
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Map(if: false)]
     private ?string $libelle = null;
 
     #[ORM\Column(length: 10)]
+    #[Map(if: false)]
     private ?string $codeExterne = null;
 
-    #[ORM\OneToMany(mappedBy: 'composante', targetEntity: Formation::class, orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Formation::class, mappedBy: 'composante', orphanRemoval: true)]
+    #[Map(if: false)]
     private Collection $formations;
 
     /**
      * @var Collection<int, Utilisateur>
      */
     #[ORM\ManyToMany(targetEntity: Utilisateur::class, inversedBy: 'composantes')]
+    #[Map(if: false)]
     private Collection $referents;
 
     public function __construct()

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -24,12 +24,11 @@ final readonly class PeriodeManager
 {
     use ClockAwareTrait;
 
-    public function __construct(private PeriodeRHRepository $periodeRepository,
-                                private EvenementRepository $evenementRepository,
-                                private Security            $security)
-    {
-
-    }
+    public function __construct(
+        private PeriodeRHRepository $periodeRepository,
+        private EvenementRepository $evenementRepository,
+        private Security $security,
+    ) {}
 
     /**
      * @param PeriodeRH $resource
@@ -71,7 +70,7 @@ final readonly class PeriodeManager
     {
         foreach ($this->evenementRepository->findAllNotLockedBefore($periodeRH->getFin()) as $evenement) {
             //On annule automatiquement tout ce qui aurait dû être validé auparavant !
-            if (($evenement->getType()->isAvecValidation() && null == $evenement->getDateValidation())) {
+            if ($evenement->getType()->isAvecValidation() && null == $evenement->getDateValidation()) {
                 $evenement->setDateAnnulation($this->now());
                 // on indique que ce n'est pas fait par un utilisateur mais automatiquement, au cas où on voudrait les retrouver
                 $evenement->setUtilisateurModification(null);
@@ -82,8 +81,6 @@ final readonly class PeriodeManager
                 $evenement->setPeriodePriseEnCompteRH($periodeRH);
             }
         }
-
-
     }
 
     private function deverrouillerEvenements(?PeriodeRHEntity $entity): void
@@ -93,7 +90,6 @@ final readonly class PeriodeManager
         }
     }
 
-
     /**
      * @return PeriodeRHEntity|null
      */
@@ -102,7 +98,6 @@ final readonly class PeriodeManager
         $locked = $this->periodeRepository->locked();
 
         return $locked[0] ?? null;
-
     }
 
     /**
@@ -111,17 +106,18 @@ final readonly class PeriodeManager
      * @param bool $versionFinanciere si oui, on se base sur la date de fin de la période
      * @return PeriodeRHEntity[] la liste des périodes comprises entre les deux dates
      */
-    public function periodesDansIntervalle(DateTimeInterface $debut, DateTimeInterface $fin, bool $versionFinanciere = false): array
-    {
+    public function periodesDansIntervalle(
+        DateTimeInterface $debut,
+        DateTimeInterface $fin,
+        bool $versionFinanciere = false,
+    ): array {
         $chevauchements = $this->periodeRepository->chevauchements($debut, $fin);
         if ($versionFinanciere) {
             return array_filter(
                 $chevauchements,
-                fn(PeriodeRHEntity $periode) => $periode->getFin() >= $debut && $periode->getFin() <= $fin
+                fn(PeriodeRHEntity $periode) => $periode->getFin() >= $debut && $periode->getFin() <= $fin,
             );
         }
         return $chevauchements;
-
     }
-
 }

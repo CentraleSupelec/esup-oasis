@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,7 +13,9 @@
 namespace App\Repository;
 
 use App\Entity\InterventionForfait;
+use App\Entity\PeriodeRH;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -49,28 +51,25 @@ class InterventionForfaitRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return InterventionForfait[] Returns an array of InterventionForfait objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('i')
-//            ->andWhere('i.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('i.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function parPeriodeEtIntervenant(PeriodeRH $periode, ?string $uid = null)
+    {
+        if ($uid) {
+            $qb = $this
+                ->createQueryBuilder('e')
+                ->join('e.intervenant', 'i')
+                ->join('i.utilisateur', 'u', JOIN::WITH, 'u.uid = :uid')
+                ->andWhere('e.periode = :periode')
+                ->setParameter('periode', $periode)
+                ->setParameter('uid', $uid);
+        } else {
+            $qb = $this
+                ->createQueryBuilder('e')
+                ->andWhere('e.periode = :periode')
+                ->join('e.intervenant', 'i')
+                ->join('i.utilisateur', 'u', JOIN::WITH, 'u.gestionnaire = false')
+                ->setParameter('periode', $periode);
+        }
 
-//    public function findOneBySomeField($value): ?InterventionForfait
-//    {
-//        return $this->createQueryBuilder('i')
-//            ->andWhere('i.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        return $qb->getQuery()->getResult();
+    }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,17 +12,19 @@
 
 namespace App\MessageHandler;
 
+use App\ApiResource\DecisionAmenagementExamens as DecisionResource;
+use App\ApiResource\Utilisateur;
 use App\Entity\DecisionAmenagementExamens;
 use App\Entity\Fichier;
 use App\Entity\PieceJointeBeneficiaire;
 use App\Message\DecisionEditionDemandeeMessage;
+use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
 use App\Repository\PieceJointeBeneficiaireRepository;
 use App\Serializer\DecisionAmenagementEditionNormalizer;
 use App\Serializer\Encoder\PdfEncoder;
 use App\Service\FileStorage\StorageProviderInterface;
 use App\Service\MailService;
-use App\State\TransformerService;
 use App\State\Utilisateur\UtilisateurManager;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -38,35 +40,33 @@ readonly class DecisionEditionDemandeeMessageHandler
 {
     use ClockAwareTrait;
 
-    public function __construct(private DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
-                                private DecisionAmenagementEditionNormalizer $decisionAmenagementEditionNormalizer,
-                                private PieceJointeBeneficiaireRepository    $pieceJointeBeneficiaireRepository,
-                                private UtilisateurManager                   $utilisateurManager,
-                                private TransformerService                   $transformerService,
-                                private PdfEncoder                           $pdfEncoder,
-                                private MailService                          $mailService,
-                                private LoggerInterface                      $logger,
-                                private StorageProviderInterface             $storageProvider,
-                                private MessageBusInterface                  $messageBus)
-    {
-
-    }
+    public function __construct(
+        private DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
+        private DecisionAmenagementEditionNormalizer $decisionAmenagementEditionNormalizer,
+        private PieceJointeBeneficiaireRepository $pieceJointeBeneficiaireRepository,
+        private UtilisateurManager $utilisateurManager,
+        private PdfEncoder $pdfEncoder,
+        private MailService $mailService,
+        private LoggerInterface $logger,
+        private StorageProviderInterface $storageProvider,
+        private MessageBusInterface $messageBus,
+    ) {}
 
     public function __invoke(DecisionEditionDemandeeMessage $message): void
     {
-        $decision = $this->decisionAmenagementExamensRepository->find(($message->getIdDecision()));
+        $decision = $this->decisionAmenagementExamensRepository->find($message->getIdDecision());
         if (null === $decision) {
             return;
         }
 
-        $resource = $this->transformerService->transform($decision,
-            \App\ApiResource\DecisionAmenagementExamens::class);
+        $resource = new DecisionResource($decision);
 
         $normalized = $this->decisionAmenagementEditionNormalizer->normalize($resource);
         try {
             $pdf = $this->pdfEncoder->encode($normalized, 'pdf');
             $this->mailService->envoyerDecision($decision, $pdf);
             $decision->setEtat(DecisionAmenagementExamens::ETAT_EDITE);
+            $this->messageBus->dispatch(new RessourceModifieeMessage(new Utilisateur($decision->getBeneficiaire())));
         } catch (RuntimeException $e) {
             $this->logger->error($e->getMessage());
             $this->logger->info($e->getTraceAsString());
@@ -74,7 +74,6 @@ readonly class DecisionEditionDemandeeMessageHandler
             $this->messageBus->dispatch(new RedispatchMessage($message), [$delay]);
             return;
         }
-
 
         //on stocke une copie dans le dossier de l'étudiant
         try {
@@ -86,7 +85,7 @@ readonly class DecisionEditionDemandeeMessageHandler
                 contents: $pdf,
                 filename: $filename,
                 mimeType: $mimeType,
-                description: $description
+                description: $description,
             );
             $fichier = new Fichier();
             $fichier->setNom($filename);
@@ -105,8 +104,6 @@ readonly class DecisionEditionDemandeeMessageHandler
             $this->logger->error('Erreur d\'enregistrement de la copie pdf de la décision');
         }
 
-        $decision->setEtat(DecisionAmenagementExamens::ETAT_EDITE);
         $this->decisionAmenagementExamensRepository->save($decision, true);
     }
-
 }

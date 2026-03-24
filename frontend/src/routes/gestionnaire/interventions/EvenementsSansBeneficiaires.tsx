@@ -66,7 +66,7 @@ export default function EvenementsSansBeneficiaires() {
             showIcon
             className="mt-2"
             type="info"
-            message="Information"
+            title="Information"
             description={
                <>
                   Cette page liste les évènements sans bénéficiaire, il s'agit d'un état qui ne

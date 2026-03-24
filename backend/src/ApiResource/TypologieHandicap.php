@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -24,34 +24,24 @@ use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\CaseInsensitiveOrderFilter;
 use App\State\TypologieHandicap\TypologieProcessor;
 use App\State\TypologieHandicap\TypologieProvider;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
-    operations            : [
-        new GetCollection(
-            uriTemplate: self::COLLECTION_URI,
-        ),
-        new Get(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['id']
-        ),
-        new Patch(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['id']
-        ),
-        new Post(
-            uriTemplate: self::COLLECTION_URI,
-        ),
+    operations: [
+        new GetCollection(uriTemplate: self::COLLECTION_URI),
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['id']),
+        new Patch(uriTemplate: self::ITEM_URI, uriVariables: ['id']),
+        new Post(uriTemplate: self::COLLECTION_URI),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    openapi               : new Operation(tags: ['Referentiel']),
-    security              : 'is_granted("' . BeneficiaireProfil::VOIR_PROFILS . '")',
-    provider              : TypologieProvider::class,
-    processor             : TypologieProcessor::class,
-    stateOptions          : new Options(entityClass: \App\Entity\TypologieHandicap::class)
+    openapi: new Operation(tags: ['Referentiel']),
+    security: 'is_granted("' . BeneficiaireProfil::VOIR_PROFILS . '")',
+    stateOptions: new Options(entityClass: \App\Entity\TypologieHandicap::class),
 )]
 #[ApiFilter(CaseInsensitiveOrderFilter::class, properties: ['libelle'])]
+#[Map(target: \App\Entity\TypologieHandicap::class)]
 class TypologieHandicap
 {
     public const string COLLECTION_URI = '/typologies';
@@ -61,11 +51,36 @@ class TypologieHandicap
 
     #[ApiProperty(identifier: true)]
     #[Groups([self::GROUP_OUT])]
-    public ?int $id;
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public string $libelle;
+    public string $libelle {
+        get {
+            if (!isset($this->libelle) && $this->entity !== null) {
+                $this->libelle = $this->entity->getLibelle() ?? '';
+            }
+            return $this->libelle;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public bool $actif;
+    public bool $actif = true {
+        get {
+            if ($this->entity !== null) {
+                return $this->entity->isActif() ?? true;
+            }
+            return $this->actif;
+        }
+    }
+
+    public function __construct(
+        private readonly ?\App\Entity\TypologieHandicap $entity = null,
+    ) {}
 }

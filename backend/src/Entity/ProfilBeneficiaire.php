@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,11 +13,17 @@
 namespace App\Entity;
 
 use App\Repository\ProfilBeneficiaireRepository;
+use App\State\EntityToResourceTransformer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: ProfilBeneficiaireRepository::class)]
+#[Map(target: \App\ApiResource\ProfilBeneficiaire::class, transform: [
+    EntityToResourceTransformer::class,
+    'entityToResource',
+])]
 class ProfilBeneficiaire
 {
     public const int A_DETERMINER = -1;
@@ -30,24 +36,31 @@ class ProfilBeneficiaire
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
-    private ?int $id = null;
+    #[Map(if: false)]
+    private(set) ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $libelle = null;
+    #[Map(if: false)]
+    private(set) ?string $libelle = null;
 
     #[ORM\Column(options: ['default' => true])]
-    private ?bool $actif = null;
+    #[Map(if: false)]
+    private(set) ?bool $actif = null;
 
     #[ORM\OneToMany(mappedBy: 'profil', targetEntity: Beneficiaire::class)]
+    #[Map(if: false)]
     private Collection $beneficiaires;
 
     #[ORM\Column(options: ['default' => false])]
-    private ?bool $avecTypologie = false;
+    #[Map(if: false)]
+    private(set) ?bool $avecTypologie = false;
 
     #[ORM\ManyToMany(targetEntity: TypeDemande::class, mappedBy: 'profilsAssocies')]
+    #[Map(if: false)]
     private Collection $typesDemandes;
 
     #[ORM\ManyToMany(targetEntity: Charte::class, mappedBy: 'profilsAssocies')]
+    #[Map(if: false)]
     private Collection $chartes;
 
     public function __construct()

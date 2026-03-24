@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
- * For full copyright and license information please view the LICENSE file distributed with the source code.
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
  *
- * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
  */
 
 import { IDemande, ITypeDemande } from "../api/ApiTypeHelpers";
@@ -39,16 +40,16 @@ export interface EtatInfo {
    hexColor?: string;
 }
 
-export const ETAT_DEMANDE_EN_COURS = `${process.env.REACT_APP_API_PREFIX}/etats_demandes/1`;
-export const ETAT_DEMANDE_RECEPTIONNEE = `${process.env.REACT_APP_API_PREFIX}/etats_demandes/2`;
-export const ETAT_DEMANDE_CONFORME = `${process.env.REACT_APP_API_PREFIX}/etats_demandes/3`;
-export const ETAT_DEMANDE_NON_CONFORME = `${process.env.REACT_APP_API_PREFIX}/etats_demandes/8`;
-export const ETAT_DEMANDE_ATTENTE_COMMISSION = `${process.env.REACT_APP_API_PREFIX}/etats_demandes/7`;
-export const ETAT_DEMANDE_PROFIL_ACCEPTE = `${process.env.REACT_APP_API_PREFIX}/etats_demandes/6`;
-export const ETAT_DEMANDE_VALIDEE = `${process.env.REACT_APP_API_PREFIX}/etats_demandes/4`;
-export const ETAT_DEMANDE_REFUSEE = `${process.env.REACT_APP_API_PREFIX}/etats_demandes/5`;
-export const ETAT_ATTENTE_CHARTES = `${process.env.REACT_APP_API_PREFIX}/etats_demandes/9`;
-export const ETAT_ATTENTE_ACCOMPAGNEMENT = `${process.env.REACT_APP_API_PREFIX}/etats_demandes/10`;
+export const ETAT_DEMANDE_EN_COURS = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/1`;
+export const ETAT_DEMANDE_RECEPTIONNEE = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/2`;
+export const ETAT_DEMANDE_CONFORME = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/3`;
+export const ETAT_DEMANDE_NON_CONFORME = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/8`;
+export const ETAT_DEMANDE_ATTENTE_COMMISSION = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/7`;
+export const ETAT_DEMANDE_PROFIL_ACCEPTE = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/6`;
+export const ETAT_DEMANDE_VALIDEE = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/4`;
+export const ETAT_DEMANDE_REFUSEE = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/5`;
+export const ETAT_ATTENTE_CHARTES = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/9`;
+export const ETAT_ATTENTE_ACCOMPAGNEMENT = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/10`;
 
 export const ETATS_DEMANDES: EtatInfo[] = [
    {
@@ -261,7 +262,7 @@ export function EtatDescription({ demande }: IEtatDescriptionProps) {
    switch (demande.etat) {
       case ETAT_DEMANDE_EN_COURS:
          return (
-            <Space direction="vertical">
+            <Space orientation="vertical">
                <span>{description}.</span>
                <Button
                   className="mt-2"

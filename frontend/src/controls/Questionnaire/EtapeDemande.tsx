@@ -32,7 +32,7 @@ export function EtapeDemande(props: { etapeIndex: number }): React.ReactElement 
             type="error"
             icon={<ExclamationOutlined />}
             showIcon
-            message="Erreur"
+            title="Erreur"
             description="Erreur lors de la récupération de l'étape."
          />
       );

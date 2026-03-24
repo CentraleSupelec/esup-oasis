@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,46 +12,36 @@
 
 namespace App\State\Parametre;
 
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PaginatorInterface;
+use ApiPlatform\State\ProviderInterface;
+use App\ApiResource\Charte;
 use App\ApiResource\Parametre;
-use App\ApiResource\ValeurParametre;
-use App\State\AbstractEntityProvider;
-use Exception;
-use Symfony\Component\Clock\ClockAwareTrait;
+use App\State\MappedCollectionPaginator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class ParametreProvider extends AbstractEntityProvider
+readonly class ParametreProvider implements ProviderInterface
 {
-    use ClockAwareTrait;
+    function __construct(
+        #[Autowire(service: 'api_platform.doctrine.orm.state.item_provider')]
+        private ProviderInterface $itemProvider,
+        #[Autowire(service: 'api_platform.doctrine.orm.state.collection_provider')]
+        private ProviderInterface $collectionProvider,
+    ) {}
 
-    /**
-     * @param \App\Entity\Parametre $entity
-     * @return Parametre
-     * @throws Exception
-     */
-    public function transform($entity): Parametre
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $param = new Parametre();
-        $param->cle = $entity->getCle();
-        $param->fichier = $entity->isFichier();
-        $param->valeurs = array_map(
-            fn($val) => $this->transformerService->transform($val, ValeurParametre::class),
-            $entity->getValeursParametres()->toArray()
-        );
+        if ($operation instanceof GetCollection) {
+            $results = $this->collectionProvider->provide($operation, $uriVariables, $context);
+            assert($results instanceof PaginatorInterface);
+            return new MappedCollectionPaginator($results, fn($entity) => new Parametre($entity));
+        }
 
-        $param->valeursCourantes = array_map(
-            fn($valeur) => $this->transformerService->transform($valeur, ValeurParametre::class),
-            $entity->getValeurCourante(true) ?? [],
-        );
-
-        return $param;
-    }
-
-    protected function getResourceClass(): string
-    {
-        return Parametre::class;
-    }
-
-    protected function getEntityClass(): string
-    {
-        return \App\Entity\Parametre::class;
+        $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
+        return match ($entity) {
+            null => null,
+            default => new Parametre($entity),
+        };
     }
 }

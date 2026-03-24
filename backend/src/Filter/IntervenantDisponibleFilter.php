@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -18,41 +18,37 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\OpenApi\Model\Parameter;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Component\PropertyInfo\Type;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 
 class IntervenantDisponibleFilter extends AbstractFilter
 {
-
     public function getDescription(string $resourceClass): array
     {
         return [
             'creneau[debut]' => [
                 'property' => 'creneau',
-                'type' => Type::BUILTIN_TYPE_STRING,
+                'type' => TypeIdentifier::STRING,
                 'required' => false,
-                'openapi' => new Parameter(
-                    name: 'creneau',
-                    in: 'query',
-                    description: 'début du créneau',
-                ),
+                'openapi' => new Parameter(name: 'creneau', in: 'query', description: 'début du créneau'),
             ],
             'creneau[fin]' => [
                 'property' => 'creneau',
-                'type' => Type::BUILTIN_TYPE_STRING,
+                'type' => TypeIdentifier::STRING,
                 'required' => false,
-                'openapi' => new Parameter(
-                    name: 'creneau',
-                    in: 'query',
-                    description: 'fin du créneau',
-                ),
+                'openapi' => new Parameter(name: 'creneau', in: 'query', description: 'fin du créneau'),
             ],
         ];
     }
 
-    protected function filterProperty(string                      $property, $value, QueryBuilder $queryBuilder,
-                                      QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass,
-                                      ?Operation                  $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         if ($property !== 'creneau') {
             return;
         }
@@ -66,13 +62,19 @@ class IntervenantDisponibleFilter extends AbstractFilter
 
         $queryBuilder
             ->join($alias . '.intervenant', $intervenantAlias)
-            ->leftJoin($intervenantAlias . '.interventions', $evenementsAlias,
+            ->leftJoin(
+                $intervenantAlias . '.interventions',
+                $evenementsAlias,
                 Join::WITH,
-                $evenementsAlias . '.debut between :debut and :fin or :debut between ' . $evenementsAlias . '.debut and ' . $evenementsAlias . '.fin')
+                $evenementsAlias
+                . '.debut between :debut and :fin or :debut between '
+                . $evenementsAlias
+                . '.debut and '
+                . $evenementsAlias
+                . '.fin',
+            )
             ->andWhere($evenementsAlias . '.id is null')
             ->setParameter('debut', $value['debut'])
             ->setParameter('fin', $value['fin']);
-
-
     }
 }

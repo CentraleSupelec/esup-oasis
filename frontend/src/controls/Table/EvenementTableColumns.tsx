@@ -68,7 +68,7 @@ export function evenementTableColumns({
          key: "beneficiaires",
          render: (beneficiaires: string[]) => {
             return (
-               <Space direction="vertical">
+               <Space orientation="vertical">
                   {beneficiaires.map((b) => (
                      <EtudiantItem
                         key={b}

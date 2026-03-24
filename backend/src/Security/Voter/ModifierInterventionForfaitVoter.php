@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -17,15 +17,16 @@ use App\Entity\Utilisateur;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class ModifierInterventionForfaitVoter extends Voter
 {
     use ClockAwareTrait;
 
-    public function __construct(private readonly Security $security)
-    {
-    }
+    public function __construct(
+        private readonly Security $security,
+    ) {}
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -33,13 +34,17 @@ class ModifierInterventionForfaitVoter extends Voter
     }
 
     /**
-     * @param string                $attribute
-     * @param InterventionForfait[] $subject
-     * @param TokenInterface        $token
-     * @return bool
+     * @param string $attribute
+     * @param mixed $subject
+     * @param TokenInterface $token
+     * @param Vote|null $vote* @return bool
      */
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
-    {
+    protected function voteOnAttribute(
+        string $attribute,
+        mixed $subject,
+        TokenInterface $token,
+        ?Vote $vote = null,
+    ): bool {
         [$previous, $new] = $subject;
 
         if (!$this->security->isGranted(Utilisateur::ROLE_PLANIFICATEUR)) {
@@ -48,15 +53,16 @@ class ModifierInterventionForfaitVoter extends Voter
 
         if ($previous->periode->envoyee || $previous->periode->butoir->format('Ymd') < $this->now()->format('Ymd')) {
             //on ne peut plus toucher qu'à la liste des bénéficiaires
-            if ($new->type->id !== $previous->type->id || $new->periode->id !== $previous->periode->id ||
-                $new->heures !== $previous->heures ||
-                $new->intervenant->uid !== $previous->intervenant->uid) {
+            if (
+                $new->type->id !== $previous->type->id
+                || $new->periode->id !== $previous->periode->id
+                || $new->heures !== $previous->heures
+                || $new->intervenant->uid !== $previous->intervenant->uid
+            ) {
                 return false;
             }
         }
 
-
         return true;
-
     }
 }

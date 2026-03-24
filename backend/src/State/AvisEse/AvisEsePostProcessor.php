@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -20,22 +20,18 @@ use App\Message\RessourceCollectionModifieeMessage;
 use App\Repository\AvisEseRepository;
 use App\Repository\FichierRepository;
 use App\Service\ErreurLdapException;
-use App\State\TransformerService;
 use App\State\Utilisateur\UtilisateurManager;
 use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class AvisEsePostProcessor implements ProcessorInterface
 {
-
-    public function __construct(private FichierRepository   $fichierRepository,
-                                private AvisEseRepository   $avisEseRepository,
-                                private UtilisateurManager  $utilisateurManager,
-                                private TransformerService  $transformerService,
-                                private MessageBusInterface $messageBus)
-    {
-
-    }
+    public function __construct(
+        private FichierRepository $fichierRepository,
+        private AvisEseRepository $avisEseRepository,
+        private UtilisateurManager $utilisateurManager,
+        private MessageBusInterface $messageBus,
+    ) {}
 
     /**
      * @param AvisEse $data
@@ -55,7 +51,7 @@ readonly class AvisEsePostProcessor implements ProcessorInterface
         $entity->setFin($data->fin);
         $entity->setFichier(match ($data->fichier) {
             null => null,
-            default => $this->fichierRepository->find($data->fichier->id)
+            default => $this->fichierRepository->find($data->fichier->id),
         });
         $entity->setUtilisateur($this->utilisateurManager->parUid($uriVariables['uid']));
 
@@ -63,7 +59,7 @@ readonly class AvisEsePostProcessor implements ProcessorInterface
 
         $this->messageBus->dispatch(new AvisEseModifieMessage($entity));
 
-        $resource = $this->transformerService->transform($entity, AvisEse::class);
+        $resource = new AvisEse($entity);
 
         $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($resource));
 

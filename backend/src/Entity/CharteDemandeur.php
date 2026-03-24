@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,35 +12,45 @@
 
 namespace App\Entity;
 
+use App\ApiResource\CharteUtilisateur;
 use App\Repository\CharteDemandeurRepository;
+use App\State\EntityToResourceTransformer;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: CharteDemandeurRepository::class)]
+#[Map(target: CharteUtilisateur::class, transform: [EntityToResourceTransformer::class, 'entityToResource'])]
 class CharteDemandeur
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'chartes')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?Demande $demande = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?Charte $charte = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Map(if: false)]
     private ?DateTimeInterface $dateValidation = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Map(if: false)]
     private ?string $contenu = null;
 
     #[ORM\Column(length: 255)]
+    #[Map(if: false)]
     private ?string $libelle = null;
 
     public function getId(): ?int
@@ -81,7 +91,7 @@ class CharteDemandeur
     {
         $this->dateValidation = match ($dateValidation) {
             null => null,
-            default => DateTime::createFromInterface($dateValidation)
+            default => DateTime::createFromInterface($dateValidation),
         };
 
         return $this;
@@ -113,6 +123,6 @@ class CharteDemandeur
 
     public function estValidee(): bool
     {
-        return (null !== $this->getDateValidation());
+        return null !== $this->getDateValidation();
     }
 }

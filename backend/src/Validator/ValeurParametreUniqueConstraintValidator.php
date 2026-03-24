@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -21,9 +21,9 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 class ValeurParametreUniqueConstraintValidator extends ConstraintValidator
 {
-    public function __construct(private readonly ParametreRepository $parametreRepository)
-    {
-    }
+    public function __construct(
+        private readonly ParametreRepository $parametreRepository,
+    ) {}
 
     /**
      * @param ValeurParametre                 $value
@@ -47,13 +47,16 @@ class ValeurParametreUniqueConstraintValidator extends ConstraintValidator
         //il existe déjà une valeur active sur l'intervalle ?
         $param = $this->parametreRepository->findOneBy(['cle' => $value->cle]);
 
-        $erreur = array_filter($param->getValeursParametres()->toArray(), fn($valeur) => $this->chevauchement($value, $valeur));
+        $erreur = array_filter($param->getValeursParametres()->toArray(), fn($valeur) => $this->chevauchement(
+            $value,
+            $valeur,
+        ));
         if (!empty($erreur)) {
-            $this->context->buildViolation($constraint->message)
+            $this->context
+                ->buildViolation($constraint->message)
                 ->setParameter('{{ string }}', $param->getCle())
                 ->addViolation();
         }
-
     }
 
     private function chevauchement(ValeurParametre $value, \App\Entity\ValeurParametre $valeur): bool
@@ -66,13 +69,13 @@ class ValeurParametreUniqueConstraintValidator extends ConstraintValidator
             return true;
         }
 
-        if ($value->debut >= $valeur->getDebut() && (null === $valeur->getFin() || $value->debut <= $valeur->getFin())) {
+        if (
+            $value->debut >= $valeur->getDebut()
+            && (null === $valeur->getFin() || $value->debut <= $valeur->getFin())
+        ) {
             return true;
         }
 
         return false;
-
     }
-
-
 }

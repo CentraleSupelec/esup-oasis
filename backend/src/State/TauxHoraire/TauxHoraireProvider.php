@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -14,60 +14,43 @@ namespace App\State\TauxHoraire;
 
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\TauxHoraire;
-use App\ApiResource\TypeEvenement;
-use App\State\AbstractEntityProvider;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
-class TauxHoraireProvider extends AbstractEntityProvider
+readonly class TauxHoraireProvider implements ProviderInterface
 {
-
-    protected function getResourceClass(): string
-    {
-        return TauxHoraire::class;
-    }
-
-    protected function getEntityClass(): string
-    {
-        return \App\Entity\TauxHoraire::class;
-    }
+    public function __construct(
+        #[Autowire(service: 'api_platform.doctrine.orm.state.item_provider')]
+        private ProviderInterface $itemProvider,
+    ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         $relevantVariables = ['id' => $uriVariables['id']];
 
         $link = new Link(parameterName: 'id', fromClass: TauxHoraire::class, identifiers: ['id']);
-        $relevantOperation = (new (get_class($operation)))->withClass(TauxHoraire::class)
+        $relevantOperation = new (get_class($operation))()
+            ->withClass(TauxHoraire::class)
             ->withStateOptions($operation->getStateOptions())
             ->withUriVariables([$link]);
 
-        $taux = parent::provide(
+        $entity = $this->itemProvider->provide(
             operation: $relevantOperation,
             uriVariables: $relevantVariables,
-            context: $context
+            context: $context,
         );
-
-        //devrait être une contrainte de validation
-        if ($taux->typeId !== $uriVariables['typeId']) {
-            throw new UnprocessableEntityHttpException($uriVariables['typeId'] . " n'a pas de taux d'id " . $uriVariables['id']);
+        if (null === $entity) {
+            return null;
         }
-        return $taux;
-    }
 
-    /**
-     * @param \App\Entity\TauxHoraire $entity
-     * @return TauxHoraire
-     */
-    public function transform($entity): TauxHoraire
-    {
-        $resource = new TauxHoraire();
-        $resource->id = $entity->getId();
-        $resource->montant = $entity->getMontant();
-        $resource->typeId = $entity->getTypeEvenement()->getId();
-        $resource->debut = $entity->getDebut();
-        $resource->fin = $entity->getFin();
-        $resource->typeEvenement = new TypeEvenement();
-        $resource->typeEvenement->id = $resource->typeId;
-        return $resource;
+        $taux = new TauxHoraire($entity);
+
+        if ($taux->typeId !== (int) $uriVariables['typeId']) {
+            return null; //combinaison taux/type inexistante, 404
+        }
+
+        return $taux;
     }
 }

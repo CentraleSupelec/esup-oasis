@@ -1,10 +1,13 @@
-<?php /** @noinspection PhpMultipleClassDeclarationsInspection */
-/** @noinspection PhpMultipleClassDeclarationsInspection */
-/** @noinspection PhpMultipleClassDeclarationsInspection */
-/** @noinspection PhpMultipleClassDeclarationsInspection */
-
-/*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+<?php /*
+ * Copyright (c) 2026. Esup - Université de Bordeaux.
+ *
+ * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
+ *
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
+ *//*
+ * Copyright (c) 2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,6 +15,12 @@
  *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
  *
  */
+
+/** @noinspection PhpMultipleClassDeclarationsInspection */
+
+/** @noinspection PhpMultipleClassDeclarationsInspection */
+/** @noinspection PhpMultipleClassDeclarationsInspection */
+/** @noinspection PhpMultipleClassDeclarationsInspection */
 
 namespace App\Repository;
 
@@ -59,11 +68,24 @@ class AmenagementRepository extends ServiceEntityRepository
      */
     public function findEnCours(DateTimeInterface $now): array
     {
-        return $this->createQueryBuilder('a')
+        return $this
+            ->createQueryBuilder('a')
             ->andWhere('a.debut <= :now')
             ->andWhere('a.fin is null or a.fin > :now')
             ->setParameter('now', $now)
             ->getQuery()
             ->getResult();
+    }
+
+    public function countEnCours(DateTimeInterface $now): int
+    {
+        $qb = $this
+            ->createQueryBuilder('a')
+            ->select('count(a) as nb')
+            ->andWhere('a.debut <= :now')
+            ->andWhere('a.fin is null or a.fin > :now')
+            ->setParameter('now', $now);
+
+        return $qb->getQuery()->getOneOrNullResult()['nb'];
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -44,12 +44,12 @@ class DemandeRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
-
     }
 
     public function findDemandeEnCoursPourUtilisateurEtCampagne(string $uid, int $campagneId)
     {
-        return $this->createQueryBuilder('d')
+        return $this
+            ->createQueryBuilder('d')
             ->join('d.demandeur', 'demandeur')
             ->join('d.campagne', 'campagne')
             ->where('demandeur.uid = :uid')
@@ -58,15 +58,14 @@ class DemandeRepository extends ServiceEntityRepository
             ->setParameter('campagneId', $campagneId)
             ->getQuery()
             ->getOneOrNullResult();
-
     }
 
     public function demandesObsoletes()
     {
         $now = $this->now();
-        return $this->createQueryBuilder('d')
-            ->join('d.campagne', 'c', Join::WITH,
-                condition: 'c.dateArchivage is not null and c.dateArchivage < :now')
+        return $this
+            ->createQueryBuilder('d')
+            ->join('d.campagne', 'c', Join::WITH, condition: 'c.dateArchivage is not null and c.dateArchivage < :now')
             ->join('d.etat', 'e')
             ->andWhere('e.id = ' . EtatDemande::EN_COURS . ' or e.id = ' . EtatDemande::NON_CONFORME)
             ->setParameter('now', $now)
@@ -79,25 +78,24 @@ class DemandeRepository extends ServiceEntityRepository
      */
     public function findDemandesEnCours(?Utilisateur $utilisateur): array
     {
-
-        $qb = $this->createQueryBuilder('d')
+        $qb = $this
+            ->createQueryBuilder('d')
             ->join('d.campagne', 'campagne')
             ->andWhere('campagne.debut <= :now and (campagne.fin is null or campagne.fin > :now)')
             ->setParameter('now', $this->now());
 
         //si non gestionnaire, il faut filtrer!
         if (in_array(Utilisateur::ROLE_RENFORT, $utilisateur->getRoles())) {
-            $qb->join('campagne.typeDemande', 'type')
-                ->andWhere('type.visibiliteLimitee = false');
+            $qb->join('campagne.typeDemande', 'type')->andWhere('type.visibiliteLimitee = false');
         }
 
-        return $qb->getQuery()
-            ->getResult();
+        return $qb->getQuery()->getResult();
     }
 
     public function countDemandesEnCoursParEtat(?Utilisateur $utilisateur): array
     {
-        $qb = $this->createQueryBuilder('d')
+        $qb = $this
+            ->createQueryBuilder('d')
             ->select('e.id, count(d) as nb')
             ->join('d.campagne', 'campagne')
             ->join('d.etat', 'e')
@@ -107,12 +105,9 @@ class DemandeRepository extends ServiceEntityRepository
 
         //si non gestionnaire, il faut filtrer!
         if (in_array(Utilisateur::ROLE_RENFORT, $utilisateur->getRoles())) {
-            $qb->join('campagne.typeDemande', 'type')
-                ->andWhere('type.visibiliteLimitee = false');
+            $qb->join('campagne.typeDemande', 'type')->andWhere('type.visibiliteLimitee = false');
         }
 
-        return $qb->getQuery()
-            ->getResult();
+        return $qb->getQuery()->getResult();
     }
-
 }

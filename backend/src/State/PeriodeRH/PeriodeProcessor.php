@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -17,18 +17,15 @@ use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\PeriodeRH;
 use App\Message\RessourceCollectionModifieeMessage;
 use App\Message\RessourceModifieeMessage;
-use App\State\TransformerService;
 use Exception;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class PeriodeProcessor implements ProcessorInterface
 {
-    public function __construct(private PeriodeManager      $manager,
-                                private TransformerService  $transformerService,
-                                private MessageBusInterface $messageBus)
-    {
-
-    }
+    public function __construct(
+        private PeriodeManager $manager,
+        private MessageBusInterface $messageBus,
+    ) {}
 
     /**
      * @param PeriodeRH $data
@@ -41,15 +38,6 @@ readonly class PeriodeProcessor implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
         //on n'a que POST et PATCH
-        $resource = $this->transformerService->transform($this->manager->save($data), PeriodeRH::class);
-
-        if (null !== $data->id) {
-            $this->messageBus->dispatch(new RessourceModifieeMessage($resource));
-        } else {
-            $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($resource));
-        }
-
-        return $resource;
+        return new PeriodeRH($this->manager->save($data));
     }
-
 }

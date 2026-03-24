@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,28 +13,38 @@
 namespace App\Entity;
 
 use App\Repository\DisciplineArtistiqueRepository;
+use App\State\EntityToResourceTransformer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: DisciplineArtistiqueRepository::class)]
+#[Map(target: \App\ApiResource\DisciplineArtistique::class, transform: [
+    EntityToResourceTransformer::class,
+    'entityToResource',
+])]
 class DisciplineArtistique
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Map(if: false)]
     private ?string $libelle = null;
 
     #[ORM\Column(options: ['default' => true])]
+    #[Map(if: false)]
     private ?bool $actif = null;
 
     /**
      * @var Collection<int, Reponse>
      */
     #[ORM\ManyToMany(targetEntity: Reponse::class, mappedBy: 'disciplinesArtistiques')]
+    #[Map(if: false)]
     private Collection $reponses;
 
     public function __construct()

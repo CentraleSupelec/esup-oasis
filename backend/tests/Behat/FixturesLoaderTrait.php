@@ -13,14 +13,12 @@ trait FixturesLoaderTrait
     protected static Registry $doctrine;
     protected static string $fixturesPath;
 
-    public function __construct(LoaderInterface $loader, Registry $doctrine,
-                                string          $fixturesBasePath)
+    public function __construct(LoaderInterface $loader, Registry $doctrine, string $fixturesBasePath)
     {
         self::$loader = $loader;
         self::$doctrine = $doctrine;
         self::$fixturesPath = $fixturesBasePath;
     }
-
 
     public static function loadFixtures(array $fixtures, $purgeMode = null): void
     {

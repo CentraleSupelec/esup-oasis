@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,83 +13,110 @@
 namespace App\Entity;
 
 use App\Repository\EvenementRepository;
+use App\State\EntityToResourceTransformer;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Index;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ORM\Entity(repositoryClass: EvenementRepository::class)]
+#[Map(target: \App\ApiResource\Evenement::class, transform: [EntityToResourceTransformer::class, 'entityToResource'])]
+#[Index(name: 'IDX_EVENEMENT_DEBUT', columns: ['debut'])]
+#[Index(name: 'IDX_EVENEMENT_FIN', columns: ['fin'])]
 class Evenement implements BeneficiairesManagerInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
+    #[Map(if: false)]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'evenements')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?TypeEvenement $type = null;
 
     #[ORM\Column(length: 255)]
+    #[Map(if: false)]
     private ?string $libelle = null;
 
     #[ORM\ManyToOne(inversedBy: 'evenements')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?Campus $campus = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Map(if: false)]
     private ?string $salle = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Map(if: false)]
     private ?DateTimeInterface $debut = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Map(if: false)]
     private ?DateTimeInterface $fin = null;
 
     #[ORM\ManyToMany(targetEntity: TypeEquipement::class, inversedBy: 'evenements')]
+    #[Map(if: false)]
     private Collection $equipements;
 
     #[ORM\Column(options: ['default' => 0])]
+    #[Map(if: false)]
     private ?int $tempsPreparation = 0;
 
     #[ORM\Column(options: ['default' => 0])]
+    #[Map(if: false)]
     private ?int $tempsSupplementaire = 0;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Map(if: false)]
     private ?DateTimeInterface $dateAnnulation = null;
 
     #[ORM\ManyToMany(targetEntity: Beneficiaire::class, inversedBy: 'evenements')]
+    #[Map(if: false)]
     private Collection $beneficiaires;
 
     #[ORM\ManyToOne(inversedBy: 'interventions')]
+    #[Map(if: false)]
     private ?Intervenant $intervenant = null;
 
     #[ORM\ManyToMany(targetEntity: Intervenant::class, inversedBy: 'suppleances')]
     #[ORM\JoinTable(name: 'evenement_intervenant')]
+    #[Map(if: false)]
     private Collection $suppleants;
 
     #[ORM\ManyToOne(inversedBy: 'evenements')]
+    #[Map(if: false)]
     private ?PeriodeRH $periodePriseEnCompteRH = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Map(if: false)]
     private ?DateTimeInterface $dateValidation = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Map(if: false)]
     private ?DateTimeInterface $dateCreation = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Map(if: false)]
     private ?DateTimeInterface $dateModification = null;
 
     #[ORM\ManyToOne(inversedBy: 'evenementsCrees')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Map(if: false)]
     private ?Utilisateur $utilisateurCreation = null;
 
     #[ORM\ManyToOne(inversedBy: 'evenementsModifies')]
+    #[Map(if: false)]
     private ?Utilisateur $utilisateurModification = null;
 
     #[ORM\ManyToMany(targetEntity: Utilisateur::class)]
+    #[Map(if: false)]
     private Collection $enseignants;
 
     public function __construct()
@@ -186,7 +213,7 @@ class Evenement implements BeneficiairesManagerInterface
     {
         $this->dateAnnulation = match ($dateAnnulation) {
             null => null,
-            default => DateTime::createFromInterface($dateAnnulation)
+            default => DateTime::createFromInterface($dateAnnulation),
         };
 
         return $this;
@@ -257,6 +284,11 @@ class Evenement implements BeneficiairesManagerInterface
         return $this->periodePriseEnCompteRH;
     }
 
+    public function getDateEnvoiRH(): ?DateTimeInterface
+    {
+        return $this->getPeriodePriseEnCompteRH()?->getDateEnvoi();
+    }
+
     public function setPeriodePriseEnCompteRH(?PeriodeRH $periodePriseEnCompteRH): self
     {
         $this->periodePriseEnCompteRH = $periodePriseEnCompteRH;
@@ -273,7 +305,7 @@ class Evenement implements BeneficiairesManagerInterface
     {
         $this->dateValidation = match ($dateValidation) {
             null => null,
-            default => DateTime::createFromInterface($dateValidation)
+            default => DateTime::createFromInterface($dateValidation),
         };
 
         return $this;
@@ -300,7 +332,7 @@ class Evenement implements BeneficiairesManagerInterface
     {
         $this->dateModification = match ($dateModification) {
             null => null,
-            default => DateTime::createFromInterface($dateModification)
+            default => DateTime::createFromInterface($dateModification),
         };
 
         return $this;
@@ -336,7 +368,10 @@ class Evenement implements BeneficiairesManagerInterface
      */
     public function canHaveBeneficiaire(Beneficiaire $beneficiaire): bool
     {
-        if ($beneficiaire->getDebut() > $this->getDebut() || (null !== $beneficiaire->getFin() && $beneficiaire->getFin() < $this->getFin())) {
+        if (
+            $beneficiaire->getDebut() > $this->getDebut()
+            || null !== $beneficiaire->getFin() && $beneficiaire->getFin() < $this->getFin()
+        ) {
             return false;
         }
         return true;
@@ -395,7 +430,7 @@ class Evenement implements BeneficiairesManagerInterface
      */
     public function getDureeEnHeures(): string
     {
-        bcscale(8);//précision des calculs, on vise large
+        bcscale(8); //précision des calculs, on vise large
 
         $debutEffectif = (clone $this->getDebut())->modify('-' . $this->getTempsPreparation() . ' minutes');
         $finEffective = (clone $this->getFin())->modify('+' . $this->getTempsSupplementaire() . ' minutes');

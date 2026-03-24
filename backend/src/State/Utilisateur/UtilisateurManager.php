@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -59,27 +59,30 @@ readonly class UtilisateurManager
     use AnneeUniversitaireAwareTrait;
     use ClockAwareTrait;
 
-    public function __construct(private LdapService                                              $ldapService,
-                                private UtilisateurRepository                                    $utilisateurRepository,
-                                private CampusRepository                                         $campusRepository,
-                                private CompetenceRepository                                     $competenceRepository,
-                                private TypeEvenementRepository                                  $typeEvenementRepository,
-                                private ServiceRepository                                        $serviceRepository,
-                                private LoggerInterface                                          $logger,
-                                private Security                                                 $security,
-                                private AbstractSiScolDataProvider                               $scolProvider,
-                                private FormationManager                                         $formationManager,
-                                private ProfilBeneficiaireRepository                             $profilBeneficiaireRepository,
-                                private TypologieHandicapRepository                              $typologieHandicapRepository,
-                                private DemandeManager                                           $demandeManager,
-                                private MessageBusInterface                                      $messageBus,
-                                private TagAwareCacheInterface                                   $cache, private ReponseRepository $reponseRepository,
-                                #[Autowire('%env(json:LDAP_CHAMPS_RECHERCHE)%')] private array   $ldapChampsRecherche,
-                                #[Autowire('%env(LDAP_CRITERES_RECHERCHE_SUP)%')] private string $ldapCriteresRecherche,
-                                #[Autowire('%env(LDAP_CHAMP_ETU_ID)%')] private string           $ldapChampEtuId)
-    {
-
-    }
+    public function __construct(
+        private LdapService $ldapService,
+        private UtilisateurRepository $utilisateurRepository,
+        private CampusRepository $campusRepository,
+        private CompetenceRepository $competenceRepository,
+        private TypeEvenementRepository $typeEvenementRepository,
+        private ServiceRepository $serviceRepository,
+        private LoggerInterface $logger,
+        private Security $security,
+        private AbstractSiScolDataProvider $scolProvider,
+        private FormationManager $formationManager,
+        private ProfilBeneficiaireRepository $profilBeneficiaireRepository,
+        private TypologieHandicapRepository $typologieHandicapRepository,
+        private DemandeManager $demandeManager,
+        private MessageBusInterface $messageBus,
+        private TagAwareCacheInterface $cache,
+        private ReponseRepository $reponseRepository,
+        #[Autowire('%env(json:LDAP_CHAMPS_RECHERCHE)%')]
+        private array $ldapChampsRecherche,
+        #[Autowire('%env(LDAP_CRITERES_RECHERCHE_SUP)%')]
+        private string $ldapCriteresRecherche,
+        #[Autowire('%env(LDAP_CHAMP_ETU_ID)%')]
+        private string $ldapChampEtuId,
+    ) {}
 
     /**
      * @param string $uid
@@ -142,7 +145,13 @@ readonly class UtilisateurManager
         $searchString .= '))';
 
         try {
-            $entries = $this->ldapService->query($searchString, ['uid', 'sn', 'givenname', 'mail', $this->ldapChampEtuId]);
+            $entries = $this->ldapService->query($searchString, [
+                'uid',
+                'sn',
+                'givenname',
+                'mail',
+                $this->ldapChampEtuId,
+            ]);
         } catch (ErreurLdapException $e) {
             $this->logger->debug($e->getMessage());
             $this->logger->debug($e->getTraceAsString());
@@ -163,11 +172,10 @@ readonly class UtilisateurManager
             $user->setPrenom($entry['givenname'][0] ?? $entry['uid'][0]);
             $user->setEmail($entry['mail'][0]);
             if (array_key_exists($this->ldapChampEtuId, $entry)) {
-                $user->setNumeroEtudiant((int)$entry[$this->ldapChampEtuId][0]);
+                $user->setNumeroEtudiant((int) $entry[$this->ldapChampEtuId][0]);
             }
             yield $user;
         }
-
     }
 
     /**
@@ -214,8 +222,10 @@ readonly class UtilisateurManager
         if (in_array('ROLE_RENFORT', $data->roles)) {
             $typeEvenement = new TypeEvenement();
             $typeEvenement->id = \App\Entity\TypeEvenement::TYPE_RENFORT;
-            $data->typesEvenements[] = $typeEvenement;
-            $data->roles[] = 'ROLE_INTERVENANT';
+            $newTypes = $data->typesEvenements;
+            $newTypes[] = $typeEvenement;
+            $data->typesEvenements = $newTypes;
+            $data->roles = array_merge($data->roles, ['ROLE_INTERVENANT']);
             $this->messageBus->dispatch(new RoleUtilisateursModifiesMessage(Utilisateur::ROLE_RENFORT));
         }
 
@@ -231,9 +241,9 @@ readonly class UtilisateurManager
             }
         } else {
             $finAnneeU = new DateTime(match (true) {
-                    $now->format('m') > '08' => (int)$now->format('Y') + 1,
-                    default => (int)$now->format('Y')
-                } . '-08-31');
+                $now->format('m') > '08' => (int) $now->format('Y') + 1,
+                default => (int) $now->format('Y'),
+            } . '-08-31');
 
             if (null !== $data->intervenantFin) {
                 $fin = $data->intervenantFin;
@@ -251,7 +261,7 @@ readonly class UtilisateurManager
                 $intervenant = new Intervenant();
                 $intervenant->setDebut($debut);
                 $intervenant->setFin($fin);
-                $entity->setAbonneRecapHebdo(true);//abonnement par défaut!
+                $entity->setAbonneRecapHebdo(true); //abonnement par défaut!
                 $entity->setIntervenant($intervenant);
                 $nouvelIntervenant = true;
             } else {
@@ -277,8 +287,10 @@ readonly class UtilisateurManager
          * Bénéficiaire ajouté directement via le rôle?
          */
         $bornesAnnee = $this->bornesAnneeDuJour($this->now());
-        if (!in_array(Utilisateur::ROLE_BENEFICIAIRE, $entity->getRoles()) &&
-            in_array(Utilisateur::ROLE_BENEFICIAIRE, $data->roles)) {
+        if (
+            !in_array(Utilisateur::ROLE_BENEFICIAIRE, $entity->getRoles())
+            && in_array(Utilisateur::ROLE_BENEFICIAIRE, $data->roles)
+        ) {
             //on ajoute un profil 'à remplir'
             $beneficiaire = new Beneficiaire();
             $beneficiaire->setGestionnaire($this->security->getUser());
@@ -289,6 +301,8 @@ readonly class UtilisateurManager
             $entity->setAbonneRecapHebdo(true);
             $this->messageBus->dispatch(new RoleUtilisateursModifiesMessage(Utilisateur::ROLE_BENEFICIAIRE));
         }
+
+        $entity->setRoles($entity->getRolesCalcules());
 
         $this->utilisateurRepository->save($entity, true);
 
@@ -310,8 +324,10 @@ readonly class UtilisateurManager
      */
     protected function majServices(array $resources, Utilisateur $entity): void
     {
-        if ((count($resources) > 0 && $entity->getServices()->count() == 0) ||
-            (count($resources) == 0 && $entity->getServices()->count() > 0)) {
+        if (
+            count($resources) > 0 && $entity->getServices()->count() == 0
+            || count($resources) == 0 && $entity->getServices()->count() > 0
+        ) {
             $this->messageBus->dispatch(new RoleUtilisateursModifiesMessage(Utilisateur::ROLE_GESTIONNAIRE));
         }
 
@@ -400,7 +416,6 @@ readonly class UtilisateurManager
         }
     }
 
-
     /**
      * @param Utilisateur $utilisateur
      * @param ProfilBeneficiaire|null $profil
@@ -413,13 +428,16 @@ readonly class UtilisateurManager
      * @return Beneficiaire
      * @throws BeneficiaireInconnuException
      */
-    public function majBeneficiaires(Utilisateur       $utilisateur, ?ProfilBeneficiaire $profil,
-                                     DateTimeInterface $debut, ?DateTimeInterface $fin,
-                                     ?int              $id = null,
-                                     ?Utilisateur      $gestionnaire = null,
-                                     array             $typologies = [],
-                                     bool              $avecAccompagnement = true): Beneficiaire
-    {
+    public function majBeneficiaires(
+        Utilisateur $utilisateur,
+        ?ProfilBeneficiaire $profil,
+        DateTimeInterface $debut,
+        ?DateTimeInterface $fin,
+        ?int $id = null,
+        ?Utilisateur $gestionnaire = null,
+        array $typologies = [],
+        bool $avecAccompagnement = true,
+    ): Beneficiaire {
         if (null === $gestionnaire) {
             $gestionnaire = $this->security->getUser();
         }
@@ -444,7 +462,7 @@ readonly class UtilisateurManager
 
         if (null === $id) {
             $utilisateur->addBeneficiaire($beneficiaire);
-            $utilisateur->setAbonneRecapHebdo(true);//pertinent?
+            $utilisateur->setAbonneRecapHebdo(true); //pertinent?
         }
 
         /**
@@ -467,7 +485,6 @@ readonly class UtilisateurManager
 
         //on permet de déclencher la maj des inscriptions
         $this->majInscriptionsEtIdentite($utilisateur, $debut, $fin);
-
 
         return $beneficiaire;
     }
@@ -496,8 +513,11 @@ readonly class UtilisateurManager
      * @param DateTimeInterface|null $fin
      * @return void
      */
-    public function majInscriptionsEtIdentite(Utilisateur $utilisateur, DateTimeInterface $debut, ?DateTimeInterface $fin): void
-    {
+    public function majInscriptionsEtIdentite(
+        Utilisateur $utilisateur,
+        DateTimeInterface $debut,
+        ?DateTimeInterface $fin,
+    ): void {
         if (null === $utilisateur->getNumeroEtudiant() || null === $utilisateur->getId()) {
             return;
         }
@@ -523,21 +543,25 @@ readonly class UtilisateurManager
         //supprimer les disparues
         foreach ($utilisateur->getInscriptions() as $existante) {
             foreach ($inscriptions as $id => $inscription) {
-                if ($inscription['codeComposante'] === $existante->getFormation()->getComposante()->getCodeExterne() &&
-                    $inscription['codeFormation'] === $existante->getFormation()->getCodeExterne() &&
-                    $inscription['debut'] == $existante->getDebut() &&
-                    $inscription['fin'] == $existante->getFin()) {
+                if (
+                    $inscription['codeComposante'] === $existante->getFormation()->getComposante()->getCodeExterne()
+                    && $inscription['codeFormation'] === $existante->getFormation()->getCodeExterne()
+                    && $inscription['debut'] == $existante->getDebut()
+                    && $inscription['fin'] == $existante->getFin()
+                ) {
                     //trouvée, on passe son chemin
                     unset($inscriptions[$id]);
                     if (null === $existante->getFormation()->getDiplome()) {
                         //rattrapage pour bilan activité
-                        $formation = $this->formationManager->getFormation(codeFormation: $inscription['codeFormation'],
+                        $formation = $this->formationManager->getFormation(
+                            codeFormation: $inscription['codeFormation'],
                             libFormation: $inscription['libFormation'],
                             codeComposante: $inscription['codeComposante'],
                             libComposante: $inscription['libComposante'],
                             niveau: $inscription['niveau'],
                             discipline: $inscription['discipline'],
-                            diplome: $inscription['diplome']);
+                            diplome: $inscription['diplome'],
+                        );
                     }
                     continue 2;
                 }
@@ -548,16 +572,16 @@ readonly class UtilisateurManager
         //ajouter les nouvelles
         foreach ($inscriptions as $inscription) {
             $new = new Inscription();
-            $formation = $this->formationManager->getFormation(codeFormation: $inscription['codeFormation'],
+            $formation = $this->formationManager->getFormation(
+                codeFormation: $inscription['codeFormation'],
                 libFormation: $inscription['libFormation'],
                 codeComposante: $inscription['codeComposante'],
                 libComposante: $inscription['libComposante'],
                 niveau: $inscription['niveau'],
                 discipline: $inscription['discipline'],
-                diplome: $inscription['diplome']);
-            $new->setDebut($inscription['debut'])
-                ->setFin($inscription['fin'])
-                ->setFormation($formation);
+                diplome: $inscription['diplome'],
+            );
+            $new->setDebut($inscription['debut'])->setFin($inscription['fin'])->setFormation($formation);
 
             $utilisateur->addInscription($new);
         }
@@ -570,15 +594,15 @@ readonly class UtilisateurManager
      */
     public function parRole(string $role): array
     {
-        return array_reduce(
-            array: $this->utilisateurRepository->findAll(),
-            callback: function ($carry, Utilisateur $utilisateur) use ($role) {
-                if (in_array($role, $utilisateur->getRoles())) {
-                    $carry[] = $utilisateur;
-                }
-                return $carry ?? [];
+        return array_reduce(array: $this->utilisateurRepository->findAll(), callback: function (
+            $carry,
+            Utilisateur $utilisateur,
+        ) use ($role) {
+            if (in_array($role, $utilisateur->getRoles())) {
+                $carry[] = $utilisateur;
             }
-        );
+            return $carry ?? [];
+        });
     }
 
     /**
@@ -589,8 +613,11 @@ readonly class UtilisateurManager
      * @throws BeneficiaireInconnuException
      * @throws ErreurLdapException
      */
-    public function creerBeneficiairePourDemande(Demande $demande, ?int $idProfil, string $uidGestionnaire): Beneficiaire
-    {
+    public function creerBeneficiairePourDemande(
+        Demande $demande,
+        ?int $idProfil,
+        string $uidGestionnaire,
+    ): Beneficiaire {
         if (null !== $idProfil) {
             $profil = $this->profilBeneficiaireRepository->find($idProfil);
         } else {
@@ -610,7 +637,7 @@ readonly class UtilisateurManager
         $anneeCible = $demande->getCampagne()->getAnneeCible();
         $annee = match ($anneeCible) {
             null => $this->bornesAnneeDuJour($this->now()), //pas d'info, on prend l'année en cours
-            default => $this->bornesAnneeDuJour(new DateTimeImmutable($anneeCible . '-09-02'))
+            default => $this->bornesAnneeDuJour(new DateTimeImmutable($anneeCible . '-09-02')),
         };
 
         $gestionnaire = $this->parUid($uidGestionnaire);
@@ -627,7 +654,7 @@ readonly class UtilisateurManager
             fin: $annee['fin'],
             gestionnaire: $gestionnaire,
             typologies: $typologies,
-            avecAccompagnement: $avecAccompagnement
+            avecAccompagnement: $avecAccompagnement,
         );
 
         $demande->setBeneficiaire($beneficiaire);
@@ -650,7 +677,7 @@ readonly class UtilisateurManager
     {
         $beneficiaires = $utilisateur->getBeneficiairesActifs();
         if (count($beneficiaires) == 0) {
-            throw new UtilisateurNonBeneficiaireException("Pas de bénéficiaire actif pour cet utilisateur");
+            throw new UtilisateurNonBeneficiaireException('Pas de bénéficiaire actif pour cet utilisateur');
         }
         foreach ($beneficiaires as $beneficiaire) {
             $beneficiaire->addTag($tag);
@@ -699,7 +726,9 @@ readonly class UtilisateurManager
                     break;
                 default:
                     if ($reponse->getPiecesJustificatives()->isEmpty()) {
-                        $this->logger->warning('valeur incorrecte pour champ_cible : ' . $reponse->getQuestion()->getChampCible());
+                        $this->logger->warning(
+                            'valeur incorrecte pour champ_cible : ' . $reponse->getQuestion()->getChampCible(),
+                        );
                         break;
                     }
                     //fichier(s)!
@@ -719,12 +748,10 @@ readonly class UtilisateurManager
 
     public function initNumeroAnonyme(Utilisateur $utilisateur): Utilisateur
     {
-        $numero = ($this->now()->format('Y')) . str_pad($utilisateur->getId(), 4, '0', STR_PAD_LEFT);
-        $utilisateur->setNumeroAnonyme((int)$numero);
+        $numero = $this->now()->format('Y') . str_pad($utilisateur->getId(), 4, '0', STR_PAD_LEFT);
+        $utilisateur->setNumeroAnonyme((int) $numero);
         $this->utilisateurRepository->save($utilisateur, true);
 
         return $utilisateur;
     }
-
-
 }

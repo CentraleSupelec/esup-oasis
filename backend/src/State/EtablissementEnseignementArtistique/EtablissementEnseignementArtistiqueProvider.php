@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,60 +12,38 @@
 
 namespace App\State\EtablissementEnseignementArtistique;
 
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PaginatorInterface;
+use ApiPlatform\State\ProviderInterface;
+use App\ApiResource\Charte;
 use App\ApiResource\EtablissementEnseignementArtistique;
-use App\ApiResource\OptionReponse;
-use App\State\AbstractEntityProvider;
-use Override;
+use App\State\MappedCollectionPaginator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class EtablissementEnseignementArtistiqueProvider extends AbstractEntityProvider
+class EtablissementEnseignementArtistiqueProvider implements ProviderInterface
 {
+    public function __construct(
+        #[Autowire(service: 'api_platform.doctrine.orm.state.item_provider')]
+        private ProviderInterface $itemProvider,
+        #[Autowire(service: 'api_platform.doctrine.orm.state.collection_provider')]
+        private ProviderInterface $collectionProvider,
+    ) {}
 
-    #[Override] protected function getResourceClass(): string
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        return EtablissementEnseignementArtistique::class;
-    }
-
-    #[Override] protected function getEntityClass(): string
-    {
-        return \App\Entity\EtablissementEnseignementArtistique::class;
-    }
-
-    /**
-     * @param \App\Entity\EtablissementEnseignementArtistique $entity
-     * @return EtablissementEnseignementArtistique
-     */
-    #[Override] public function transform($entity): mixed
-    {
-        $resource = new EtablissementEnseignementArtistique();
-        $resource->id = $entity->getId();
-        $resource->libelle = $entity->getLibelle();
-        $resource->actif = $entity->isActif();
-
-        return $resource;
-    }
-
-    /**
-     * @param \App\Entity\EtablissementEnseignementArtistique $entity
-     * @return OptionReponse
-     */
-    public function transformIntoOptionReponse(\App\Entity\EtablissementEnseignementArtistique $entity): OptionReponse
-    {
-        $resource = new OptionReponse();
-        $resource->id = $entity->getId();
-        $resource->libelle = $entity->getLibelle();
-        $resource->questionsLiees = [];
-        return $resource;
-    }
-
-    /**
-     * @return void
-     */
-    #[Override] protected function registerTransformations(): void
-    {
-        $this->transformerService->addTransformation(
-            from    : $this->getEntityClass(),
-            to      : OptionReponse::class,
-            callback: $this->transformIntoOptionReponse(...));
-        parent::registerTransformations();
+        if ($operation instanceof GetCollection) {
+            $results = $this->collectionProvider->provide($operation, $uriVariables, $context);
+            assert($results instanceof PaginatorInterface);
+            return new MappedCollectionPaginator(
+                $results,
+                fn($entity) => new EtablissementEnseignementArtistique($entity),
+            );
+        }
+        $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
+        return match ($entity) {
+            null => null,
+            default => new EtablissementEnseignementArtistique($entity),
+        };
     }
 }

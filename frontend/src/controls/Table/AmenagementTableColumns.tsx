@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
- * For full copyright and license information please view the LICENSE file distributed with the source code.
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
  *
- * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
  */
 
 import { IAmenagement, ICategorieAmenagement, ITypeAmenagement } from "../../api/ApiTypeHelpers";
@@ -51,7 +52,7 @@ export function amenagementTableColumns(props: {
                className: props.isGestionnaire ? "pointer" : undefined,
                onClick: () => {
                   if (!props.isGestionnaire) return;
-                  props.navigate(`/beneficiaires/${record.beneficiaire?.uid}`);
+                   props.navigate(`/beneficiaires/${record.beneficiaire?.uid}`);
                },
             };
          },
@@ -74,7 +75,7 @@ export function amenagementTableColumns(props: {
                            onClick={(e) => {
                               e.stopPropagation();
                               window.open(
-                                 `/beneficiaires/${record.beneficiaire?.uid as string}`,
+                                  `/beneficiaires/${record.beneficiaire?.uid as string}`,
                                  "_blank",
                               );
                            }}
@@ -124,7 +125,7 @@ export function amenagementTableColumns(props: {
             );
 
             return (
-               <Space size={0} direction="vertical" style={{ width: 225 }}>
+               <Space size={0} orientation="vertical" style={{ width: 225 }}>
                   <span className="light text-legende fs-09">
                      {
                         props.categoriesAmenagements?.find(
@@ -158,7 +159,7 @@ export function amenagementTableColumns(props: {
          dataIndex: "periode",
          render: (_value: string, record: IAmenagement) => {
             return (
-               <Space direction="vertical" size={4}>
+               <Space orientation="vertical" size={4}>
                   <Space size={4}>
                      {record.semestre1 && (
                         <Tooltip title="Semestre 1">
@@ -231,7 +232,7 @@ export function amenagementTableColumns(props: {
                      icon={<EyeOutlined />}
                      onClick={() =>
                         props.navigate(
-                           `/beneficiaires/${record.beneficiaire?.uid}?amenagement=${record["@id"]}&domaine=${
+                            `/beneficiaires/${record.beneficiaire?.uid}?amenagement=${record["@id"]}&domaine=${
                               getDomaineAmenagement(
                                  props.typesAmenagements?.find(
                                     (ta) => ta["@id"] === record.typeAmenagement,
@@ -249,7 +250,7 @@ export function amenagementTableColumns(props: {
                         icon={<Icon component={ExternalLink} className="fs-08" />}
                         onClick={() => {
                            window.open(
-                              `/beneficiaires/${record.beneficiaire?.uid}?amenagement=${record["@id"]}&domaine=${
+                               `/beneficiaires/${record.beneficiaire?.uid}?amenagement=${record["@id"]}&domaine=${
                                  getDomaineAmenagement(
                                     props.typesAmenagements?.find(
                                        (ta) => ta["@id"] === record.typeAmenagement,

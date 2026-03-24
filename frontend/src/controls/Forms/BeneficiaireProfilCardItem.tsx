@@ -14,7 +14,7 @@ import { IBeneficiaireProfil, IUtilisateur } from "../../api/ApiTypeHelpers";
 import { NB_MAX_ITEMS_PER_PAGE } from "../../constants";
 import Spinner from "../Spinner/Spinner";
 import { getLibellePeriode, isEnCoursSurPeriode } from "../../utils/dates";
-import { EditOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { CheckOutlined, EditOutlined, InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import GestionnaireItem from "../Items/GestionnaireItem";
 import { PREFETCH_PROFILS } from "../../api/ApiPrefetchHelpers";
 import { AccompagnementAvatar } from "../Avatars/AccompagnementAvatar";
@@ -37,16 +37,16 @@ interface IBeneficiaireProfilFormItemProps {
 }
 
 function BeneficiaireProfilCardItem({
-                                       value,
-                                       cardClassName,
-                                       extra,
-                                       utilisateur,
-                                       onCancel,
-                                       selected,
-                                       onSelect,
-                                       editable = true,
-                                       cardSize = "default",
-                                    }: IBeneficiaireProfilFormItemProps) {
+   value,
+   cardClassName,
+   extra,
+   utilisateur,
+   onCancel,
+   selected,
+   onSelect,
+   editable = true,
+   cardSize = "default",
+}: IBeneficiaireProfilFormItemProps) {
    const [profilEdited, setProfilEdited] = useState<IBeneficiaireProfil>();
    const { data: profils, isFetching: isFetchingProfils } =
       useApi().useGetCollection(PREFETCH_PROFILS);
@@ -93,11 +93,18 @@ function BeneficiaireProfilCardItem({
             avatar={
                isEnCoursSurPeriode(data?.debut, data?.fin) ? (
                   <Tooltip title="En cours" placement="left">
-                     <Avatar className="bg-success" size="small" />
+                     <Avatar
+                        className="bg-success"
+                        size="small"
+                        icon={<CheckOutlined className="fs-08" aria-hidden />}
+                     />
                   </Tooltip>
                ) : (
                   <Tooltip title="Terminé" placement="left">
-                     <Avatar size="small" />
+                     <Avatar
+                        size="small"
+                        icon={<PlusOutlined rotate={45} className="fs-08 text-text" aria-hidden />}
+                     />
                   </Tooltip>
                )
             }
@@ -131,7 +138,7 @@ function BeneficiaireProfilCardItem({
                </div>
             }
             description={
-               <Space direction="vertical">
+               <Space orientation="vertical">
                   {getLibellePeriode(data?.debut, data?.fin)}
                   <Space wrap className="text-text">
                      <span>Suivi par :</span>
@@ -141,7 +148,10 @@ function BeneficiaireProfilCardItem({
                   </Space>
                   <Space wrap className="text-text">
                      <span>
-                        <AccompagnementAvatar avecAccompagnement={data?.avecAccompagnement} libelle />
+                        <AccompagnementAvatar
+                           avecAccompagnement={data?.avecAccompagnement}
+                           libelle
+                        />
                      </span>
                   </Space>
                </Space>

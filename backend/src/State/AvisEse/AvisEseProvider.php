@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -12,40 +12,35 @@
 
 namespace App\State\AvisEse;
 
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PaginatorInterface;
+use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\AvisEse;
-use App\ApiResource\Telechargement;
-use App\ApiResource\Utilisateur;
-use App\State\AbstractEntityProvider;
+use App\State\MappedCollectionPaginator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class AvisEseProvider extends AbstractEntityProvider
+readonly class AvisEseProvider implements ProviderInterface
 {
+    public function __construct(
+        #[Autowire(service: 'api_platform.doctrine.orm.state.item_provider')]
+        private ProviderInterface $itemProvider,
+        #[Autowire(service: 'api_platform.doctrine.orm.state.collection_provider')]
+        private ProviderInterface $collectionProvider,
+    ) {}
 
-    protected function getResourceClass(): string
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        return AvisEse::class;
-    }
+        if ($operation instanceof GetCollection) {
+            $results = $this->collectionProvider->provide($operation, $uriVariables, $context);
+            assert($results instanceof PaginatorInterface);
+            return new MappedCollectionPaginator($results, fn($avis) => new AvisEse($avis));
+        }
 
-    protected function getEntityClass(): string
-    {
-        return \App\Entity\AvisEse::class;
-    }
-
-    /**
-     * @param \App\Entity\AvisEse $entity
-     * @return AvisEse
-     */
-    public function transform($entity): AvisEse
-    {
-        $resource = new AvisEse();
-
-        $resource->id = $entity->getId();
-        $resource->utilisateur = $this->transformerService->transform($entity->getUtilisateur(), Utilisateur::class);
-        $resource->libelle = $entity->getLibelle();
-        $resource->commentaire = $entity->getCommentaire();
-        $resource->debut = $entity->getDebut();
-        $resource->fin = $entity->getFin();
-        $resource->fichier = $this->transformerService->transform($entity->getFichier(), Telechargement::class);
-
-        return $resource;
+        $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
+        return match ($entity) {
+            null => null,
+            default => new AvisEse($entity),
+        };
     }
 }

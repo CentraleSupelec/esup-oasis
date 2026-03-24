@@ -1,4 +1,4 @@
-@import "/src/styles/_variables.scss";
+@use "../../../../src/styles/_variables.scss";
 
 .question-aide {
   list-style-position: inside;
@@ -24,8 +24,8 @@
   .question-file-item {
     margin: 5px 0 !important;
     padding: 10px 16px !important;
-    border: 1px solid $light-grey-border-dark;
-    border-radius: $radius;
+    border: 1px solid variables.$light-grey-border-dark;
+    border-radius: variables.$radius;
     height: auto !important;
     background-color: white !important;
 

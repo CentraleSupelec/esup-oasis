@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -19,12 +19,10 @@ use Symfony\Component\Scheduler\Attribute\AsPeriodicTask;
 #[AsPeriodicTask(frequency: '1 day', from: '1:30', jitter: '300', schedule: 'calcul_etats_ese')]
 readonly class CalculEtatsEse
 {
-
-    public function __construct(private UtilisateurRepository $utilisateurRepository,
-                                private LoggerInterface       $logger)
-    {
-
-    }
+    public function __construct(
+        private UtilisateurRepository $utilisateurRepository,
+        private LoggerInterface $logger,
+    ) {}
 
     public function __invoke(): void
     {
@@ -37,5 +35,4 @@ readonly class CalculEtatsEse
 
         $this->logger->info('Fin du traitement de maj des etats avis ese');
     }
-
 }

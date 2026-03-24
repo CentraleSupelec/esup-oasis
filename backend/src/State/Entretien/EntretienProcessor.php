@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -20,21 +20,19 @@ use App\Message\RessourceCollectionModifieeMessage;
 use App\Message\RessourceModifieeMessage;
 use App\Repository\EntretienRepository;
 use App\Repository\FichierRepository;
-use App\State\TransformerService;
 use App\State\Utilisateur\UtilisateurManager;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class EntretienProcessor implements ProcessorInterface
 {
-    public function __construct(private EntretienRepository $entretienRepository,
-                                private TransformerService  $transformerService,
-                                private UtilisateurManager  $utilisateurManager,
-                                private FichierRepository   $fichierRepository,
-                                private Security            $security,
-                                private MessageBusInterface $messageBus)
-    {
-    }
+    public function __construct(
+        private EntretienRepository $entretienRepository,
+        private UtilisateurManager $utilisateurManager,
+        private FichierRepository $fichierRepository,
+        private Security $security,
+        private MessageBusInterface $messageBus,
+    ) {}
 
     /**
      * @param Entretien $data
@@ -43,11 +41,15 @@ readonly class EntretienProcessor implements ProcessorInterface
      * @param array $context
      * @return void
      */
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?Entretien
-    {
+    public function process(
+        mixed $data,
+        Operation $operation,
+        array $uriVariables = [],
+        array $context = [],
+    ): ?Entretien {
         $entity = match ($data->id) {
             null => new \App\Entity\Entretien(),
-            default => $this->entretienRepository->find($data->id)
+            default => $this->entretienRepository->find($data->id),
         };
 
         //DELETE
@@ -66,21 +68,13 @@ readonly class EntretienProcessor implements ProcessorInterface
         $entity->setDate($data->date);
         $entity->setFichier(match ($data->fichier) {
             null => null,
-            default => $this->fichierRepository->find($data->fichier->id)
+            default => $this->fichierRepository->find($data->fichier->id),
         });
         $entity->setCommentaire($data->commentaire);
         $entity->setGestionnaire($this->security->getUser());
 
         $this->entretienRepository->save($entity, true);
 
-        $resource = $this->transformerService->transform($entity, Entretien::class);
-
-        if (null !== $data->id) {
-            $this->messageBus->dispatch(new RessourceModifieeMessage($resource));
-        } else {
-            $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($resource));
-        }
-
-        return $resource;
+        return new Entretien($entity);
     }
 }

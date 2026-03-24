@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -24,22 +24,22 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Override;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\PropertyInfo\Type;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 
 class NestedFieldSearchFilter extends AbstractFilter
 {
-
     use PropertyHelperTrait;
 
     protected array $joins = [];
 
-    public function __construct(ManagerRegistry                          $managerRegistry,
-                                protected readonly IriConverterInterface $iriConverter,
-                                ?LoggerInterface                         $logger = null,
-                                ?array                                   $properties = null,
-                                ?NameConverterInterface                  $nameConverter = null)
-    {
+    public function __construct(
+        ManagerRegistry $managerRegistry,
+        protected readonly IriConverterInterface $iriConverter,
+        ?LoggerInterface $logger = null,
+        ?array $properties = null,
+        ?NameConverterInterface $nameConverter = null,
+    ) {
         parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
     }
 
@@ -51,41 +51,39 @@ class NestedFieldSearchFilter extends AbstractFilter
         return $this->joins[$path];
     }
 
-    #[Override] public function getDescription(string $resourceClass): array
+    #[Override]
+    public function getDescription(string $resourceClass): array
     {
         $description = [];
         foreach ($this->getProperties() as $property => $value) {
             $description[$property] = [
                 'property' => $property,
-                'type' => Type::BUILTIN_TYPE_STRING,
+                'type' => TypeIdentifier::STRING,
                 'required' => false,
                 'is_collection' => false,
-                'openapi' => new Parameter(
-                    name: $property,
-                    in: 'query',
-                    description: $value['desc'],
-                ),
+                'openapi' => new Parameter(name: $property, in: 'query', description: $value['desc']),
             ];
             $description[$property . '[]'] = [
                 'property' => $property,
-                'type' => Type::BUILTIN_TYPE_STRING,
+                'type' => TypeIdentifier::STRING,
                 'required' => false,
                 'is_collection' => true,
-                'openapi' => new Parameter(
-                    name: $property,
-                    in: 'query',
-                    description: $value['desc'],
-                ),
+                'openapi' => new Parameter(name: $property, in: 'query', description: $value['desc']),
             ];
         }
         return $description;
     }
 
     #[Override]
-    protected function filterProperty(string                      $property, $value, QueryBuilder $queryBuilder,
-                                      QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass,
-                                      ?Operation                  $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         if (!in_array($property, array_keys($this->getProperties()))) {
             return;
         }
@@ -114,7 +112,7 @@ class NestedFieldSearchFilter extends AbstractFilter
 
             $prefix = match ($prefix) {
                 '' => $current,
-                default => $prefix . '.' . $current
+                default => $prefix . '.' . $current,
             };
             $this->joins[$prefix] = $nextAlias;
             $alias = $nextAlias;
@@ -125,10 +123,22 @@ class NestedFieldSearchFilter extends AbstractFilter
         //la définition du filtre était ok?
         if (str_contains($targetField, '.')) {
             //on sort comme un sagouin, erreur du dev.
-            throw new Exception('Filtre mal défini, mapping incorrect : ' . $this->getProperties()[$property]['mapping']);
+            throw new Exception(
+                'Filtre mal défini, mapping incorrect : ' . $this->getProperties()[$property]['mapping'],
+            );
         }
 
-        $this->doFilter($alias, $currentResourceClass, $targetField, $value, $queryBuilder, $queryNameGenerator, $resourceClass, $operation, $context);
+        $this->doFilter(
+            $alias,
+            $currentResourceClass,
+            $targetField,
+            $value,
+            $queryBuilder,
+            $queryNameGenerator,
+            $resourceClass,
+            $operation,
+            $context,
+        );
     }
 
     /**
@@ -145,9 +155,17 @@ class NestedFieldSearchFilter extends AbstractFilter
      * @param array $context
      * @return void
      */
-    protected function doFilter(string $alias, string $currentResourceClass, string $targetField, array $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator,
-                                string $resourceClass, ?Operation $operation, array $context): void
-    {
+    protected function doFilter(
+        string $alias,
+        string $currentResourceClass,
+        string $targetField,
+        array $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation,
+        array $context,
+    ): void {
         $exprs = [];
         foreach ($value as $val) {
             try {
@@ -171,6 +189,4 @@ class NestedFieldSearchFilter extends AbstractFilter
 
         $queryBuilder->andWhere($orX);
     }
-
-
 }

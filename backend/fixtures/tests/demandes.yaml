@@ -1,0 +1,18 @@
+App\Entity\Demande:
+  demande_receptionnee_1:
+    campagne: '@campagne1_sportifs'
+    demandeur: '@demandeur'
+    etat: '@demande_receptionnee'
+    dateDepot: <date_create('2030-01-15 10:00:00')>
+  demande_receptionnee_2:
+    campagne: '@campagne_sportifs'
+    demandeur: '@demandeur-3'
+    etat: '@demande_receptionnee'
+    dateDepot: <date_create('2030-01-15 10:00:00')>
+    profilAttribue: '@profil1'
+
+  demande_archivee_1:
+    campagne: '@campagne_archivee_sportifs'
+    demandeur: '@demandeur-3'
+    etat: '@demande_receptionnee'
+    dateDepot: <date_create('2010-01-15 10:00:00')>

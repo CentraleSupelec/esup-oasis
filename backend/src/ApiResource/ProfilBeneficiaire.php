@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -22,37 +22,24 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\CaseInsensitiveOrderFilter;
-use App\State\ProfilBeneficiaire\ProfilBeneficiaireProcessor;
-use App\State\ProfilBeneficiaire\ProfilBeneficiaireProvider;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\ObjectMapper\Attribute\Map;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    operations            : [
-        new GetCollection(
-            uriTemplate: self::COLLECTION_URI
-        ),
-        new Get(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['id' => 'id'],
-        ),
-        new Post(
-            uriTemplate: self::COLLECTION_URI,
-            security   : "is_granted('ROLE_ADMIN')"
-        ),
-        new Patch(
-            uriTemplate: self::ITEM_URI,
-            security   : "is_granted('ROLE_ADMIN')"
-        ),
+    operations: [
+        new GetCollection(uriTemplate: self::COLLECTION_URI),
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['id' => 'id']),
+        new Post(uriTemplate: self::COLLECTION_URI, security: "is_granted('ROLE_ADMIN')"),
+        new Patch(uriTemplate: self::ITEM_URI, security: "is_granted('ROLE_ADMIN')"),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    openapi               : new Operation(tags: ['Referentiel']),
-    provider              : ProfilBeneficiaireProvider::class,
-    processor             : ProfilBeneficiaireProcessor::class,
-    stateOptions          : new Options(entityClass: \App\Entity\ProfilBeneficiaire::class)
+    openapi: new Operation(tags: ['Referentiel']),
+    stateOptions: new Options(entityClass: \App\Entity\ProfilBeneficiaire::class),
 )]
 #[ApiFilter(CaseInsensitiveOrderFilter::class, properties: ['libelle'])]
+#[Map(target: \App\Entity\ProfilBeneficiaire::class)]
 final class ProfilBeneficiaire
 {
     public const string COLLECTION_URI = '/profils';
@@ -62,13 +49,45 @@ final class ProfilBeneficiaire
 
     #[Groups([self::GROUP_OUT])]
     #[ApiProperty(identifier: true)]
-    public ?int $id = null;
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
     #[Assert\NotBlank]
-    public string $libelle;
+    public string $libelle {
+        get {
+            if (!isset($this->libelle) && $this->entity !== null) {
+                $this->libelle = $this->entity->getLibelle() ?? '';
+            }
+            return $this->libelle;
+        }
+    }
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public bool $actif = true;
+    public bool $actif = true {
+        get {
+            if ($this->entity !== null) {
+                return $this->entity->isActif() ?? true;
+            }
+            return $this->actif;
+        }
+    }
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public bool $avecTypologie = false;
+    public bool $avecTypologie = false {
+        get {
+            if ($this->entity !== null) {
+                return $this->entity->isAvecTypologie() ?? false;
+            }
+            return $this->avecTypologie;
+        }
+    }
+
+    public function __construct(
+        private readonly ?\App\Entity\ProfilBeneficiaire $entity = null,
+    ) {}
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -21,21 +21,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name       : 'app:calcul-champ-gest',
+    name: 'app:calcul-champ-gest',
     description: 'Initialisation du champs "gestionnaire" de la table utilisateur, qui ne sera plus calculé mais stocké.',
 )]
 class InitChampGestionnaireCommand extends Command
 {
-
-    public function __construct(private readonly UtilisateurRepository $utilisateurRepository)
-    {
+    public function __construct(
+        private readonly UtilisateurRepository $utilisateurRepository,
+    ) {
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-
-    }
+    protected function configure(): void {}
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -45,7 +42,6 @@ class InitChampGestionnaireCommand extends Command
             'gestionnaire' => true, //au moins un gestionnaire, c'est déjà initialisé
         ]);
 
-
         if ($existants > 0) {
             $io->info('Champ gestionnaire déjà initialisé.');
 
@@ -54,12 +50,11 @@ class InitChampGestionnaireCommand extends Command
 
         foreach ($this->utilisateurRepository->findAll() as $utilisateur) {
             if ($utilisateur->getServices()->count() > 0) {
-                $renfort = (count(
-                        array_filter(
-                            $utilisateur->getIntervenant()?->getTypesEvenements()->toArray() ?? [],
-                            fn(TypeEvenement $type) => $type->getId() === TypeEvenement::TYPE_RENFORT
-                        )
-                    ) > 0);
+                $renfort =
+                    count(array_filter(
+                        $utilisateur->getIntervenant()?->getTypesEvenements()->toArray() ?? [],
+                        fn(TypeEvenement $type) => $type->getId() === TypeEvenement::TYPE_RENFORT,
+                    )) > 0;
                 if (!$renfort) {
                     $utilisateur->setGestionnaire(true);
                 }

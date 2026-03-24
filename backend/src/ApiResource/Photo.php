@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -20,15 +20,11 @@ use App\State\Photo\PhotoProvider;
 
 #[ApiResource(
     operations: [
-        new Get(
-            uriTemplate : self::ITEM_URI,
-            formats     : ['jpeg' => 'image/jpeg'],
-            uriVariables: ['uid']
-        ),
+        new Get(uriTemplate: self::ITEM_URI, formats: ['jpeg' => 'image/jpeg'], uriVariables: ['uid']),
     ],
-    openapi   : new Operation(tags: ['Utilisateurs']),
-    security  : "is_granted('ROLE_GESTIONNAIRE') or is_granted('ROLE_MEMBRE_COMMISSION')",
-    provider  : PhotoProvider::class
+    openapi: new Operation(tags: ['Utilisateurs']),
+    security: "is_granted('ROLE_GESTIONNAIRE') or is_granted('ROLE_MEMBRE_COMMISSION')",
+    provider: PhotoProvider::class,
 )]
 class Photo
 {
@@ -38,5 +34,4 @@ class Photo
     public string $uid;
 
     public string $data;
-
 }

@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
- * For full copyright and license information please view the LICENSE file distributed with the source code.
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
  *
- * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
  */
 
 import { Dispatch } from "redux";
@@ -41,7 +42,7 @@ export const menuItemRecherche = (
          <Tooltip title="Rechercher un demandeur, un bénéficiaire ou un intervenant à partir de son nom, son prénom ou son email">
             <Button
                type="text"
-               className="bg-transparent"
+               className="bg-transparent pr-0 line-height-1"
                aria-label="Rechercher un étudiant"
                onClick={() => setModeRecherche(!modeRecherche)}
             >

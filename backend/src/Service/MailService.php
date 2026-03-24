@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -37,14 +37,13 @@ use Twig\Error\SyntaxError;
 
 readonly class MailService
 {
-    public function __construct(private MailerInterface       $mailer,
-                                private ParametreRepository   $parametreRepository,
-                                private UtilisateurRepository $utilisateurRepository,
-                                private LoggerInterface       $logger,
-                                private EvenementRepository   $evenementRepository)
-    {
-
-    }
+    public function __construct(
+        private MailerInterface $mailer,
+        private ParametreRepository $parametreRepository,
+        private UtilisateurRepository $utilisateurRepository,
+        private LoggerInterface $logger,
+        private EvenementRepository $evenementRepository,
+    ) {}
 
     /**
      * @param Evenement[] $evenements
@@ -55,8 +54,10 @@ readonly class MailService
         $utilisateurConcerne = $evenements[0]->getIntervenant()->getUtilisateur();
         $nomAffichage = $this->nomAffichage($utilisateurConcerne);
 
-        $this->envoyerRappelIndividuel($utilisateurConcerne, $nomAffichage, 'mail/rappelIntervenant.html.twig',
-            ['evenements' => $evenements, 'intervenant' => $utilisateurConcerne,]);
+        $this->envoyerRappelIndividuel($utilisateurConcerne, $nomAffichage, 'mail/rappelIntervenant.html.twig', [
+            'evenements' => $evenements,
+            'intervenant' => $utilisateurConcerne,
+        ]);
     }
 
     /**
@@ -68,8 +69,10 @@ readonly class MailService
     {
         $nomAffichage = $this->nomAffichage($beneficiaire);
 
-        $this->envoyerRappelIndividuel($beneficiaire, $nomAffichage, 'mail/rappelBeneficiaire.html.twig',
-            ['evenements' => $evenements, 'beneficiaire' => $beneficiaire,]);
+        $this->envoyerRappelIndividuel($beneficiaire, $nomAffichage, 'mail/rappelBeneficiaire.html.twig', [
+            'evenements' => $evenements,
+            'beneficiaire' => $beneficiaire,
+        ]);
     }
 
     /**
@@ -86,12 +89,15 @@ readonly class MailService
             'destinataireTechnique' => true,
         ]);
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] Traitement de MAJ des inscriptions')
-            ->to(...array_map(fn($destinataire) => new Address($destinataire->getEmail(), $this->nomAffichage($destinataire)), $destinataires))
+            ->to(...array_map(
+                fn($destinataire) => new Address($destinataire->getEmail(), $this->nomAffichage($destinataire)),
+                $destinataires,
+            ))
             ->htmlTemplate('mail/rapportMajInscriptions.html.twig')
-            ->context(['traites' => $traites, 'nonTraites' => $nonTraites,]);
+            ->context(['traites' => $traites, 'nonTraites' => $nonTraites]);
 
         try {
             $this->mailer->send($email);
@@ -120,16 +126,18 @@ readonly class MailService
                 }
                 return $carry;
             },
-            initial: []
+            initial: [],
         );
 
         //copie aux admins tech dans le doute.
-        $destinatairesTechniques = array_map(fn($utilisateur) => new Address($utilisateur->getEmail(), $this->nomAffichage($utilisateur)),
+        $destinatairesTechniques = array_map(
+            fn($utilisateur) => new Address($utilisateur->getEmail(), $this->nomAffichage($utilisateur)),
             $this->utilisateurRepository->findBy([
                 'destinataireTechnique' => true,
-            ]));
+            ]),
+        );
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] La fin de période approche')
             ->bcc(...$destinataires, ...$destinatairesTechniques)
@@ -158,17 +166,19 @@ readonly class MailService
             fn($utilisateur) => new Address($utilisateur->getEmail(), $this->nomAffichage($utilisateur)),
             array_filter(
                 $this->utilisateurRepository->findAll(),
-                fn(Utilisateur $utilisateur) => $utilisateur->isGestionnaire()
-            ));
+                fn(Utilisateur $utilisateur) => $utilisateur->isGestionnaire(),
+            ),
+        );
 
         //copie aux admins tech dans le doute.
-        $destinatairesTechniques = array_map(fn($utilisateur) => new Address($utilisateur->getEmail(), $this->nomAffichage($utilisateur)),
+        $destinatairesTechniques = array_map(
+            fn($utilisateur) => new Address($utilisateur->getEmail(), $this->nomAffichage($utilisateur)),
             $this->utilisateurRepository->findBy([
                 'destinataireTechnique' => true,
-            ]));
+            ]),
+        );
 
-
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] La fin de période approche')
             ->bcc(...$destinataires, ...$destinatairesTechniques)
@@ -177,14 +187,15 @@ readonly class MailService
 
         try {
             $this->mailer->send($email);
-            $this->logger->info('Mail envoi validation renforts J-4 envoyé. Destinataires : ' .
-                implode(', ', array_map(fn(Address $des) => $des->getAddress(), $destinataires)));
+            $this->logger->info(
+                'Mail envoi validation renforts J-4 envoyé. Destinataires : '
+                    . implode(', ', array_map(fn(Address $des) => $des->getAddress(), $destinataires)),
+            );
         } catch (TransportExceptionInterface $e) {
             $this->logger->error("Erreur lors de l'envoi du rappel de validation des interventions des renforts");
             $this->logger->error($e->getMessage());
             $this->logger->debug($e->getTraceAsString());
         }
-
     }
 
     /**
@@ -205,7 +216,7 @@ readonly class MailService
             'cle' => Parametre::EXPEDITEUR_EMAILS,
         ]);
 
-        return $expediteur?->getValeurCourante()?->getValeur() ?? "noreply@u-bordeaux.fr";
+        return $expediteur?->getValeurCourante()?->getValeur() ?? 'noreply@u-bordeaux.fr';
     }
 
     /**
@@ -215,9 +226,13 @@ readonly class MailService
      * @param array $context
      * @return void
      */
-    protected function envoyerRappelIndividuel(?Utilisateur $utilisateurConcerne, string $nomAffichage, string $template, array $context): void
-    {
-        $email = (new TemplatedEmail())
+    protected function envoyerRappelIndividuel(
+        ?Utilisateur $utilisateurConcerne,
+        string $nomAffichage,
+        string $template,
+        array $context,
+    ): void {
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] Récapitulatif de vos événements de la semaine')
             ->to(new Address($utilisateurConcerne->getEmail(), $nomAffichage))
@@ -239,10 +254,13 @@ readonly class MailService
             'destinataireTechnique' => true,
         ]);
 
-        $email = (new Email())
+        $email = new Email()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] test de mail')
-            ->to(...array_map(fn($destinataire) => new Address($destinataire->getEmail(), $this->nomAffichage($destinataire)), $destinataires))
+            ->to(...array_map(
+                fn($destinataire) => new Address($destinataire->getEmail(), $this->nomAffichage($destinataire)),
+                $destinataires,
+            ))
             ->text('Simple mail de test');
 
         try {
@@ -264,7 +282,7 @@ readonly class MailService
     {
         $destinataire = new Address($intervenant->getEmail(), $this->nomAffichage($intervenant));
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] Bienvenue sur la plateforme Appliphase!')
             ->to($destinataire)
@@ -278,7 +296,6 @@ readonly class MailService
             $this->logger->error($e->getMessage());
             $this->logger->debug($e->getTraceAsString());
         }
-
     }
 
     /**
@@ -290,7 +307,7 @@ readonly class MailService
     {
         $destinataire = new Address($demandeur->getEmail(), $this->nomAffichage($demandeur));
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] Demande réceptionnée')
             ->to($destinataire)
@@ -300,17 +317,22 @@ readonly class MailService
         try {
             $this->mailer->send($email);
         } catch (TransportExceptionInterface $e) {
-            $this->logger->error("Erreur lors de l'envoi de l'accusé de réception de la demande de " . $demandeur->getUid());
+            $this->logger->error(
+                "Erreur lors de l'envoi de l'accusé de réception de la demande de " . $demandeur->getUid(),
+            );
             $this->logger->error($e->getMessage());
             $this->logger->debug($e->getTraceAsString());
         }
     }
 
-    public function envoyerMessageDemandeNonConforme(Utilisateur $demandeur, TypeDemande $typeDemande, ?string $commentaire): void
-    {
+    public function envoyerMessageDemandeNonConforme(
+        Utilisateur $demandeur,
+        TypeDemande $typeDemande,
+        ?string $commentaire,
+    ): void {
         $destinataire = new Address($demandeur->getEmail(), $this->nomAffichage($demandeur));
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] Demande non conforme')
             ->to($destinataire)
@@ -320,7 +342,9 @@ readonly class MailService
         try {
             $this->mailer->send($email);
         } catch (TransportExceptionInterface $e) {
-            $this->logger->error("Erreur lors de l'envoi de la notification de non conformité de la demande de " . $demandeur->getUid());
+            $this->logger->error(
+                "Erreur lors de l'envoi de la notification de non conformité de la demande de " . $demandeur->getUid(),
+            );
             $this->logger->error($e->getMessage());
             $this->logger->debug($e->getTraceAsString());
         }
@@ -330,7 +354,7 @@ readonly class MailService
     {
         $destinataire = new Address($demandeur->getEmail(), $this->nomAffichage($demandeur));
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] Demande validée')
             ->to($destinataire)
@@ -340,17 +364,22 @@ readonly class MailService
         try {
             $this->mailer->send($email);
         } catch (TransportExceptionInterface $e) {
-            $this->logger->error("Erreur lors de l'envoi de la notification de validité de la demande de " . $demandeur->getUid());
+            $this->logger->error(
+                "Erreur lors de l'envoi de la notification de validité de la demande de " . $demandeur->getUid(),
+            );
             $this->logger->error($e->getMessage());
             $this->logger->debug($e->getTraceAsString());
         }
     }
 
-    public function envoyerNotificationRefusDemande(Utilisateur $demandeur, TypeDemande $typeDemande, ?string $commentaire): void
-    {
+    public function envoyerNotificationRefusDemande(
+        Utilisateur $demandeur,
+        TypeDemande $typeDemande,
+        ?string $commentaire,
+    ): void {
         $destinataire = new Address($demandeur->getEmail(), $this->nomAffichage($demandeur));
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] Demande refusée')
             ->to($destinataire)
@@ -360,18 +389,23 @@ readonly class MailService
         try {
             $this->mailer->send($email);
         } catch (TransportExceptionInterface $e) {
-            $this->logger->error("Erreur lors de l'envoi de la notification de refus de la demande de " . $demandeur->getUid());
+            $this->logger->error(
+                "Erreur lors de l'envoi de la notification de refus de la demande de " . $demandeur->getUid(),
+            );
             $this->logger->error($e->getMessage());
             $this->logger->debug($e->getTraceAsString());
         }
     }
 
-    public function envoyerConfirmationDemandeStatutValide(Utilisateur $demandeur, TypeDemande $typeDemande, ProfilBeneficiaire $profil,
-                                                           bool        $avecAccompagnement): void
-    {
+    public function envoyerConfirmationDemandeStatutValide(
+        Utilisateur $demandeur,
+        TypeDemande $typeDemande,
+        ProfilBeneficiaire $profil,
+        bool $avecAccompagnement,
+    ): void {
         $destinataire = new Address($demandeur->getEmail(), $this->nomAffichage($demandeur));
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] Statut validé')
             ->to($destinataire)
@@ -381,18 +415,19 @@ readonly class MailService
         try {
             $this->mailer->send($email);
         } catch (TransportExceptionInterface $e) {
-            $this->logger->error("Erreur lors de l'envoi de la notification de statut validé de la demande de " . $demandeur->getUid());
+            $this->logger->error(
+                "Erreur lors de l'envoi de la notification de statut validé de la demande de " . $demandeur->getUid(),
+            );
             $this->logger->error($e->getMessage());
             $this->logger->debug($e->getTraceAsString());
         }
-
     }
 
     public function envoyerCharteAValider(Utilisateur $demandeur, TypeDemande $typeDemande): void
     {
         $destinataire = new Address($demandeur->getEmail(), $this->nomAffichage($demandeur));
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] Veuillez valider la charte')
             ->to($destinataire)
@@ -402,7 +437,10 @@ readonly class MailService
         try {
             $this->mailer->send($email);
         } catch (TransportExceptionInterface $e) {
-            $this->logger->error("Erreur lors de l'envoi de la notification de charte à valider de la demande de " . $demandeur->getUid());
+            $this->logger->error(
+                "Erreur lors de l'envoi de la notification de charte à valider de la demande de "
+                    . $demandeur->getUid(),
+            );
             $this->logger->error($e->getMessage());
             $this->logger->debug($e->getTraceAsString());
         }
@@ -412,7 +450,7 @@ readonly class MailService
     {
         $destinataire = new Address($demandeur->getEmail(), $this->nomAffichage($demandeur));
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] Veuillez prendre contact avec le service Phase')
             ->to($destinataire)
@@ -422,7 +460,9 @@ readonly class MailService
         try {
             $this->mailer->send($email);
         } catch (TransportExceptionInterface $e) {
-            $this->logger->error("Erreur lors de l'envoi de la demande de prise de contact pour la demande de " . $demandeur->getUid());
+            $this->logger->error(
+                "Erreur lors de l'envoi de la demande de prise de contact pour la demande de " . $demandeur->getUid(),
+            );
             $this->logger->error($e->getMessage());
             $this->logger->debug($e->getTraceAsString());
         }
@@ -434,12 +474,19 @@ readonly class MailService
             'destinataireTechnique' => true,
         ]);
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] Erreur technique')
-            ->to(...array_map(fn($destinataire) => new Address($destinataire->getEmail(), $this->nomAffichage($destinataire)), $destinataires))
+            ->to(...array_map(
+                fn($destinataire) => new Address($destinataire->getEmail(), $this->nomAffichage($destinataire)),
+                $destinataires,
+            ))
             ->htmlTemplate('mail/erreurTechnique.html.twig')
-            ->context(['message' => $message->getMessage(), 'exceptionMessage' => $message->getExceptionMessage(), 'trace' => $message->getTrace()]);
+            ->context([
+                'message' => $message->getMessage(),
+                'exceptionMessage' => $message->getExceptionMessage(),
+                'trace' => $message->getTrace(),
+            ]);
 
         try {
             $this->mailer->send($email);
@@ -448,7 +495,6 @@ readonly class MailService
             $this->logger->error($e->getMessage());
             $this->logger->debug($e->getTraceAsString());
         }
-
     }
 
     public function envoyerDecision(DecisionAmenagementExamens $decision, string $pdf): void
@@ -458,9 +504,12 @@ readonly class MailService
         $destBccParam = $this->parametreRepository->findOneBy([
             'cle' => Parametre::DESTINATAIRES_COPIE_DECISIONS,
         ]);
-        $destBcc = array_map(fn(ValeurParametre $dest) => $dest->getValeur(), $destBccParam->getValeurCourante(multiple: true));
+        $destBcc = array_map(
+            fn(ValeurParametre $dest) => $dest->getValeur(),
+            $destBccParam->getValeurCourante(multiple: true),
+        );
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] Décision d\'aménagements d\'examens')
             ->to(new Address($destinataire->getEmail(), $this->nomAffichage($destinataire)))
@@ -477,8 +526,6 @@ readonly class MailService
             $this->logger->error($e->getMessage());
             $this->logger->debug($e->getTraceAsString());
         }
-
-
     }
 
     public function envoyerRapportNettoyage(int $count, int $removed, int $errors): void
@@ -487,10 +534,13 @@ readonly class MailService
             'destinataireTechnique' => true,
         ]);
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from($this->getEmailExpediteur())
             ->subject('[Appliphase] Erreur technique')
-            ->to(...array_map(fn($destinataire) => new Address($destinataire->getEmail(), $this->nomAffichage($destinataire)), $destinataires))
+            ->to(...array_map(
+                fn($destinataire) => new Address($destinataire->getEmail(), $this->nomAffichage($destinataire)),
+                $destinataires,
+            ))
             ->htmlTemplate('mail/rapportNettoyage.html.twig')
             ->context(['nb' => $count, 'removed' => $removed, 'errors' => $errors]);
 
@@ -502,6 +552,4 @@ readonly class MailService
             $this->logger->debug($e->getTraceAsString());
         }
     }
-
-
 }

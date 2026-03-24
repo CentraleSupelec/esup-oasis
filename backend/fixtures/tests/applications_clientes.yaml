@@ -1,0 +1,5 @@
+App\Entity\ApplicationCliente:
+  app_test:
+    identifiant: 'test_app'
+    description: 'Une application de test'
+    apiKey: 'test_api_key'

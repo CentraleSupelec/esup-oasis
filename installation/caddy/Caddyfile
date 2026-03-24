@@ -1,21 +1,13 @@
-{
-    log {
-        output stdout
-        format console
-        level DEBUG
-    }
-}
-
 {$SERVER_NAME} {
-    tls internal
+               tls internal
 
-    handle_path /api/* {
-        reverse_proxy backend:80 {
-            header_up X-Forwarded-Prefix /api
-        }
+               handle_path /api/* {
+                                  reverse_proxy backend:80 {
+                                                           header_up X-Forwarded-Prefix /api
+                                                           }
     }
 
-    handle {
-        reverse_proxy frontend:80
-    }
+               handle {
+                      reverse_proxy frontend:80
+                      }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -15,6 +15,7 @@ namespace App\ApiResource;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -30,50 +31,57 @@ use DateTimeInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
-    operations            : [
+    operations: [
         new GetCollection(
-            uriTemplate : self::COLLECTION_URI,
+            uriTemplate: self::COLLECTION_URI,
             uriVariables: [
                 'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
-            ]
+            ],
+            map: false,
         ),
         new Post(
-            uriTemplate : self::COLLECTION_URI,
+            uriTemplate: self::COLLECTION_URI,
             uriVariables: [
                 'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
             ],
-            read        : false,
-            processor   : AvisEsePostProcessor::class
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "')",
+            read: false,
+            processor: AvisEsePostProcessor::class,
+            map: false,
         ),
         new Get(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: [
                 'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
                 'id',
-            ]
+            ],
+            map: false,
         ),
         new Patch(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: [
                 'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
                 'id',
             ],
-            processor   : AvisEsePatchProcessor::class,
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "')",
+            read: true,
+            processor: AvisEsePatchProcessor::class,
         ),
         new Delete(
-            uriTemplate : self::ITEM_URI,
+            uriTemplate: self::ITEM_URI,
             uriVariables: [
                 'uid' => new Link(fromProperty: 'uid', toProperty: 'utilisateur', fromClass: Utilisateur::class),
                 'id',
             ],
-            processor   : AvisEseDeleteProcessor::class
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "')",
+            read: true,
+            processor: AvisEseDeleteProcessor::class,
         ),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    provider              : AvisEseProvider::class,
-    stateOptions          : new Options(entityClass: \App\Entity\AvisEse::class)
-
+    provider: AvisEseProvider::class,
+    stateOptions: new Options(entityClass: \App\Entity\AvisEse::class),
 )]
 #[ApiFilter(OrderFilter::class, properties: ['debut'])]
 class AvisEse
@@ -83,18 +91,76 @@ class AvisEse
     public const string GROUP_IN = 'avis_ese:in';
     public const string GROUP_OUT = 'avis_ese:out';
 
-    public Utilisateur $utilisateur;
+    public ?Utilisateur $utilisateur = null {
+        get {
+            if ($this->utilisateur === null && $this->entity !== null && $this->entity->getUtilisateur() !== null) {
+                $this->utilisateur = new Utilisateur($this->entity->getUtilisateur());
+            }
+            return $this->utilisateur ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_OUT])]
-    public ?int $id = null;
+    #[ApiProperty(identifier: true)]
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
+
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public ?string $libelle = null;
+    public ?string $libelle = null {
+        get {
+            if ($this->libelle === null && $this->entity !== null) {
+                $this->libelle = $this->entity->getLibelle();
+            }
+            return $this->libelle ?? null;
+        }
+    }
+
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public ?string $commentaire = null;
+    public ?string $commentaire = null {
+        get {
+            if ($this->commentaire === null && $this->entity !== null) {
+                $this->commentaire = $this->entity->getCommentaire();
+            }
+            return $this->commentaire ?? null;
+        }
+    }
+
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public DateTimeInterface $debut;
+    public ?DateTimeInterface $debut = null {
+        get {
+            if ($this->debut === null && $this->entity !== null) {
+                $this->debut = $this->entity->getDebut();
+            }
+            return $this->debut ?? null;
+        }
+    }
+
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public ?DateTimeInterface $fin;
+    public ?DateTimeInterface $fin = null {
+        get {
+            if ($this->fin === null && $this->entity !== null) {
+                $this->fin = $this->entity->getFin();
+            }
+            return $this->fin ?? null;
+        }
+    }
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public ?Telechargement $fichier = null;
+    public ?Telechargement $fichier = null {
+        get {
+            if ($this->fichier === null && $this->entity !== null && $this->entity->getFichier() !== null) {
+                $this->fichier = new Telechargement($this->entity->getFichier());
+            }
+            return $this->fichier ?? null;
+        }
+    }
+
+    public function __construct(
+        private readonly ?\App\Entity\AvisEse $entity = null,
+    ) {}
 }

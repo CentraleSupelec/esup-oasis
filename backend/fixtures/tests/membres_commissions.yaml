@@ -1,0 +1,4 @@
+App\Entity\MembreCommission:
+  membre_commission_1:
+    utilisateur: '@membrecommission'
+    commission: '@commission_sport'

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -20,26 +20,30 @@ use ApiPlatform\OpenApi\Model\Parameter;
 use App\State\Stats\TableauDeBordProvider;
 
 #[ApiResource(
-    operations  : [
+    operations: [
         new Get(
             uriTemplate: self::ITEM_URI,
-            openapi    : new Operation(parameters: [
+            openapi: new Operation(parameters: [
                 new Parameter(
-                    name           : 'utilisateur',
-                    in             : 'query',
-                    description    : 'utilisateur concerné',
-                    required       : false,
+                    name: 'utilisateur',
+                    in: 'query',
+                    description: 'utilisateur concerné',
+                    required: false,
                     allowEmptyValue: false,
-                    schema         : ['type' => 'string']),
+                    schema: ['type' => 'string'],
+                ),
             ]),
-            security   : 'is_granted("' . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR . '") or is_granted("' . \App\Entity\Utilisateur::ROLE_INTERVENANT . '")'
+            security: 'is_granted("'
+            . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR
+            . '") or is_granted("'
+            . \App\Entity\Utilisateur::ROLE_INTERVENANT
+            . '")',
         ),
     ],
     cacheHeaders: [
         'public' => false,
     ],
-    provider    : TableauDeBordProvider::class
-
+    provider: TableauDeBordProvider::class,
 )]
 class TableauDeBord
 {
@@ -67,7 +71,7 @@ class TableauDeBord
     /**
      * @var int nb total d'événements sur le mois
      */
-//    #[ApiProperty(security: "is_granted('" . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR . "')")]
+    //    #[ApiProperty(security: "is_granted('" . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR . "')")]
     public int $evenementsMois;
     /**
      * @var int différence par rapport au mois précédent
@@ -146,6 +150,4 @@ class TableauDeBord
 
     #[ApiProperty(security: "is_granted('" . BeneficiaireProfil::VOIR_PROFILS . "')")]
     public int $nbAmenagementsEnCours;
-
-
 }

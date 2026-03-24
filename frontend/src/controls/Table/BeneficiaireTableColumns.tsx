@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
- * For full copyright and license information please view the LICENSE file distributed with the source code.
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
  *
- * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
  */
 
 import { ColumnType } from "antd/es/table";
@@ -114,7 +115,7 @@ export function beneficiaireTableColumns({
                      <Space
                         key={inscription["@id"]}
                         className="mt-05 mb-05"
-                        direction="vertical"
+                        orientation="vertical"
                         size={2}
                      >
                         <ComposanteItem composanteId={inscription?.formation?.composante} />
@@ -255,7 +256,7 @@ export function beneficiaireTableColumns({
                            className="text-light"
                            icon={<Icon component={ExternalLink} className="fs-08" />}
                            onClick={() => {
-                              window.open(`/beneficiaires/${record.uid}`, "_blank");
+                               window.open(`/beneficiaires/${record.uid}`, "_blank");
                            }}
                         />
                      </Tooltip>

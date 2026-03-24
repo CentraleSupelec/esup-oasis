@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -27,17 +27,24 @@ class AmenagementBeneficiaireActifFilter extends AbstractFilter
 
     public const string PROPERTY = 'amenagementBeneficiaireActif';
 
-    #[Override] public function getDescription(string $resourceClass): array
+    #[Override]
+    public function getDescription(string $resourceClass): array
     {
         return [];
     }
 
-    #[Override] protected function filterProperty(string                      $property, $value, QueryBuilder $queryBuilder,
-                                                  QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass,
-                                                  ?Operation                  $operation = null, array $context = []): void
-    {
-        /** @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection */
-        if (!$operation->getClass() === Amenagement::class || $property !== self::PROPERTY) {
+    #[Override]
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
+        $entityClass = $operation->getStateOptions()?->getEntityClass() ?? $operation->getClass();
+        if ($entityClass !== Amenagement::class || $property !== self::PROPERTY) {
             return;
         }
 
@@ -45,9 +52,21 @@ class AmenagementBeneficiaireActifFilter extends AbstractFilter
         $benefAlias = $queryNameGenerator->generateJoinAlias('beneficiaires');
         $nowParam = $queryNameGenerator->generateParameterName('now');
 
-        $withCondition = ':' . $nowParam . ' >= ' . $benefAlias . '.debut and (:' . $nowParam . ' < ' . $benefAlias . '.fin or ' . $benefAlias . '.fin is null)';
-        $queryBuilder->join($alias . '.beneficiaires', $benefAlias, Join::WITH, $withCondition)
-            ->setParameter($nowParam, $this->now());
-
+        $withCondition =
+            ':'
+            . $nowParam
+            . ' >= '
+            . $benefAlias
+            . '.debut and (:'
+            . $nowParam
+            . ' < '
+            . $benefAlias
+            . '.fin or '
+            . $benefAlias
+            . '.fin is null)';
+        $queryBuilder->join($alias . '.beneficiaires', $benefAlias, Join::WITH, $withCondition)->setParameter(
+            $nowParam,
+            $this->now(),
+        );
     }
 }

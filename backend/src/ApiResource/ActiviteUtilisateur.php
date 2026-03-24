@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,8 +13,8 @@
 namespace App\ApiResource;
 
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 class ActiviteUtilisateur
 {
@@ -24,13 +24,17 @@ class ActiviteUtilisateur
     public string $nbHeures;
 
     public function __construct(
-        #[Ignore] public string                                                               $id,
-        #[Groups([ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT])] public Utilisateur   $utilisateur,
-        #[Groups([ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT])] public ?Campus       $campus,
-        #[Groups([ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT])] public TypeEvenement $type,
-        #[Groups([ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT])] public ?TauxHoraire  $tauxHoraire,
-    )
-    {
+        #[Ignore]
+        public string $id,
+        #[Groups([ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT])]
+        public Utilisateur $utilisateur,
+        #[Groups([ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT])]
+        public ?Campus $campus,
+        #[Groups([ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT])]
+        public TypeEvenement $type,
+        #[Groups([ActiviteBeneficiaire::OUT, ActiviteIntervenant::OUT])]
+        public ?TauxHoraire $tauxHoraire,
+    ) {
         $this->nbHeures = 0;
         $this->nbEvenements = 0;
     }
@@ -43,8 +47,8 @@ class ActiviteUtilisateur
     public static function compare(self $a, self $b): int
     {
         return match (true) {
-            ($a->utilisateur->nom == $b->utilisateur->nom) => $a->utilisateur->prenom <=> $b->utilisateur->prenom,
-            default => $a->utilisateur->nom <=> $b->utilisateur->nom
+            $a->utilisateur->nom == $b->utilisateur->nom => $a->utilisateur->prenom <=> $b->utilisateur->prenom,
+            default => $a->utilisateur->nom <=> $b->utilisateur->nom,
         };
     }
 }

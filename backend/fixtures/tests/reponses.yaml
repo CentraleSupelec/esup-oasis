@@ -1,0 +1,35 @@
+App\Entity\Reponse:
+  reponse_demandeur_accompagnement:
+    question: '@question_besoin_accompagnement'
+    repondant: '@demandeur'
+    campagne: '@campagne1_sportifs'
+    dateModification: <date_create('2030-01-15 11:00:00')>
+    commentaire: 'N12345678'
+
+  reponse_demandeur_commune_1:
+    question: '@question_commune_1'
+    repondant: '@demandeur'
+    campagne: '@campagne1_sportifs'
+    dateModification: <date_create('2030-01-15 11:05:00')>
+    commentaire: 'N12345678'
+
+  reponse_demandeur_sportifs_1:
+    question: '@question_sportifs_1'
+    repondant: '@demandeur'
+    campagne: '@campagne1_sportifs'
+    dateModification: <date_create('2030-01-15 11:10:00')>
+    commentaire: 'N12345678'
+
+  reponse_demandeur_sportifs_2:
+    question: '@question_sportifs_2'
+    repondant: '@demandeur'
+    campagne: '@campagne1_sportifs'
+    dateModification: <date_create('2030-01-15 11:15:00')>
+    commentaire: 'N12345678'
+
+  reponse_demandeur_validation:
+    question: '@question_valider_demande'
+    repondant: '@demandeur'
+    campagne: '@campagne1_sportifs'
+    dateModification: <date_create('2030-01-15 11:20:00')>
+    commentaire: 'N12345678'

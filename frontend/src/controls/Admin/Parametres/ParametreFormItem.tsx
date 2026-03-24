@@ -37,7 +37,7 @@ function ParametreFormItemString(props: {
                title={<>Édition de la valeur du paramètre</>}
                avatar={<EditOutlined />}
                description={
-                  <Space direction="vertical" className="text-text">
+                  <Space orientation="vertical" className="text-text">
                      <Space>
                         <span>Début</span>
                         <DatePicker
@@ -159,7 +159,7 @@ function ParametreFormItemFichier(props: {
                title={<>Édition de la valeur du paramètre</>}
                avatar={<EditOutlined />}
                description={
-                  <Space direction="vertical" className="text-text w-100">
+                  <Space orientation="vertical" className="text-text w-100">
                      <Space>
                         <span>Début</span>
                         <DatePicker
@@ -191,7 +191,7 @@ function ParametreFormItemFichier(props: {
                            }}
                         />
                      </Space>
-                     <Space direction="vertical" className="w-100">
+                     <Space orientation="vertical" className="w-100">
                         <span>Fichier</span>
                         <FichierDepot
                            onAdded={(fichier) => {

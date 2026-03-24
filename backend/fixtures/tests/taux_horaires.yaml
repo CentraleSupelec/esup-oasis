@@ -3,3 +3,7 @@ App\Entity\TauxHoraire:
     montant: '12.30'
     debut: <date_create('2020-01-01 08:00')>
     typeEvenement: '@typeEvenement1'
+  taux_prise_de_notes:
+    montant: '10.50'
+    debut: <date_create('2020-01-01 08:00')>
+    typeEvenement: '@typeEvenement7'

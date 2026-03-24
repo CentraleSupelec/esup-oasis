@@ -46,7 +46,7 @@ export function TypeDemandeContent(): React.ReactElement {
       }
 
       notification.error({
-         message: "Erreur lors de la soumission du formulaire",
+         title: "Erreur lors de la soumission du formulaire",
          description: (
             <>
                Veuillez corriger les erreurs du formulaire{" "}
@@ -156,7 +156,7 @@ export function TypeDemandeContent(): React.ReactElement {
                      })),
                   ]}
                   responsive
-                  labelPlacement={
+                  titlePlacement={
                      screens.lg && questionnaire.etapes.length < 5 ? "horizontal" : "vertical"
                   }
                />

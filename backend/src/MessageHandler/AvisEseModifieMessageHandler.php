@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -23,11 +23,10 @@ class AvisEseModifieMessageHandler
 {
     use ClockAwareTrait;
 
-    public function __construct(private readonly DecisionAmenagementManager $decisionAmenagementManager,
-                                private readonly UtilisateurRepository      $utilisateurRepository)
-    {
-
-    }
+    public function __construct(
+        private readonly DecisionAmenagementManager $decisionAmenagementManager,
+        private readonly UtilisateurRepository $utilisateurRepository,
+    ) {}
 
     public function __invoke(AvisEseModifieMessage $message): void
     {
@@ -38,7 +37,11 @@ class AvisEseModifieMessageHandler
         $bornesAnneeConcernee = $message->getBornesAnnee();
         $beneficiaire = $message->getBeneficiaire();
 
-        $this->decisionAmenagementManager->majEtatDecision($beneficiaire, $bornesAnneeConcernee['debut'], $bornesAnneeConcernee['fin']);
+        $this->decisionAmenagementManager->majEtatDecision(
+            $beneficiaire,
+            $bornesAnneeConcernee['debut'],
+            $bornesAnneeConcernee['fin'],
+        );
 
         /**
          * On doit recalculer le champ etatAvisEse de l'utilisateur
@@ -46,5 +49,4 @@ class AvisEseModifieMessageHandler
         $beneficiaire->setEtatAvisEse($beneficiaire->getEtatAvisEseCalcule());
         $this->utilisateurRepository->save($beneficiaire, true);
     }
-
 }

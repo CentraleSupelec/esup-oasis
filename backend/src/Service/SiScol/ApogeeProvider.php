@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -22,18 +22,16 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ApogeeProvider extends AbstractSiScolDataProvider
 {
-
-    public function __construct(private readonly string          $username,
-                                private readonly string          $password,
-                                private readonly string          $db,
-                                private readonly LoggerInterface $logger,
-                                #[Autowire('%env(file:resolve:APOGEE_REQUETE_INSCRIPTIONS)%')]
-                                private readonly string          $requeteInscriptions,
-                                #[Autowire('%env(file:resolve:APOGEE_REQUETE_FORMATION)%')]
-                                private readonly string          $requeteFormation)
-    {
-
-    }
+    public function __construct(
+        private readonly string $username,
+        private readonly string $password,
+        private readonly string $db,
+        private readonly LoggerInterface $logger,
+        #[Autowire('%env(file:resolve:APOGEE_REQUETE_INSCRIPTIONS)%')]
+        private readonly string $requeteInscriptions,
+        #[Autowire('%env(file:resolve:APOGEE_REQUETE_FORMATION)%')]
+        private readonly string $requeteFormation,
+    ) {}
 
     /**
      * @inheritDoc
@@ -56,7 +54,7 @@ class ApogeeProvider extends AbstractSiScolDataProvider
         oci_bind_by_name($stmt, 'debut', $anneeDebut);
         $anneeFin = match ($fin) {
             null => $anneeDebut + 100, //on prend tout ce qu'on trouve depuis l'année de début...
-            default => $this->getAnneeApogee($fin)
+            default => $this->getAnneeApogee($fin),
         };
         oci_bind_by_name($stmt, 'fin', $anneeFin);
 
@@ -76,7 +74,7 @@ class ApogeeProvider extends AbstractSiScolDataProvider
                 'libComposante' => $row->LIB_CMP,
                 'debut' => new DateTime($row->COD_ANU . '-09-01'),
                 'fin' => new DateTime(($row->COD_ANU + 1) . '-08-31'),
-                'boursier' => ($row->TEM_BRS_IAA == 'O'),
+                'boursier' => $row->TEM_BRS_IAA == 'O',
                 'statut' => $row->LIB_RGI, //changement de dernière minute... on colle le régime dans le champ "statut"
                 'niveau' => $row->NIVEAU,
                 'discipline' => $row->LIB_DSI,
@@ -116,9 +114,9 @@ class ApogeeProvider extends AbstractSiScolDataProvider
      */
     protected function getAnneeApogee(DateTimeInterface $debut): int
     {
-        return match ((int)$debut->format('m') >= 9) {
-            true => (int)$debut->format('Y'),
-            false => (int)$debut->format('Y') - 1,
+        return match ((int) $debut->format('m') >= 9) {
+            true => (int) $debut->format('Y'),
+            false => (int) $debut->format('Y') - 1,
         };
     }
 

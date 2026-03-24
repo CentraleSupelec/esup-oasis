@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -27,17 +27,24 @@ class AmenagementUtilisateurFilter extends AbstractFilter
 
     public const string PROPERTY = 'uidUtilisateurBeneficiaire';
 
-    #[Override] public function getDescription(string $resourceClass): array
+    #[Override]
+    public function getDescription(string $resourceClass): array
     {
         return [];
     }
 
-    #[Override] protected function filterProperty(string                      $property, $value, QueryBuilder $queryBuilder,
-                                                  QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass,
-                                                  ?Operation                  $operation = null, array $context = []): void
-    {
-        /** @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection */
-        if (!$operation->getClass() === Amenagement::class || $property !== self::PROPERTY) {
+    #[Override]
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
+        $entityClass = $operation->getStateOptions()?->getEntityClass() ?? $operation->getClass();
+        if ($entityClass !== Amenagement::class || $property !== self::PROPERTY) {
             return;
         }
 
@@ -47,9 +54,21 @@ class AmenagementUtilisateurFilter extends AbstractFilter
         $uidParam = $queryNameGenerator->generateParameterName('uid');
 
         $nowParam = $queryNameGenerator->generateParameterName('now');
-        $withCondition = ':' . $nowParam . ' >= ' . $benefAlias . '.debut and (:' . $nowParam . ' < ' . $benefAlias . '.fin or ' . $benefAlias . '.fin is null)';
+        $withCondition =
+            ':'
+            . $nowParam
+            . ' >= '
+            . $benefAlias
+            . '.debut and (:'
+            . $nowParam
+            . ' < '
+            . $benefAlias
+            . '.fin or '
+            . $benefAlias
+            . '.fin is null)';
 
-        $queryBuilder->join($alias . '.beneficiaires', $benefAlias, Join::WITH, $withCondition)
+        $queryBuilder
+            ->join($alias . '.beneficiaires', $benefAlias, Join::WITH, $withCondition)
             ->innerJoin(sprintf('%s.utilisateur', $benefAlias), $utilisateurAlias)
             ->andWhere(sprintf('%s.uid = :%s', $utilisateurAlias, $uidParam))
             ->setParameter($uidParam, $value)

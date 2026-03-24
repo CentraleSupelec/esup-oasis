@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -18,7 +18,6 @@ use DateTimeInterface;
 
 abstract class AbstractSiScolDataProvider
 {
-
     /**
      * Tableau listant les formations auxquelles est inscrit l'étudiant sur l'intervalle de temps donné
      * [[codeFormation, libFormation, codeComposante, libComposante, debut, fin], ...]
@@ -29,7 +28,11 @@ abstract class AbstractSiScolDataProvider
      * @return array
      * @throws BackendUnavailableException
      */
-    abstract public function getInscriptions(Utilisateur $etudiant, DateTimeInterface $debut, ?DateTimeInterface $fin): array;
+    abstract public function getInscriptions(
+        Utilisateur $etudiant,
+        DateTimeInterface $debut,
+        ?DateTimeInterface $fin,
+    ): array;
 
     /**
      * @param Formation $incomplete
@@ -37,5 +40,4 @@ abstract class AbstractSiScolDataProvider
      * @throws BackendUnavailableException
      */
     abstract public function getFormation(Formation $incomplete): array;
-
 }

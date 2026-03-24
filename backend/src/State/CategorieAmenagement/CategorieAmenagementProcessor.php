@@ -13,24 +13,30 @@
 namespace App\State\CategorieAmenagement;
 
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\CategorieAmenagement;
-use App\State\MappedEntityProcessor;
+use App\Repository\CategorieAmenagementRepository;
 
 readonly class CategorieAmenagementProcessor implements ProcessorInterface
 {
-
-    function __construct(private MappedEntityProcessor $processor)
-    {
-    }
+    function __construct(
+        private CategorieAmenagementRepository $repository,
+    ) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        return $this->processor->process(
-            data: $data,
-            operation: $operation,
-            entityClass: CategorieAmenagement::class,
-            uriVariables: $uriVariables,
-            context: $context);
+        if ($operation instanceof Patch) {
+            $entity = $this->repository->find($uriVariables['id']);
+        } else {
+            $entity = new CategorieAmenagement();
+        }
+
+        $entity->setActif($data->actif);
+        $entity->setLibelle($data->libelle);
+
+        $this->repository->save($entity, true);
+
+        return new \App\ApiResource\CategorieAmenagement($entity);
     }
 }

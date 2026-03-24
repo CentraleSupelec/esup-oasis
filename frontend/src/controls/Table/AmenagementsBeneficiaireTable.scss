@@ -1,0 +1,28 @@
+.scrollbar-container-horizontal {
+  position: sticky;
+  bottom: 16px;
+  z-index: 100;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.scrollbar-horizontal {
+  width: 25vw;
+  min-width: 200px;
+  background-color: rgba(255, 255, 255, 0.66);
+  padding: 4px 16px;
+  border-radius: 16px;
+  pointer-events: auto;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 1);
+    transition: background-color 0.3s ease;
+  }
+}
+
+.position-relative {
+  position: relative;
+}

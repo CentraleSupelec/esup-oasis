@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -30,7 +30,7 @@ use App\State\Evenement\ActiviteIntervenantProvider;
         new GetCollection(
             uriTemplate: '/suivis/intervenants',
             openapi: new Operation(tags: ['Suivis']),
-            paginationEnabled: false
+            paginationEnabled: false,
         ),
         new Get(
             uriTemplate: '/suivis/intervenants/{id}',
@@ -43,9 +43,7 @@ use App\State\Evenement\ActiviteIntervenantProvider;
     normalizationContext: ['groups' => self::OUT],
     security: 'is_granted("ROLE_GESTIONNAIRE")',
     provider: ActiviteIntervenantProvider::class,
-    stateOptions: new Options(
-        entityClass: \App\Entity\Evenement::class
-    )
+    stateOptions: new Options(entityClass: \App\Entity\Evenement::class),
 )]
 #[ApiFilter(SearchFilter::class, properties: [
     'type' => 'exact',

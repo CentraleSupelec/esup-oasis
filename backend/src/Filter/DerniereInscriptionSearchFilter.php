@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -26,17 +26,30 @@ class DerniereInscriptionSearchFilter extends NestedFieldSearchFilter
 {
     private array $decorated;
 
-    public function __construct(ManagerRegistry         $managerRegistry,
-                                IriConverterInterface   $iriConverter,
-                                ?LoggerInterface        $logger = null,
-                                ?array                  $properties = null,
-                                ?NameConverterInterface $nameConverter = null)
-    {
+    public function __construct(
+        ManagerRegistry $managerRegistry,
+        IriConverterInterface $iriConverter,
+        ?LoggerInterface $logger = null,
+        ?array $properties = null,
+        ?NameConverterInterface $nameConverter = null,
+    ) {
         foreach ($properties as $name => $property) {
             $type = $property['type'];
             $this->decorated[$name] = match ($type) {
-                'string' => new CaseInsensitiveSearchFilter($managerRegistry, $iriConverter, $logger, [$name => $property], $nameConverter),
-                default => new NestedFieldSearchFilter($managerRegistry, $iriConverter, $logger, [$name => $property], $nameConverter),
+                'string' => new CaseInsensitiveSearchFilter(
+                    $managerRegistry,
+                    $iriConverter,
+                    $logger,
+                    [$name => $property],
+                    $nameConverter,
+                ),
+                default => new NestedFieldSearchFilter(
+                    $managerRegistry,
+                    $iriConverter,
+                    $logger,
+                    [$name => $property],
+                    $nameConverter,
+                ),
             };
         }
         parent::__construct($managerRegistry, $iriConverter, $logger, $properties, $nameConverter);
@@ -55,10 +68,15 @@ class DerniereInscriptionSearchFilter extends NestedFieldSearchFilter
     }
 
     #[Override]
-    protected function filterProperty(string                      $property, $value, QueryBuilder $queryBuilder,
-                                      QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass,
-                                      ?Operation                  $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         if (!in_array($property, array_keys($this->getProperties()))) {
             return;
         }
@@ -69,7 +87,15 @@ class DerniereInscriptionSearchFilter extends NestedFieldSearchFilter
             return;
         }
 
-        $this->decorated[$property]->filterProperty($property, $value, $queryBuilder, $queryNameGenerator, $resourceClass, $operation, $context);
+        $this->decorated[$property]->filterProperty(
+            $property,
+            $value,
+            $queryBuilder,
+            $queryNameGenerator,
+            $resourceClass,
+            $operation,
+            $context,
+        );
 
         $pathEtudiant = $this->getProperties()[$property]['etudiant'] ?? null;
         if (null !== $pathEtudiant) {
@@ -83,9 +109,13 @@ class DerniereInscriptionSearchFilter extends NestedFieldSearchFilter
         $aliasInscriptions = $this->decorated[$property]->getJoinAlias($pathInscriptions);
         $aliasInscriptionsPlusRecentes = $queryNameGenerator->generateJoinAlias('inscriptions');
 
-        $queryBuilder->leftJoin(sprintf('%s.inscriptions', $aliasEtudiant), $aliasInscriptionsPlusRecentes,
-            Join::WITH, sprintf('%s.debut > %s.debut', $aliasInscriptionsPlusRecentes, $aliasInscriptions))
+        $queryBuilder
+            ->leftJoin(
+                sprintf('%s.inscriptions', $aliasEtudiant),
+                $aliasInscriptionsPlusRecentes,
+                Join::WITH,
+                sprintf('%s.debut > %s.debut', $aliasInscriptionsPlusRecentes, $aliasInscriptions),
+            )
             ->andWhere(sprintf('%s.id is null', $aliasInscriptionsPlusRecentes));
     }
-
 }

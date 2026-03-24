@@ -89,7 +89,7 @@ export function AvisEseList(props: {
                            </h4>
                         }
                         description={
-                           <Space direction="vertical" className="text-text w-100">
+                           <Space orientation="vertical" className="text-text w-100">
                               {getLibellePeriode(a.debut, a.fin)}
                               {a.commentaire && a.commentaire.length > 0 && (
                                  <Space align="start" size={12}>

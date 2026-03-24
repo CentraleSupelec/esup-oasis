@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -24,7 +24,6 @@ use App\Repository\TypeEvenementRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\ErreurLdapException;
 use App\State\MajBeneficiairesTrait;
-use App\State\TransformerService;
 use App\State\Utilisateur\UtilisateurManager;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -36,16 +35,15 @@ class InterventionForfaitProcessor implements ProcessorInterface
     use ClockAwareTrait;
     use MajBeneficiairesTrait;
 
-    public function __construct(private readonly InterventionForfaitRepository $repository,
-                                private readonly PeriodeRHRepository           $periodeRHRepository,
-                                private readonly TypeEvenementRepository       $typeEvenementRepository,
-                                private readonly UtilisateurManager            $utilisateurManager,
-                                private readonly UtilisateurRepository         $utilisateurRepository,
-                                private readonly TransformerService            $transformerService,
-                                private readonly MessageBusInterface           $messageBus,
-                                private readonly Security                      $security)
-    {
-    }
+    public function __construct(
+        private readonly InterventionForfaitRepository $repository,
+        private readonly PeriodeRHRepository $periodeRHRepository,
+        private readonly TypeEvenementRepository $typeEvenementRepository,
+        private readonly UtilisateurManager $utilisateurManager,
+        private readonly UtilisateurRepository $utilisateurRepository,
+        private readonly MessageBusInterface $messageBus,
+        private readonly Security $security,
+    ) {}
 
     /**
      * @param InterventionForfait $data
@@ -56,8 +54,12 @@ class InterventionForfaitProcessor implements ProcessorInterface
      * @throws ErreurLdapException
      * @throws ExceptionInterface
      */
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?InterventionForfait
-    {
+    public function process(
+        mixed $data,
+        Operation $operation,
+        array $uriVariables = [],
+        array $context = [],
+    ): ?InterventionForfait {
         if (null !== $data->id) {
             $entity = $this->repository->find($data->id);
             $entity->setDateModification($this->now());
@@ -70,25 +72,21 @@ class InterventionForfaitProcessor implements ProcessorInterface
 
         if ($operation instanceof Delete) {
             $this->repository->remove($entity, true);
-            $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($data));
-            return null; //ou data?
+            return null;
         }
 
         $entity->setPeriode($this->periodeRHRepository->find($data->periode->id));
         $entity->setType($this->typeEvenementRepository->find($data->type->id));
-        $entity->setIntervenant(($this->utilisateurManager->parUid($data->intervenant->uid))->getIntervenant());
+        $entity->setIntervenant($this->utilisateurManager->parUid($data->intervenant->uid)->getIntervenant());
         $entity->setHeures($data->heures);
 
         $this->majBeneficiaires($data->beneficiaires ?? [], $entity);
 
         $this->repository->save($entity, true);
 
-        $resource = $this->transformerService->transform($entity, InterventionForfait::class);
-        if (null !== $data->id) {
-            $this->messageBus->dispatch(new RessourceModifieeMessage($resource));
-        } else {
-            $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($resource));
-        }
-        return $resource;
+        $data = new InterventionForfait($entity);
+        $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($data));
+
+        return $data;
     }
 }

@@ -91,7 +91,7 @@ export function EntretienList(props: {
                            </h4>
                         }
                         description={
-                           <Space size={4} direction="vertical" className="text-text w-100">
+                           <Space size={4} orientation="vertical" className="text-text w-100">
                               {entretien.commentaire && entretien.commentaire.length > 0 && (
                                  <Space align="start" size={12}>
                                     <CommentOutlined aria-hidden />

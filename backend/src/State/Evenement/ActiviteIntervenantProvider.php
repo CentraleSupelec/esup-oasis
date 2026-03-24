@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -23,17 +23,13 @@ use App\ApiResource\TypeEvenement;
 use App\ApiResource\Utilisateur;
 use App\Entity\Evenement;
 use App\Entity\InterventionForfait;
-use App\State\TransformerService;
 use Exception;
 
 readonly class ActiviteIntervenantProvider implements ProviderInterface
 {
-    public function __construct(private CollectionProvider $provider,
-                                private TransformerService $transformerService)
-    {
-
-    }
-
+    public function __construct(
+        private CollectionProvider $provider,
+    ) {}
 
     /**
      * @param Operation $operation
@@ -44,10 +40,10 @@ readonly class ActiviteIntervenantProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $evenementsOperation = (clone $operation)->withClass(Evenement::class)
-            ->withPaginationEnabled(false);
+        $evenementsOperation = (clone $operation)->withClass(Evenement::class)->withPaginationEnabled(false);
 
-        $interventionsOperation = (clone $operation)->withClass(InterventionForfait::class)
+        $interventionsOperation = (clone $operation)
+            ->withClass(InterventionForfait::class)
             ->withStateOptions(null)
             ->withPaginationEnabled(false);
 
@@ -66,27 +62,30 @@ readonly class ActiviteIntervenantProvider implements ProviderInterface
 
         $results = [];
         foreach ([...$evenements, ...$interventions] as $item) {
-            $tauxEntity = $item->getType()->getTauxHoraireActifPourDate(
-                match (true) {
-                    $item instanceof Evenement => $item->getDebut(),
-                    $item instanceof InterventionForfait => $item->getPeriode()->getFin(),
-                    default => null
-                }
-            );
+            $tauxEntity = $item->getType()->getTauxHoraireActifPourDate(match (true) {
+                $item instanceof Evenement => $item->getDebut(),
+                $item instanceof InterventionForfait => $item->getPeriode()->getFin(),
+                default => null,
+            });
             if (null !== $tauxEntity) {
-                $taux = $this->transformerService->transform(entity: $tauxEntity, to: TauxHoraire::class);
+                $taux = new TauxHoraire(entity: $tauxEntity);
             }
             $campusId = $item instanceof InterventionForfait ? 'undefined' : $item->getCampus()->getId();
-            $key = $item->getIntervenant()->getId() . '#' . $campusId . '#' . $item->getType()->getId() . '#' . ($taux->id ?? 'undefined');
+            $key =
+                $item->getIntervenant()->getId()
+                . '#'
+                . $campusId
+                . '#'
+                . $item->getType()->getId()
+                . '#'
+                . ($taux->id ?? 'undefined');
             if (!array_key_exists($key, $results)) {
                 $results[$key] = new ActiviteIntervenant(
                     id: $key,
-                    utilisateur: $this->transformerService->transform(
-                        entity: $item->getIntervenant()->getUtilisateur(),
-                        to: Utilisateur::class),
-                    campus: $item instanceof Evenement ? $this->transformerService->transform(entity: $item->getCampus(), to: Campus::class) : null,
-                    type: $this->transformerService->transform(entity: $item->getType(), to: TypeEvenement::class),
-                    tauxHoraire: $taux ?? null
+                    utilisateur: new Utilisateur(entity: $item->getIntervenant()->getUtilisateur()),
+                    campus: $item instanceof Evenement ? new Campus(entity: $item->getCampus()) : null,
+                    type: new TypeEvenement(entity: $item->getType()),
+                    tauxHoraire: $taux ?? null,
                 );
             }
             $results[$key]->nbEvenements++;

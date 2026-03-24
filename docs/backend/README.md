@@ -7,8 +7,8 @@ Application backend :
 
 ## Composants techniques
 
-Développé en PHP 8.3, avec les frameworks Symfony 7 (https://symfony.com/)
-et Api Platform 3.2 (https://api-platform.com/), et utilise une base Postgresql (testé sur version 13+).
+Développé en PHP 8.4, avec les frameworks Symfony 8 (https://symfony.com/)
+et Api Platform 4 (https://api-platform.com/), et utilise une base Postgresql (testé sur version 13+).
 
 Déploiement avec docker / K8S, avec le serveur d'applications frankenphp (https://frankenphp.dev/),
 un module pour Caddy - https://caddyserver.com/.

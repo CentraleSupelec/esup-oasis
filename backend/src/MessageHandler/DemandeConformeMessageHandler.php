@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -20,10 +20,9 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler(handles: DemandeConformeMessage::class, priority: 20)]
 readonly class DemandeConformeMessageHandler
 {
-
-    function __construct(private DemandeManager $demandeManager)
-    {
-    }
+    function __construct(
+        private DemandeManager $demandeManager,
+    ) {}
 
     public function __invoke(DemandeConformeMessage $message): void
     {
@@ -34,14 +33,12 @@ readonly class DemandeConformeMessageHandler
         $profilsAssocies = $message->getTypeDemande()->getProfilsAssocies();
         if (count($profilsAssocies) == 1 && null == $demande->getCampagne()->getCommission()) {
             $this->demandeManager->modifierDemande(
-                demande    : $demande,
-                idEtat     : EtatDemande::PROFIL_VALIDE,
+                demande: $demande,
+                idEtat: EtatDemande::PROFIL_VALIDE,
                 commentaire: $message->getCommentaire(),
-                profilId   : $profilsAssocies->current()->getId(),
-                user       : $message->getUidUtilisateur()
+                profilId: $profilsAssocies->current()->getId(),
+                user: $message->getUidUtilisateur(),
             );
         }
-
     }
-
 }

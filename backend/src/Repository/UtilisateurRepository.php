@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -31,8 +31,10 @@ class UtilisateurRepository extends ServiceEntityRepository
 {
     use ClockAwareTrait;
 
-    public function __construct(ManagerRegistry $registry, private readonly MessageBusInterface $messageBus)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly MessageBusInterface $messageBus,
+    ) {
         parent::__construct($registry, Utilisateur::class);
     }
 
@@ -64,13 +66,13 @@ class UtilisateurRepository extends ServiceEntityRepository
     public function search(string $term)
     {
         $searchTerm = '%' . $term . '%';
-        $qb = $this->createQueryBuilder('u', 'u.uid')
+        $qb = $this
+            ->createQueryBuilder('u', 'u.uid')
             ->andWhere('u.uid like :term or u.nom like :term or u.prenom like :term')
             ->setParameter('term', $searchTerm)
             ->orderBy('lower(u.nom), lower(u.prenom)');
 
-        return $qb->getQuery()
-            ->getResult();
+        return $qb->getQuery()->getResult();
     }
 
     /**
@@ -78,27 +80,28 @@ class UtilisateurRepository extends ServiceEntityRepository
      */
     public function findAll(): array
     {
-        $qb = $this->createQueryBuilder('u', 'u.uid')
-            ->orderBy('lower(u.nom), lower(u.prenom)');
-        return $qb->getQuery()
-            ->getResult();
+        $qb = $this->createQueryBuilder('u', 'u.uid')->orderBy('lower(u.nom), lower(u.prenom)');
+        return $qb->getQuery()->getResult();
     }
 
     public function findIntervenantsActifs()
     {
-        return $this->createQueryBuilder('u')
+        return $this
+            ->createQueryBuilder('u')
             ->join('u.intervenant', 'i')
             ->join('i.typesEvenements', 'typesEvenements')
             ->andWhere('typesEvenements.id != :typeRenfort')
             ->andWhere('i.debut <= :now and (i.fin is null or i.fin > :now)')
             ->setParameter('now', $this->now())
             ->setParameter('typeRenfort', TypeEvenement::TYPE_RENFORT)
-            ->getQuery()->getResult();
+            ->getQuery()
+            ->getResult();
     }
 
     public function countIntervenantsActifs()
     {
-        return ($this->createQueryBuilder('u')
+        return $this
+            ->createQueryBuilder('u')
             ->select('count(u.id) as nb')
             ->join('u.intervenant', 'i')
             ->join('i.typesEvenements', 'typesEvenements')
@@ -106,6 +109,35 @@ class UtilisateurRepository extends ServiceEntityRepository
             ->andWhere('i.debut <= :now and (i.fin is null or i.fin > :now)')
             ->setParameter('now', $this->now())
             ->setParameter('typeRenfort', TypeEvenement::TYPE_RENFORT)
-            ->getQuery()->getOneOrNullResult())['nb'];
+            ->getQuery()
+            ->getOneOrNullResult()['nb'];
+    }
+
+    public function preload(array $userIds, array $associations)
+    {
+        $queryBuilder = $this->createQueryBuilder('root');
+
+        $aliases = [
+            'root' => 'root',
+        ];
+        foreach ($associations as $associationName => $association) {
+            $aliases[$associationName] = $associationName;
+            if (($association['joinType'] ?? 'LEFT') === 'LEFT') {
+                $queryBuilder->leftJoin(
+                    $aliases[$association['sourceEntity']] . '.' . $association['relationName'],
+                    $aliases[$associationName],
+                );
+            } else {
+                $queryBuilder->innerJoin(
+                    $aliases[$association['sourceEntity']] . '.' . $association['relationName'],
+                    $aliases[$associationName],
+                );
+            }
+            $queryBuilder->addSelect($aliases[$associationName]);
+        }
+
+        $queryBuilder->andWhere('root.uid IN (:uids)')->setParameter('uids', $userIds);
+
+        return $queryBuilder->getQuery()->getResult();
     }
 }

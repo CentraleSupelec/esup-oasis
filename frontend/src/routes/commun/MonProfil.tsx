@@ -67,7 +67,7 @@ export default function MonProfil(): ReactElement {
       invalidationQueryKeys: ["/utilisateurs"],
       onSuccess: () => {
          notification.success({
-            message: "Votre profil a été mis à jour",
+            title: "Votre profil a été mis à jour",
             description: (
                <Button icon={<HomeOutlined />} onClick={() => navigate("/dashboard")}>
                   Revenir à l'accueil
@@ -127,7 +127,7 @@ export default function MonProfil(): ReactElement {
             >
                <Tabs
                   defaultActiveKey="contact"
-                  tabPosition={screens.lg ? "left" : undefined}
+                  tabPlacement={screens.lg ? "start" : undefined}
                   onChange={(tab) => setCurrentTab(tab)}
                   className="monprofil-tabs"
                   items={

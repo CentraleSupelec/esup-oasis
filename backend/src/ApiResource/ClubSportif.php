@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -22,37 +22,24 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\CaseInsensitiveOrderFilter;
-use App\State\ClubSportif\ClubSportifProcessor;
-use App\State\ClubSportif\ClubSportifProvider;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\ObjectMapper\Attribute\Map;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    operations            : [
-        new GetCollection(
-            uriTemplate: self::COLLECTION_URI
-        ),
-        new Get(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['id' => 'id'],
-        ),
-        new Post(
-            uriTemplate: self::COLLECTION_URI,
-            security   : "is_granted('ROLE_ADMIN')",
-        ),
-        new Patch(
-            uriTemplate: self::ITEM_URI,
-            security   : "is_granted('ROLE_ADMIN')",
-        ),
+    operations: [
+        new GetCollection(uriTemplate: self::COLLECTION_URI),
+        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['id' => 'id']),
+        new Post(uriTemplate: self::COLLECTION_URI, security: "is_granted('ROLE_ADMIN')"),
+        new Patch(uriTemplate: self::ITEM_URI, security: "is_granted('ROLE_ADMIN')"),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    openapi               : new Operation(tags: ['Referentiel']),
-    provider              : ClubSportifProvider::class,
-    processor             : ClubSportifProcessor::class,
-    stateOptions          : new Options(entityClass: \App\Entity\ClubSportif::class)
+    openapi: new Operation(tags: ['Referentiel']),
+    stateOptions: new Options(entityClass: \App\Entity\ClubSportif::class),
 )]
 #[ApiFilter(CaseInsensitiveOrderFilter::class, properties: ['libelle'])]
+#[Map(target: \App\Entity\ClubSportif::class)]
 class ClubSportif
 {
     public const string COLLECTION_URI = '/clubs_sportifs';
@@ -62,19 +49,58 @@ class ClubSportif
 
     #[ApiProperty(identifier: true)]
     #[Groups([self::GROUP_OUT])]
-    public ?int $id = null;
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
 
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
     #[Assert\NotBlank]
-    public string $libelle;
+    public ?string $libelle = null {
+        get {
+            if ($this->libelle === null && $this->entity !== null) {
+                $this->libelle = $this->entity->getLibelle();
+            }
+            return $this->libelle ?? null;
+        }
+        set => $value;
+    }
 
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public bool $actif = true;
+    public ?bool $actif = null {
+        get {
+            if ($this->actif === null && $this->entity !== null) {
+                $this->actif = $this->entity->isActif();
+            }
+            return $this->actif ?? true;
+        }
+    }
 
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public bool $centreFormation = false;
+    public ?bool $centreFormation = null {
+        get {
+            if ($this->centreFormation === null && $this->entity !== null) {
+                $this->centreFormation = $this->entity->isCentreFormation();
+            }
+            return $this->centreFormation ?? false;
+        }
+    }
 
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public bool $professionnel = false;
+    public ?bool $professionnel = null {
+        get {
+            if ($this->professionnel === null && $this->entity !== null) {
+                $this->professionnel = $this->entity->isProfessionnel();
+            }
+            return $this->professionnel ?? false;
+        }
+    }
 
+    public function __construct(
+        private readonly ?\App\Entity\ClubSportif $entity = null,
+    ) {}
 }

@@ -1,19 +1,20 @@
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
- * For full copyright and license information please view the LICENSE file distributed with the source code.
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
  *
- * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
  */
 
 import {
-   ApiPathMethodParameters,
-   ApiPathMethodQuery,
-   Method,
-   Path,
+    ApiPathMethodParameters,
+    ApiPathMethodQuery,
+    Method,
+    Path,
 } from "../../../api/SchemaHelpers";
-import { env } from "../../../env";
+import {env} from "../../../env";
 
 export function buildUrl<P extends Path, M extends Method>(
    baseUrl: string,
@@ -48,14 +49,14 @@ export function buildUrl<P extends Path, M extends Method>(
       });
    }
 
-   const apiPrefix = env.REACT_APP_API_PREFIX.replace(/\/$/, "");
-   const normalizedResPath = resPath.startsWith("/") ? resPath : `/${resPath}`;
-   const finalPath =
-      normalizedResPath.startsWith(`${apiPrefix}/`) || normalizedResPath === apiPrefix
-         ? normalizedResPath
-         : `${apiPrefix}${normalizedResPath}`;
+    const apiPrefix = env.REACT_APP_API_PREFIX.replace(/\/$/, "");
+    const normalizedResPath = resPath.startsWith("/") ? resPath : `/${resPath}`;
+    const finalPath =
+        normalizedResPath.startsWith(`${apiPrefix}/`) || normalizedResPath === apiPrefix
+            ? normalizedResPath
+            : `${apiPrefix}${normalizedResPath}`;
 
-   const resUrl = new URL(finalPath, baseUrl);
+    const resUrl = new URL(finalPath, baseUrl);
 
    // query string
    if (query) {

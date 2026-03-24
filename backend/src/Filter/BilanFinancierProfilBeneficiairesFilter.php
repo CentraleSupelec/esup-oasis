@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -22,12 +22,11 @@ use App\Entity\Evenement;
 use App\Entity\InterventionForfait;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Component\PropertyInfo\Type;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 use Symfony\Contracts\Service\Attribute\Required;
 
 class BilanFinancierProfilBeneficiairesFilter extends AbstractFilter
 {
-
     protected IriConverterInterface $iriConverter;
 
     #[Required]
@@ -39,9 +38,15 @@ class BilanFinancierProfilBeneficiairesFilter extends AbstractFilter
     /**
      * @inheritDoc
      */
-    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator,
-                                      string $resourceClass, ?Operation $operation = null, array $context = []): void
-    {
+    protected function filterProperty(
+        string $property,
+        $value,
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation = null,
+        array $context = [],
+    ): void {
         if ($property !== 'profil' || !in_array($resourceClass, [Evenement::class, InterventionForfait::class])) {
             return;
         }
@@ -59,11 +64,15 @@ class BilanFinancierProfilBeneficiairesFilter extends AbstractFilter
         $profilAlias = $queryNameGenerator->generateJoinAlias('profil');
         $profilIdsParam = $queryNameGenerator->generateParameterName('profilIds');
 
-        $queryBuilder->join(sprintf('%s.beneficiaires', $alias), $benefAlias)
+        $queryBuilder
+            ->join(sprintf('%s.beneficiaires', $alias), $benefAlias)
             ->join(sprintf('%s.profil', $benefAlias), $profilAlias)
             ->andWhere(sprintf('%s.id in (:%s)', $profilAlias, $profilIdsParam))
-            ->setParameter($profilIdsParam, array_map(fn($profil) => $profil->id, $profils), ArrayParameterType::INTEGER);
-
+            ->setParameter(
+                $profilIdsParam,
+                array_map(fn($profil) => $profil->id, $profils),
+                ArrayParameterType::INTEGER,
+            );
     }
 
     /**
@@ -74,25 +83,17 @@ class BilanFinancierProfilBeneficiairesFilter extends AbstractFilter
         $property = 'profil';
         $description[$property] = [
             'property' => $property,
-            'type' => Type::BUILTIN_TYPE_STRING,
+            'type' => TypeIdentifier::STRING,
             'required' => false,
             'is_collection' => false,
-            'openapi' => new Parameter(
-                name: $property,
-                in: 'query',
-                description: 'IRI profil',
-            ),
+            'openapi' => new Parameter(name: $property, in: 'query', description: 'IRI profil'),
         ];
         $description[$property . '[]'] = [
             'property' => $property,
-            'type' => Type::BUILTIN_TYPE_STRING,
+            'type' => TypeIdentifier::STRING,
             'required' => false,
             'is_collection' => true,
-            'openapi' => new Parameter(
-                name: $property,
-                in: 'query',
-                description: 'IRIs profil',
-            ),
+            'openapi' => new Parameter(name: $property, in: 'query', description: 'IRIs profil'),
         ];
         return $description;
     }

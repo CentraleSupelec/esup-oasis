@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -29,12 +29,12 @@ class MajInscriptionsHandler
 {
     use ClockAwareTrait;
 
-    public function __construct(private readonly BeneficiaireRepository $beneficiaireRepository,
-                                private readonly UtilisateurManager     $utilisateurManager,
-                                private readonly MailService            $mailService,
-                                private readonly LoggerInterface        $logger)
-    {
-    }
+    public function __construct(
+        private readonly BeneficiaireRepository $beneficiaireRepository,
+        private readonly UtilisateurManager $utilisateurManager,
+        private readonly MailService $mailService,
+        private readonly LoggerInterface $logger,
+    ) {}
 
     /**
      * @param MajInscriptionsMessage $message
@@ -51,13 +51,22 @@ class MajInscriptionsHandler
         $beneficiairesNonTraites = [];
         $now = $this->now();
         foreach ($this->beneficiaireRepository->findAll() as $beneficiaire) {
-            if ($now > $beneficiaire->getDebut() && ($now < $beneficiaire->getFin() || null === $beneficiaire->getFin())) {
+            if (
+                $now > $beneficiaire->getDebut()
+                && ($now < $beneficiaire->getFin() || null === $beneficiaire->getFin())
+            ) {
                 try {
-                    $this->utilisateurManager->majInscriptionsEtIdentite($beneficiaire->getUtilisateur(), $beneficiaire->getDebut(), $beneficiaire->getFin());
+                    $this->utilisateurManager->majInscriptionsEtIdentite(
+                        $beneficiaire->getUtilisateur(),
+                        $beneficiaire->getDebut(),
+                        $beneficiaire->getFin(),
+                    );
                     $beneficiairesTraites[] = $beneficiaire->getUtilisateur();
                 } catch (Exception $e) {
                     $beneficiairesNonTraites[] = $beneficiaire->getUtilisateur();
-                    $this->logger->error('MAJ impossible des inscriptions de ' . $beneficiaire->getUtilisateur()->getUid());
+                    $this->logger->error(
+                        'MAJ impossible des inscriptions de ' . $beneficiaire->getUtilisateur()->getUid(),
+                    );
                     $this->logger->error($e->getTraceAsString());
                 }
             }
@@ -77,18 +86,20 @@ class MajInscriptionsHandler
                 $this->utilisateurManager->majInscriptionsEtIdentite(
                     $intervenant,
                     $intervenant->getIntervenant()->getDebut(),
-                    $intervenant->getIntervenant()->getFin());
+                    $intervenant->getIntervenant()->getFin(),
+                );
                 $intervenantsTraites[] = $intervenant;
             } catch (Exception $e) {
                 $intervenantsNonTraites[] = $intervenant;
                 $this->logger->error('MAJ impossible des inscriptions de ' . $intervenant->getUid());
                 $this->logger->error($e->getTraceAsString());
             }
-
         }
 
         //Envoyer un rapport aux admins techniques...
-        $this->mailService->envoyerRapportMajInscriptions([...$beneficiairesTraites, ...$intervenantsTraites], [...$beneficiairesNonTraites, ...$intervenantsNonTraites]);
+        $this->mailService->envoyerRapportMajInscriptions([...$beneficiairesTraites, ...$intervenantsTraites], [
+            ...$beneficiairesNonTraites,
+            ...$intervenantsNonTraites,
+        ]);
     }
-
 }

@@ -46,7 +46,7 @@ export function CategorieSelectWithAvatar({
                      .map((c) => ({
                         label: c.libelle,
                         value: c["@id"],
-                        className: `text-${c.couleur}-dark bg-${c.couleur}-xlight`,
+                        className: `text-${c.couleur}-dark`,
                      }))}
                   onSelect={(value) => {
                      setTypeSelectionne(value);

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -24,45 +24,39 @@ use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\CaseInsensitiveOrderFilter;
 use App\State\TypeEngagement\TypeEngagementProcessor;
 use App\State\TypeEngagement\TypeEngagementProvider;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    operations            : [
+    operations: [
         new GetCollection(
             uriTemplate: self::COLLECTION_URI,
-            openapi    : new Operation(
-                tags       : ['Referentiel'],
-                summary    : "Liste des types d'engagements",
+            openapi: new Operation(
+                tags: ['Referentiel'],
+                summary: "Liste des types d'engagements",
                 description: "Retourne la liste des types d'équipements",
-            )
+            ),
         ),
         new Get(
-            uriTemplate : self::ITEM_URI,
-            uriVariables: ['id' => 'id'],
-            openapi     : new Operation(
-                tags       : ['Referentiel'],
-                summary    : "Détail d'un types d'engagements",
-                description: "Retourne le détail du type d'équipement demandé"
-            )
-        ),
-        new Post(
-            uriTemplate: self::COLLECTION_URI,
-            security   : "is_granted('ROLE_ADMIN')",
-        ),
-        new Patch(
             uriTemplate: self::ITEM_URI,
-            security   : "is_granted('ROLE_ADMIN')",
+            uriVariables: ['id' => 'id'],
+            openapi: new Operation(
+                tags: ['Referentiel'],
+                summary: "Détail d'un types d'engagements",
+                description: "Retourne le détail du type d'équipement demandé",
+            ),
         ),
+        new Post(uriTemplate: self::COLLECTION_URI, security: "is_granted('ROLE_ADMIN')"),
+        new Patch(uriTemplate: self::ITEM_URI, security: "is_granted('ROLE_ADMIN')"),
     ],
-    normalizationContext  : ['groups' => [self::GROUP_OUT]],
+    normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
-    openapi               : new Operation(tags: ['Referentiel']),
-    provider              : TypeEngagementProvider::class,
-    processor             : TypeEngagementProcessor::class,
-    stateOptions          : new Options(entityClass: \App\Entity\TypeEngagement::class)
+    openapi: new Operation(tags: ['Referentiel']),
+    stateOptions: new Options(entityClass: \App\Entity\TypeEngagement::class),
 )]
 #[ApiFilter(CaseInsensitiveOrderFilter::class, properties: ['libelle'])]
+#[Map(target: \App\Entity\TypeEngagement::class)]
 final class TypeEngagement
 {
     public const string COLLECTION_URI = '/types_engagements';
@@ -72,10 +66,35 @@ final class TypeEngagement
 
     #[ApiProperty(identifier: true)]
     #[Groups([self::GROUP_OUT])]
-    public ?int $id = null;
+    public ?int $id = null {
+        get {
+            if ($this->id === null && $this->entity !== null) {
+                $this->id = $this->entity->getId();
+            }
+            return $this->id ?? null;
+        }
+    }
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
     #[Assert\NotBlank]
-    public string $libelle;
+    public string $libelle {
+        get {
+            if (!isset($this->libelle) && $this->entity !== null) {
+                $this->libelle = $this->entity->getLibelle() ?? '';
+            }
+            return $this->libelle;
+        }
+    }
     #[Groups([self::GROUP_IN, self::GROUP_OUT])]
-    public bool $actif = true;
+    public bool $actif = true {
+        get {
+            if ($this->entity !== null) {
+                return $this->entity->isActif() ?? true;
+            }
+            return $this->actif;
+        }
+    }
+
+    public function __construct(
+        private readonly ?\App\Entity\TypeEngagement $entity = null,
+    ) {}
 }

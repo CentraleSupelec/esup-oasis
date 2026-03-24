@@ -47,7 +47,7 @@ export function InscriptionItem(props: {
    if (!item) return <MinusOutlined />;
 
    return (
-      <Space direction="vertical" size={2}>
+      <Space orientation="vertical" size={2}>
          <ComposanteItem composanteId={item.formation?.composante} />
          <EllipsisMiddle
             className="light"
