@@ -23,18 +23,23 @@ suivantes :
 * Frontend: JavaScript, React 18
 * Backend: PHP 8.4, Symfony 8.0 / Api Platform 4
 
-Des Dockerfile sont fournis pour le déploiement des deux applications, plus de détails dans la documentation de
-chacune.
+Des Dockerfile sont fournis pour le déploiement des deux applications séparément, plus de détails dans la documentation
+de chacune.
+
+Un modèle d'installation "tout-en-un" est également fourni, vous pouvez vous référer à
+la [documentation dédiée](docs/installation/README.md).
 
 ## Documentation
 
 Les fonctionnalités de l'application sont documentées via
 l'[expression de besoins](docs/Documentation_Fonctionnelle_Oasis_1.0.pdf), remise à jour post développement.
 
-Des documentations techniques sont disponibles séparément pour les deux briques applicatives :
+Des documentations techniques sont disponibles séparément pour les deux briques applicatives et pour l'installation
+tout-en-un:
 
 * [frontend](docs/frontend/README.md)
 * [backend](docs/backend/README.md)
+* [installation](docs/installation/README.md)
 
 ---
 

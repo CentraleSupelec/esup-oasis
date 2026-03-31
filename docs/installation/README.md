@@ -11,7 +11,8 @@ composants nécessaires à son fonctionnement pour une installation "tout en un"
 
 ### Configurer l'environnement:
 
-Copiez le fichier [.env.exemple](.env.exemple) en `.env`, puis adaptez-le à votre installation (pour plus d'infos sur
+Copiez le fichier [.env.exemple](../../installation/.env.exemple) en `.env`, puis adaptez-le à votre installation (pour
+plus d'infos sur
 les
 variables, référez-vous aux documentations respectives du frontend et du backend).
 
@@ -47,7 +48,8 @@ Plus de détails sur les templates disponibles dans la documentation dédiée po
 les décisions et les services faits suivent le même modèle.
 
 Vous pouvez également utiliser le
-dossier [backend/personnalisation/config/apogee](backend/personnalisation/config/apogee) pour spécifier les requêtes
+dossier [backend/personnalisation/config/apogee](../../installation/backend/personnalisation/config/apogee) pour
+spécifier les requêtes
 d'interrogation de la base apogée que vous aurez défini - plus d'informations dans
 la [documentation dédiée au connecteur vers le SI de scolarité](/docs/backend/connecteurs.md#si-scolarité).
 
@@ -64,3 +66,8 @@ docker compose up -d
 ```
 docker compose -f compose.yaml -f compose.dev.yaml up -d
 ```
+
+### Aller plus loin
+
+* [Composants inclus](composants.md)
+* [Mise à jour](maj.md)

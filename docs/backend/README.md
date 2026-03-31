@@ -163,6 +163,7 @@ instances de l'application.
 
 ## Docs complémentaires
 
+* [Guide de développement](developpement.md)
 * [Paramétrage technico-fonctionnel](parametrage.md)
 * [Emails](emails.md)
 * [Traitements asynchrones](traitements_asynchrones.md)
