@@ -13,7 +13,6 @@
 namespace App\Command;
 
 use App\Entity\Parametre;
-use App\Message\ModificationUtilisateurMessage;
 use App\Repository\ParametreRepository;
 use App\Repository\UtilisateurRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -21,7 +20,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsCommand(
     name: 'app:calcul-roles',
@@ -32,7 +30,6 @@ class CalculRolesCommand extends Command
     public function __construct(
         private readonly UtilisateurRepository $utilisateurRepository,
         private readonly ParametreRepository $parametreRepository,
-        private readonly MessageBusInterface $messageBus,
     ) {
         parent::__construct();
     }
@@ -55,7 +52,6 @@ class CalculRolesCommand extends Command
 
         foreach ($this->utilisateurRepository->findAll() as $utilisateur) {
             $this->utilisateurRepository->save($utilisateur);
-            $this->messageBus->dispatch(new ModificationUtilisateurMessage($utilisateur));
         }
 
         $this->utilisateurRepository->save($utilisateur ?? null, true);

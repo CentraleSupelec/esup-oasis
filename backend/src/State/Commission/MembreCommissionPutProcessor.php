@@ -16,15 +16,11 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\MembreCommission;
 use App\Entity\Utilisateur;
-use App\Message\ModificationUtilisateurMessage;
-use App\Message\RessourceCollectionModifieeMessage;
-use App\Message\RessourceModifieeMessage;
 use App\Repository\CommissionRepository;
 use App\Repository\MembreCommissionRepository;
 use App\Service\ErreurLdapException;
 use App\State\Utilisateur\UtilisateurManager;
 use Override;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class MembreCommissionPutProcessor implements ProcessorInterface
 {
@@ -32,7 +28,6 @@ readonly class MembreCommissionPutProcessor implements ProcessorInterface
         private MembreCommissionRepository $membreCommissionRepository,
         private UtilisateurManager $utilisateurManager,
         private CommissionRepository $commissionRepository,
-        private MessageBusInterface $messageBus,
     ) {}
 
     /**
@@ -68,8 +63,6 @@ readonly class MembreCommissionPutProcessor implements ProcessorInterface
         });
 
         $this->membreCommissionRepository->save($entity, true);
-
-        $this->messageBus->dispatch(new ModificationUtilisateurMessage($utilisateur));
 
         return new MembreCommission($entity);
     }

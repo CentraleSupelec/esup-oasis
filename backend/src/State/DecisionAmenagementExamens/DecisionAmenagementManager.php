@@ -15,7 +15,6 @@ namespace App\State\DecisionAmenagementExamens;
 use App\Entity\AvisEse;
 use App\Entity\DecisionAmenagementExamens;
 use App\Entity\Utilisateur;
-use App\Message\ModificationUtilisateurMessage;
 use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
 use App\State\Utilisateur\UtilisateurManager;
@@ -101,7 +100,6 @@ class DecisionAmenagementManager
         $decision->setEtat(DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS);
         $this->decisionAmenagementExamensRepository->save($decision, true);
 
-        $this->messageBus->dispatch(new ModificationUtilisateurMessage($beneficiaire));
         //ici on veut aussi rafraichir le cache de l'utilisateur et de la decision elle-même
         $utilisateurResource = new \App\ApiResource\Utilisateur($beneficiaire);
         $this->messageBus->dispatch(new RessourceModifieeMessage($utilisateurResource));

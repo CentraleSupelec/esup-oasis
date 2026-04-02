@@ -20,17 +20,15 @@ use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\DecisionAmenagementExamens;
 use App\ApiResource\Utilisateur;
-use App\Filter\EtatDecisionAmenagementFilter;
 use App\Service\ErreurLdapException;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementManager;
 use App\State\MappedCollectionPaginator;
 use Override;
+use Psr\Cache\InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
-use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class UtilisateurProvider implements ProviderInterface
 {
@@ -43,7 +41,6 @@ class UtilisateurProvider implements ProviderInterface
         private readonly ProviderInterface $collectionProvider,
         private readonly UtilisateurManager $utilisateurManager,
         private readonly DecisionAmenagementManager $decisionAmenagementManager,
-        private readonly TagAwareCacheInterface $cache,
     ) {}
 
     /**
@@ -51,6 +48,8 @@ class UtilisateurProvider implements ProviderInterface
      * @param array $uriVariables
      * @param array $context
      * @return Utilisateur|array|PaginatorInterface
+     * @throws ErreurLdapException
+     * @throws InvalidArgumentException
      */
     #[Override]
     public function provide(
@@ -60,15 +59,7 @@ class UtilisateurProvider implements ProviderInterface
     ): Utilisateur|array|PaginatorInterface {
         //recherche dans le ldap
         if (!$operation instanceof GetCollection) {
-            //mise en cache des résultats pour un utilisateur donné
-            return $this->cache->get(key: 'utilisateur_'
-            . $uriVariables['uid'], callback: function (ItemInterface $item) use ($operation, $uriVariables, $context) {
-                //todo: si pas en base, cache à durée très courte!
-                $item->expiresAfter(7200);
-                $utilisateur = $this->ldapProvide($operation, $uriVariables, $context);
-                $item->tag('utilisateur_' . $utilisateur->uid);
-                return $utilisateur;
-            });
+            return $this->ldapProvide($operation, $uriVariables, $context);
         }
         if ($operation->getName() === Utilisateur::COLLECTION_URI) {
             return $this->ldapProvide($operation, $uriVariables, $context);

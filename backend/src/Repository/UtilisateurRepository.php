@@ -14,7 +14,6 @@ namespace App\Repository;
 
 use App\Entity\TypeEvenement;
 use App\Entity\Utilisateur;
-use App\Message\ModificationUtilisateurMessage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -48,8 +47,6 @@ class UtilisateurRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
-
-        $this->messageBus->dispatch(new ModificationUtilisateurMessage($entity));
     }
 
     public function remove(Utilisateur $entity, bool $flush = false): void
@@ -59,8 +56,6 @@ class UtilisateurRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
-
-        $this->messageBus->dispatch(new ModificationUtilisateurMessage($entity));
     }
 
     public function search(string $term)

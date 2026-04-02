@@ -24,7 +24,6 @@ use App\Entity\Tag;
 use App\Entity\TypologieHandicap;
 use App\Entity\Utilisateur;
 use App\Message\CreationIntervenantMessage;
-use App\Message\RoleUtilisateursModifiesMessage;
 use App\Repository\CampusRepository;
 use App\Repository\CompetenceRepository;
 use App\Repository\ProfilBeneficiaireRepository;
@@ -52,7 +51,6 @@ use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 readonly class UtilisateurManager
 {
@@ -74,7 +72,6 @@ readonly class UtilisateurManager
         private TypologieHandicapRepository $typologieHandicapRepository,
         private DemandeManager $demandeManager,
         private MessageBusInterface $messageBus,
-        private TagAwareCacheInterface $cache,
         private ReponseRepository $reponseRepository,
         #[Autowire('%env(json:LDAP_CHAMPS_RECHERCHE)%')]
         private array $ldapChampsRecherche,
@@ -226,7 +223,6 @@ readonly class UtilisateurManager
             $newTypes[] = $typeEvenement;
             $data->typesEvenements = $newTypes;
             $data->roles = array_merge($data->roles, ['ROLE_INTERVENANT']);
-            $this->messageBus->dispatch(new RoleUtilisateursModifiesMessage(Utilisateur::ROLE_RENFORT));
         }
 
         /**
@@ -237,7 +233,6 @@ readonly class UtilisateurManager
         if (!in_array(Utilisateur::ROLE_INTERVENANT, $data->roles)) {
             if (null !== $entity->getIntervenant()) {
                 $entity->getIntervenant()->setFin($now);
-                $this->messageBus->dispatch(new RoleUtilisateursModifiesMessage(Utilisateur::ROLE_INTERVENANT));
             }
         } else {
             $finAnneeU = new DateTime(match (true) {
@@ -276,7 +271,6 @@ readonly class UtilisateurManager
                     $intervenant->setFin($fin);
                 }
             }
-            $this->messageBus->dispatch(new RoleUtilisateursModifiesMessage(Utilisateur::ROLE_INTERVENANT));
 
             $this->majTypesEvenements($data->typesEvenements ?? [], $intervenant);
             $this->majCampus($data->campus ?? [], $intervenant);
@@ -299,7 +293,6 @@ readonly class UtilisateurManager
             $beneficiaire->setFin($bornesAnnee['fin']);
             $entity->addBeneficiaire($beneficiaire);
             $entity->setAbonneRecapHebdo(true);
-            $this->messageBus->dispatch(new RoleUtilisateursModifiesMessage(Utilisateur::ROLE_BENEFICIAIRE));
         }
 
         $entity->setRoles($entity->getRolesCalcules());
@@ -324,13 +317,6 @@ readonly class UtilisateurManager
      */
     protected function majServices(array $resources, Utilisateur $entity): void
     {
-        if (
-            count($resources) > 0 && $entity->getServices()->count() == 0
-            || count($resources) == 0 && $entity->getServices()->count() > 0
-        ) {
-            $this->messageBus->dispatch(new RoleUtilisateursModifiesMessage(Utilisateur::ROLE_GESTIONNAIRE));
-        }
-
         foreach ($resources as $serviceResource) {
             $service = $this->serviceRepository->find($serviceResource->id);
             if (!$entity->getServices()->contains($service)) {

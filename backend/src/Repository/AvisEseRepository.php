@@ -13,10 +13,8 @@
 namespace App\Repository;
 
 use App\Entity\AvisEse;
-use App\Message\ModificationUtilisateurMessage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @extends ServiceEntityRepository<AvisEse>
@@ -28,10 +26,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class AvisEseRepository extends ServiceEntityRepository
 {
-    public function __construct(
-        ManagerRegistry $registry,
-        private readonly MessageBusInterface $messageBus,
-    ) {
+    public function __construct(ManagerRegistry $registry)
+    {
         parent::__construct($registry, AvisEse::class);
     }
 
@@ -42,13 +38,10 @@ class AvisEseRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
-        $this->messageBus->dispatch(new ModificationUtilisateurMessage($entity->getUtilisateur()));
     }
 
     public function remove(AvisEse $entity, bool $flush = false): void
     {
-        $this->messageBus->dispatch(new ModificationUtilisateurMessage($entity->getUtilisateur()));
-
         $this->getEntityManager()->remove($entity);
 
         if ($flush) {

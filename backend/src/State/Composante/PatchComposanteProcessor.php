@@ -16,7 +16,6 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Composante;
 use App\Entity\Utilisateur;
-use App\Message\ModificationUtilisateurMessage;
 use App\Message\RessourceModifieeMessage;
 use App\Repository\ComposanteRepository;
 use App\Service\ErreurLdapException;
@@ -64,7 +63,6 @@ readonly class PatchComposanteProcessor implements ProcessorInterface
 
         array_walk($referentsSupprimes, function (Utilisateur $referent) use ($entity) {
             $entity->removeReferent($referent);
-            $this->messageBus->dispatch(new ModificationUtilisateurMessage($referent)); //on invalide le cache
             $utilisateurResource = new \App\ApiResource\Utilisateur($referent);
             $this->messageBus->dispatch(new RessourceModifieeMessage($utilisateurResource));
         });
@@ -72,7 +70,6 @@ readonly class PatchComposanteProcessor implements ProcessorInterface
         array_walk($referentsAjoutes, function (\App\ApiResource\Utilisateur $ref) use ($entity) {
             $referent = $this->utilisateurManager->parUid($ref->uid, true);
             $entity->addReferent($referent);
-            $this->messageBus->dispatch(new ModificationUtilisateurMessage($referent));
             $utilisateurResource = new \App\ApiResource\Utilisateur($referent);
             $this->messageBus->dispatch(new RessourceModifieeMessage($utilisateurResource));
         });

@@ -13,10 +13,8 @@
 namespace App\Repository;
 
 use App\Entity\DecisionAmenagementExamens;
-use App\Message\ModificationUtilisateurMessage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @extends ServiceEntityRepository<DecisionAmenagementExamens>
@@ -28,10 +26,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class DecisionAmenagementExamensRepository extends ServiceEntityRepository
 {
-    public function __construct(
-        ManagerRegistry $registry,
-        private readonly MessageBusInterface $messageBus,
-    ) {
+    public function __construct(ManagerRegistry $registry)
+    {
         parent::__construct($registry, DecisionAmenagementExamens::class);
     }
 
@@ -42,8 +38,6 @@ class DecisionAmenagementExamensRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
-
-        $this->messageBus->dispatch(new ModificationUtilisateurMessage($entity->getBeneficiaire()));
     }
 
     public function remove(DecisionAmenagementExamens $entity, bool $flush = false): void
@@ -53,7 +47,5 @@ class DecisionAmenagementExamensRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
-
-        $this->messageBus->dispatch(new ModificationUtilisateurMessage($entity->getBeneficiaire()));
     }
 }

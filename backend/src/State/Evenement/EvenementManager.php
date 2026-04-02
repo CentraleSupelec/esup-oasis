@@ -17,12 +17,10 @@ use App\ApiResource\TableauDeBord;
 use App\ApiResource\TypeEquipement;
 use App\ApiResource\Utilisateur;
 use App\Entity\AvisEse;
-use App\Entity\Beneficiaire;
 use App\Entity\DecisionAmenagementExamens;
 use App\Entity\Evenement;
 use App\Entity\ProfilBeneficiaire;
 use App\Entity\TypeEvenement;
-use App\Message\ModificationEvenementMessage;
 use App\Repository\AmenagementRepository;
 use App\Repository\BeneficiaireRepository;
 use App\Repository\CampusRepository;
@@ -122,12 +120,6 @@ class EvenementManager
 
         $this->evenementRepository->save($entity, true);
 
-        $this->messageBus->dispatch(new ModificationEvenementMessage(
-            evenement: $entity,
-            dateOrigine: $creation === false && $dateOrigine != $entity->getDebut() ? $dateOrigine : null,
-            creation: $creation,
-        ));
-
         return $entity;
     }
 
@@ -209,7 +201,6 @@ class EvenementManager
     {
         $existant = $this->evenementRepository->find($data->id);
         if (null !== $existant) {
-            $this->messageBus->dispatch(new ModificationEvenementMessage($existant, $existant->getDebut()));
             $this->evenementRepository->remove($existant, true);
         }
     }

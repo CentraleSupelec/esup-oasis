@@ -34,12 +34,4 @@ php /app/bin/console app:calcul-champ-gest
 # init des rôles stockés si nécessaire
 php /app/bin/console app:calcul-roles
 
-# permissions
-# https://symfony.com/doc/current/setup/file_permissions.html
-#chown -R unit:unit  /application/var
-
-HTTPDUSER=$(ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1)
-setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX /app/var
-setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX  /app/var
-
 exec "$@"
