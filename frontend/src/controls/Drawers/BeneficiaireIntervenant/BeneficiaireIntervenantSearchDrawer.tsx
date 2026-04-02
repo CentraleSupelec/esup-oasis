@@ -74,8 +74,11 @@ export default function BeneficiaireIntervenantSearchDrawer({
          autoFocus
          allowClear={value === recherche}
          showSearch
+         classNames={{ input: "form-control fs-1" }}
          suffixIcon={
-            value !== recherche && value.length > 1 ? <EnterOutlined className="text-text" /> : null
+            value !== recherche && value.length > 1 ? (
+               <EnterOutlined className="text-text fs-08 p-0 m-0" />
+            ) : null
          }
          placeholder="Rechercher..."
          className={className}

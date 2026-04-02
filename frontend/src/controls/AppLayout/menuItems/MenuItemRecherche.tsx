@@ -84,7 +84,7 @@ export const menuItemRecherche = (
                      if (role)
                         dispatch(
                            setDrawerUtilisateur({
-                              utilisateur: individuId,
+                              utilisateur: "/utilisateurs/" + individuId,
                               role: role,
                            }),
                         );
