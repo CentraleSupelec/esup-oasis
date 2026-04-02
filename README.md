@@ -20,7 +20,7 @@ Oasis propose les fonctionnalités suivantes :
 Oasis est disponible sous la forme de deux applications frontend et backend séparées, utilisant les technologies
 suivantes :
 
-* Frontend: JavaScript, React 18
+* Frontend: JavaScript, React 19
 * Backend: PHP 8.4, Symfony 8.0 / Api Platform 4
 
 Des Dockerfile sont fournis pour le déploiement des deux applications séparément, plus de détails dans la documentation
