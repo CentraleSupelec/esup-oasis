@@ -13,7 +13,6 @@ import dayjs, { Dayjs } from "dayjs";
 import { Alert, Button, Card, DatePicker, Drawer, Space, Switch, Typography } from "antd";
 import { SendOutlined, WarningFilled } from "@ant-design/icons";
 import React, { ReactElement } from "react";
-import "../../../Calendar/Sider/SmallCalendar/SmallCalendar.scss";
 
 import { IPeriode } from "../../../../api/ApiTypeHelpers";
 
