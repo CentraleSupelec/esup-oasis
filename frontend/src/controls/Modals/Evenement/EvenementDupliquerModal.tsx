@@ -239,7 +239,7 @@ export default function EvenementDupliquerModal({
                      minDate={
                         user?.isAdmin || !lastPeriodes || !lastPeriodes.items[0]
                            ? undefined
-                           : new Dayjs(lastPeriodes.items[0].butoir as string)
+                           : dayjs(lastPeriodes.items[0].butoir as string)
                      }
                   />
                   <p className="semi-bold mt-0">Date des évènements à créer</p>
