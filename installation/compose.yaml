@@ -33,7 +33,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       args:
-        APP_VERSION: ${APP_VERSION:-2.2}
+        APP_VERSION: ${APP_VERSION}
     restart: unless-stopped
     depends_on:
       postgres:
@@ -65,7 +65,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile-worker
       args:
-        APP_VERSION: ${APP_VERSION:-2.2}
+        APP_VERSION: ${APP_VERSION}
     restart: unless-stopped
     depends_on:
       postgres:
@@ -88,7 +88,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        APP_VERSION: ${APP_VERSION:-2.2}
+        APP_VERSION: ${APP_VERSION}
     restart: unless-stopped
     depends_on:
       - backend
