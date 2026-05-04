@@ -31,17 +31,23 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
-        new GetCollection(uriTemplate: self::COLLECTION_URI),
-        new GetCollection(uriTemplate: CategorieTag::ITEM_URI . self::COLLECTION_URI, uriVariables: [
-            'id' => new Link(fromProperty: 'id', toProperty: 'categorie', fromClass: CategorieTag::class),
-        ]),
-        new Get(uriTemplate: self::ITEM_URI),
-        new Patch(uriTemplate: self::ITEM_URI),
-        new Post(uriTemplate: self::COLLECTION_URI),
+        new GetCollection(uriTemplate: self::COLLECTION_URI, map: false),
+        new GetCollection(
+            uriTemplate: CategorieTag::ITEM_URI . self::COLLECTION_URI,
+            uriVariables: [
+                'id' => new Link(fromProperty: 'id', toProperty: 'categorie', fromClass: CategorieTag::class),
+            ],
+            map: false,
+        ),
+        new Get(uriTemplate: self::ITEM_URI, map: false),
+        new Patch(uriTemplate: self::ITEM_URI, map: false),
+        new Post(uriTemplate: self::COLLECTION_URI, map: false),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
     openapi: new Operation(tags: ['Referentiel']),
+    provider: TagProvider::class,
+    processor: TagProcessor::class,
     stateOptions: new Options(entityClass: \App\Entity\Tag::class),
 )]
 #[ApiFilter(CaseInsensitiveOrderFilter::class, properties: ['libelle'])]

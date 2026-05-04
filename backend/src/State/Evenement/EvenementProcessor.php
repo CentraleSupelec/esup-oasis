@@ -16,11 +16,8 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Evenement;
-use App\Message\RessourceCollectionModifieeMessage;
-use App\Message\RessourceModifieeMessage;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 readonly class EvenementProcessor implements ProcessorInterface

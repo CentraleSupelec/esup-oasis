@@ -15,13 +15,10 @@ namespace App\State\Parametre;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\ValeurParametre;
-use App\Message\RessourceCollectionModifieeMessage;
-use App\Message\RessourceModifieeMessage;
 use App\Repository\FichierRepository;
 use App\Repository\ParametreRepository;
 use App\Repository\ValeurParametreRepository;
 use Exception;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class ValeurParametreProcessor implements ProcessorInterface
 {
@@ -29,7 +26,6 @@ readonly class ValeurParametreProcessor implements ProcessorInterface
         private ParametreRepository $parametreRepository,
         private ValeurParametreRepository $valeurParametreRepository,
         private FichierRepository $fichierRepository,
-        private MessageBusInterface $messageBus,
     ) {}
 
     /**
