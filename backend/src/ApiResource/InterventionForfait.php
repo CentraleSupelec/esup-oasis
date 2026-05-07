@@ -185,7 +185,7 @@ class InterventionForfait
         }
     }
     #[Groups([self::GROUP_OUT])]
-    public ?Utilisateur $utilisateurCreation {
+    public Utilisateur $utilisateurCreation {
         get {
             $prop = new ReflectionProperty(self::class, 'utilisateurCreation');
             if (!$prop->isInitialized($this) && $this->entity !== null && $this->entity->getUtilisateurCreation()) {
