@@ -156,7 +156,7 @@ export default function UtilisateurDrawer({ id, onClose }: IUtilisateurDrawerPro
       );
 
    function getTabsByRole() {
-      if (getRole() === RoleValues.ROLE_INTERVENANT) {
+      if (getRole() === RoleValues.ROLE_INTERVENANT || getRole() === RoleValues.ROLE_RENFORT) {
          return [
             {
                key: "campus",

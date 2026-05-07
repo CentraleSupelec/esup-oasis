@@ -308,7 +308,7 @@ export const LAZY_ROUTES: IRoute[] = [
    {
       path: "/services-faits",
       element: <MesServicesFaits />,
-      roles: [RoleValues.ROLE_INTERVENANT],
+      roles: [RoleValues.ROLE_INTERVENANT, RoleValues.ROLE_RENFORT],
    },
    // --- Bénéficiaires ---
    {
