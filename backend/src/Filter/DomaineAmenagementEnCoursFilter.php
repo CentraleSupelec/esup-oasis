@@ -60,7 +60,7 @@ class DomaineAmenagementEnCoursFilter extends AbstractFilter
                 'required' => false,
                 'is_collection' => false,
                 'openapi' => new Parameter(name: $property, in: 'query', description: $property, schema: [
-                    'type' => 'bool',
+                    'type' => 'boolean',
                 ]),
             ];
         }

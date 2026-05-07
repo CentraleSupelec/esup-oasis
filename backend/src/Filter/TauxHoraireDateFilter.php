@@ -59,9 +59,9 @@ class TauxHoraireDateFilter extends AbstractFilter
                 'type' => TypeIdentifier::STRING,
                 'required' => false,
                 'openapi' => new Parameter(
-                    name: 'taux',
+                    name: 'date',
                     in: 'query',
-                    description: 'Taux horaire valide pour la date passée',
+                    description: 'date pour laquelle on veut le taux valide',
                 ),
             ],
         ];

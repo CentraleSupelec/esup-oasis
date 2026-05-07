@@ -14,6 +14,7 @@ namespace App\Filter;
 
 use ApiPlatform\Metadata\FilterInterface;
 use ApiPlatform\OpenApi\Model\Parameter;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 
 class DemandeFormatFilter implements FilterInterface
 {
@@ -22,14 +23,14 @@ class DemandeFormatFilter implements FilterInterface
         return [
             'format_simple' => [
                 'property' => 'format simplifié',
-                'type' => 'bool',
+                'type' => TypeIdentifier::BOOL,
                 'required' => false,
                 'is_collection' => false,
                 'openapi' => new Parameter(
                     name: 'format_simple',
                     in: 'query',
                     description: 'format simplifié',
-                    schema: ['type' => 'bool'],
+                    schema: ['type' => 'boolean'],
                 ),
             ],
         ];

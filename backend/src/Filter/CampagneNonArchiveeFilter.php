@@ -60,7 +60,7 @@ class CampagneNonArchiveeFilter extends AbstractFilter
                     name: 'archivees',
                     in: 'query',
                     description: 'inclure les demandes des campagnes archivées ?',
-                    schema: ['type' => 'bool'],
+                    schema: ['type' => 'boolean'],
                 ),
             ],
         ];

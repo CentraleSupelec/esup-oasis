@@ -66,7 +66,7 @@ class UtilisateurAmenagementEnCoursFilterHelper implements ResetInterface
                 'type' => TypeIdentifier::STRING,
                 'required' => false,
                 'is_collection' => true,
-                'openapi' => new Parameter(name: $property, in: 'query', description: $property),
+                'openapi' => new Parameter(name: $property . '[]', in: 'query', description: $property),
             ],
         ];
     }

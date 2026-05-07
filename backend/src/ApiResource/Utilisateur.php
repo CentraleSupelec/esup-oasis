@@ -343,6 +343,9 @@ final class Utilisateur
         }
     }
 
+    /**
+     * @var string[] $roles
+     */
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
     #[Assert\Choice(choices: self::TOUS_ROLES, multiple: true)]
     public array $roles {
@@ -381,10 +384,7 @@ final class Utilisateur
             if (!$prop->isInitialized($this) && $this->entity !== null && $this->entity->getIntervenant()) {
                 $this->campus = array_map(
                     fn($c) => new Campus($c),
-                    $this->entity
-                        ->getIntervenant()
-                        ->getCampuses()
-                        ->toArray(),
+                    $this->entity->getIntervenant()->getCampuses()->toArray(),
                 );
             }
             return $this->campus ?? [];
@@ -402,10 +402,7 @@ final class Utilisateur
             if (!$prop->isInitialized($this) && $this->entity !== null && $this->entity->getIntervenant()) {
                 $this->competences = array_map(
                     fn($c) => new Competence($c),
-                    $this->entity
-                        ->getIntervenant()
-                        ->getCompetences()
-                        ->toArray(),
+                    $this->entity->getIntervenant()->getCompetences()->toArray(),
                 );
             }
             return $this->competences ?? [];
@@ -423,10 +420,7 @@ final class Utilisateur
             if (!$prop->isInitialized($this) && $this->entity !== null && $this->entity->getIntervenant()) {
                 $this->typesEvenements = array_map(
                     fn($t) => new TypeEvenement($t),
-                    $this->entity
-                        ->getIntervenant()
-                        ->getTypesEvenements()
-                        ->toArray(),
+                    $this->entity->getIntervenant()->getTypesEvenements()->toArray(),
                 );
             }
             return $this->typesEvenements ?? [];

@@ -48,7 +48,7 @@ class EvenementsAValiderFilter extends AbstractFilter
                     name: 'aValider',
                     in: 'query',
                     description: 'uniquement les événements à valider ?',
-                    schema: ['type' => 'bool'],
+                    schema: ['type' => 'boolean'],
                 ),
             ],
         ];

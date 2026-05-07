@@ -35,7 +35,7 @@ class IntervenantArchiveFilter extends AbstractFilter
                     name: 'intervenantArchive',
                     in: 'query',
                     description: "filtre sur l'état de l'intervenant à l'instant T",
-                    schema: ['type' => 'bool'],
+                    schema: ['type' => 'boolean'],
                 ),
             ],
         ];
@@ -60,17 +60,13 @@ class IntervenantArchiveFilter extends AbstractFilter
 
         $queryBuilder->join($alias . '.intervenant', $intervenantAlias);
         if ($value === 'false') {
-            $queryBuilder->andWhere($intervenantAlias
-            . '.fin is null or '
-            . $intervenantAlias
-            . '.fin > :'
-            . $nowParam);
+            $queryBuilder->andWhere(
+                $intervenantAlias . '.fin is null or ' . $intervenantAlias . '.fin > :' . $nowParam,
+            );
         } else {
-            $queryBuilder->andWhere($intervenantAlias
-            . '.fin is not null and '
-            . $intervenantAlias
-            . '.fin <= :'
-            . $nowParam);
+            $queryBuilder->andWhere(
+                $intervenantAlias . '.fin is not null and ' . $intervenantAlias . '.fin <= :' . $nowParam,
+            );
         }
         $queryBuilder->setParameter($nowParam, $this->now());
     }

@@ -73,7 +73,7 @@ class BeneficiaireAvecAmenagementEnCoursFilter extends AbstractFilter
                 'required' => false,
                 'is_collection' => false,
                 'openapi' => new Parameter(name: self::class, in: 'query', description: self::class, schema: [
-                    'type' => 'bool',
+                    'type' => 'boolean',
                 ]),
             ],
         ];

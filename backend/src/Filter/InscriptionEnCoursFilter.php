@@ -62,7 +62,7 @@ class InscriptionEnCoursFilter extends AbstractFilter
                     name: 'avecInscriptions',
                     in: 'query',
                     description: 'uniquement les formations avec inscription',
-                    schema: ['type' => 'bool'],
+                    schema: ['type' => 'boolean'],
                 ),
             ],
         ];

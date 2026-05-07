@@ -145,7 +145,7 @@ class ActivitePeriodeFilter extends AbstractFilter
                 'required' => false,
                 'strategy' => 'exact',
                 'is_collection' => true,
-                'openapi' => new Parameter(name: 'periode', in: 'query', description: 'Période RH concernée'),
+                'openapi' => new Parameter(name: 'periode[]', in: 'query', description: 'Périodes RH concernées'),
             ],
         ];
     }
