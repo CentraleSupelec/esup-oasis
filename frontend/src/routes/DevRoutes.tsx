@@ -25,7 +25,8 @@ import TypesDemandes from "./administration/TypesDemandes/TypesDemandes";
 import Commissions from "./administration/Commissions/Commissions";
 import Administration from "./administration/Administration";
 import ValidationInterventionsRenforts from "./gestionnaire/interventions/ValidationInterventionsRenforts";
-import BilanBeneficiaireIntervenant from "./administration/Bilans/BeneficiairesIntervenants/BilanBeneficiaireIntervenant";
+import BilanBeneficiaireIntervenant
+   from "./administration/Bilans/BeneficiairesIntervenants/BilanBeneficiaireIntervenant";
 import Beneficiaire from "./gestionnaire/beneficiaires/Beneficiaire";
 import Bilans from "./administration/Bilans/Bilans";
 import Demande from "./gestionnaire/demandeurs/Demande";
@@ -279,7 +280,7 @@ export const DEV_ROUTES: IRoute[] = [
    {
       path: "/services-faits",
       element: <MesServicesFaits />,
-      roles: [RoleValues.ROLE_INTERVENANT],
+      roles: [RoleValues.ROLE_INTERVENANT, RoleValues.ROLE_RENFORT],
    },
    // --- Bénéficiaires ---
    {
