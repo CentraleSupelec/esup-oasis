@@ -133,7 +133,7 @@ class ActivitePeriodeFilter extends AbstractFilter
         return [
             'periode' => [
                 'property' => 'periode',
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'strategy' => 'exact',
                 'is_collection' => false,
@@ -141,7 +141,7 @@ class ActivitePeriodeFilter extends AbstractFilter
             ],
             'periode[]' => [
                 'property' => 'periode',
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'strategy' => 'exact',
                 'is_collection' => true,

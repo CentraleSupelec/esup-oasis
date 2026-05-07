@@ -83,14 +83,14 @@ class BilanFinancierProfilBeneficiairesFilter extends AbstractFilter
         $property = 'profil';
         $description[$property] = [
             'property' => $property,
-            'type' => TypeIdentifier::STRING,
+            'type' => TypeIdentifier::STRING->value,
             'required' => false,
             'is_collection' => false,
             'openapi' => new Parameter(name: $property, in: 'query', description: 'IRI profil'),
         ];
         $description[$property . '[]'] = [
             'property' => $property,
-            'type' => TypeIdentifier::STRING,
+            'type' => TypeIdentifier::STRING->value,
             'required' => false,
             'is_collection' => true,
             'openapi' => new Parameter(name: $property, in: 'query', description: 'IRIs profil'),

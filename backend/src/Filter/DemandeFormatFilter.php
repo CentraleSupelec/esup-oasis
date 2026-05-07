@@ -23,7 +23,7 @@ class DemandeFormatFilter implements FilterInterface
         return [
             'format_simple' => [
                 'property' => 'format simplifié',
-                'type' => TypeIdentifier::BOOL,
+                'type' => TypeIdentifier::BOOL->value,
                 'required' => false,
                 'is_collection' => false,
                 'openapi' => new Parameter(

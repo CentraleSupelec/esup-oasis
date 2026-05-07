@@ -209,7 +209,7 @@ class ComposanteFormationFilter extends AbstractFilter
         $description = [];
         $description['composante'] = [
             'property' => "'composante",
-            'type' => TypeIdentifier::STRING,
+            'type' => TypeIdentifier::STRING->value,
             'required' => false,
             'is_collection' => false,
             'openapi' => new Parameter(
@@ -220,7 +220,7 @@ class ComposanteFormationFilter extends AbstractFilter
         ];
         $description['composante[]'] = [
             'property' => 'composante',
-            'type' => TypeIdentifier::STRING,
+            'type' => TypeIdentifier::STRING->value,
             'required' => false,
             'is_collection' => true,
             'openapi' => new Parameter(
@@ -232,7 +232,7 @@ class ComposanteFormationFilter extends AbstractFilter
 
         $description['formation'] = [
             'property' => "'formation",
-            'type' => TypeIdentifier::STRING,
+            'type' => TypeIdentifier::STRING->value,
             'required' => false,
             'is_collection' => false,
             'openapi' => new Parameter(
@@ -243,7 +243,7 @@ class ComposanteFormationFilter extends AbstractFilter
         ];
         $description['formation[]'] = [
             'property' => 'formation',
-            'type' => TypeIdentifier::STRING,
+            'type' => TypeIdentifier::STRING->value,
             'required' => false,
             'is_collection' => true,
             'openapi' => new Parameter(

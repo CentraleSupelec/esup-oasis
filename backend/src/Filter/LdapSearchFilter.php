@@ -25,7 +25,7 @@ class LdapSearchFilter implements FilterInterface
         return [
             'term' => [
                 'property' => 'uid',
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'strategy' => 'partial',
                 'is_collection' => false,

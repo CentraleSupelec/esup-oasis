@@ -78,7 +78,7 @@ class IntervenantOrderedByBeneficiaireFilter extends AbstractFilter
         return [
             'beneficiaire' => [
                 'property' => 'beneficiaire',
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'openapi' => new Parameter(
                     name: 'beneficiaire',

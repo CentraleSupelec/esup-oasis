@@ -42,7 +42,7 @@ class EvenementsAValiderFilter extends AbstractFilter
         return [
             'aValider' => [
                 'property' => 'aValider',
-                'type' => TypeIdentifier::BOOL,
+                'type' => TypeIdentifier::BOOL->value,
                 'required' => false,
                 'openapi' => new Parameter(
                     name: 'aValider',

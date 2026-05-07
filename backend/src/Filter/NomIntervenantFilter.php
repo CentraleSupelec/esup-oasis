@@ -52,7 +52,7 @@ class NomIntervenantFilter extends AbstractFilter
         return [
             'nomIntervenant' => [
                 'property' => 'nomIntervenant',
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'openapi' => new Parameter(
                     name: 'nomIntervenant',

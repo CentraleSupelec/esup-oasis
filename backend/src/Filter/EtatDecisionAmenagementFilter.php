@@ -78,7 +78,7 @@ class EtatDecisionAmenagementFilter extends AbstractFilter
         return [
             self::PROPERTY => [
                 'property' => self::PROPERTY,
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'openapi' => new Parameter(name: self::PROPERTY, in: 'query', description: 'Etat Décision', schema: [
                     'type' => 'string',

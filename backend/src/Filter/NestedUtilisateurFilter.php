@@ -105,14 +105,14 @@ class NestedUtilisateurFilter extends AbstractFilter
         foreach ($this->getProperties() as $property => $value) {
             $description[$property] = [
                 'property' => $property,
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'is_collection' => false,
                 'openapi' => new Parameter(name: $property, in: 'query', description: 'IRI utilisateur'),
             ];
             $description[$property . '[]'] = [
                 'property' => $property,
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'is_collection' => true,
                 'openapi' => new Parameter(name: $property, in: 'query', description: 'IRIs utilisateur'),

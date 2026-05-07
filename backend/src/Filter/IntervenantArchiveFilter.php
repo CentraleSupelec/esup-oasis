@@ -29,7 +29,7 @@ class IntervenantArchiveFilter extends AbstractFilter
         return [
             'intervenantArchive' => [
                 'property' => 'intervenantArchive',
-                'type' => TypeIdentifier::BOOL,
+                'type' => TypeIdentifier::BOOL->value,
                 'required' => false,
                 'openapi' => new Parameter(
                     name: 'intervenantArchive',

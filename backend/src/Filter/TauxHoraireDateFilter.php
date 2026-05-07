@@ -56,7 +56,7 @@ class TauxHoraireDateFilter extends AbstractFilter
         return [
             'date' => [
                 'property' => 'date',
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'openapi' => new Parameter(
                     name: 'date',
