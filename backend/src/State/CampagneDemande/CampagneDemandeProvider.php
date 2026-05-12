@@ -17,8 +17,8 @@ use ApiPlatform\Metadata\HttpOperation;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\ProviderInterface;
-use App\ApiResource\AvisEse;
 use App\ApiResource\CampagneDemande;
+use App\Filter\TypeDemandeCampagneFilter;
 use App\State\MappedCollectionPaginator;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -33,6 +33,7 @@ readonly class CampagneDemandeProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
+        $typeId = $uriVariables['typeId'];
         unset($uriVariables['typeId']);
         unset($context['uri_variables']['typeId']);
 
@@ -40,7 +41,8 @@ readonly class CampagneDemandeProvider implements ProviderInterface
         $operationUriVariables = [$operation->getUriVariables()['id'] ?? null];
 
         if ($operation instanceof GetCollection) {
-            //todo: filtrage sur type demande!!
+            $context['filters'][TypeDemandeCampagneFilter::PROPERTY] = $typeId;
+
             $results = $this->collectionProvider->provide(
                 $operation->withUriVariables($operationUriVariables),
                 $uriVariables,
