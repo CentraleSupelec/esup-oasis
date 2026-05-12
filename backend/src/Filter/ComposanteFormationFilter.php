@@ -219,14 +219,14 @@ class ComposanteFormationFilter extends AbstractFilter
             ),
         ];
         $description['composante[]'] = [
-            'property' => 'composante',
+            'property' => 'composante[]',
             'type' => TypeIdentifier::STRING->value,
             'required' => false,
             'is_collection' => true,
             'openapi' => new Parameter(
-                name: 'composante',
+                name: 'composante[]',
                 in: 'query',
-                description: "composante d'inscription du bénéficiaire",
+                description: "composante(s) d'inscription du bénéficiaire",
             ),
         ];
 
@@ -242,14 +242,14 @@ class ComposanteFormationFilter extends AbstractFilter
             ),
         ];
         $description['formation[]'] = [
-            'property' => 'formation',
+            'property' => 'formation[]',
             'type' => TypeIdentifier::STRING->value,
             'required' => false,
             'is_collection' => true,
             'openapi' => new Parameter(
-                name: 'formation',
+                name: 'formation[]',
                 in: 'query',
-                description: "formation d'inscription du bénéficiaire",
+                description: "formation(s) d'inscription du bénéficiaire",
             ),
         ];
 
