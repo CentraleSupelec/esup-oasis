@@ -61,7 +61,7 @@ class LibComposanteBeneficiaireFilter extends AbstractFilter
         return [
             'libelleComposante' => [
                 'property' => 'libelleComposante',
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'openapi' => new Parameter(
                     name: 'libelleComposante',

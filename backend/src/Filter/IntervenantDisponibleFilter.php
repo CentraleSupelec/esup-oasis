@@ -27,13 +27,13 @@ class IntervenantDisponibleFilter extends AbstractFilter
         return [
             'creneau[debut]' => [
                 'property' => 'creneau',
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'openapi' => new Parameter(name: 'creneau', in: 'query', description: 'début du créneau'),
             ],
             'creneau[fin]' => [
                 'property' => 'creneau',
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'openapi' => new Parameter(name: 'creneau', in: 'query', description: 'fin du créneau'),
             ],

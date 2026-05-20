@@ -56,11 +56,11 @@ class DomaineAmenagementEnCoursFilter extends AbstractFilter
         foreach ($this->getProperties() as $property) {
             $description[$property] = [
                 'property' => $property,
-                'type' => TypeIdentifier::BOOL,
+                'type' => TypeIdentifier::BOOL->value,
                 'required' => false,
                 'is_collection' => false,
                 'openapi' => new Parameter(name: $property, in: 'query', description: $property, schema: [
-                    'type' => 'bool',
+                    'type' => 'boolean',
                 ]),
             ];
         }

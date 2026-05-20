@@ -141,7 +141,7 @@ class EtatAvisEseUtilisateurFilter extends AbstractFilter
         return [
             self::PROPERTY => [
                 'property' => self::PROPERTY,
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'openapi' => new Parameter(name: self::PROPERTY, in: 'query', description: 'Etat avis ESE'),
             ],

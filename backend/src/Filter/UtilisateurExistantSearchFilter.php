@@ -78,7 +78,7 @@ class UtilisateurExistantSearchFilter extends AbstractFilter
         return [
             'recherche' => [
                 'property' => static::PROPERTY,
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'openapi' => new Parameter(
                     name: static::PROPERTY,

@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * Copyright (c) 2026. Esup - Université de Bordeaux.
+ *
+ * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
+ *
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
+ */
+
 namespace App\Tests;
 
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -127,6 +137,45 @@ class DemandesTest extends ApiTestCaseCustom
             '@id' => '/types_demandes/1/campagnes',
             '@type' => 'hydra:Collection',
         ]);
+    }
+
+    public function testTypeDemandeCampagneFilter(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+
+        // Type 1 (sportifs) -> 3 (campagne1_sportifs, campagne_sportifs, campagne_archivee_sportifs)
+        $client->request('GET', '/types_demandes/1/campagnes');
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            'hydra:totalItems' => 3,
+        ]);
+
+        // Type 2 (artistes) ->  1 (campagne_artistes)
+        $client->request('GET', '/types_demandes/2/campagnes');
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            'hydra:totalItems' => 1,
+            'hydra:member' => [
+                ['libelle' => 'Campagne artistes 2030'],
+            ],
+        ]);
+    }
+
+    public function testTypeDemandeCampagneOrder(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+
+        // Ascending order
+        $client->request('GET', '/types_demandes/1/campagnes?order[debut]=asc');
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertEquals('campagne sportifs archievée 2010', $data['hydra:member'][0]['libelle']);
+
+        // Descending order
+        $client->request('GET', '/types_demandes/1/campagnes?order[debut]=desc');
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertEquals('campagne sportifs archievée 2010', $data['hydra:member'][2]['libelle']);
     }
 
     public function testAdminCanCreateCampagne(): void

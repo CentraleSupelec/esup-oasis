@@ -52,7 +52,7 @@ class LibCampusIntervenantFilter extends AbstractFilter
         return [
             'libelleCampus' => [
                 'property' => 'libelleCampus',
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'openapi' => new Parameter(
                     name: 'libelleCampus',

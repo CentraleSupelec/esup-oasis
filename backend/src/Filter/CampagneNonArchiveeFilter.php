@@ -53,14 +53,14 @@ class CampagneNonArchiveeFilter extends AbstractFilter
         return [
             'archivees' => [
                 'property' => 'archivees',
-                'type' => TypeIdentifier::BOOL,
+                'type' => TypeIdentifier::BOOL->value,
                 'required' => false,
                 'is_collection' => false,
                 'openapi' => new Parameter(
                     name: 'archivees',
                     in: 'query',
                     description: 'inclure les demandes des campagnes archivées ?',
-                    schema: ['type' => 'bool'],
+                    schema: ['type' => 'boolean'],
                 ),
             ],
         ];

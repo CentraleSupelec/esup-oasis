@@ -88,7 +88,7 @@ class ProfilBeneficiaireFilter extends AbstractFilter
         return [
             'profil' => [
                 'property' => 'profil',
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'openapi' => new Parameter(
                     name: 'profil',

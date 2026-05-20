@@ -43,7 +43,7 @@ readonly class DemandeDenormalizer implements DenormalizerInterface
          */
         $demande = $this->itemNormalizer->denormalize($data, $type, $format, $context);
 
-        if (null == $demande->demandeur) {
+        if (null == ($demande->demandeur ?? null)) {
             $demande->demandeur = new Utilisateur($this->security->getUser());
         }
 

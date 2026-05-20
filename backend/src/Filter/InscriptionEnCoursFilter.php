@@ -56,13 +56,13 @@ class InscriptionEnCoursFilter extends AbstractFilter
         return [
             self::PROPERTY => [
                 'property' => self::PROPERTY,
-                'type' => TypeIdentifier::BOOL,
+                'type' => TypeIdentifier::BOOL->value,
                 'required' => false,
                 'openapi' => new Parameter(
                     name: 'avecInscriptions',
                     in: 'query',
                     description: 'uniquement les formations avec inscription',
-                    schema: ['type' => 'bool'],
+                    schema: ['type' => 'boolean'],
                 ),
             ],
         ];

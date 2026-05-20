@@ -75,7 +75,7 @@ class BeneficiaireActifTagFilter extends AbstractFilter
         foreach ($this->getProperties() as $property => $value) {
             $description[$property] = [
                 'property' => $property,
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'is_collection' => false,
                 'openapi' => new Parameter(
@@ -85,12 +85,12 @@ class BeneficiaireActifTagFilter extends AbstractFilter
                 ),
             ];
             $description[$property . '[]'] = [
-                'property' => $property,
-                'type' => TypeIdentifier::STRING,
+                'property' => $property . '[]',
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'is_collection' => true,
                 'openapi' => new Parameter(
-                    name: $property,
+                    name: $property . '[]',
                     in: 'query',
                     description: $value['description'] ?? $property,
                 ),
@@ -107,9 +107,6 @@ class BeneficiaireActifTagFilter extends AbstractFilter
 
         $resource = $this->iriConverter->getResourceFromIri($val);
 
-        return $this->managerRegistry
-            ->getManagerForClass(Tag::class)
-            ->getRepository(Tag::class)
-            ->find($resource->id);
+        return $this->managerRegistry->getManagerForClass(Tag::class)->getRepository(Tag::class)->find($resource->id);
     }
 }

@@ -42,13 +42,13 @@ class EvenementsAValiderFilter extends AbstractFilter
         return [
             'aValider' => [
                 'property' => 'aValider',
-                'type' => TypeIdentifier::BOOL,
+                'type' => TypeIdentifier::BOOL->value,
                 'required' => false,
                 'openapi' => new Parameter(
                     name: 'aValider',
                     in: 'query',
                     description: 'uniquement les événements à valider ?',
-                    schema: ['type' => 'bool'],
+                    schema: ['type' => 'boolean'],
                 ),
             ],
         ];

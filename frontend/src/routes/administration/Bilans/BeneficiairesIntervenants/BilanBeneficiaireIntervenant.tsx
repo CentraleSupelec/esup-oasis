@@ -325,7 +325,6 @@ export default function BilanBeneficiaireIntervenant(props: {
                <Form.Item name="utilisateur" label={capitalize(props.type)}>
                   <UtilisateurFormItemSelect
                      placeholder={`Tous les ${props.type}s`}
-                     forcerRechercheEnBase
                      roleUtilisateur={
                         props.type === "bénéficiaire"
                            ? RoleValues.ROLE_BENEFICIAIRE

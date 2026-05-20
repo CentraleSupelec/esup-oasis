@@ -40,16 +40,16 @@ export interface EtatInfo {
    hexColor?: string;
 }
 
-export const ETAT_DEMANDE_EN_COURS = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/1`;
-export const ETAT_DEMANDE_RECEPTIONNEE = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/2`;
-export const ETAT_DEMANDE_CONFORME = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/3`;
-export const ETAT_DEMANDE_NON_CONFORME = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/8`;
-export const ETAT_DEMANDE_ATTENTE_COMMISSION = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/7`;
-export const ETAT_DEMANDE_PROFIL_ACCEPTE = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/6`;
-export const ETAT_DEMANDE_VALIDEE = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/4`;
-export const ETAT_DEMANDE_REFUSEE = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/5`;
-export const ETAT_ATTENTE_CHARTES = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/9`;
-export const ETAT_ATTENTE_ACCOMPAGNEMENT = `${process.env.REACT_APP_API_PREFIX || ""}/etats_demandes/10`;
+export const ETAT_DEMANDE_EN_COURS = `${env.REACT_APP_API_PREFIX || ""}/etats_demandes/1`;
+export const ETAT_DEMANDE_RECEPTIONNEE = `${env.REACT_APP_API_PREFIX || ""}/etats_demandes/2`;
+export const ETAT_DEMANDE_CONFORME = `${env.REACT_APP_API_PREFIX || ""}/etats_demandes/3`;
+export const ETAT_DEMANDE_NON_CONFORME = `${env.REACT_APP_API_PREFIX || ""}/etats_demandes/8`;
+export const ETAT_DEMANDE_ATTENTE_COMMISSION = `${env.REACT_APP_API_PREFIX || ""}/etats_demandes/7`;
+export const ETAT_DEMANDE_PROFIL_ACCEPTE = `${env.REACT_APP_API_PREFIX || ""}/etats_demandes/6`;
+export const ETAT_DEMANDE_VALIDEE = `${env.REACT_APP_API_PREFIX || ""}/etats_demandes/4`;
+export const ETAT_DEMANDE_REFUSEE = `${env.REACT_APP_API_PREFIX || ""}/etats_demandes/5`;
+export const ETAT_ATTENTE_CHARTES = `${env.REACT_APP_API_PREFIX || ""}/etats_demandes/9`;
+export const ETAT_ATTENTE_ACCOMPAGNEMENT = `${env.REACT_APP_API_PREFIX || ""}/etats_demandes/10`;
 
 export const ETATS_DEMANDES: EtatInfo[] = [
    {

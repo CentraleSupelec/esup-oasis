@@ -99,14 +99,14 @@ class DemandeDisciplineSportiveFilter extends AbstractFilter
         return [
             self::PROPERTY => [
                 'property' => self::PROPERTY,
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'is_collection' => false,
                 'openapi' => new Parameter(name: self::PROPERTY, in: 'query', description: 'discipline sportive'),
             ],
             self::PROPERTY . '[]' => [
                 'property' => self::PROPERTY,
-                'type' => TypeIdentifier::STRING,
+                'type' => TypeIdentifier::STRING->value,
                 'required' => false,
                 'is_collection' => true,
                 'openapi' => new Parameter(name: self::PROPERTY, in: 'query', description: 'discipline sportive'),
