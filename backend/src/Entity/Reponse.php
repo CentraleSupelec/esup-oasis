@@ -485,7 +485,7 @@ class Reponse
     {
         foreach ($this->getCategoriesAmenagement() as $categorie) {
             if (!in_array($categorie, $options)) {
-                $this->removeClub($categorie);
+                $this->removeCategoriesAmenagement($categorie);
             }
         }
 
