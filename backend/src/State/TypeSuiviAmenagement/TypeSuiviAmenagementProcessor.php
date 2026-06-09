@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2024. Esup - Université de Bordeaux.
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
  *
  * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
  *  For full copyright and license information please view the LICENSE file distributed with the source code.
@@ -13,6 +13,7 @@
 namespace App\State\TypeSuiviAmenagement;
 
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\TypeSuiviAmenagement;
 use App\Repository\TypeSuiviAmenagementRepository;
@@ -31,9 +32,9 @@ readonly class TypeSuiviAmenagementProcessor implements ProcessorInterface
          * Uniquement POST et PATCH
          */
 
-        $entity = match ($data->id) {
-            null => new \App\Entity\TypeSuiviAmenagement(),
-            default => $this->repository->find($data->id),
+        $entity = match ($operation instanceof Patch) {
+            false => new \App\Entity\TypeSuiviAmenagement(),
+            default => $this->repository->find($data->id ?? $uriVariables['id']),
         };
 
         $entity->setLibelle($data->libelle);

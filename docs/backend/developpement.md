@@ -68,7 +68,7 @@ docker exec -it <nom_du_conteneur> php bin/console app:init-db
 
 - **Nettoyage du cache** : `php bin/console cache:clear`
 - **Générer une migration** : `php bin/console make:migration`
-- **Lancer les tests** : `php bin/phpunit`
+- **Lancer les tests** : `vendor/bin/phpunit`
 
 ## Standards de code
 

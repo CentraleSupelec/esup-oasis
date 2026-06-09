@@ -32,9 +32,16 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['demandeId', 'questionId'],
+            security: "is_granted('" . Demande::VOIR_DEMANDE . "', object.demande)",
             provider: ReponseProvider::class,
         ),
-        new Put(uriTemplate: self::ITEM_URI, uriVariables: ['demandeId', 'questionId'], read: false, allowCreate: true),
+        new Put(
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['demandeId', 'questionId'],
+            securityPostDenormalize: "is_granted('" . self::MODIFIER_REPONSE . "', object)",
+            read: false,
+            allowCreate: true,
+        ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
@@ -59,6 +66,7 @@ class Reponse
     public const string ITEM_URI = '/demandes/{demandeId}/questions/{questionId}/reponse';
     public const string GROUP_IN = 'reponse:in';
     public const string GROUP_OUT = 'reponse:out';
+    public const string MODIFIER_REPONSE = 'MODIFIER_REPONSE';
 
     //copies pour simplifier la gestion des variables d'url
     #[Ignore]

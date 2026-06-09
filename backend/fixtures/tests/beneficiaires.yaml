@@ -14,3 +14,9 @@ App\Entity\Beneficiaire:
     profil: '@profil1'
     debut: <date_create('2020-01-01')>
     gestionnaire: '@gestionnaire'
+  ancien-beneficiaire:
+    utilisateur: '@utilisateur-ancien-beneficiaire'
+    profil: '@profil1'
+    debut: <date_create('2020-01-01')>
+    fin: <date_create('2020-12-31')>
+    gestionnaire: '@gestionnaire'

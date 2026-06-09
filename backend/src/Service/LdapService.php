@@ -67,6 +67,7 @@ class LdapService
      */
     public function searchUid(string $uid, array $attributes = []): array
     {
+        $uid = ldap_escape($uid, '', LDAP_ESCAPE_FILTER);
         $result = $this->query("(&(uid=$uid))", $attributes);
         if (empty($result)) {
             throw new LdapUtilisateurInconnuException($uid . ' inconnu dans le ldap');

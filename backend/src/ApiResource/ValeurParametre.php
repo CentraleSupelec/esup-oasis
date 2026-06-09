@@ -29,8 +29,19 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     operations: [
         new Get(uriTemplate: self::ITEM_URI, uriVariables: ['cle', 'id']),
-        new Post(uriTemplate: self::COLLECTION_URI, uriVariables: ['cle'], read: false, map: false),
-        new Patch(uriTemplate: self::ITEM_URI, uriVariables: ['cle', 'id'], map: false),
+        new Post(
+            uriTemplate: self::COLLECTION_URI,
+            uriVariables: ['cle'],
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_ADMIN . "')",
+            read: false,
+            map: false,
+        ),
+        new Patch(
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['cle', 'id'],
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_ADMIN . "')",
+            map: false,
+        ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],

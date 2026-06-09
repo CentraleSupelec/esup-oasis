@@ -61,7 +61,7 @@ class BeneficiairesProfilsTest extends ApiTestCaseCustom
         $this->assertJsonContains([
             '@context' => '/contexts/BeneficiaireProfil',
             '@type' => 'BeneficiaireProfil',
-            '@id' => '/utilisateurs/nouveau-beneficiaire/profils/4',
+            '@id' => '/utilisateurs/nouveau-beneficiaire/profils/5',
             'profil' => '/profils/3',
             'gestionnaire' => '/utilisateurs/gestionnaire',
         ]);

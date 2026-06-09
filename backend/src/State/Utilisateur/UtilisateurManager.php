@@ -132,7 +132,8 @@ readonly class UtilisateurManager
         //on cherche d'abord en local ce qui correspond
         $existants = $this->utilisateurRepository->search($term);
 
-        //On cherche dans l'annuaire...possiblement pas connu en local!
+        //On cherche dans l'annuaire...possiblement pas connu en local !
+        $term = ldap_escape($term, '', LDAP_ESCAPE_FILTER);
         $searchString = '(&';
         $searchString .= $this->ldapCriteresRecherche;
         $searchString .= '(|';

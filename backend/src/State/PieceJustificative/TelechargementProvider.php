@@ -18,8 +18,10 @@ use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Charte;
 use App\ApiResource\Telechargement;
+use App\Entity\Fichier;
 use App\State\MappedCollectionPaginator;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 readonly class TelechargementProvider implements ProviderInterface
 {
@@ -28,6 +30,7 @@ readonly class TelechargementProvider implements ProviderInterface
         private ProviderInterface $itemProvider,
         #[Autowire(service: 'api_platform.doctrine.orm.state.collection_provider')]
         private ProviderInterface $collectionProvider,
+        private UrlGeneratorInterface $urlGenerator,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
@@ -35,12 +38,26 @@ readonly class TelechargementProvider implements ProviderInterface
         if ($operation instanceof GetCollection) {
             $results = $this->collectionProvider->provide($operation, $uriVariables, $context);
             assert($results instanceof PaginatorInterface);
-            return new MappedCollectionPaginator($results, fn($entity) => new Telechargement($entity));
+            return new MappedCollectionPaginator($results, $this->transform(...));
         }
         $entity = $this->itemProvider->provide($operation, $uriVariables, $context);
+
         return match ($entity) {
             null => null,
-            default => new Telechargement($entity),
+            default => $this->transform($entity),
         };
+    }
+
+    private function transform(Fichier $entity): Telechargement
+    {
+        $resource = new Telechargement($entity);
+
+        $resource->urlContenu = $this->urlGenerator->generate(
+            'fichiers_download',
+            ['fileId' => $entity->getId()],
+            UrlGeneratorInterface::ABSOLUTE_PATH,
+        );
+
+        return $resource;
     }
 }

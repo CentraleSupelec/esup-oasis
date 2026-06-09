@@ -304,6 +304,22 @@ class DemandesTest extends ApiTestCaseCustom
         ]);
     }
 
+    public function testGestionnaireCanModifyReponse(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $client->request('PUT', '/demandes/1/questions/3/reponse', [
+            'json' => [
+                'optionsChoisies' => ['/questions/3/options/3'],
+                'commentaire' => 'modifié par le gestionnaire',
+            ],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            'commentaire' => 'modifié par le gestionnaire',
+        ]);
+    }
+
     public function testDemandeurRecuperationReponseExistante(): void
     {
         $client = $this->createClientWithCredentials('nouveau-beneficiaire');

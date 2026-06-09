@@ -32,9 +32,21 @@ use Symfony\Component\Serializer\Attribute\Ignore;
     operations: [
         new GetCollection(uriTemplate: self::COLLECTION_URI, map: false),
         new Get(uriTemplate: self::ITEM_URI, uriVariables: ['id']),
-        new Post(uriTemplate: self::COLLECTION_URI, map: false),
-        new Patch(uriTemplate: self::ITEM_URI, uriVariables: ['id']),
-        new Delete(uriTemplate: self::ITEM_URI, uriVariables: ['id']),
+        new Post(
+            uriTemplate: self::COLLECTION_URI,
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_ADMIN . "')",
+            map: false,
+        ),
+        new Patch(
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['id'],
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_ADMIN . "')",
+        ),
+        new Delete(
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['id'],
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_ADMIN . "')",
+        ),
     ],
     openapi: new Operation(tags: ['Referentiel']),
     provider: CharteProvider::class,

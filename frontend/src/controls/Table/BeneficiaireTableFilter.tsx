@@ -7,7 +7,7 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../auth/AuthProvider";
 import { useApi } from "../../context/api/ApiProvider";
 import {
@@ -16,7 +16,19 @@ import {
    PREFETCH_PROFILS,
    PREFETCH_TAGS,
 } from "../../api/ApiPrefetchHelpers";
-import { Badge, Col, Collapse, Input, Row, Segmented, Select, Space, Tooltip } from "antd";
+import {
+   Badge,
+   Col,
+   Collapse,
+   DatePicker,
+   Input,
+   Radio,
+   Row,
+   Segmented,
+   Select,
+   Space,
+   Tooltip,
+} from "antd";
 import { CheckCircleFilled, FilterOutlined, HourglassOutlined } from "@ant-design/icons";
 import { BENEFICIAIRE_PROFIL_A_DETERMINER, NB_MAX_ITEMS_PER_PAGE } from "../../constants";
 import { FiltresFavoris } from "./FiltresFavoris";
@@ -25,6 +37,12 @@ import { EtatAvisEse } from "../Avatars/BeneficiaireAvisEseAvatar";
 import { FiltreFavoriDropDown } from "./FiltreFavoriDropDown";
 import { EtatDecisionEtablissement } from "../Avatars/DecisionEtablissementAvatar";
 import { env } from "../../env";
+import dayjs, { Dayjs } from "dayjs";
+
+type ModeValidite = "date" | "intervalle" | "nimportequand";
+
+const { RangePicker } = DatePicker;
+
 
 function booleanToString(value: boolean | undefined): string | undefined {
    if (value === undefined) return "undefined";
@@ -42,7 +60,20 @@ export function BeneficiaireTableFilter(props: {
    filtreBeneficiaire: FiltreBeneficiaire;
    setFiltreBeneficiaire: React.Dispatch<React.SetStateAction<FiltreBeneficiaire>>;
 }) {
+   const isNimporteQuand =
+      props.filtreBeneficiaire["filtreBeneficiaire[avant]"] !== undefined &&
+      props.filtreBeneficiaire["filtreBeneficiaire[apres]"] === undefined &&
+      props.filtreBeneficiaire["filtreBeneficiaire[date]"] === undefined;
+
+   const hasIntervalle =
+      !isNimporteQuand &&
+      (props.filtreBeneficiaire["filtreBeneficiaire[avant]"] !== undefined ||
+         props.filtreBeneficiaire["filtreBeneficiaire[apres]"] !== undefined);
+
    const auth = useAuth();
+   const [mode, setMode] = useState<ModeValidite>(
+      isNimporteQuand ? "nimportequand" : hasIntervalle ? "intervalle" : "date",
+   );
    const { data: profils } = useApi().useGetCollection({
       ...PREFETCH_PROFILS,
       enabled: auth.user?.isGestionnaire,
@@ -73,6 +104,55 @@ export function BeneficiaireTableFilter(props: {
          query: { "order[nom]": "asc" },
          enabled: auth.user?.isPlanificateur,
       });
+
+   function handleModeChange(newMode: ModeValidite){
+      setMode(newMode);
+
+      if (newMode === "date") {
+         props.setFiltreBeneficiaire((prev) => ({
+            ...prev,
+            "filtreBeneficiaire[date]": dayjs().format("YYYY-MM-DD"),
+            "filtreBeneficiaire[avant]": undefined,
+            "filtreBeneficiaire[apres]": undefined,
+            page: 1,
+         }));
+      } else if (newMode === "nimportequand") {
+         props.setFiltreBeneficiaire((prev) => ({
+            ...prev,
+            "filtreBeneficiaire[date]": undefined,
+            "filtreBeneficiaire[avant]": dayjs().add(1, "year").format("YYYY-MM-DD"),
+            "filtreBeneficiaire[apres]": undefined,
+            page: 1,
+         }));
+      } else {
+         props.setFiltreBeneficiaire((prev) => ({
+            ...prev,
+            "filtreBeneficiaire[date]": undefined,
+            "filtreBeneficiaire[avant]": undefined,
+            "filtreBeneficiaire[apres]": undefined,
+            page: 1,
+         }));
+      }
+   }
+
+   function handleRangeChange(dates: [Dayjs | null, Dayjs | null] | null) {
+      props.setFiltreBeneficiaire((prev) => ({
+         ...prev,
+         "filtreBeneficiaire[date]": undefined,
+         "filtreBeneficiaire[apres]": dates?.[0]?.format("YYYY-MM-DD") ?? undefined,
+         "filtreBeneficiaire[avant]": dates?.[1]?.format("YYYY-MM-DD") ?? undefined,
+         page: 1,
+      }));
+   }
+
+   const rangeValue: [Dayjs | null, Dayjs | null] = [
+      props.filtreBeneficiaire["filtreBeneficiaire[apres]"]
+         ? dayjs(props.filtreBeneficiaire["filtreBeneficiaire[apres]"])
+         : null,
+      props.filtreBeneficiaire["filtreBeneficiaire[avant]"]
+         ? dayjs(props.filtreBeneficiaire["filtreBeneficiaire[avant]"])
+         : null,
+   ];
 
    return (
       <Collapse
@@ -199,7 +279,7 @@ export function BeneficiaireTableFilter(props: {
                         {auth.user?.isGestionnaire && (
                            <>
                               <Col xs={24} sm={24} md={6}>
-                                 <Space orientation="vertical" size={0}>
+                                 <Space direction="vertical" size={0}>
                                     <span>Profils</span>
                                     <div
                                        className={`legende ${
@@ -219,11 +299,12 @@ export function BeneficiaireTableFilter(props: {
                                     allowClear
                                     className="w-100"
                                     placeholder="Tous les profils"
-                                    value={props.filtreBeneficiaire.profil}
+                                    value={props.filtreBeneficiaire["filtreBeneficiaire[profil]"]}
                                     onChange={(value) => {
                                        props.setFiltreBeneficiaire((prev) => ({
                                           ...prev,
-                                          profil: value === "undefined" ? undefined : value,
+                                          "filtreBeneficiaire[profil]":
+                                             value === "undefined" ? undefined : value,
                                           page: 1,
                                        }));
                                     }}
@@ -244,6 +325,38 @@ export function BeneficiaireTableFilter(props: {
                                           })),
                                     ]}
                                  />
+                              </Col>
+                           </>
+                        )}
+
+                        {auth.user?.isGestionnaire && (
+                           <>
+                              <Col xs={24} sm={24} md={6}>
+                                 <span>Validité du profil</span>
+                              </Col>
+                              <Col xs={24} sm={24} md={18}>
+                                 <Space direction="vertical" size={8} className="w-100">
+                                    <Radio.Group
+                                       value={mode}
+                                       onChange={(e) =>
+                                          handleModeChange(e.target.value as ModeValidite)
+                                       }
+                                    >
+                                       <Radio value="date">Valide à la date du jour</Radio>
+                                       <Radio value="intervalle">Valide sur une période</Radio>
+                                       <Radio value="nimportequand">Sans restriction de date</Radio>
+                                    </Radio.Group>
+                                    {mode === "intervalle" && (
+                                       <RangePicker
+                                          className="w-100"
+                                          value={rangeValue}
+                                          onChange={handleRangeChange}
+                                          format="DD/MM/YYYY"
+                                          placeholder={["Date de début", "Date de fin"]}
+                                          allowEmpty={[true, true]}
+                                       />
+                                    )}
+                                 </Space>
                               </Col>
                            </>
                         )}

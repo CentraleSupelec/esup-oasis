@@ -61,7 +61,7 @@ class TypesSuiviAmenagementsTest extends ApiTestCaseCustom
     public function testAdminCanPatchTypeSuivi(): void
     {
         $client = $this->createClientWithCredentials('admin');
-        
+
         // On crée d'abord
         $client->request('POST', '/types_suivi_amenagements', [
             'json' => [
@@ -89,24 +89,24 @@ class TypesSuiviAmenagementsTest extends ApiTestCaseCustom
     public function testOrderFilter(): void
     {
         $client = $this->createClientWithCredentials('gestionnaire');
-        
+
         // On s'assure d'avoir au moins deux éléments avec des libellés connus
         $client = $this->createClientWithCredentials('admin');
         $client->request('POST', '/types_suivi_amenagements', ['json' => ['libelle' => 'Aaaa']]);
         $client->request('POST', '/types_suivi_amenagements', ['json' => ['libelle' => 'Zzzz']]);
 
         $client = $this->createClientWithCredentials('gestionnaire');
-        
+
         $client->request('GET', '/types_suivi_amenagements?order[libelle]=asc');
         $data = $client->getResponse()->toArray();
         $items = $data['hydra:member'];
-        
+
         $this->assertGreaterThanOrEqual(2, count($items));
         // On cherche nos éléments dans la liste triée
         $libelles = array_map(fn($i) => $i['libelle'], $items);
         $indexA = array_search('Aaaa', $libelles);
         $indexZ = array_search('Zzzz', $libelles);
-        
+
         if ($indexA !== false && $indexZ !== false) {
             $this->assertLessThan($indexZ, $indexA);
         }
@@ -117,9 +117,47 @@ class TypesSuiviAmenagementsTest extends ApiTestCaseCustom
         $libelles = array_map(fn($i) => $i['libelle'], $items);
         $indexA = array_search('Aaaa', $libelles);
         $indexZ = array_search('Zzzz', $libelles);
-        
+
         if ($indexA !== false && $indexZ !== false) {
             $this->assertGreaterThan($indexZ, $indexA);
         }
+    }
+
+    public function testPatchDoesNotCreateNewRecord(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+
+        // 1. Initial count
+        $client->request('GET', '/types_suivi_amenagements');
+        $initialCount = $client->getResponse()->toArray()['hydra:totalItems'];
+
+        // 2. Create one
+        $client->request('POST', '/types_suivi_amenagements', [
+            'json' => [
+                'libelle' => 'Original',
+                'actif' => true,
+            ],
+        ]);
+        $data = $client->getResponse()->toArray();
+        $iri = $data['@id'];
+        $id = $data['id'];
+
+        // 3. Count should be initial + 1
+        $client->request('GET', '/types_suivi_amenagements');
+        $this->assertEquals($initialCount + 1, $client->getResponse()->toArray()['hydra:totalItems']);
+
+        // 4. Patch
+        $client->request('PATCH', $iri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [
+                'libelle' => 'Modified',
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['libelle' => 'Modified', 'id' => $id]);
+
+        // 5. Count should still be initial + 1
+        $client->request('GET', '/types_suivi_amenagements');
+        $this->assertEquals($initialCount + 1, $client->getResponse()->toArray()['hydra:totalItems']);
     }
 }

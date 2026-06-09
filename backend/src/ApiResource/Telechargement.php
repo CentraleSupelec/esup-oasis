@@ -23,6 +23,7 @@ use App\Controller\EnvoiPjAction;
 use App\Entity\Fichier;
 use App\State\PieceJustificative\TelechargementProcessor;
 use App\State\PieceJustificative\TelechargementProvider;
+use App\Validator\AllowedFileTypesConstraint;
 use App\Validator\NoVirusConstraint;
 use ArrayObject;
 use ReflectionProperty;
@@ -49,6 +50,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             ]))),
             security: "is_granted('ROLE_GESTIONNAIRE') or is_granted('ROLE_RENFORT_DEMANDES') or is_granted('ROLE_DEMANDEUR')",
             deserialize: false,
+            validate: true,
             map: false,
         ),
         new Get(uriTemplate: self::ITEM_URI, security: "is_granted('" . Fichier::VOIR_FICHIER . "', object)"),
@@ -60,6 +62,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     stateOptions: new Options(entityClass: Fichier::class),
 )]
 #[NoVirusConstraint]
+#[AllowedFileTypesConstraint]
 class Telechargement
 {
     public const string COLLECTION_URI = '/telechargements';
@@ -115,15 +118,7 @@ class Telechargement
     }
 
     #[Groups([self::GROUP_OUT])]
-    public string $urlContenu {
-        get {
-            $prop = new ReflectionProperty(self::class, 'urlContenu');
-            if (!$prop->isInitialized($this) && $this->entity !== null) {
-                $this->urlContenu = '/fichiers/' . $this->id; //en dur, c'est moche
-            }
-            return $this->urlContenu ?? null;
-        }
-    }
+    public string $urlContenu;
 
     public function __construct(
         private readonly ?Fichier $entity = null,

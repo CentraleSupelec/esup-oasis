@@ -65,7 +65,7 @@ readonly class ClientAppUserProvider implements UserProviderInterface
             $this->logger->error('Tentative de connection pour app ' . $appId);
             throw new AccessDeniedException('App inconnue');
         }
-        if ($app->getApiKey() !== $apiKey) {
+        if (!hash_equals($app->getApiKey(), $apiKey)) {
             $this->logger->error('ApiKey incorrecte pour app ' . $appId);
             throw new AccessDeniedException('ApiKey incorrecte');
         }

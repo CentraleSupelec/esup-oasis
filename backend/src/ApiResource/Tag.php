@@ -40,8 +40,16 @@ use Symfony\Component\Validator\Constraints as Assert;
             map: false,
         ),
         new Get(uriTemplate: self::ITEM_URI, map: false),
-        new Patch(uriTemplate: self::ITEM_URI, map: false),
-        new Post(uriTemplate: self::COLLECTION_URI, map: false),
+        new Patch(
+            uriTemplate: self::ITEM_URI,
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_ADMIN . "')",
+            map: false,
+        ),
+        new Post(
+            uriTemplate: self::COLLECTION_URI,
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_ADMIN . "')",
+            map: false,
+        ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],

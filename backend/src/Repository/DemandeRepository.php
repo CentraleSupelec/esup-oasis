@@ -110,4 +110,19 @@ class DemandeRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    /**
+     * @param string $uid
+     * @return iterable<Demande>
+     */
+    public function findByUid(string $uid): iterable
+    {
+        return $this
+            ->createQueryBuilder('d')
+            ->join('d.demandeur', 'demandeur')
+            ->where('demandeur.uid = :uid')
+            ->setParameter('uid', $uid)
+            ->getQuery()
+            ->getResult();
+    }
 }

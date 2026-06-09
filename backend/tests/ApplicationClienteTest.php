@@ -76,4 +76,81 @@ class ApplicationClienteTest extends ApiTestCaseCustom
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertResponseHeaderSame('Content-Type', 'application/ld+json; charset=utf-8');
     }
+
+    public function testAppCanGetIndividualUser(): void
+    {
+        $this->ensureClientAppExists('test_app', 'test_api_key');
+        $client = $this->createClientWithAppCredentials('test_app');
+
+        $client->request('GET', '/utilisateurs/intervenant');
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $this->assertResponseHeaderSame('Content-Type', 'application/ld+json; charset=utf-8');
+    }
+
+    public function testAppCanListEventTypes(): void
+    {
+        $this->ensureClientAppExists('test_app', 'test_api_key');
+        $client = $this->createClientWithAppCredentials('test_app');
+
+        $client->request('GET', '/types_evenements');
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+    }
+
+    public function testAppCanListCampuses(): void
+    {
+        $this->ensureClientAppExists('test_app', 'test_api_key');
+        $client = $this->createClientWithAppCredentials('test_app');
+
+        $client->request('GET', '/campus');
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $this->assertResponseHeaderSame('Content-Type', 'application/ld+json; charset=utf-8');
+    }
+
+    public function testAppCannotCreateEvent(): void
+    {
+        $this->ensureClientAppExists('test_app', 'test_api_key');
+        $client = $this->createClientWithAppCredentials('test_app');
+
+        $client->request('POST', '/evenements', [
+            'json' => [
+                'libelle' => 'Test event',
+                'debut' => '2024-01-01T10:00:00Z',
+                'fin' => '2024-01-01T11:00:00Z',
+                'type' => '/types_evenements/1',
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    public function testAppCannotModifyEvent(): void
+    {
+        $this->ensureClientAppExists('test_app', 'test_api_key');
+        $client = $this->createClientWithAppCredentials('test_app');
+
+        $client->request('PATCH', '/evenements/1', [
+            'json' => [
+                'libelle' => 'Modified by app',
+            ],
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    public function testAppCannotModifyUser(): void
+    {
+        $this->ensureClientAppExists('test_app', 'test_api_key');
+        $client = $this->createClientWithAppCredentials('test_app');
+
+        $client->request('PATCH', '/utilisateurs/intervenant', [
+            'json' => [
+                'nom' => 'Modified by app',
+            ],
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
 }

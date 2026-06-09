@@ -63,4 +63,74 @@ class ChartesTest extends ApiTestCaseCustom
         ]);
         $this->assertNotNull($client->getResponse()->toArray()['dateValidation']);
     }
+
+    public function testUserCannotListOtherUserChartes(): void
+    {
+        $client = $this->createClientWithCredentials('demandeur2');
+        $client->request('GET', '/utilisateurs/demandeur/chartes');
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testPlanificateurCanListOtherUserChartes(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $client->request('GET', '/utilisateurs/demandeur/chartes');
+
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testUserCannotGetOtherUserCharte(): void
+    {
+        $client = $this->createClientWithCredentials('demandeur');
+        $response = $client->request('GET', '/utilisateurs/demandeur/chartes');
+        $charteId = $response->toArray()['hydra:member'][0]['@id'];
+
+        $client2 = $this->createClientWithCredentials('demandeur2');
+        $client2->request('GET', $charteId);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testPlanificateurCanGetOtherUserCharte(): void
+    {
+        $client = $this->createClientWithCredentials('demandeur');
+        $response = $client->request('GET', '/utilisateurs/demandeur/chartes');
+        $charteId = $response->toArray()['hydra:member'][0]['@id'];
+
+        $client2 = $this->createClientWithCredentials('gestionnaire');
+        $client2->request('GET', $charteId);
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testPlanificateurCannotValidateOtherUserCharte(): void
+    {
+        $client = $this->createClientWithCredentials('demandeur');
+        $response = $client->request('GET', '/utilisateurs/demandeur/chartes');
+        $charteId = $response->toArray()['hydra:member'][0]['@id'];
+
+        $client2 = $this->createClientWithCredentials('gestionnaire');
+        $client2->request('PATCH', $charteId, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [
+                'dateValidation' => (new \DateTime())->format(\DateTimeInterface::RFC3339),
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testAdminCanValidateOtherUserCharte(): void
+    {
+        $client = $this->createClientWithCredentials('demandeur');
+        $response = $client->request('GET', '/utilisateurs/demandeur/chartes');
+        $charteId = $response->toArray()['hydra:member'][0]['@id'];
+
+        $client2 = $this->createClientWithCredentials('admin');
+        $client2->request('PATCH', $charteId, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [
+                'dateValidation' => (new \DateTime())->format(\DateTimeInterface::RFC3339),
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+    }
 }

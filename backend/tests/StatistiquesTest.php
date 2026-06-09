@@ -7,9 +7,7 @@ class StatistiquesTest extends ApiTestCaseCustom
     public function testGetUnfilteredStats(): void
     {
         $client = $this->createClientWithCredentials('gestionnaire');
-        // Note: Dans un vrai test on mockerait l'horloge pour 2040-02-01
-        // et on créerait l'événement pour demain.
-        // Ici on reproduit la structure des attentes Behat.
+        // Ici on reproduit la structure des données attendues.
 
         $client->request('GET', '/statistiques');
 

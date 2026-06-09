@@ -289,7 +289,7 @@ final class Evenement
         }
     }
     #[Groups([self::GROUP_OUT, self::GROUP_IN])]
-    public ?string $salle = null {
+    public ?string $salle {
         get {
             $prop = new ReflectionProperty(self::class, 'salle');
             if (!$prop->isInitialized($this) && $this->entity !== null) {

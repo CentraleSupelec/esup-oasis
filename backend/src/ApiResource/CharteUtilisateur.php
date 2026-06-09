@@ -30,13 +30,22 @@ use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ApiResource(
     operations: [
-        new GetCollection(uriTemplate: self::COLLECTION_URI, uriVariables: ['uid'], map: false),
-        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['uid', 'id']),
+        new GetCollection(
+            uriTemplate: self::COLLECTION_URI,
+            uriVariables: ['uid'],
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR . "') or request.attributes.get('uid') == user.getUid()",
+            map: false,
+        ),
+        new Get(
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['uid', 'id'],
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR . "') or object.uid == user.getUid()",
+        ),
         new Patch(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'id'],
             denormalizationContext: ['groups' => [self::GROUP_IN]],
-            securityPostDenormalize: "is_granted('ROLE_ADMIN') or object.uid == user.getUid()",
+            securityPostDenormalize: "is_granted('" . \App\Entity\Utilisateur::ROLE_ADMIN . "') or object.uid == user.getUid()",
         ),
     ],
     openapi: new Operation(tags: ['Utilisateurs']),
@@ -54,7 +63,7 @@ class CharteUtilisateur
     #[Ignore]
     public string $uid {
         get {
-            $prop = new ReflectionProperty(self::class, 'id');
+            $prop = new ReflectionProperty(self::class, 'uid');
             if (!$prop->isInitialized($this) && $this->entity !== null) {
                 $this->uid = $this->entity->getDemande()->getDemandeur()->getUid();
             }

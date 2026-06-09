@@ -26,6 +26,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
         uriTemplate: self::ITEM_URI,
         uriVariables: ['id'],
         openapi: false,
+        security: "is_granted('" . self::VOIR_INSCRIPTION . "', object)",
         provider: InscriptionProvider::class,
         stateOptions: new Options(entityClass: \App\Entity\Inscription::class),
     ),
@@ -34,6 +35,8 @@ final class Inscription
 {
     public const string COLLECTION_URI = '/inscriptions';
     public const string ITEM_URI = self::COLLECTION_URI . '/{id}';
+
+    public const string VOIR_INSCRIPTION = 'VOIR_INSCRIPTION';
 
     #[ApiProperty(identifier: true)]
     public int $id {

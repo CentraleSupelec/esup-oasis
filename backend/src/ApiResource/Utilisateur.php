@@ -42,7 +42,6 @@ use App\Filter\LibComposanteBeneficiaireFilter;
 use App\Filter\NestedFieldSearchFilter;
 use App\Filter\NomGestionnaireFilter;
 use App\Filter\PreloadAssociationsFilter;
-use App\Filter\ProfilBeneficiaireFilter;
 use App\Filter\RenfortFilter;
 use App\Filter\TypeAmenagementEnCoursFilter;
 use App\Filter\UtilisateurExistantSearchFilter;
@@ -65,24 +64,28 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(
             uriTemplate: self::COLLECTION_URI,
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR . "')",
             name: self::COLLECTION_URI,
             provider: UtilisateurProvider::class,
             map: false,
         ),
         new GetCollection(
             uriTemplate: self::BENEFICIAIRE_COLLECTION_URI,
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR . "')",
             name: self::BENEFICIAIRE_COLLECTION_URI,
             provider: BeneficiaireProvider::class,
             map: false,
         ),
         new GetCollection(
             uriTemplate: self::INTERVENANT_COLLECTION_URI,
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR . "')",
             name: self::INTERVENANT_COLLECTION_URI,
             provider: IntervenantProvider::class,
             map: false,
         ),
         new GetCollection(
             uriTemplate: self::RENFORT_COLLECTION_URI,
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR . "')",
             name: self::RENFORT_COLLECTION_URI,
             provider: RenfortProvider::class,
             map: false,
@@ -90,7 +93,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(
             uriTemplate: '/roles/{roleId}/utilisateurs',
             uriVariables: ['roleId'],
-            security: "is_granted('" . self::LIST_BY_ROLE . "', request)",
+            security: "is_granted('" . self::LISTER_PAR_ROLE . "', request)",
             provider: UtilisateurRoleProvider::class,
             map: false,
         ),
@@ -107,10 +110,16 @@ use Symfony\Component\Validator\Constraints as Assert;
             provider: AmenagementsParUtilisateurProvider::class,
             map: false,
         ),
-        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['uid'], provider: UtilisateurProvider::class, map: false),
+        new Get(
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['uid'],
+            security: "is_granted('" . self::VOIR_UTILISATEUR . "', object)",
+            provider: UtilisateurProvider::class,
+            map: false,
+        ),
         new Patch(
             uriTemplate: self::ITEM_URI,
-            securityPostDenormalize: "is_granted('" . self::CAN_PATCH_USER . "', [previous_object, object])",
+            securityPostDenormalize: "is_granted('" . self::MODIFIER_UTILISATEUR . "', [previous_object, object])",
             provider: UtilisateurProvider::class,
             map: false,
         ),
@@ -137,7 +146,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     'intervenant.campuses',
     'intervenant.competences',
 ])]
-#[ApiFilter(ProfilBeneficiaireFilter::class)]
 #[ApiFilter(LibCampusIntervenantFilter::class)]
 #[ApiFilter(LibComposanteBeneficiaireFilter::class)]
 #[ApiFilter(NomGestionnaireFilter::class)]
@@ -169,8 +177,9 @@ final class Utilisateur
     public const string GROUP_IN = 'utilisateur:in';
     public const string AMENAGEMENTS_UTILISATEURS_OUT = 'amenagements_utilisateurs:out';
 
-    public const string CAN_PATCH_USER = 'CAN_PATCH_USER';
-    public const string LIST_BY_ROLE = 'LIST_BY_ROLE';
+    public const string MODIFIER_UTILISATEUR = 'CAN_PATCH_USER';
+    public const string VOIR_UTILISATEUR = 'CAN_SEE_USER';
+    public const string LISTER_PAR_ROLE = 'LIST_BY_ROLE';
     public const string VOIR_INFOS_PERSO = 'VOIR_INFOS_PERSO';
 
     public const array TOUS_ROLES = [

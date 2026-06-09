@@ -26,7 +26,7 @@ class ListerUtilisateursParRoleVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return Utilisateur::LIST_BY_ROLE === $attribute;
+        return Utilisateur::LISTER_PAR_ROLE === $attribute;
     }
 
     protected function voteOnAttribute(

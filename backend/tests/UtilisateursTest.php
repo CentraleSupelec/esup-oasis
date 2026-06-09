@@ -165,7 +165,7 @@ class UtilisateursTest extends ApiTestCaseCustom
         $this->assertResponseStatusCodeSame(403);
     }
 
-    public function testAdminCanListBeneficiairesWithInscriptions(): void
+    public function testAdminCanListCurrentBeneficiaires(): void
     {
         $client = $this->createClientWithCredentials('admin');
         $client->request('GET', '/beneficiaires');
@@ -176,6 +176,43 @@ class UtilisateursTest extends ApiTestCaseCustom
 
         $this->assertEquals('/utilisateurs/beneficiaire', $data['hydra:member'][0]['@id']);
         $this->assertArrayHasKey('profils', $data['hydra:member'][0]);
+    }
+
+    public function testAdminCanFilterBeneficiairesByDate(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('GET', '/beneficiaires?filtreBeneficiaire[avant]=2100-01-01');
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertGreaterThanOrEqual(2, $data['hydra:totalItems']);
+
+        $total = $data['hydra:totalItems'];
+
+        //ancien-beneficaire a une fin au 31/12/2020
+        $client->request('GET', '/beneficiaires?filtreBeneficiaire[apres]=2021-01-01');
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertLessThan($total, $data['hydra:totalItems']);
+    }
+
+    public function testAdminCanFilterBeneficiairesByProfil(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+
+        $client->request('GET', '/beneficiaires?filtreBeneficiaire[avant]=2100-01-01');
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertGreaterThanOrEqual(2, $data['hydra:totalItems']);
+
+        $total = $data['hydra:totalItems'];
+
+        $client->request('GET', '/beneficiaires?filtreBeneficiaire[profil]=/profils/1');
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertLessThan($total, $data['hydra:totalItems']);
     }
 
     public function testAdminCanAddTagToUser(): void
@@ -227,10 +264,7 @@ class UtilisateursTest extends ApiTestCaseCustom
     {
         $client = $this->createClientWithCredentials('admin');
 
-        $repo = static::getContainer()
-            ->get('doctrine')
-            ->getManager()
-            ->getRepository(Utilisateur::class);
+        $repo = static::getContainer()->get('doctrine')->getManager()->getRepository(Utilisateur::class);
 
         $beneficiaire = $repo->findOneBy(['uid' => 'beneficiaire']);
         $beneficiaire->setNumeroAnonyme(null);
@@ -328,5 +362,29 @@ class UtilisateursTest extends ApiTestCaseCustom
             '@context' => '/contexts/Inscription',
             '@id' => '/inscriptions/1',
         ]);
+    }
+
+    public function testIntervenantCanSeeBeneficiaryOfTheirEvents(): void
+    {
+        $client = $this->createClientWithCredentials('intervenant');
+        $client->request('GET', '/utilisateurs/beneficiaire');
+
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testIntervenantCannotSeeOtherBeneficiary(): void
+    {
+        $client = $this->createClientWithCredentials('intervenant2');
+        $client->request('GET', '/utilisateurs/beneficiaire2');
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testIntervenantCanSeeCreatorOfTheirEvents(): void
+    {
+        $client = $this->createClientWithCredentials('intervenant');
+        $client->request('GET', '/utilisateurs/admin');
+
+        $this->assertResponseIsSuccessful();
     }
 }

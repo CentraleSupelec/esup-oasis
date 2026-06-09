@@ -56,7 +56,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             provider: AmenagementSansFiltreProvider::class,
             map: false,
         ),
-        new Post(uriTemplate: self::COLLECTION_URI, uriVariables: ['uid'], read: false, map: false),
+        new Post(
+            uriTemplate: self::COLLECTION_URI,
+            uriVariables: ['uid'],
+            security: "is_granted('" . self::MODIFIER_AMENAGEMENTS_UTILISATEUR . "', request.attributes.get('uid'))",
+            read: false,
+            map: false,
+        ),
         new Get(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'id'],

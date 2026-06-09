@@ -35,7 +35,7 @@ final class ModifierUtilisateurVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return $attribute === Utilisateur::CAN_PATCH_USER && is_array($subject);
+        return $attribute === Utilisateur::MODIFIER_UTILISATEUR && is_array($subject);
     }
 
     /**
@@ -101,6 +101,10 @@ final class ModifierUtilisateurVoter extends Voter
         }
 
         $user = $this->security->getUser();
+        if ($user instanceof \App\Entity\ApplicationCliente) {
+            return false;
+        }
+
         assert($user instanceof UtilisateurEntity);
         return $this->security->isGranted(UtilisateurEntity::ROLE_PLANIFICATEUR) || $user->getUid() === $new->uid;
     }

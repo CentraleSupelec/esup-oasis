@@ -26,17 +26,27 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
-        new GetCollection(uriTemplate: self::COLLECTION_URI, uriVariables: ['uid']),
-        new Get(uriTemplate: self::ITEM_URI, uriVariables: ['uid', 'id']),
+        new GetCollection(
+            uriTemplate: self::COLLECTION_URI,
+            uriVariables: ['uid'],
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR . "') or request.attributes.get('uid') == user.getUid()",
+        ),
+        new Get(
+            uriTemplate: self::ITEM_URI,
+            uriVariables: ['uid', 'id'],
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR . "') or object.uid == user.getUid()",
+        ),
         new Post(
             uriTemplate: self::COLLECTION_URI,
             uriVariables: ['uid'],
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR . "')",
             read: false,
             processor: PostTagUtilisateurProcessor::class,
         ),
         new Delete(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'id'],
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_PLANIFICATEUR . "')",
             processor: DeleteTagUtilisateurProcessor::class,
         ),
     ],

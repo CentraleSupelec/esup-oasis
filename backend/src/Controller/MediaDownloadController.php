@@ -24,7 +24,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class MediaDownloadController extends AbstractController
 {
-    #[Route('/fichiers/{fileId}')]
+    #[Route('/fichiers/{fileId}', name: 'fichiers_download', methods: ['GET'])]
     public function getFile(
         int $fileId,
         FichierRepository $fichierRepository,

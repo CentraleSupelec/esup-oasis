@@ -23,6 +23,7 @@ use Exception;
 use Override;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 readonly class TelechargementProcessor implements ProcessorInterface
 {
@@ -31,6 +32,7 @@ readonly class TelechargementProcessor implements ProcessorInterface
         private FichierRepository $fichierRepository,
         private Security $security,
         private MessageBusInterface $messageBus,
+        private UrlGeneratorInterface $urlGenerator,
     ) {}
 
     /**
@@ -50,13 +52,18 @@ readonly class TelechargementProcessor implements ProcessorInterface
         //on crée la référence du fichier en base
         $fichier = new Fichier();
         $fichier->setNom($data->file->getClientOriginalName());
-        $fichier->setTypeMime($data->file->getClientMimeType());
+        $fichier->setTypeMime($data->file->getMimeType());
         $fichier->setProprietaire($this->security->getUser());
         $fichier->setMetadata($metadata);
 
         $this->fichierRepository->save($fichier, true);
 
         $resource = new Telechargement($fichier);
+        $resource->urlContenu = $this->urlGenerator->generate(
+            'fichiers_download',
+            ['fileId' => $fichier->getId()],
+            UrlGeneratorInterface::ABSOLUTE_PATH,
+        );
 
         $this->messageBus->dispatch(new RessourceCollectionModifieeMessage($resource));
 

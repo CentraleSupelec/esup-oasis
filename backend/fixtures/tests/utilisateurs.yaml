@@ -173,3 +173,10 @@ App\Entity\Utilisateur:
     prenom: 'decision'
     admin: false
     roles: [ 'ROLE_BENEFICIAIRE' ]
+  utilisateur-ancien-beneficiaire:
+    uid: 'utilisateur-ancien-beneficiaire'
+    email: 'utilisateur-ancien-beneficiaire@app.fr'
+    nom: 'ancien'
+    prenom: 'beneficiaire'
+    admin: false
+    roles: [ 'ROLE_USER' ]

@@ -38,7 +38,14 @@ export const FILTRE_BENEFICIAIRE_DEFAULT = {
 };
 
 export interface FiltreBeneficiaire {
-   profil?: string;
+   /** @description profil pour lequel on veut les bénéficiaires valides */
+   "filtreBeneficiaire[profil]"?: string;
+   /** @description date pour laquelle on veut les bénéficiaires valides */
+   "filtreBeneficiaire[date]"?: string;
+   /** @description date avant laquelle on veut les bénéficiaires valides */
+   "filtreBeneficiaire[avant]"?: string;
+   /** @description date après laquelle on veut les bénéficiaires valides */
+   "filtreBeneficiaire[apres]"?: string;
    nom?: string;
    prenom?: string;
    nomGestionnaire?: string;
@@ -72,7 +79,7 @@ function filtreBeneficiaireDefault(
       case "profil":
          return {
             ...FILTRE_BENEFICIAIRE_DEFAULT,
-            profil: filtreValeur as string,
+            "filtreBeneficiaire[profil]": filtreValeur as string,
          };
       default:
          return FILTRE_BENEFICIAIRE_DEFAULT;

@@ -12,6 +12,8 @@
 
 namespace App\Controller;
 
+use ApiPlatform\Validator\Exception\ValidationException;
+use ApiPlatform\Validator\ValidatorInterface;
 use App\ApiResource\Telechargement;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +23,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 #[AsController]
 class EnvoiPjAction
 {
+    public function __construct(
+        private readonly ValidatorInterface $validator,
+    ) {}
+
     public function __invoke(Request $request): Telechargement
     {
         /**
@@ -30,10 +36,16 @@ class EnvoiPjAction
         if (!$uploadedFile) {
             throw new BadRequestHttpException('"file" is required');
         }
-        //todo: passer un coup d'antivirus ici?!
 
         $pieceJustificative = new Telechargement();
         $pieceJustificative->file = $uploadedFile;
+
+        // On force la validation ici.
+        $violations = $this->validator->validate($pieceJustificative);
+
+        if (null !== $violations && $violations->count() > 0) {
+            throw new ValidationException($violations);
+        }
 
         return $pieceJustificative;
     }

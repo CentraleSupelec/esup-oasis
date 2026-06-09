@@ -14,11 +14,16 @@ namespace App\State\Utilisateur;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use App\Filter\BeneficiaireFilter;
 use App\Filter\EtatDecisionAmenagementFilter;
 use App\Repository\UtilisateurRepository;
+use DateTimeImmutable;
+use Symfony\Component\Clock\ClockAwareTrait;
 
 readonly class BeneficiaireProvider implements ProviderInterface
 {
+    use ClockAwareTrait;
+
     public function __construct(
         private UtilisateurProvider $utilisateurProvider,
         private UtilisateurRepository $utilisateurRepository,
@@ -26,11 +31,20 @@ readonly class BeneficiaireProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $context['filters']['beneficiairefilter'] = true;
-        //        /**
-        //         * On veut toujours les inscriptions, les tags, les profils...on les charge dès la première requête
-        //         */
-        //                $context['filters'][PreloadAssociationsFilter::PROPERTY] = [
+        $requestedFilters = $context['filters'][BeneficiaireFilter::PROPERTY] ?? [];
+
+        if (
+            !array_key_exists('date', $requestedFilters)
+            && !array_key_exists('avant', $requestedFilters)
+            && !array_key_exists('apres', $requestedFilters)
+        ) {
+            $requestedFilters['date'] = $this->now();
+        }
+        $context['filters'][BeneficiaireFilter::PROPERTY] = $requestedFilters;
+
+        /**
+         * On veut toujours les inscriptions, les tags, les profils...on les charge dès la première requête
+         */
         $associations = [
             'beneficiaires' => [
                 'sourceEntity' => 'root',

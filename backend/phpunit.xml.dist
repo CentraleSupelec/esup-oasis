@@ -31,7 +31,6 @@
     <testsuites>
         <testsuite name="Project Test Suite">
             <directory>tests</directory>
-            <exclude>tests/Behat</exclude>
         </testsuite>
     </testsuites>
 
@@ -43,6 +42,7 @@
             <directory>src/Command</directory>
             <directory>src/Scheduler</directory>
             <directory>src/Service/SiScol</directory>
+            <directory>src/Service/Photo</directory>
             <file>src/Service/AntivirusService.php</file>
             <file>src/Service/LdapService.php</file>
             <file>src/Service/LdapUtilisateurInconnuException.php</file>

@@ -26,6 +26,8 @@ use Symfony\Component\TypeInfo\TypeIdentifier;
 
 class IntervenantOrderedByBeneficiaireFilter extends AbstractFilter
 {
+    public const string PROPERTY = 'beneficiaire';
+
     public function __construct(
         private readonly IriConverterInterface $iriConverter,
         ManagerRegistry $managerRegistry,
@@ -45,7 +47,7 @@ class IntervenantOrderedByBeneficiaireFilter extends AbstractFilter
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        if ($property !== 'beneficiaire') {
+        if ($property !== self::PROPERTY) {
             return;
         }
 

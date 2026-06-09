@@ -17,7 +17,8 @@ Si vous disposez d'un token valide obtenu par ailleurs, vous pouvez également u
 à la main le header Authorization : `Bearer montoken`.
 
 Un bon point de départ pour avoir une vision de ce qu'il est possible de faire via l'api est de consulter les tests
-fonctionnels behat (https://docs.behat.org/) disponibles [ici](../../backend/features).
+d'intégration PHPUnit disponibles dans le dossier [tests](../../backend/tests).
+
 
 ## Endpoints particuliers
 
