@@ -34,6 +34,7 @@ use App\State\Utilisateur\UtilisateurManager;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 
 class DemandeManager
@@ -50,6 +51,7 @@ class DemandeManager
         private readonly ReponseRepository $reponseRepository,
         private readonly MessageBusInterface $messageBus,
         private readonly Security $security,
+        private readonly UrlGeneratorInterface $urlGenerator,
     ) {}
 
     #[Required]
@@ -250,7 +252,11 @@ class DemandeManager
 
         $tdb->nbDemandesParEtat = [];
         foreach ($demandesParEtat as $nbDemandes) {
-            $etatUri = \App\ApiResource\EtatDemande::COLLECTION_URI . '/' . $nbDemandes['id'];
+            $etatUri = $this->urlGenerator->generate(
+                '_api_/etats_demandes/{id}_get',
+                ['id' => $nbDemandes['id']],
+                UrlGeneratorInterface::ABSOLUTE_PATH,
+            );
             $tdb->nbDemandesParEtat[$etatUri] = $nbDemandes['nb'];
         }
 
