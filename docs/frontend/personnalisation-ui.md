@@ -128,13 +128,32 @@ modifications sont à apporter dans le fichier `src/controls/Images/RenfortInter
 
 ## Mentions légales
 
-Les mentions légales sont à personnaliser dans le fichier `src/routes/commun/MentionsLegales.tsx` :
+Les mentions légales sont affichées sur la page `/credits` de l'application. Leur contenu est défini dans le fichier
+`personnalisation/mentions-legales.html`, copié dans l'image Docker à la compilation via le `Dockerfile` de
+l'installation. Cette approche permet de personnaliser un texte long et mis en forme sans modifier le code source.
 
-```
-{/* ------ INSEREZ ICI VOTRE TEXTE DE MENTIONS LEGALES ------ */}
+Un fichier d'exemple est fourni dans `installation/frontend/personnalisation/mentions-legales.html`.
+
+### Format du fichier
+
+Le fichier doit être un **fragment HTML** (sans `<html>`, `<head>` ni `<body>`). Le contenu est assaini
+automatiquement (DOMPurify) avant affichage.
+
+```html
+<h2>Éditeur</h2>
+<p>Université de Machin — 1 rue de l'Exemple — 75000 Paris<br>
+Tél. : 01 23 45 67 89</p>
+
+<h2>Directeur de la publication</h2>
+<p>Prénom Nom, fonction</p>
+
+<h2>Hébergement</h2>
+<p>...</p>
 ```
 
-Elles sont affichées dans le pied de page de la page d'authentification.
+Après modification de ce fichier, **rebuilder l'image Docker** pour que les changements soient pris en compte.
+
+Si le fichier est absent, un message informatif est affiché à la place du contenu.
 
 ## Politique d'utilisation des données
 

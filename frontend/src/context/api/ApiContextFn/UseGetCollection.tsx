@@ -9,17 +9,15 @@
 
 // --- GET COLLECTION ---
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import { PaginateResult, RequestMethod } from "../ApiProvider";
+import { PaginateResult, RequestMethod } from "@context/api/ApiProvider";
 import { useNavigate } from "react-router-dom";
+import { ApiPathMethodParameters, ApiPathMethodQuery, ApiPathMethodResponse, Path } from "@api";
+import { buildUrl } from "@context/api/ApiContextFn/UrlBuilder";
 import {
-   ApiPathMethodParameters,
-   ApiPathMethodQuery,
-   ApiPathMethodResponse,
-   Path,
-} from "../../../api/SchemaHelpers";
-import { buildUrl } from "./UrlBuilder";
-import { handleApiResponse, IErreurNotification } from "./HandleApiResponse";
-import { useAuth } from "../../../auth/AuthProvider";
+  handleApiResponse,
+  IErreurNotification,
+} from "@context/api/ApiContextFn/HandleApiResponse";
+import { useAuth } from "@/auth/AuthProvider";
 
 /**
  * Hook for fetching a collection of data from an API using GET method.
@@ -53,11 +51,11 @@ import { useAuth } from "../../../auth/AuthProvider";
  * const { data, isLoading, error, refetch } = useApi().useGetCollectionHook(hookOptions);
  */
 export type UseGetCollectionHook = <P extends Path>(options: {
-   path: P;
-   query?: ApiPathMethodQuery<P, "get">;
-   enabled?: boolean;
-   parameters?: ApiPathMethodParameters<P, "get">;
-   onError?: (error: IErreurNotification) => void;
+  path: P;
+  query?: ApiPathMethodQuery<P, "get">;
+  enabled?: boolean;
+  parameters?: ApiPathMethodParameters<P, "get">;
+  onError?: (error: IErreurNotification) => void;
 }) => UseQueryResult<PaginateResult<ApiPathMethodResponse<P, "get">>>;
 
 /**
@@ -92,67 +90,67 @@ export type UseGetCollectionHook = <P extends Path>(options: {
  *   });
  */
 export type UseGetCollectionPaginatedHook = <P extends Path>(options: {
-   path: P;
-   page: number;
-   itemsPerPage: number;
-   query?: ApiPathMethodQuery<P, "get">;
-   enabled?: boolean;
-   parameters?: ApiPathMethodParameters<P, "get">;
-   onError?: (error: IErreurNotification) => void;
+  path: P;
+  page: number;
+  itemsPerPage: number;
+  query?: ApiPathMethodQuery<P, "get">;
+  enabled?: boolean;
+  parameters?: ApiPathMethodParameters<P, "get">;
+  onError?: (error: IErreurNotification) => void;
 }) => UseQueryResult<PaginateResult<ApiPathMethodResponse<P, "get">>>;
 
 export function useGetCollection<P extends Path>(
-   baseUrl: string,
-   fetchOptions: RequestInit,
-   options: {
-      path: P;
-      query?: ApiPathMethodQuery<P, "get">;
-      enabled?: boolean;
-      parameters?: ApiPathMethodParameters<P, "get">;
-      onError?: (error: IErreurNotification) => void;
-   },
+  baseUrl: string,
+  fetchOptions: RequestInit,
+  options: {
+    path: P;
+    query?: ApiPathMethodQuery<P, "get">;
+    enabled?: boolean;
+    parameters?: ApiPathMethodParameters<P, "get">;
+    onError?: (error: IErreurNotification) => void;
+  },
 ): UseQueryResult<PaginateResult<ApiPathMethodResponse<P, "get">>> {
-   const url = buildUrl<P, "get">(
-      baseUrl,
-      options.path,
+  const url = buildUrl<P, "get">(
+    baseUrl,
+    options.path,
+    undefined,
+    options.parameters,
+    options.query,
+  );
+  const navigate = useNavigate();
+  const auth = useAuth();
+
+  //React query fn
+  const queryFn = async () => {
+    const data = await handleApiResponse(
+      RequestMethod.GET,
+      await fetch(url, {
+        method: "GET",
+        ...fetchOptions,
+      }),
+      navigate,
+      auth,
+      options,
       undefined,
-      options.parameters,
-      options.query,
-   );
-   const navigate = useNavigate();
-   const auth = useAuth();
+      options.onError,
+    );
 
-   //React query fn
-   const queryFn = async () => {
-      const data = await handleApiResponse(
-         RequestMethod.GET,
-         await fetch(url, {
-            method: "GET",
-            ...fetchOptions,
-         }),
-         navigate,
-         auth,
-         options,
-         undefined,
-         options.onError,
-      );
+    return {
+      items: data["hydra:member"],
+      totalItems: data["hydra:totalItems"],
+      currentPage:
+        options && typeof options === "object" && "page" in options ? options.page : undefined,
+      itemsPerPage:
+        options && typeof options === "object" && "itemsPerPage" in options
+          ? options.itemsPerPage
+          : undefined,
+    } as PaginateResult<ApiPathMethodResponse<P, "get">>;
+  };
 
-      return {
-         items: data["hydra:member"],
-         totalItems: data["hydra:totalItems"],
-         currentPage:
-            options && typeof options === "object" && "page" in options ? options.page : undefined,
-         itemsPerPage:
-            options && typeof options === "object" && "itemsPerPage" in options
-               ? options.itemsPerPage
-               : undefined,
-      } as PaginateResult<ApiPathMethodResponse<P, "get">>;
-   };
-
-   return useQuery({
-      queryKey: [options.path, url, auth.user?.uid],
-      queryFn,
-      enabled: Boolean(url.toString()) && (options.enabled !== undefined ? options.enabled : true),
-      // onSuccess: options.onSuccess,
-   });
+  return useQuery({
+    queryKey: [options.path, url, auth.user?.uid],
+    queryFn,
+    enabled: Boolean(url.toString()) && (options.enabled !== undefined ? options.enabled : true),
+    // onSuccess: options.onSuccess,
+  });
 }

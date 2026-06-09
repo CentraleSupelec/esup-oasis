@@ -9,12 +9,11 @@
 
 import React, { ReactElement, useState } from "react";
 import { Select } from "antd";
-import { useApi } from "../../../context/api/ApiProvider";
-import { NB_MAX_ITEMS_PER_PAGE } from "../../../constants";
+import { useApi } from "@context/api/ApiProvider";
 
 interface IGestionnaireFilter {
-   value?: string[];
-   setValue: (value: string[]) => void;
+  value?: string[];
+  setValue: (value: string[]) => void;
 }
 
 /**
@@ -27,38 +26,37 @@ interface IGestionnaireFilter {
  * @return {ReactElement} The Select component with the filtered options.
  */
 export default function GestionnaireFilter({ value, setValue }: IGestionnaireFilter): ReactElement {
-   const [filter, setFilter] = useState("");
-   // Récupération de la liste des gestionnaires (dont renforts)
-   const { data: gestionnaires, isFetching } = useApi().useGetCollectionPaginated({
-      path: "/roles/{roleId}/utilisateurs",
-      parameters: { roleId: "/roles/ROLE_PLANIFICATEUR" },
-      page: 1,
-      itemsPerPage: NB_MAX_ITEMS_PER_PAGE,
-      query: { "order[nom]": "asc" },
-   });
+  const [filter, setFilter] = useState("");
+  // Récupération de la liste des gestionnaires (dont renforts)
+  const { data: gestionnaires, isFetching } = useApi().useGetFullCollection({
+    path: "/roles/{roleId}/utilisateurs",
+    parameters: { roleId: "/roles/ROLE_PLANIFICATEUR" },
+    query: { "order[nom]": "asc" },
+  });
 
-   return (
-      <Select
-         className="w-100"
-         options={gestionnaires?.items
-            .filter(
-               (c) =>
-                  c.nom?.toLocaleLowerCase().includes(filter) ||
-                  c.prenom?.toLocaleLowerCase().includes(filter),
-            )
-            .map((g) => ({
-               label: `${g.nom?.toLocaleUpperCase()} ${g.prenom}`,
-               value: g["@id"],
-            }))}
-         loading={isFetching}
-         placeholder="Tous les gestionnaires"
-         value={value}
-         onChange={(data) => setValue(data)}
-         allowClear
-         showSearch
-         filterOption={false}
-         mode="tags"
-         onSearch={(v) => setFilter(v.toLocaleLowerCase())}
-      />
-   );
+  return (
+    <Select
+      className="w-100"
+      options={gestionnaires?.items
+        .filter(
+          (c) =>
+            c.nom?.toLocaleLowerCase().includes(filter) ||
+            c.prenom?.toLocaleLowerCase().includes(filter),
+        )
+        .map((g) => ({
+          label: `${g.nom?.toLocaleUpperCase()} ${g.prenom}`,
+          value: g["@id"],
+        }))}
+      loading={isFetching}
+      placeholder="Tous les gestionnaires"
+      value={value}
+      onChange={(data) => setValue(data)}
+      allowClear
+      showSearch={{
+        filterOption: false,
+        onSearch: (v) => setFilter(v.toLocaleLowerCase()),
+      }}
+      mode="tags"
+    />
+  );
 }

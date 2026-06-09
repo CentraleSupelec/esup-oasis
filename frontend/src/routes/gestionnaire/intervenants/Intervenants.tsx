@@ -10,44 +10,41 @@
 import React, { ReactElement, useState } from "react";
 import { FloatButton, Layout, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import UtilisateurCreerDrawer from "../../../controls/Drawers/Utilisateur/UtilisateurCreerDrawer";
-import { useDispatch } from "react-redux";
-import { setDrawerUtilisateur } from "../../../redux/actions/Drawers";
-import { RoleValues } from "../../../lib/Utilisateur";
-import IntervenantTable from "../../../controls/Table/IntervenantTable";
+import UtilisateurCreerDrawer from "@controls/Drawers/Utilisateur/UtilisateurCreerDrawer";
+import { useDrawers } from "@context/drawers/DrawersContext";
+import { RoleValues } from "@lib";
+import IntervenantTable from "@controls/Table/IntervenantTable";
 
 /**
  * Renders the page for ROLE_GESTIONNAIRE to manage intervenants.
  * @returns {ReactElement} The rendered Intervenants component.
  * */
 export default function Intervenants(): ReactElement {
-   const dispatch = useDispatch();
-   const [ajouterIntervenant, setAjouterIntervenant] = useState(false);
+  const { setDrawerUtilisateur } = useDrawers();
+  const [ajouterIntervenant, setAjouterIntervenant] = useState(false);
 
-   return (
-      <Layout.Content className="intervenants" style={{ padding: "0 50px" }}>
-         <UtilisateurCreerDrawer
-            type={RoleValues.ROLE_INTERVENANT}
-            open={ajouterIntervenant}
-            setOpen={setAjouterIntervenant}
-            onChange={(user) => {
-               setAjouterIntervenant(false);
-               dispatch(
-                  setDrawerUtilisateur({
-                     utilisateur: user["@id"],
-                     role: RoleValues.ROLE_INTERVENANT,
-                  }),
-               );
-            }}
-         />
-         <Typography.Title level={1}>Intervenants</Typography.Title>
-         <IntervenantTable />
-         <FloatButton
-            onClick={() => setAjouterIntervenant(true)}
-            icon={<PlusOutlined />}
-            type="primary"
-            tooltip="Ajouter un intervenant"
-         />
-      </Layout.Content>
-   );
+  return (
+    <Layout.Content className="intervenants" style={{ padding: "0 50px" }}>
+      <UtilisateurCreerDrawer
+        type={RoleValues.ROLE_INTERVENANT}
+        open={ajouterIntervenant}
+        setOpen={setAjouterIntervenant}
+        onChange={(user) => {
+          setAjouterIntervenant(false);
+          setDrawerUtilisateur({
+            utilisateur: user["@id"],
+            role: RoleValues.ROLE_INTERVENANT,
+          });
+        }}
+      />
+      <Typography.Title level={1}>Intervenants</Typography.Title>
+      <IntervenantTable />
+      <FloatButton
+        onClick={() => setAjouterIntervenant(true)}
+        icon={<PlusOutlined />}
+        type="primary"
+        tooltip="Ajouter un intervenant"
+      />
+    </Layout.Content>
+  );
 }

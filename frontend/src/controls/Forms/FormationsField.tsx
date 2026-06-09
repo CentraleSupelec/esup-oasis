@@ -9,40 +9,37 @@
 
 import React from "react";
 import { Select } from "antd";
-import { IFormation } from "../../api/ApiTypeHelpers";
-import { useApi } from "../../context/api/ApiProvider";
-import { PREFETCH_FORMATIONS } from "../../api/ApiPrefetchHelpers";
+import { IFormation, PREFETCH_FORMATIONS } from "@api";
+import { useApi } from "@context/api/ApiProvider";
 
 export default function FormationsField(props: {
-   value?: string | string[] | undefined;
-   onChange?: (value: IFormation | IFormation[] | undefined) => void;
-   mode?: "multiple" | "tags";
-   placeholder?: string;
+  value?: string | string[] | undefined;
+  onChange?: (value: IFormation | IFormation[] | undefined) => void;
+  mode?: "multiple" | "tags";
+  placeholder?: string;
 }) {
-   const { data: formations, isFetching } = useApi().useGetCollection(PREFETCH_FORMATIONS);
+  const { data: formations, isFetching } = useApi().useGetFullCollection(PREFETCH_FORMATIONS);
 
-   return (
-      <Select
-         className="w-100"
-         placeholder={
-            props.placeholder ||
-            (props.mode ? "Sélectionnez des formations" : "Sélectionnez une formation")
-         }
-         mode={props.mode}
-         options={formations?.items.map((p) => ({
-            label: p.libelle,
-            value: p["@id"] as string,
-         }))}
-         loading={isFetching}
-         onChange={(value: string | string[]) => {
-            if (Array.isArray(value)) {
-               props.onChange?.(
-                  formations?.items.filter((p) => value.includes(p["@id"] as string)),
-               );
-            } else {
-               props.onChange?.(formations?.items.find((p) => p["@id"] === value));
-            }
-         }}
-      />
-   );
+  return (
+    <Select
+      className="w-100"
+      placeholder={
+        props.placeholder ||
+        (props.mode ? "Sélectionnez des formations" : "Sélectionnez une formation")
+      }
+      mode={props.mode}
+      options={formations?.items.map((p) => ({
+        label: p.libelle,
+        value: p["@id"] as string,
+      }))}
+      loading={isFetching}
+      onChange={(value: string | string[]) => {
+        if (Array.isArray(value)) {
+          props.onChange?.(formations?.items.filter((p) => value.includes(p["@id"] as string)));
+        } else {
+          props.onChange?.(formations?.items.find((p) => p["@id"] === value));
+        }
+      }}
+    />
+  );
 }

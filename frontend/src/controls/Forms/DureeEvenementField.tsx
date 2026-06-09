@@ -8,31 +8,35 @@
  */
 
 import React from "react";
-import { Input } from "antd";
+import { Button, Input, Space } from "antd";
 import dayjs from "dayjs";
-import { IEvenement } from "../../api/ApiTypeHelpers";
+import { IEvenement } from "@api";
 
 interface IDureeEvenementFieldProps {
-   evenement: IEvenement;
-   className?: string;
-   width?: number;
+  evenement: IEvenement;
+  className?: string;
+  width?: number;
 }
 
 export default function DureeEvenementField({
-   evenement,
-   className,
-   width,
+  evenement,
+  className,
+  width,
 }: IDureeEvenementFieldProps) {
-   // get nb minutes between evenement.debut and evenement.fin
-   const nbMinutes = dayjs(evenement.fin).diff(dayjs(evenement.debut), "minute");
+  // get nb minutes between evenement.debut and evenement.fin
+  const nbMinutes = dayjs(evenement.fin).diff(dayjs(evenement.debut), "minute");
 
-   return (
+  return (
+    <Space.Compact className="w-100">
       <Input
-         addonAfter={nbMinutes > 1 ? "minutes" : "minute"}
-         className={`text-center text-text semi-bold ${className}`}
-         disabled
-         value={nbMinutes}
-         width={width}
+        className={`text-center text-text semi-bold ${className}`}
+        disabled
+        value={nbMinutes}
+        width={width}
       />
-   );
+      <Button disabled className="bg-light text-dark border-left-0">
+        {nbMinutes > 1 ? "minutes" : "minute"}
+      </Button>
+    </Space.Compact>
+  );
 }

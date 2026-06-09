@@ -7,29 +7,29 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { memo, ReactElement, useEffect, useState } from "react";
+import React, { memo, ReactElement } from "react";
 import { Badge, Button, Popover, Space } from "antd";
 import {
-   getColor,
-   MATERIAL_COLORS_NAMES,
-   MaterialColorAmount,
-   MaterialColorName,
-   MaterialColorsTraductions,
-} from "../../utils/colors";
-import { EventColors } from "../../lib/Evenement";
-import "./ColorPicker.scss";
+  getColor,
+  MATERIAL_COLORS_NAMES,
+  MaterialColorAmount,
+  MaterialColorName,
+  MaterialColorsTraductions,
+} from "@utils/colors";
+import { EventColors } from "@lib";
+import "@controls/ColorPicker/ColorPicker.scss";
 
 interface ICouleur {
-   value: string;
-   label: string;
-   color: string;
+  value: string;
+  label: string;
+  color: string;
 }
 
 interface IColorPicker {
-   value?: MaterialColorName;
-   onChange?: (v: string) => void;
-   className?: string;
-   disabled?: boolean;
+  value?: MaterialColorName;
+  onChange?: (v: string) => void;
+  className?: string;
+  disabled?: boolean;
 }
 
 // --- Dropdown color picker
@@ -44,89 +44,81 @@ interface IColorPicker {
  * @returns {ReactElement} The ColorPicker component
  */
 export default memo(
-   function ColorPicker({ value, onChange, className, disabled }: IColorPicker): ReactElement {
-      const [couleurs, setCouleurs] = useState<ICouleur[]>([]);
-      const [couleurSelectionnee, setCouleurSelectionnee] = useState<ICouleur>();
+  function ColorPicker({ value, onChange, className, disabled }: IColorPicker): ReactElement {
+    const couleurs: ICouleur[] = React.useMemo(() => {
+      return Object.values(MATERIAL_COLORS_NAMES).map((colorName) => {
+        return {
+          value: colorName,
+          label: MaterialColorsTraductions[colorName],
+          color: getColor(colorName, EventColors.Affected),
+        } as ICouleur;
+      });
+    }, []);
 
-      useEffect(() => {
-         setCouleurs(
-            Object.values(MATERIAL_COLORS_NAMES).map((colorName) => {
-               return {
-                  value: colorName,
-                  label: MaterialColorsTraductions[colorName],
-                  color: getColor(colorName, EventColors.Affected),
-               } as ICouleur;
-            }),
-         );
-      }, []);
+    const couleurSelectionnee = React.useMemo(() => {
+      return value ? couleurs.find((c) => c.value === value) : undefined;
+    }, [value, couleurs]);
 
-      useEffect(() => {
-         if (value) {
-            setCouleurSelectionnee(couleurs.find((c) => c.value === value));
-         }
-      }, [value, couleurs]);
-
-      function getColorItem(color: ICouleur) {
-         return (
-            <Button
-               ghost
-               className={`border-0 ${className}`}
-               style={{
-                  color: getColor(color.value as MaterialColorName, "700" as MaterialColorAmount),
-               }}
-               disabled={disabled}
-               icon={<Badge className="big-badge w-100" color={color?.color || "black"} />}
-               onClick={() => {
-                  setCouleurSelectionnee(color);
-                  if (typeof onChange === "function") {
-                     onChange(color.value);
-                  }
-               }}
-            >
-               {color.label}
-            </Button>
-         );
-      }
-
-      function getColorsPanel() {
-         return couleurs.map((c) => getColorItem(c));
-      }
-
+    function getColorItem(color: ICouleur) {
       return (
-         <>
-            <Popover
-               content={getColorsPanel()}
-               title="Couleur de la catégorie d'évènements"
-               trigger="hover"
-               placement="bottom"
-               overlayClassName="w-50"
-            >
-               <Button
-                  className="ml-0 border-2"
-                  style={{
-                     borderColor: couleurSelectionnee ? couleurSelectionnee?.color : "black",
-                  }}
-               >
-                  <Space split>
-                     <Badge
-                        className="big-badge w-100"
-                        color={couleurSelectionnee?.color || "black"}
-                        text={couleurSelectionnee?.label || "Aucune couleur sélectionnée"}
-                        style={{
-                           color: couleurSelectionnee
-                              ? getColor(
-                                   couleurSelectionnee?.value as MaterialColorName,
-                                   "600" as MaterialColorAmount,
-                                )
-                              : "black",
-                        }}
-                     />
-                  </Space>
-               </Button>
-            </Popover>
-         </>
+        <Button
+          ghost
+          className={`border-0 ${className}`}
+          style={{
+            color: getColor(color.value as MaterialColorName, "700" as MaterialColorAmount),
+          }}
+          disabled={disabled}
+          icon={<Badge className="big-badge w-100" color={color?.color || "black"} />}
+          onClick={() => {
+            if (typeof onChange === "function") {
+              onChange(color.value);
+            }
+          }}
+        >
+          {color.label}
+        </Button>
       );
-   },
-   (prevProps, nextProps) =>
-      prevProps.value === nextProps.value && prevProps.disabled === nextProps.disabled,
+    }
+
+    function getColorsPanel() {
+      return couleurs.map((c) => getColorItem(c));
+    }
+
+    return (
+      <>
+        <Popover
+          content={getColorsPanel()}
+          title="Couleur de la catégorie d'évènements"
+          trigger="hover"
+          placement="bottom"
+          classNames={{ root: "w-50" }}
+        >
+          <Button
+            className="ml-0 border-2"
+            style={{
+              borderColor: couleurSelectionnee ? couleurSelectionnee?.color : "black",
+            }}
+          >
+            <Space separator>
+              <Badge
+                className="big-badge w-100"
+                color={couleurSelectionnee?.color || "black"}
+                text={couleurSelectionnee?.label || "Aucune couleur sélectionnée"}
+                style={{
+                  color: couleurSelectionnee
+                    ? getColor(
+                        couleurSelectionnee?.value as MaterialColorName,
+                        "600" as MaterialColorAmount,
+                      )
+                    : "black",
+                }}
+              />
+            </Space>
+          </Button>
+        </Popover>
+      </>
+    );
+  },
+  (prevProps, nextProps) =>
+    prevProps.value === nextProps.value && prevProps.disabled === nextProps.disabled,
 );

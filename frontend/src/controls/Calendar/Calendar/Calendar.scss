@@ -1,86 +1,103 @@
-@import "../../../styles/variables";
-@import "../../../styles/helpers";
-@import 'react-big-calendar/lib/sass/styles';
-@import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
+@use "../../../styles/variables" as variables;
+@use "../../../styles/helpers" as helpers;
 
 .calendar-content {
-  background: white;
+  background: var(--ant-color-bg-container);
 }
 
 .ant-dropdown-menu-item {
   &.active * {
-    color: $primary;
+    color: variables.$primary;
   }
+}
+
+// Neutralise les styles par défaut de FullCalendar sur les événements
+// (les couleurs sont appliquées via eventContent — réactif aux mises à jour)
+.fc-event {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  animation: helpers.$anim-appear;
+}
+
+.fc-event-main {
+  height: 100%;
+  overflow: hidden;
+}
+
+.fc-v-event .fc-event-main {
+  color: inherit;
+}
+
+.fc-event:hover {
+  box-shadow: 0 10px 17px rgb(0 0 0 / 15%);
+  transition: all 0.2s ease-in-out;
 }
 
 .calendar {
   display: block;
 
-  .rbc-time-view {
-    background-color: white;
+  // Fond de la vue time grid
+  .fc-timegrid {
+    background-color: var(--ant-color-bg-container);
   }
 
-  &.density-normal .rbc-timeslot-group {
-    min-height: 50px;
+  // Densité : hauteur des créneaux de 15 min
+  &.density-normal .fc-timegrid-slot {
+    height: 25px;
   }
 
-  &.density-compact .rbc-timeslot-group {
-    min-height: 35px;
+  &.density-compact .fc-timegrid-slot {
+    height: 17px;
   }
 
-  &.density-large .rbc-timeslot-group {
-    min-height: 80px;
+  &.density-large .fc-timegrid-slot {
+    height: 40px;
   }
 
-  .rbc-current-time-indicator {
-    background-color: $error;
-    border: 1px solid $error !important;
-    // box-shadow: 2px 2px 5px 1px lighten($error, 2%);
+  // Indicateur de l'heure courante
+  .fc-timegrid-now-indicator-line {
+    background-color: variables.$error;
+    border: 1px solid variables.$error !important;
   }
 
-  .rbc-time-content > * + * > * {
-    border-color: #e9ebf2;
+  // Bordures entre colonnes de jours
+  .fc-timegrid-col {
+    border-color: var(--ant-color-border-secondary);
   }
 
-  .rbc-label {
-    color: $legende;
-    position: relative;
-    top: -10px;
-    background-color: white;
-    font-size: .8rem;
+  // Étiquettes des heures
+  .fc-timegrid-slot-label-cushion {
+    color: var(--ant-color-text-secondary);
+    background-color: var(--ant-color-bg-container);
+    font-size: 0.8rem;
     font-family: NoirPro, sans-serif;
-    padding-right: 13px;
-    left: 0;
-    width: 100%;
     display: inline-block;
   }
 
-
-  .rbc-header {
-    height: 79px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    button {
+  // En-têtes de jours (semaine / jour)
+  .fc-col-header-cell {
+    a {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 100%;
-      height: 100%;
       font-family: NoirPro, sans-serif;
       font-size: 1.2rem;
+      color: inherit;
+      text-decoration: none;
+      font-weight: 400;
+      margin-top: 10px;
 
       .date {
-        font-size: .9rem;
-        color: $legende;
+        font-size: 0.9rem;
+        color: var(--ant-color-text-secondary);
       }
 
       .jour {
         text-transform: capitalize;
       }
     }
-
 
     .month-header {
       font-family: NoirPro, sans-serif;
@@ -91,30 +108,22 @@
     font-size: 1.2rem;
   }
 
-  .rbc-allday-cell {
-    height: 50px;
-    border-left: 1px solid $light-grey-border;
-    display: none;
-  }
-
-  .rbc-time-header-gutter {
+  // Goutière gauche (au-dessus des étiquettes horaires)
+  .fc-timegrid-axis {
     background-color: transparent;
   }
 
-  .rbc-time-header {
-    background-color: white;
-  }
-
-  .rbc-time-view, .rbc-time-header-content {
-    border: none;
-  }
-
-  .rbc-header, .rbc-time-content {
+  // Suppression des bordures parasites
+  .fc-timegrid-body,
+  .fc-col-header,
+  .fc-col-header-cell,
+  .fc-timegrid-body {
     border: none;
   }
 }
 
-.rbc-month-view .rbc-event {
+// Vue mois : événements
+.fc-daygrid-event {
   border: none !important;
 
   .note-bottom {
@@ -122,52 +131,47 @@
   }
 
   .libelle-evenement {
-    width: calc(100% - 30px);
     overflow: hidden;
     white-space: nowrap;
   }
+
+  &.event-has-note .libelle-evenement {
+    width: calc(100% - 30px);
+  }
 }
 
-.calendar-view-month, .fit-to-screen {
+.calendar-view-month,
+.fit-to-screen {
   height: calc(100vh - 190px);
   overflow-y: auto;
 
-  .rbc-time-header {
+  .fc-col-header {
     top: 0 !important;
   }
 }
 
 .calendar:not(.calendar-view-day) {
-  .rbc-time-header {
+  .fc-col-header {
     position: sticky;
     top: 0;
-    border-bottom: 1px solid $light-grey-border;
+    border-bottom: 1px solid var(--ant-color-border);
     z-index: 20;
     height: 81px;
   }
 }
 
-.rbc-today {
-  background-color: transparent;
+// Jour courant : pas de fond coloré par défaut FullCalendar
+.fc-day-today {
+  background-color: transparent !important;
 
-  .week-header, .week-header .date {
-    color: $primary !important;
+  .week-header,
+  .week-header .date {
+    color: variables.$primary !important;
   }
 }
 
-.today-carret {
-  position: relative;
-  top: -23px;
-  line-height: 0;
-  color: $primary;
-  left: 0;
-  width: 100%;
-  height: 0;
-  display: block;
-  float: left;
-}
-
-.rbc-time-column .rbc-timeslot-group:first-child .rbc-label {
+// Masquer l'étiquette du premier créneau (07:00 en haut)
+.fc-timegrid-slot:first-child .fc-timegrid-slot-label {
   visibility: hidden;
 }
 
@@ -177,7 +181,8 @@
   right: 7px;
 }
 
-.rbc-day-slot .rbc-event-label {
+// Heure dans l'événement
+.fc-event-time {
   font-weight: 300;
 }
 
@@ -186,38 +191,20 @@
   display: flex;
   align-items: center;
   padding: 0 20px;
-  background-color: $light-grey;
-}
-
-.rbc-event:hover {
-  @extend .shadow-2;
-  transition: all .2s ease-in-out;
-}
-
-.rbc-event {
-  animation: $anim-appear
+  background-color: var(--ant-color-bg-layout);
 }
 
 @media screen and (max-width: 768px) {
   .calendar {
-    .rbc-header {
-      height: 80px;
-
+    .fc-col-header-cell {
       .jour {
         display: none;
       }
     }
   }
-
-
 }
 
-body.accessibilite-contraste {
-
-  .calendar .rbc-header button .date, .calendar .rbc-label {
-    color: #666 !important;
-  }
-
+body.accessibilite-contraste:not(.dark-mode) {
   .ant-picker-calendar .ant-picker-cell {
     font-weight: 400 !important;
 
@@ -225,6 +212,10 @@ body.accessibilite-contraste {
       font-weight: 500 !important;
     }
   }
-
 }
 
+.calendar.calendar-view-month {
+  a.fc-event > div {
+    width: 100%;
+  }
+}

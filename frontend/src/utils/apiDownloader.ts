@@ -8,8 +8,8 @@
  */
 
 import { message } from "antd";
-import { AuthContextType } from "../auth/AuthProvider";
-import { env } from "../env";
+import { AuthContextType } from "@/auth/AuthProvider";
+import { env } from "@/env";
 
 /**
  * Télécharger un fichier généré par l'API en utilisant un lien de téléchargement direct.
@@ -24,50 +24,53 @@ import { env } from "../env";
  * @throws {Error} If an error occurs during the download.
  */
 const apiDownloader = async (
-   url: string,
-   auth: AuthContextType,
-   headers: HeadersInit,
-   filename: string = env.REACT_APP_TITRE?.toLocaleUpperCase() || "APP",
-   onSuccess?: () => void,
-   onError?: () => void,
+  url: string,
+  auth: AuthContextType,
+  headers: HeadersInit,
+  filename: string = env.REACT_APP_TITRE?.toLocaleUpperCase() || "APP",
+  onSuccess?: () => void,
+  onError?: () => void,
 ) => {
-   let fetchOptions: RequestInit = {
-      method: "GET",
-      credentials: "include",
-      headers,
-   };
+  let fetchOptions: RequestInit = {
+    method: "GET",
+    credentials: "include",
+    headers,
+  };
 
-   if (auth?.impersonate) {
-      fetchOptions = {
-         ...fetchOptions,
-         headers: {
-            ...fetchOptions.headers,
-            "X-Switch-User": auth.impersonate,
-         },
-      };
-   }
+  if (auth?.impersonate) {
+    fetchOptions = {
+      ...fetchOptions,
+      headers: {
+        ...fetchOptions.headers,
+        "X-Switch-User": auth.impersonate,
+      },
+    };
+  }
 
-   // Change this to use your HTTP client
-   fetch(url, fetchOptions) // FETCH BLOB FROM IT
-      .then((response) => response.blob())
-      .then((blob) => {
-         const privateUrl = window.URL.createObjectURL(blob);
-         const a = document.createElement("a");
-         document.body.appendChild(a);
-         a.style.display = "none";
-         a.href = privateUrl;
-         a.download = filename;
-         a.click();
-         window.URL.revokeObjectURL(privateUrl);
+  fetch(url, fetchOptions)
+    .then((response) => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.blob();
+    })
+    .then((blob) => {
+      const privateUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = privateUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(privateUrl);
 
-         if (onSuccess) {
-            onSuccess();
-         }
-      })
-      .catch(() => {
-         message.error("Erreur lors du téléchargement du fichier");
-         onError?.();
-      });
+      if (onSuccess) {
+        onSuccess();
+      }
+    })
+    .catch(() => {
+      message.error("Erreur lors du téléchargement du fichier");
+      onError?.();
+    });
 };
 
 export default apiDownloader;

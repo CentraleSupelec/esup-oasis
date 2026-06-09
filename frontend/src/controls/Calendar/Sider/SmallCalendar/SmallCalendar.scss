@@ -1,4 +1,4 @@
-@import "../../../../styles/variables";
+@use "../../../../styles/variables" as variables;
 
 .small-calendar {
   background: transparent;
@@ -14,22 +14,22 @@
   }
 
   table.ant-picker-content thead tr th {
-    color: $legende;
+    color: var(--ant-color-text-secondary);
     padding-bottom: 10px;
   }
 
   .ant-picker-cell {
-    color: $legende;
+    color: var(--ant-color-text-quaternary);
     font-weight: 100 !important;
-    font-size: .9rem;
+    font-size: 0.9rem;
 
     .bg-app {
-      color: $text;
+      color: variables.$text;
     }
   }
 
   .ant-picker-cell-in-view {
-    color: $text;
+    color: var(--ant-color-text);
     font-weight: 400 !important;
   }
 
@@ -38,7 +38,7 @@
   }
 
   .today {
-    color: $primary;
+    color: variables.$primary;
     font-weight: 500;
   }
 
@@ -54,19 +54,19 @@
     border-radius: 10px;
   }
 
-  .has-event:after, .has-event-warning:after {
+  .has-event:after,
+  .has-event-warning:after {
     content: "";
     position: absolute;
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: $primary;
+    background: variables.$primary;
     top: 30px;
     left: calc(50% - 3px);
   }
 
   .has-event-warning:after {
-    background: $warning;
+    background: variables.$warning;
   }
 }
-

@@ -10,7 +10,7 @@
 import React, { ReactElement } from "react";
 import { Tag } from "antd";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import { IEvenement } from "../../api/ApiTypeHelpers";
+import { IEvenement } from "@api";
 
 /**
  * Renders the status of sending an event to the RH
@@ -19,17 +19,17 @@ import { IEvenement } from "../../api/ApiTypeHelpers";
  * @param {IEvenement} props.evenement - The event data.
  * @returns {ReactElement} - The rendered component based on the event's state of being sent to RH or not.
  */
-export default function EvenementEtatEnvoiRHItem(props: { evenement: IEvenement }): ReactElement {
-   if (props.evenement.dateEnvoiRH)
-      return (
-         <Tag color="green" icon={<CheckOutlined />}>
-            Envoyé à la RH
-         </Tag>
-      );
-
-   return (
-      <Tag color="warning" icon={<CloseOutlined />}>
-         Non envoyé à la RH
+export function EvenementEtatEnvoiRHItem(props: { evenement: IEvenement }): ReactElement {
+  if (props.evenement.dateEnvoiRH)
+    return (
+      <Tag color="green" icon={<CheckOutlined />}>
+        Envoyé à la RH
       </Tag>
-   );
+    );
+
+  return (
+    <Tag color="warning" icon={<CloseOutlined />}>
+      Non envoyé à la RH
+    </Tag>
+  );
 }

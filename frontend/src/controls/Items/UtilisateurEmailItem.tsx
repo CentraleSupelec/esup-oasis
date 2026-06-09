@@ -7,15 +7,18 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { ReactElement, useEffect, useState } from "react";
-import Spinner from "../Spinner/Spinner";
-import { useApi } from "../../context/api/ApiProvider";
-import { IUtilisateur } from "../../api/ApiTypeHelpers";
+import React, { ReactElement } from "react";
+import Spinner from "@controls/Spinner/Spinner";
+import { useApi } from "@context/api/ApiProvider";
+import { IUtilisateur } from "@api";
+import { MinusOutlined } from "@ant-design/icons";
+import { Typography } from "antd";
 
 interface IItemIntervenant {
-   utilisateur?: IUtilisateur;
-   utilisateurId?: string | null;
-   emailPerso: boolean;
+  utilisateur?: IUtilisateur;
+  utilisateurId?: string | null;
+  emailPerso: boolean;
+  onEdit?: (value: string) => void;
 }
 
 /**
@@ -26,31 +29,36 @@ interface IItemIntervenant {
  * @param {string} [params.utilisateurId] - The ID of the user.
  * @return {string|ReactElement} The email of the user.
  */
-export default function UtilisateurEmailItem({
-   utilisateur,
-   utilisateurId,
-   emailPerso,
+export function UtilisateurEmailItem({
+  utilisateur,
+  utilisateurId,
+  emailPerso,
+  onEdit,
 }: IItemIntervenant): string | ReactElement {
-   const [item, setItem] = useState(utilisateur);
-   const { data } = useApi().useGetItem({
-      path: "/utilisateurs/{uid}",
-      url: utilisateurId as string,
-      enabled: !!utilisateurId,
-   });
+  const { data } = useApi().useGetItem({
+    path: "/utilisateurs/{uid}",
+    url: utilisateurId as string,
+    enabled: !!utilisateurId,
+  });
+  const item = utilisateur ?? data;
 
-   useEffect(() => {
-      if (data) {
-         setItem(data);
-      }
-   }, [data]);
+  if (!utilisateur && !utilisateurId) return <></>;
 
-   if (!utilisateur && !utilisateurId) return <></>;
+  if (!item) return <Spinner />;
 
-   if (!item) return <Spinner />;
+  const email = emailPerso ? item?.emailPerso : item?.email;
 
-   if (emailPerso) {
-      return item?.emailPerso as string;
-   }
+  if (onEdit)
+    return (
+      <Typography.Text
+        editable={{
+          text: email || "",
+          onChange: onEdit,
+        }}
+      >
+        {email || <MinusOutlined />}
+      </Typography.Text>
+    );
 
-   return item?.email as string;
+  return email || <MinusOutlined />;
 }

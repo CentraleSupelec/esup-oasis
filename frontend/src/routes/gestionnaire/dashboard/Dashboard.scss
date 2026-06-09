@@ -1,5 +1,4 @@
-@import '../../../styles/variables';
-@import "../../../styles/helpers";
+@use "../../../styles/variables" as variables;
 
 .ant-statistic-content-value {
   font-weight: 500;
@@ -13,47 +12,50 @@
 }
 
 .ant-card-stats-hoverable:hover {
-  @extend .shadow-1;
-  transition: all .25s;
+  box-shadow: 0 5px 7px rgb(0 0 0 / 5%) !important;
+  transition: all 0.25s;
 }
 
 .statistic-warning {
-  background-color: $warning-light;
+  background-color: variables.$warning-light;
 
   .ant-statistic-content-value span {
-    color: $warning;
+    color: variables.$warning;
   }
 
   svg {
-    fill: $warning;
+    fill: variables.$warning;
   }
 }
 
 .statistic-danger {
-  background-color: $error-light;
+  background-color: variables.$error-light;
 
   .ant-statistic-content-value span {
-    color: $error;
+    color: variables.$error;
   }
 
   svg {
-    fill: $error;
+    fill: variables.$error;
   }
 }
 
 .stats-subrow {
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
-  border: 1px solid $light-grey-border;
-  border-radius: $radius;
+  box-shadow:
+    0 1px 2px 0 rgba(0, 0, 0, 0.03),
+    0 1px 6px -1px rgba(0, 0, 0, 0.02),
+    0 2px 4px 0 rgba(0, 0, 0, 0.02);
+  border: 1px solid variables.$light-grey-border;
+  border-radius: variables.$radius;
   padding: 1rem;
-  background-color: $light-grey;
+  background-color: variables.$light-grey;
   margin-top: 1.25rem;
   margin-left: 0 !important;
   top: calc(100% + 0.6em + 2px);
   position: relative;
 
   .ant-card {
-    border: 1px solid #ebedee;
+    border: 1px solid var(--ant-color-border);
   }
 }
 

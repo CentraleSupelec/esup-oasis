@@ -33,7 +33,6 @@ services:
       dockerfile: installation/frontend/Dockerfile-dev
     environment:
       REACT_APP_ENVIRONMENT: "dev"
-      REACT_APP_VERSION: "localdev"
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: true
       WATCHPACK_POLLING: true

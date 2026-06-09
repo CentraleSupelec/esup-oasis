@@ -8,7 +8,7 @@
  */
 
 export interface IReferentielEditable {
-   "@id"?: string;
-   libelle: string;
-   actif: boolean;
+  "@id"?: string;
+  libelle: string;
+  actif: boolean;
 }

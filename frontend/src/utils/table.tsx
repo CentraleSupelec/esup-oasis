@@ -13,7 +13,7 @@ import { Button, Input, Space } from "antd";
 import { FilterOutlined } from "@ant-design/icons";
 import React, { useRef } from "react";
 
-import { UseStateDispatch } from "./utils";
+import { UseStateDispatch } from "@utils/utils";
 
 /**
  * Add filter props to a Table column.
@@ -25,73 +25,75 @@ import { UseStateDispatch } from "./utils";
  * @returns {ColumnType<IBeneficiaire>} - The filtered props
  */
 export function FilterProps<T>(
-   dataIndex: keyof T,
-   filter: T,
-   setFilter: UseStateDispatch<T>,
+  dataIndex: keyof T,
+  filter: T,
+  setFilter: UseStateDispatch<T>,
 ): Partial<ColumnType<T>> {
-   const ref = useRef<InputRef>(null);
-   return {
-      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
-         <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-            <Input
-               ref={ref}
-               placeholder="Rechercher..."
-               value={selectedKeys[0]}
-               onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-               onPressEnter={() => {
-                  confirm({ closeDropdown: true });
-                  setFilter((prev) => ({ ...prev, [dataIndex]: selectedKeys[0] }));
-               }}
-               style={{ marginBottom: 8, display: "block" }}
-            />
-            <Space>
-               <Button
-                  onClick={() => {
-                     setFilter((prev) => {
-                        setSelectedKeys([""]);
-                        // confirm({ closeDropdown: true });
-                        return { ...prev, [dataIndex]: undefined };
-                     });
-                  }}
-                  size="small"
-                  type="link"
-                  disabled={!selectedKeys[0]}
-               >
-                  Réinitialiser
-               </Button>
-               <Button
-                  type="primary"
-                  onClick={() => {
-                     confirm({ closeDropdown: true });
-                     setFilter((prev) => ({ ...prev, [dataIndex]: selectedKeys[0] }));
-                  }}
-                  icon={<FilterOutlined />}
-                  size="small"
-                  style={{ width: 130 }}
-               >
-                  Filtrer
-               </Button>
-            </Space>
-         </div>
-      ),
+  const ref = useRef<InputRef>(null);
+  return {
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={ref}
+          placeholder="Rechercher..."
+          value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => {
+            confirm({ closeDropdown: true });
+            setFilter((prev) => ({ ...prev, [dataIndex]: selectedKeys[0] }));
+          }}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            onClick={() => {
+              setFilter((prev) => {
+                setSelectedKeys([""]);
+                // confirm({ closeDropdown: true });
+                return { ...prev, [dataIndex]: undefined };
+              });
+            }}
+            size="small"
+            type="link"
+            disabled={!selectedKeys[0]}
+          >
+            Réinitialiser
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              confirm({ closeDropdown: true });
+              setFilter((prev) => ({ ...prev, [dataIndex]: selectedKeys[0] }));
+            }}
+            icon={<FilterOutlined />}
+            size="small"
+            style={{ width: 130 }}
+          >
+            Filtrer
+          </Button>
+        </Space>
+      </div>
+    ),
 
-      onFilterDropdownOpenChange: (visible) => {
-         if (visible) {
-            setTimeout(() => ref.current?.select(), 500);
-         }
+    filterDropdownProps: {
+      onOpenChange: (visible) => {
+        if (visible) {
+          setTimeout(() => ref.current?.select(), 500);
+        }
       },
-   };
+    },
+  };
 }
 
 export function getCountLibelle(count: number | undefined, libelle: string): string {
-   if (count === undefined) {
-      return "";
-   }
-   if (count === 0) {
-      return `Aucun ${libelle}`;
-   }
-   if (count === 1) {
-      return `1 ${libelle}`;
-   }
-   return `${count} ${libelle}s`;
+  if (count === undefined) {
+    return "";
+  }
+  if (count === 0) {
+    return `Aucun ${libelle}`;
+  }
+  if (count === 1) {
+    return `1 ${libelle}`;
+  }
+  return `${count} ${libelle}s`;
 }

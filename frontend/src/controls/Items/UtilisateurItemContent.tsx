@@ -9,20 +9,20 @@
 
 import React, { ReactElement } from "react";
 import { Breakpoint, Button } from "antd";
-import { IUtilisateur } from "../../api/ApiTypeHelpers";
+import { IUtilisateur } from "@api";
 import { PhoneOutlined } from "@ant-design/icons";
-import { useAuth } from "../../auth/AuthProvider";
+import { useAuth } from "@/auth/AuthProvider";
 import Highlighter from "react-highlight-words";
-import { removeAccents } from "../../utils/string";
+import { removeAccents } from "@utils/string";
 
 interface IUtilisateurBeneficiaire {
-   utilisateur?: IUtilisateur;
-   showAvatar?: boolean;
-   responsive?: Breakpoint;
-   showEmail?: boolean;
-   showTelephone?: boolean;
-   inverserNomPrenom?: boolean;
-   highlight?: string;
+  utilisateur?: IUtilisateur;
+  showAvatar?: boolean;
+  responsive?: Breakpoint;
+  showEmail?: boolean;
+  showTelephone?: boolean;
+  inverserNomPrenom?: boolean;
+  highlight?: string;
 }
 
 /**
@@ -34,66 +34,66 @@ interface IUtilisateurBeneficiaire {
  *
  * @returns {ReactElement} The rendered Beneficiaireutilisateur component.
  */
-export default function UtilisateurContent({
-   utilisateur,
-   showEmail = false,
-   showTelephone = false,
-   inverserNomPrenom = false,
-   highlight,
+export function UtilisateurContent({
+  utilisateur,
+  showEmail = false,
+  showTelephone = false,
+  inverserNomPrenom = false,
+  highlight,
 }: IUtilisateurBeneficiaire): ReactElement {
-   const user = useAuth().user;
-   return (
-      <div style={{ lineHeight: 1.2 }}>
-         <span>
-            {inverserNomPrenom ? (
-               <>
-                  <span className="semi-bold">
-                     <Highlighter
-                        textToHighlight={utilisateur?.nom?.toLocaleUpperCase() ?? ""}
-                        searchWords={[removeAccents(highlight ?? "")]}
-                     />
-                  </span>{" "}
-                  <span className="light">
-                     <Highlighter
-                        searchWords={[removeAccents(highlight ?? "")]}
-                        textToHighlight={utilisateur?.prenom ?? ""}
-                     />
-                  </span>
-               </>
-            ) : (
-               <>
-                  <span className="light">
-                     <Highlighter
-                        searchWords={[removeAccents(highlight ?? "")]}
-                        textToHighlight={utilisateur?.prenom ?? ""}
-                     />
-                  </span>{" "}
-                  <Highlighter
-                     textToHighlight={utilisateur?.nom?.toLocaleUpperCase() ?? ""}
-                     searchWords={[removeAccents(highlight ?? "")]}
-                  />
-               </>
-            )}
-         </span>
-         {showEmail && utilisateur?.email && (
-            <Button
-               size="small"
-               type="text"
-               className="legende fs-08 m-0 p-0 d-block contrast-no-border"
-               onClick={() => {
-                  window.location.href = `mailto:${utilisateur?.email}`;
-               }}
-               aria-label={`Envoyer un email au gestionnaire (${utilisateur?.prenom} ${utilisateur?.nom})`}
-            >
-               {utilisateur?.email}
-            </Button>
-         )}
-         {showTelephone && user?.isPlanificateur && utilisateur?.telPerso && (
-            <div className="legende fs-09 m-0 p-0">
-               <PhoneOutlined className="mr-05" />
-               <span>{utilisateur?.telPerso}</span>
-            </div>
-         )}
-      </div>
-   );
+  const user = useAuth().user;
+  return (
+    <div style={{ lineHeight: 1.2 }}>
+      <span>
+        {inverserNomPrenom ? (
+          <>
+            <span className="semi-bold">
+              <Highlighter
+                textToHighlight={utilisateur?.nom?.toLocaleUpperCase() ?? ""}
+                searchWords={[removeAccents(highlight ?? "")]}
+              />
+            </span>{" "}
+            <span className="light">
+              <Highlighter
+                searchWords={[removeAccents(highlight ?? "")]}
+                textToHighlight={utilisateur?.prenom ?? ""}
+              />
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="light">
+              <Highlighter
+                searchWords={[removeAccents(highlight ?? "")]}
+                textToHighlight={utilisateur?.prenom ?? ""}
+              />
+            </span>{" "}
+            <Highlighter
+              textToHighlight={utilisateur?.nom?.toLocaleUpperCase() ?? ""}
+              searchWords={[removeAccents(highlight ?? "")]}
+            />
+          </>
+        )}
+      </span>
+      {showEmail && utilisateur?.email && (
+        <Button
+          size="small"
+          type="text"
+          className="legende fs-08 m-0 p-0 d-block contrast-no-border"
+          onClick={() => {
+            window.location.href = `mailto:${utilisateur?.email}`;
+          }}
+          aria-label={`Envoyer un email au gestionnaire (${utilisateur?.prenom} ${utilisateur?.nom})`}
+        >
+          {utilisateur?.email}
+        </Button>
+      )}
+      {showTelephone && user?.isPlanificateur && utilisateur?.telPerso && (
+        <div className="legende fs-09 m-0 p-0">
+          <PhoneOutlined className="mr-05" />
+          <span>{utilisateur?.telPerso}</span>
+        </div>
+      )}
+    </div>
+  );
 }

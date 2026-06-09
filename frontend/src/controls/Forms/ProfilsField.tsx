@@ -9,48 +9,44 @@
 
 import React from "react";
 import { Select } from "antd";
-import { IProfil } from "../../api/ApiTypeHelpers";
-import { useApi } from "../../context/api/ApiProvider";
-import { NB_MAX_ITEMS_PER_PAGE } from "../../constants";
+import { IProfil } from "@api";
+import { useApi } from "@context/api/ApiProvider";
 
 export default function ProfilsField(props: {
-   value?: string | string[] | undefined;
-   onChange?: (value: IProfil | IProfil[] | undefined) => void;
-   mode?: "multiple" | "tags";
-   placeholder?: string;
-   seulementActifs?: boolean;
+  value?: string | string[] | undefined;
+  onChange?: (value: IProfil | IProfil[] | undefined) => void;
+  mode?: "multiple" | "tags";
+  placeholder?: string;
+  seulementActifs?: boolean;
 }) {
-   const { data: profils, isFetching } = useApi().useGetCollectionPaginated({
-      path: "/profils",
-      page: 1,
-      itemsPerPage: NB_MAX_ITEMS_PER_PAGE,
-      query: {
-         "order[libelle]": "asc",
-      },
-   });
+  const { data: profils, isFetching } = useApi().useGetFullCollection({
+    path: "/profils",
+    query: {
+      "order[libelle]": "asc",
+    },
+  });
 
-   return (
-      <Select
-         className="w-100"
-         placeholder={
-            props.placeholder ||
-            (props.mode ? "Sélectionnez des profils" : "Sélectionnez un profil")
-         }
-         mode={props.mode}
-         options={profils?.items
-            .filter((p) => !props.seulementActifs || (props.seulementActifs && p.actif))
-            .map((p) => ({
-               label: p.libelle,
-               value: p["@id"] as string,
-            }))}
-         loading={isFetching}
-         onChange={(value: string | string[]) => {
-            if (Array.isArray(value)) {
-               props.onChange?.(profils?.items.filter((p) => value.includes(p["@id"] as string)));
-            } else {
-               props.onChange?.(profils?.items.find((p) => p["@id"] === value));
-            }
-         }}
-      />
-   );
+  return (
+    <Select
+      className="w-100"
+      placeholder={
+        props.placeholder || (props.mode ? "Sélectionnez des profils" : "Sélectionnez un profil")
+      }
+      mode={props.mode}
+      options={profils?.items
+        .filter((p) => !props.seulementActifs || (props.seulementActifs && p.actif))
+        .map((p) => ({
+          label: p.libelle,
+          value: p["@id"] as string,
+        }))}
+      loading={isFetching}
+      onChange={(value: string | string[]) => {
+        if (Array.isArray(value)) {
+          props.onChange?.(profils?.items.filter((p) => value.includes(p["@id"] as string)));
+        } else {
+          props.onChange?.(profils?.items.find((p) => p["@id"] === value));
+        }
+      }}
+    />
+  );
 }

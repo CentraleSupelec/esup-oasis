@@ -20,28 +20,28 @@ import React from "react";
  * @returns An array of menu items for the beneficiary/intervenant planning menu.
  */
 export function menuItemPlanningBeneficiaireIntervenant(
-   setSelectedKey: (key: string) => void,
-   navigate: NavigateFunction,
-   className?: string,
+  setSelectedKey: (key: string) => void,
+  navigate: NavigateFunction,
+  className?: string,
 ): MenuProps["items"] {
-   return [
-      {
-         key: "planning",
-         label: (
-            <Button
-               type="text"
-               className="no-hover p-0"
-               onClick={() => {
-                  setSelectedKey("planning");
-                  navigate("/planning");
-               }}
-            >
-               Planning
-            </Button>
-         ),
-         className: className,
-         children: [],
-         popupClassName: "d-none",
-      },
-   ];
+  return [
+    {
+      key: "planning",
+      label: (
+        <Button
+          type="text"
+          className="no-hover p-0"
+          onClick={() => {
+            setSelectedKey("planning");
+            navigate("/planning");
+          }}
+        >
+          Planning
+        </Button>
+      ),
+      className: className,
+      children: [],
+      popupClassName: "d-none",
+    },
+  ];
 }

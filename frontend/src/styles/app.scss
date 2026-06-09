@@ -7,14 +7,22 @@
 @import "opendyslexic/styles.css";
 @import "lexend/styles.css";
 @include meta.load-css("root_variables");
+@include meta.load-css("dark");
 @include meta.load-css("accessibilite");
 
+:focus-visible {
+  outline: 2px solid variables.$primary;
+  outline-offset: 2px;
+}
 
 body {
   font-family: "NoirPro", serif;
   margin: 0;
   padding: 0;
-  color: #333;
+  color: #{variables.$text};
+
+  --ant-button-default-color: #{variables.$text};
+  --ant-select-color: #{variables.$text};
 }
 
 .full-app {
@@ -24,16 +32,17 @@ body {
 .header-skip-nav {
   position: fixed;
   z-index: 500;
-  top: -100px;
+  top: 0;
   left: 0;
   width: 100%;
-  background: #FFF;
+  background: var(--ant-color-bg-container);
   display: flex;
   justify-content: center;
   align-items: center;
   height: 82px;
-  transition: top .3s;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, .1);
+  transform: translateY(-100%);
+  transition: transform 0.3s ease-out;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
 
   button span {
     z-index: 500;
@@ -41,8 +50,7 @@ body {
   }
 
   &:focus-within {
-    top: 0;
-    transition: top .3s;
+    transform: translateY(0);
   }
 }
 
@@ -96,12 +104,16 @@ body {
   font-style: italic;
 }
 
-.text-primary, .text-primary input, .text-primary .ant-input-group-addon {
+.text-primary,
+.text-primary input,
+.text-primary .ant-input-group-addon,
+.ant-btn-link,
+.ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
   color: variables.$primary !important;
 }
 
 .text-white {
-  color: #FFF !important;
+  color: #fff !important;
 }
 
 .text-primary-light {
@@ -120,12 +132,17 @@ body {
   color: variables.$orange !important;
 }
 
+.text-black {
+  color: variables.$black !important;
+}
 
-.text-text, .text-text input, .text-text .ant-input-group-addon {
-  color: variables.$text !important;
+.text-text,
+.text-text input,
+.text-text .ant-input-group-addon {
+  color: variables.$text;
 
   &:hover {
-    color: variables.$text !important;
+    color: variables.$text;
   }
 }
 
@@ -137,7 +154,8 @@ body {
   color: variables.$success !important;
 }
 
-.text-danger, .text-error {
+.text-danger,
+.text-error {
   color: variables.$error !important;
 }
 
@@ -145,13 +163,14 @@ body {
   background-color: transparent !important;
 }
 
-.bg-white, .bg-white .ant-table-cell {
-  background-color: #FFF !important;
+.bg-white,
+.bg-white .ant-table-cell {
+  background-color: #fff !important;
 }
 
 .bg-white-hover:hover {
-  background-color: #FFF !important;
-  transition: background-color .3s;
+  background-color: #fff !important;
+  transition: background-color 0.3s;
 }
 
 .bg-primary {
@@ -168,7 +187,7 @@ body {
 
 .bg-primary-light-hover:hover {
   background-color: variables.$primary-light !important;
-  transition: background-color .3s;
+  transition: background-color 0.3s;
 }
 
 .bg-app-light {
@@ -179,16 +198,17 @@ body {
   background-color: variables.$app !important;
 }
 
-
 .mb-8px {
   margin-bottom: 8px;
 }
 
-b, .bold {
+b,
+.bold {
   font-weight: variables.$fw-bold !important;
 }
 
-.semi-bold, .semi-bold .ant-select-selection-item {
+.semi-bold,
+.semi-bold .ant-select-selection-item {
   font-weight: variables.$fw-semi-bold !important;
 }
 
@@ -200,7 +220,8 @@ b, .bold {
   font-weight: variables.$fw-light;
 }
 
-h3, h4 {
+h3,
+h4 {
   @extend .semi-bold;
 }
 
@@ -209,7 +230,7 @@ h3, h4 {
 }
 
 .ant-segmented {
-  background-color: variables.$light-grey;
+  background-color: var(--ant-color-fill-tertiary);
   font-weight: 300;
 
   .ant-segmented-item-selected {
@@ -225,12 +246,14 @@ h3, h4 {
   font-weight: 500;
 }
 
-.bg-intervenant, .bg-ROLE_INTERVENANT {
+.bg-intervenant,
+.bg-ROLE_INTERVENANT {
   background-color: var(--color-intervenant);
   color: variables.$text;
 }
 
-.bg-beneficiaire, .bg-ROLE_BENEFICIAIRE {
+.bg-beneficiaire,
+.bg-ROLE_BENEFICIAIRE {
   background-color: var(--color-beneficiaire) !important;
   color: variables.$text;
 }
@@ -240,7 +263,8 @@ h3, h4 {
   color: variables.$text;
 }
 
-.bg-demandeur, .bg-ROLE_DEMANDEUR {
+.bg-demandeur,
+.bg-ROLE_DEMANDEUR {
   background-color: var(--color-demandeur) !important;
   color: variables.$text;
 }
@@ -250,7 +274,8 @@ h3, h4 {
   color: variables.$text;
 }
 
-.bg-renfort, .bg-ROLE_RENFORT {
+.bg-renfort,
+.bg-ROLE_RENFORT {
   background-color: var(--color-renfort);
   color: variables.$text;
 }
@@ -297,7 +322,8 @@ h3, h4 {
   border-color: variables.$beneficiaire !important;
 }
 
-.border-error, .border-error-hover:hover {
+.border-error,
+.border-error-hover:hover {
   border-color: variables.$error !important;
 }
 
@@ -331,26 +357,34 @@ h3, h4 {
   }
 }
 
-.ant-picker.text-center, .ant-input-affix-wrapper.text-center, .ant-input-number.text-center, .ant-input-number-group-wrapper.text-center {
+.ant-picker.text-center,
+.ant-input-affix-wrapper.text-center,
+.ant-input-number.text-center,
+.ant-input-number-group-wrapper.text-center {
   input {
     text-align: center;
   }
 }
 
-.ant-picker.text-right, .ant-input-affix-wrapper.text-right, .ant-input-number.text-right, .ant-input-number-group-wrapper.text-right {
+.ant-picker.text-right,
+.ant-input-affix-wrapper.text-right,
+.ant-input-number.text-right,
+.ant-input-number-group-wrapper.text-right {
   input {
     text-align: right;
     padding-right: 1rem;
   }
 }
 
-.ant-picker.semi-bold, .ant-input-affix-wrapper.semi-bold {
+.ant-picker.semi-bold,
+.ant-input-affix-wrapper.semi-bold {
   input {
     @extend .semi-bold;
   }
 }
 
-.ant-picker.text-primary, .ant-input-affix-wrapper.text-primary {
+.ant-picker.text-primary,
+.ant-input-affix-wrapper.text-primary {
   input {
     @extend .text-primary;
   }
@@ -368,7 +402,7 @@ h3, h4 {
 
 .item-selected {
   transform: scale(1.05);
-  transition: all .25s;
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
   @extend .shadow-1;
 }
 
@@ -394,10 +428,11 @@ h3, h4 {
 
 .ant-card-hoverable:hover {
   background-color: var(--color-app);
-  transition: all .3s;
+  transition: background-color 0.3s ease-out;
 }
 
-.pointer, .pointer .cursor-default {
+.pointer,
+.pointer .cursor-default {
   cursor: pointer !important;
 }
 
@@ -414,7 +449,7 @@ th.pointer {
 }
 
 .ant-space-item-split {
-  color: variables.$light-grey-border-dark
+  color: var(--ant-color-border);
 }
 
 .tab-bordered {
@@ -423,7 +458,7 @@ th.pointer {
   }
 
   .ant-tabs-content-holder {
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--ant-color-border);
     border-top: transparent;
     border-radius: 0 variables.$radius variables.$radius variables.$radius;
     padding: 20px;
@@ -438,7 +473,9 @@ th.pointer {
   text-overflow: ellipsis;
 }
 
-.input-unstyled, .input-unstyled input, .input-unstyled .ant-input-group-addon {
+.input-unstyled,
+.input-unstyled input,
+.input-unstyled .ant-input-group-addon {
   border: none !important;
   background-color: transparent !important;
   color: variables.$text;
@@ -454,10 +491,10 @@ th.pointer {
 
   tbody tr:hover {
     td {
-      transition: background-color .3s;
+      transition: background-color 0.2s ease-out;
       border-top: 1px solid color.adjust(variables.$light-grey-border-dark, $lightness: -10%);
       border-bottom: 1px solid color.adjust(variables.$light-grey-border-dark, $lightness: -10%);
-      background-color: color.adjust(variables.$light-grey, $lightness: -1%);
+      background-color: color.adjust(variables.$light-grey, $lightness: -4%) !important;
     }
   }
 }
@@ -492,7 +529,8 @@ th.pointer {
   height: auto !important;
 }
 
-.ant-table table tbody tr, .appear {
+.ant-table table tbody tr,
+.appear {
   animation: helpers.$anim-appear;
 }
 
@@ -539,7 +577,7 @@ th.pointer {
 }
 
 .ant-pagination-total-text {
-  font-size: .9rem;
+  font-size: 0.9rem;
 }
 
 .cursor-default {
@@ -547,15 +585,15 @@ th.pointer {
 }
 
 .table-row-deleted {
-  background-color: variables.$light-grey;
-  opacity: .75;
+  background-color: var(--ant-color-fill-secondary);
+  opacity: 0.75;
   filter: grayscale(1);
 }
 
 .table-thead-sticky thead {
   position: sticky;
   top: 0;
-  z-index: 9;
+  z-index: 43;
 }
 
 .sr-only {
@@ -573,15 +611,20 @@ th.pointer {
 .campagnes-tabs {
   padding: 20px;
 
+  .ant-tabs-nav-list {
+    width: 100%;
+
+    .ant-tabs-tab:not(:has(~ .ant-tabs-tab)) {
+      margin-left: auto !important;
+    }
+  }
+
   .ant-tabs-nav {
     margin-bottom: 0;
   }
 
   .ant-tabs-content-holder {
-    background-color: #FFF;
-    border-left: 1px solid #f0f0f0;
-    border-right: 1px solid #f0f0f0;
-    border-bottom: 1px solid #f0f0f0;
+    background-color: var(--ant-color-bg-container);
     border-radius: 0 0 variables.$radius variables.$radius;
     padding: 20px;
   }
@@ -613,12 +656,11 @@ th.pointer {
 }
 
 .ant-list-bordered {
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--ant-color-border);
   border-radius: variables.$radius;
 }
 
 .ant-list-radius {
-
   .ant-list-item {
     border: 1px solid variables.$light-grey-border !important;
     padding: 16px;
@@ -629,7 +671,7 @@ th.pointer {
     }
 
     &:hover {
-      transition: all .5s;
+      transition: background-color 0.3s ease-out, box-shadow 0.3s ease-out;
       background-color: variables.$light-grey;
       @extend .shadow-1;
     }
@@ -659,18 +701,18 @@ th.pointer {
 
 @keyframes slide {
   75% {
-    opacity: 0
+    opacity: 0;
+    transform: translateX(-10px);
   }
   100% {
-    left: 0;
-    opacity: 1
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
 .ant-list-animated .ant-list-item {
-  position: relative;
-  left: -1000px;
   opacity: 0;
+  transform: translateX(-10px);
   animation: slide 0.25s forwards;
 }
 
@@ -696,29 +738,30 @@ th.pointer {
   }
   100% {
     box-shadow: 0 10px 17px rgb(0 0 0 / 15%);
-    border-color: #CCC;
+    border-color: #ccc;
   }
 }
 
 .highlightAmenagement {
-  animation: anim-shadow-appear .5s forwards .5s;
+  animation: anim-shadow-appear 0.5s forwards 0.5s;
 }
 
 .btb-1 {
-  border-top: 2px solid variables.$light-grey-border;
-  border-bottom: 2px solid variables.$light-grey-border;
+  border-top: 2px solid var(--ant-color-border);
+  border-bottom: 2px solid var(--ant-color-border);
 }
 
 .avisese-non-en-cours {
-  opacity: .6;
+  opacity: 0.6;
 }
 
 .avisese-non-en-cours:hover {
   opacity: 1;
-  transition: .3s;
+  transition: opacity 0.3s ease-out;
 }
 
-.ant-badge .ant-badge-count-sm, .small-badge {
+.ant-badge .ant-badge-count-sm,
+.small-badge {
   font-size: 12px;
 }
 
@@ -726,57 +769,53 @@ th.pointer {
   color: variables.$text !important;
 }
 
-.ant-tag, .ant-tag .ant-typography {
-  font-size: .9rem;
+.ant-tag,
+.ant-tag .ant-typography {
+  font-size: 0.9rem;
 }
 
 .monospaced {
-  font-family: 'Roboto Mono', monospace !important;
+  font-family: "Roboto Mono", monospace !important;
 }
 
-
 .border-split-left {
-  border-left: 3px solid variables.$light-grey-border-dark;
+  border-left: 3px solid var(--ant-color-border);
 
   &:before {
-    content: '';
+    content: "";
     position: absolute;
     left: -7px;
     top: -3px;
     height: 3px;
     width: 11px;
-    background-color: color.adjust(variables.$light-grey-border-dark, $lightness: 25%);
+    background-color: var(--ant-color-border-secondary);
   }
 
   &:after {
-    content: '';
+    content: "";
     position: absolute;
     left: -7px;
     bottom: -3px;
     height: 3px;
     width: 11px;
-    background-color: color.adjust(variables.$light-grey-border-dark, $lightness: 25%);
+    background-color: var(--ant-color-border-secondary);
   }
 }
 
-.ant-empty .ant-empty-description {
-  color: variables.$text;
-}
+a,
+footer .ant-btn-link {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 
-
-  a, footer .ant-btn-link {
+  &:hover {
     text-decoration: underline;
-    text-underline-offset: .2em;
-
-    &:hover {
-      text-decoration: underline;
-      text-underline-offset: .1em;
-    }
+    text-underline-offset: 0.1em;
   }
+}
 
-  .ant-pagination a {
-    text-decoration: none;
-  }
+.ant-pagination a {
+  text-decoration: none;
+}
 
 .ant-tag-green {
   background: var(--color-light-green) !important;
@@ -787,7 +826,7 @@ th.pointer {
 .ant-tag-purple {
   background: var(--color-light-deepPurple) !important;
   color: var(--color-dark-deepPurple) !important;
-    border-color: var(--color-deepPurple) !important;
+  border-color: var(--color-deepPurple) !important;
 }
 
 .ant-tag-red {
@@ -799,7 +838,7 @@ th.pointer {
 .ant-tag-orange {
   background: var(--color-light-orange) !important;
   color: variables.$text !important;
-    border-color: var(--color-orange) !important;
+  border-color: var(--color-orange) !important;
 }
 
 .ant-tag-volcano {
@@ -815,3 +854,8 @@ th.pointer {
 .ant-table-has-fix-start {
   overflow-y: hidden;
 }
+
+.bg-grey-light, .bg-grey-light td {
+  background-color: variables.$light-grey !important;
+}
+

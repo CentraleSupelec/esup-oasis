@@ -11,9 +11,9 @@ import React, { ReactElement, useState } from "react";
 import { Breadcrumb, Col, FloatButton, Layout, Row, Space, Typography } from "antd";
 import { NavLink } from "react-router-dom";
 import { HomeFilled, PlusOutlined } from "@ant-design/icons";
-import { PeriodesRhEdition } from "../../../../controls/Admin/Referentiel/PeriodeRh/PeriodesRhEdition";
-import { PeriodesRhTable } from "../../../../controls/Table/Admin/PeriodesRhTable";
-import { IPeriode } from "../../../../api/ApiTypeHelpers";
+import { PeriodesRhEdition } from "@controls/Admin/Referentiel/PeriodeRh/PeriodesRhEdition";
+import { PeriodesRhTable } from "@controls/Table/Admin/PeriodesRhTable";
+import { IPeriode } from "@api";
 
 /**
  * Renders the Administration page for managing RH periods.
@@ -21,58 +21,67 @@ import { IPeriode } from "../../../../api/ApiTypeHelpers";
  * @returns {ReactElement} The rendered Administration page.
  */
 export default function PeriodesRh(): ReactElement {
-   const [editedItem, setEditedItem] = useState<IPeriode | undefined>();
+  const [editedItem, setEditedItem] = useState<IPeriode | undefined>();
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false);
 
-   return (
-      <Layout.Content className="administration" style={{ padding: "0 50px" }}>
-         <Typography.Title level={1}>Administration</Typography.Title>
-         <Breadcrumb
-            className="mt-2"
-            items={[
-               {
-                  key: "administration",
-                  title: (
-                     <NavLink to="/administration">
-                        <Space>
-                           <HomeFilled />
-                           Administration
-                        </Space>
-                     </NavLink>
-                  ),
-               },
-               {
-                  key: "planification",
-                  title: (
-                     <NavLink to="/administration#planification">
-                        <Space>Planification</Space>
-                     </NavLink>
-                  ),
-               },
-               {
-                  key: "periodes-rh",
-                  title: "Périodes RH",
-               },
-            ]}
-         />
-         <Typography.Title level={2}>Périodes RH</Typography.Title>
-         <Row gutter={[16, 16]}>
-            <Col span={24}>
-               <PeriodesRhTable onEdit={setEditedItem} />
-            </Col>
-         </Row>
-         <FloatButton
-            icon={<PlusOutlined />}
-            type="primary"
-            tooltip="Ajouter une période"
-            onClick={() => {
-               setEditedItem({
-                  debut: null,
-                  fin: null,
-                  butoir: null,
-               });
+  return (
+    <Layout.Content className="administration" style={{ padding: "0 50px" }}>
+      <Typography.Title level={1}>Administration</Typography.Title>
+      <Breadcrumb
+        className="mt-2"
+        items={[
+          {
+            key: "administration",
+            title: (
+              <NavLink to="/administration">
+                <Space>
+                  <HomeFilled />
+                  Administration
+                </Space>
+              </NavLink>
+            ),
+          },
+          {
+            key: "planification",
+            title: (
+              <NavLink to="/administration#planification">
+                <Space>Planification</Space>
+              </NavLink>
+            ),
+          },
+          {
+            key: "periodes-rh",
+            title: "Périodes RH",
+          },
+        ]}
+      />
+      <Typography.Title level={2}>Périodes RH</Typography.Title>
+      <Row gutter={[16, 16]}>
+        <Col span={24}>
+          <PeriodesRhTable
+            onEdit={(p: IPeriode) => {
+              setEditedItem(p);
+              setOpenDrawer(true);
             }}
-         />
-         {editedItem && <PeriodesRhEdition periode={editedItem} setPeriode={setEditedItem} />}
-      </Layout.Content>
-   );
+          />
+        </Col>
+      </Row>
+      <FloatButton
+        icon={<PlusOutlined />}
+        type="primary"
+        tooltip="Ajouter une période"
+        onClick={() => {
+          setEditedItem(undefined);
+          setOpenDrawer(true);
+        }}
+      />
+      {openDrawer && (
+        <PeriodesRhEdition
+          periode={editedItem}
+          setPeriode={setEditedItem}
+          onClose={() => setOpenDrawer(false)}
+        />
+      )}
+    </Layout.Content>
+  );
 }

@@ -7,46 +7,43 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import { ITypeDemande } from "../../api/ApiTypeHelpers";
+import { ITypeDemande } from "@api";
 import { Avatar } from "antd";
 import { LockFilled, UnlockOutlined } from "@ant-design/icons";
-import React, { useEffect, useState } from "react";
-import { useApi } from "../../context/api/ApiProvider";
+import React from "react";
+import { useApi } from "@context/api/ApiProvider";
 
 export default function TypeDemandeAvatar(props: {
-   typeDemande?: ITypeDemande;
-   typeDemandeId?: string;
+  typeDemande?: ITypeDemande;
+  typeDemandeId?: string;
 }) {
-   const [item, setItem] = useState(props.typeDemande);
-   const { data: typeDemandeData } = useApi().useGetItem({
-      path: "/types_demandes/{id}",
-      url: props.typeDemandeId as string,
-      enabled: !!props.typeDemandeId,
-   });
+  const { data: typeDemandeData } = useApi().useGetItem({
+    path: "/types_demandes/{id}",
+    url: props.typeDemandeId as string,
+    enabled: !!props.typeDemandeId,
+  });
+  const item = props.typeDemande ?? typeDemandeData;
 
-   useEffect(() => {
-      if (typeDemandeData && props.typeDemandeId) {
-         setItem(typeDemandeData);
-      }
-   }, [typeDemandeData, props.typeDemandeId]);
+  if (!item) return null;
 
-   if (!item) return null;
+  if (item.campagneEnCours)
+    return (
+      <Avatar
+        icon={<UnlockOutlined aria-hidden={true} />}
+        style={{
+          backgroundColor: "var(--color-success-light)",
+          color: "var(--color-text)",
+        }}
+      />
+    );
 
-   if (item.campagneEnCours)
-      return (
-         <Avatar
-            icon={<UnlockOutlined aria-hidden={true} />}
-            style={{ backgroundColor: "var(--color-success-light)", color: "var(--color-text)" }}
-         />
-      );
+  if (item.campagneSuivante) {
+    return <Avatar icon={<LockFilled aria-hidden={true} />} />;
+  }
 
-   if (item.campagneSuivante) {
-      return <Avatar icon={<LockFilled aria-hidden={true} />} />;
-   }
+  if (item.campagnePrecedente) {
+    return <Avatar icon={<LockFilled />} aria-hidden={true} />;
+  }
 
-   if (item.campagnePrecedente) {
-      return <Avatar icon={<LockFilled />} aria-hidden={true} />;
-   }
-
-   return null;
+  return null;
 }

@@ -20,26 +20,26 @@ import React from "react";
  * @return {Array} The menu items.
  */
 export const menuItemServicesFaitsIntervenant = (
-   setSelectedKey: (key: string) => void,
-   navigate: NavigateFunction,
-   className?: string,
+  setSelectedKey: (key: string) => void,
+  navigate: NavigateFunction,
+  className?: string,
 ): MenuProps["items"] => [
-   {
-      key: "services-faits",
-      label: (
-         <Button
-            type="text"
-            className="no-hover p-0"
-            onClick={() => {
-               setSelectedKey("services-faits");
-               navigate("/services-faits");
-            }}
-         >
-            Services faits
-         </Button>
-      ),
-      className,
-      children: [],
-      popupClassName: "d-none",
-   },
+  {
+    key: "services-faits",
+    label: (
+      <Button
+        type="text"
+        className="no-hover p-0"
+        onClick={() => {
+          setSelectedKey("services-faits");
+          navigate("/services-faits");
+        }}
+      >
+        Services faits
+      </Button>
+    ),
+    className,
+    children: [],
+    popupClassName: "d-none",
+  },
 ];

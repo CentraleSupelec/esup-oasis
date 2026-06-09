@@ -7,15 +7,15 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement } from "react";
 import { Flex, Layout, Segmented, Typography } from "antd";
-import AmenagementTableLayout from "../../../controls/Table/AmenagementTableLayout";
-import { useAuth } from "../../../auth/AuthProvider";
+import AmenagementTableLayout from "@controls/Table/AmenagementTableLayout";
+import { useAuth } from "@/auth/AuthProvider";
 import { useSearchParams } from "react-router-dom";
 
 export enum ModeAffichageAmenagement {
-   ParAmenagement = "amenagement",
-   ParBeneficiaire = "beneficiaire",
+  ParAmenagement = "amenagement",
+  ParBeneficiaire = "beneficiaire",
 }
 
 /**
@@ -24,38 +24,49 @@ export enum ModeAffichageAmenagement {
  * @returns {ReactElement} The rendered Beneficiaires component.
  */
 export default function Amenagements(): ReactElement {
-   const user = useAuth().user;
-   const [searchParams] = useSearchParams();
-   const [modeAffichage, setModeAffichage] = useState<ModeAffichageAmenagement>(
-      user?.isGestionnaire || user?.isReferentComposante
-         ? ModeAffichageAmenagement.ParBeneficiaire
-         : ModeAffichageAmenagement.ParAmenagement,
-   );
+  const user = useAuth().user;
+  const [searchParams, setSearchParams] = useSearchParams();
 
-   useEffect(() => {
-      if (searchParams.get("mode")) {
-         setModeAffichage(searchParams.get("mode") as ModeAffichageAmenagement);
-      }
-   }, [searchParams]);
+  const modeAffichage = React.useMemo(() => {
+    const modeParam = searchParams.get("mode") as ModeAffichageAmenagement;
+    if (modeParam) return modeParam;
 
-   return (
-      <Layout.Content className="amenagements" style={{ padding: "0 50px" }}>
-         <Flex justify="space-between" align="center">
-            <Typography.Title level={1}>Aménagements</Typography.Title>
-            {user?.isGestionnaire && (
-               <Segmented
-                  className="float-right"
-                  options={[
-                     { label: "Par bénéficiaire", value: ModeAffichageAmenagement.ParBeneficiaire },
-                     { label: "Par aménagement", value: ModeAffichageAmenagement.ParAmenagement },
-                  ]}
-                  value={modeAffichage}
-                  onChange={(value) => setModeAffichage(value as ModeAffichageAmenagement)}
-               />
-            )}
-         </Flex>
+    return user?.isGestionnaire || user?.isReferentComposante
+      ? ModeAffichageAmenagement.ParBeneficiaire
+      : ModeAffichageAmenagement.ParAmenagement;
+  }, [searchParams, user]);
 
-         <AmenagementTableLayout modeAffichage={modeAffichage} />
-      </Layout.Content>
-   );
+  function setModeAffichage(value: ModeAffichageAmenagement) {
+    setSearchParams((prev) => {
+      prev.set("mode", value);
+      return prev;
+    });
+  }
+
+  return (
+    <Layout.Content className="amenagements" style={{ padding: "0 50px" }}>
+      <Flex justify="space-between" align="center">
+        <Typography.Title level={1}>Aménagements</Typography.Title>
+        {user?.isGestionnaire && (
+          <Segmented
+            className="float-right"
+            options={[
+              {
+                label: "Par bénéficiaire",
+                value: ModeAffichageAmenagement.ParBeneficiaire,
+              },
+              {
+                label: "Par aménagement",
+                value: ModeAffichageAmenagement.ParAmenagement,
+              },
+            ]}
+            value={modeAffichage}
+            onChange={(value) => setModeAffichage(value as ModeAffichageAmenagement)}
+          />
+        )}
+      </Flex>
+
+      <AmenagementTableLayout modeAffichage={modeAffichage} />
+    </Layout.Content>
+  );
 }

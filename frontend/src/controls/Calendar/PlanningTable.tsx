@@ -8,18 +8,19 @@
  */
 
 import React, { useEffect } from "react";
-import PlanningWithSider from "./PlanningWithSider";
-import { PlanningLayout } from "../../redux/context/IAffichageFiltres";
-import { useDispatch } from "react-redux";
-import { setAffichage } from "../../redux/actions/AffichageFiltre";
+import PlanningWithSider from "@controls/Calendar/PlanningWithSider";
+import {
+  PlanningLayout,
+  useAffichageFiltres,
+} from "@context/affichageFiltres/AffichageFiltresContext";
 
 export default function PlanningTable() {
-   const dispatch = useDispatch();
+  const { setAffichage } = useAffichageFiltres();
 
-   useEffect(() => {
-      dispatch(setAffichage({ layout: PlanningLayout.table }));
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, []);
+  useEffect(() => {
+    setAffichage({ layout: PlanningLayout.table });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-   return <PlanningWithSider />;
+  return <PlanningWithSider />;
 }

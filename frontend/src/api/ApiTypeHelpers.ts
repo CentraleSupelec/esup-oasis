@@ -20,26 +20,26 @@
  openapi-typescript ./src/api/OpenApi.yml -o ./src/api/schema.d.ts
  */
 
-import { ApiPathMethodResponse, Components } from "./SchemaHelpers";
-import { components, operations } from "./schema";
+import { ApiPathMethodResponse, Components } from "@api/SchemaHelpers";
+import { components, operations } from "@api/schema";
 
 /**
  * Endpoints de l'API faisant référence à des référentiels simples du type clé/valeur.
  * Ils sont gérés de manière identique dans l'application.
  */
 export type APIPathsReferentiel =
-   | "/campus"
-   | "/competences"
-   | "/profils"
-   | "/services"
-   | "/types_equipements"
-   | "/types_engagements"
-   | "/typologies"
-   | "/disciplines_sportives"
-   | "/categories_amenagements"
-   | "/types_suivi_amenagements"
-   | "/disciplines_artistiques"
-   | "/etablissements_enseignement_artistique";
+  | "/campus"
+  | "/competences"
+  | "/profils"
+  | "/services"
+  | "/types_equipements"
+  | "/types_engagements"
+  | "/typologies"
+  | "/disciplines_sportives"
+  | "/categories_amenagements"
+  | "/types_suivi_amenagements"
+  | "/disciplines_artistiques"
+  | "/etablissements_enseignement_artistique";
 
 /**
  * Types/interfaces des réponses des endpoints de l'API
@@ -54,13 +54,13 @@ export type IParametreValeur = ApiPathMethodResponse<"/parametres/{cle}/valeurs/
 export type IStatistiquesEvenements = ApiPathMethodResponse<"/statistiques">;
 export type IServicesFaits = ApiPathMethodResponse<"/periodes/{id}/services_faits", "get">;
 export type IServicesFaitsLigne =
-   Components["schemas"]["LigneServiceFait.jsonld-services_faits.out"];
+  Components["schemas"]["LigneServiceFait.jsonld-services_faits.out"];
 export type IActiviteIntervenant =
-   Components["schemas"]["ActiviteIntervenant.jsonld-ActiviteIntervenant.out"];
+  Components["schemas"]["ActiviteIntervenant.jsonld-ActiviteIntervenant.out"];
 export type IActiviteBeneficiaire =
-   Components["schemas"]["ActiviteBeneficiaire.jsonld-ActiviteBeneficiaire.out"];
+  Components["schemas"]["ActiviteBeneficiaire.jsonld-ActiviteBeneficiaire.out"];
 
-export type IEvenement = ApiPathMethodResponse<"/evenements/{id}", "get">;
+export type IEvenement = Components["schemas"]["Evenement.jsonld-evenement.out"];
 export type IPartialEvenement = Partial<IEvenement>;
 export type IInscription = Components["schemas"]["Inscription.jsonld-utilisateur.out"];
 
@@ -82,24 +82,24 @@ export type IModificationEtatDemande = components["schemas"]["ModificationEtatDe
 export type IEtatDemande = components["schemas"]["EtatDemande.jsonld"];
 export type ICommission = components["schemas"]["Commission.jsonld-commission.out"];
 export type ICommissionMembre =
-   components["schemas"]["MembreCommission.jsonld-membre_commission.out"];
+  components["schemas"]["MembreCommission.jsonld-membre_commission.out"];
 export type ITypeAmenagement = components["schemas"]["TypeAmenagement.jsonld-type_amenagement.out"];
 export type ICategorieAmenagement = components["schemas"]["CategorieAmenagement.jsonld"];
 export type IAmenagement = components["schemas"]["Amenagement.jsonld-amenagement.out"];
 export type ITypeSuiviAmenagement =
-   components["schemas"]["TypeSuiviAmenagement.jsonld-type_suivi_amenagement.out"];
+  components["schemas"]["TypeSuiviAmenagement.jsonld-type_suivi_amenagement.out"];
 export type IClubSportif = components["schemas"]["ClubSportif.jsonld-club_sportif.out"];
 export type ISportifHautNiveau =
-   components["schemas"]["SportifHautNiveau.jsonld-sportif_haut_niveau.out"];
+  components["schemas"]["SportifHautNiveau.jsonld-sportif_haut_niveau.out"];
 export type ICharte = components["schemas"]["Charte.jsonld"];
 export type ICharteUtilisateur = components["schemas"]["CharteUtilisateur.jsonld"];
 export type ICategorieTag = components["schemas"]["CategorieTag.jsonld-categorie_tag.out"];
 export type ITag = components["schemas"]["Tag.jsonld-tag.out"];
 
 export type IAmenagementQuery =
-   operations["api_amenagements_get_collection"]["parameters"]["query"];
+  operations["api_amenagements_get_collection"]["parameters"]["query"];
 export type IAmenagementBeneficiaireQuery =
-   operations["api_amenagementsutilisateurs_get_collection"]["parameters"]["query"];
+  operations["api_amenagementsutilisateurs_get_collection"]["parameters"]["query"];
 export type IComposanteQuery = operations["api_composantes_get_collection"]["parameters"]["query"];
 
 export type ITelechargement = components["schemas"]["Telechargement.jsonld-telechargement.out"];
@@ -107,14 +107,14 @@ export type ITelechargement = components["schemas"]["Telechargement.jsonld-telec
 export type IAvisEse = components["schemas"]["AvisEse.jsonld-avis_ese.out"];
 export type IEntretien = components["schemas"]["Entretien.jsonld-entretien.out"];
 export type IAmenagementsBenefificiaire =
-   components["schemas"]["Utilisateur.jsonld-amenagements_utilisateurs.out"];
+  components["schemas"]["Utilisateur.jsonld-amenagements_utilisateurs.out"];
 export type IDiscipline =
-   components["schemas"]["DisciplineSportive.jsonld-discipline_sportive.out"];
+  components["schemas"]["DisciplineSportive.jsonld-discipline_sportive.out"];
 
 export type IDecisionEtablissement =
-   components["schemas"]["DecisionAmenagementExamens.jsonld-utilisateur.out"];
+  components["schemas"]["DecisionAmenagementExamens.jsonld-utilisateur.out"];
 
 export type IDocumentBeneficiaire =
-   components["schemas"]["PieceJointeBeneficiaire.jsonld-piece_beneficiaire.out"];
+  components["schemas"]["PieceJointeBeneficiaire.jsonld-piece_beneficiaire.out"];
 
 export type ISuiviAcitivite = components["schemas"]["BilanActivite.jsonld-bilan-activite.out"];

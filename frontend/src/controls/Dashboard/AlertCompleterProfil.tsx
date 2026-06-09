@@ -8,40 +8,39 @@
  */
 
 import React, { ReactElement } from "react";
-import { useAuth } from "../../auth/AuthProvider";
+import { useAuth } from "@/auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { Alert, Button, Space, Typography } from "antd";
 
 export default function AlertCompleterProfil(): ReactElement {
-   const user = useAuth().user;
-   const navigate = useNavigate();
-   const profilComplete = (user?.campus?.length || 0) > 0 && (user?.competences?.length || 0) > 0;
+  const user = useAuth().user;
+  const navigate = useNavigate();
+  const profilComplete = (user?.campus?.length || 0) > 0 && (user?.competences?.length || 0) > 0;
 
-   if (user?.isAdmin || !user?.isIntervenant) return <></>;
+  if (user?.isAdmin || !user?.isIntervenant) return <></>;
 
-   if (!profilComplete)
-      return (
-         <Alert
-            type="info"
-            showIcon
-            title="Profil incomplet"
-            description={
-               <div>
-                  <Space orientation="vertical">
-                     <Typography.Text>
-                        <b>Votre profil est incomplet</b>. Veuillez compléter votre/vos campus et
-                        vos compétences afin que les évènements qui vous seront attribués vous
-                        correspondent.
-                        <br />
-                        Vous pouvez également personnaliser vos préférences de notifications depuis
-                        votre profil.
-                     </Typography.Text>
-                     <Button onClick={() => navigate("/profil")}>Compléter mon profil</Button>
-                  </Space>
-               </div>
-            }
-         />
-      );
+  if (!profilComplete)
+    return (
+      <Alert
+        type="info"
+        showIcon
+        title="Profil incomplet"
+        description={
+          <div>
+            <Space orientation="vertical">
+              <Typography.Text>
+                <b>Votre profil est incomplet</b>. Veuillez compléter votre/vos campus et vos
+                compétences afin que les évènements qui vous seront attribués vous correspondent.
+                <br />
+                Vous pouvez également personnaliser vos préférences de notifications depuis votre
+                profil.
+              </Typography.Text>
+              <Button onClick={() => navigate("/profil")}>Compléter mon profil</Button>
+            </Space>
+          </div>
+        }
+      />
+    );
 
-   return <></>;
+  return <></>;
 }

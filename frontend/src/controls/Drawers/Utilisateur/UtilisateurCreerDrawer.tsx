@@ -10,16 +10,16 @@
 import React, { ReactElement, useState } from "react";
 import { Avatar, Button, Drawer, Empty, Form, Input, List, Space } from "antd";
 import { SaveOutlined, SearchOutlined, UserAddOutlined, UserOutlined } from "@ant-design/icons";
-import { useApi } from "../../../context/api/ApiProvider";
-import ListSelectable from "../../Forms/ListSelectable/ListSelectable";
-import { getRoleLabel, RoleValues } from "../../../lib/Utilisateur";
-import { IUtilisateur } from "../../../api/ApiTypeHelpers";
+import { useApi } from "@context/api/ApiProvider";
+import ListSelectable from "@controls/Forms/ListSelectable/ListSelectable";
+import { getRoleLabel, RoleValues } from "@lib";
+import { IUtilisateur } from "@api";
 
 interface IUtilisateurCreerDrawer {
-   type: RoleValues;
-   open: boolean;
-   setOpen: (open: boolean) => void;
-   onChange: (data: IUtilisateur) => void;
+  type: RoleValues;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  onChange: (data: IUtilisateur) => void;
 }
 
 /**
@@ -34,138 +34,138 @@ interface IUtilisateurCreerDrawer {
  * @return {ReactElement} The JSX element representing the user create drawer.
  */
 export default function UtilisateurCreerDrawer({
-   type,
-   open,
-   setOpen,
-   onChange,
+  type,
+  open,
+  setOpen,
+  onChange,
 }: IUtilisateurCreerDrawer): ReactElement {
-   const [recherche, setRecherche] = useState("");
-   const [selectedUtilisateur, setSelectedUtilisateur] = useState<IUtilisateur>();
-   const { data: utilisateursProposes, isFetching } = useApi().useGetCollectionPaginated({
-      path: "/utilisateurs",
-      page: 1,
-      itemsPerPage: 50,
-      enabled: recherche.length > 2,
-      query: {
-         term: recherche,
-      },
-   });
-   const handleClose = () => {
-      setRecherche("");
-      setOpen(false);
-   };
+  const [recherche, setRecherche] = useState("");
+  const [selectedUtilisateur, setSelectedUtilisateur] = useState<IUtilisateur>();
+  const { data: utilisateursProposes, isFetching } = useApi().useGetCollectionPaginated({
+    path: "/utilisateurs",
+    page: 1,
+    itemsPerPage: 50,
+    enabled: recherche.length > 2,
+    query: {
+      term: recherche,
+    },
+  });
+  const handleClose = () => {
+    setRecherche("");
+    setOpen(false);
+  };
 
-   const handleAjouter = () => {
-      setRecherche("");
-      setSelectedUtilisateur(undefined);
-      if (selectedUtilisateur) onChange(selectedUtilisateur);
-   };
+  const handleAjouter = () => {
+    setRecherche("");
+    setSelectedUtilisateur(undefined);
+    if (selectedUtilisateur) onChange(selectedUtilisateur);
+  };
 
-   return (
-      <Drawer
-         destroyOnHidden
-         title={getRoleLabel(type).toLocaleUpperCase()}
-         placement="right"
-         onClose={handleClose}
-         open={open}
-         className="oasis-drawer"
-      >
-         <Space orientation="vertical" className="text-center w-100 mb-3 mt-1">
-            <Avatar
-               size={100}
-               icon={<UserAddOutlined />}
-               className={`${
-                  type === RoleValues.ROLE_INTERVENANT ? "bg-intervenant" : "bg-beneficiaire"
-               } shadow-1`}
-            />
-         </Space>
+  return (
+    <Drawer
+      destroyOnHidden
+      title={getRoleLabel(type).toLocaleUpperCase()}
+      placement="right"
+      onClose={handleClose}
+      open={open}
+      className="oasis-drawer"
+    >
+      <Space orientation="vertical" className="text-center w-100 mb-3 mt-1">
+        <Avatar
+          size={100}
+          icon={<UserAddOutlined />}
+          className={`${
+            type === RoleValues.ROLE_INTERVENANT ? "bg-intervenant" : "bg-beneficiaire"
+          } shadow-1`}
+        />
+      </Space>
 
-         {!utilisateursProposes && (
-            <Form
-               layout="vertical"
-               onFinish={(values) => {
-                  setRecherche(values.term);
-               }}
+      {!utilisateursProposes && (
+        <Form
+          layout="vertical"
+          onFinish={(values) => {
+            setRecherche(values.term);
+          }}
+        >
+          <Form.Item
+            name="term"
+            required
+            rules={[
+              { required: true, message: "Le champ de recherche est obligatoire" },
+              {
+                min: 3,
+                message: "Le champ de recherche doit contenir au moins 3 caractères",
+              },
+            ]}
+          >
+            <Input.Search placeholder="Rechercher par nom, prénom" />
+          </Form.Item>
+
+          <Form.Item className="mt-2 text-center">
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              htmlType="submit"
+              size="large"
+              loading={isFetching}
             >
-               <Form.Item
-                  name="term"
-                  required
-                  rules={[
-                     { required: true, message: "Le champ de recherche est obligatoire" },
-                     {
-                        min: 3,
-                        message: "Le champ de recherche doit contenir au moins 3 caractères",
-                     },
-                  ]}
-               >
-                  <Input.Search placeholder="Rechercher par nom, prénom" />
-               </Form.Item>
+              Rechercher
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
 
-               <Form.Item className="mt-2 text-center">
-                  <Button
-                     type="primary"
-                     icon={<SearchOutlined />}
-                     htmlType="submit"
-                     size="large"
-                     loading={isFetching}
-                  >
-                     Rechercher
-                  </Button>
-               </Form.Item>
-            </Form>
-         )}
+      {utilisateursProposes && utilisateursProposes.items.length > 0 && (
+        <div className="mt-3">
+          <h3>Utilisateurs proposés</h3>
+          <ListSelectable
+            items={utilisateursProposes.items}
+            selectedItemId={selectedUtilisateur?.["@id"]}
+            classNameSelected="bg-intervenant-light"
+            onSelect={(item) => {
+              setSelectedUtilisateur(item);
+            }}
+            renderItem={(item) => (
+              <List.Item.Meta
+                className="meta"
+                avatar={<Avatar icon={<UserOutlined />} />}
+                title={`${item.prenom} ${item.nom?.toLocaleUpperCase()}`}
+                description={item.email || "Pas d'email"}
+              />
+            )}
+          />
 
-         {utilisateursProposes && utilisateursProposes.items.length > 0 && (
-            <div className="mt-3">
-               <h3>Utilisateurs proposés</h3>
-               <ListSelectable
-                  items={utilisateursProposes.items}
-                  selectedItemId={selectedUtilisateur?.["@id"]}
-                  classNameSelected="bg-intervenant-light"
-                  onSelect={(item) => {
-                     setSelectedUtilisateur(item);
-                  }}
-                  renderItem={(item) => (
-                     <List.Item.Meta
-                        className="meta"
-                        avatar={<Avatar icon={<UserOutlined />} />}
-                        title={`${item.prenom} ${item.nom?.toLocaleUpperCase()}`}
-                        description={item.email || "Pas d'email"}
-                     />
-                  )}
-               />
+          <Space className="text-center mt-3">
+            <Button
+              size="large"
+              onClick={() => {
+                setRecherche("");
+                setSelectedUtilisateur(undefined);
+              }}
+            >
+              Annuler
+            </Button>
+            <Button
+              type="primary"
+              icon={<SaveOutlined />}
+              size="large"
+              onClick={handleAjouter}
+              disabled={!selectedUtilisateur}
+            >
+              Sélectionner
+            </Button>
+          </Space>
+        </div>
+      )}
 
-               <Space className="text-center mt-3">
-                  <Button
-                     size="large"
-                     onClick={() => {
-                        setRecherche("");
-                        setSelectedUtilisateur(undefined);
-                     }}
-                  >
-                     Annuler
-                  </Button>
-                  <Button
-                     type="primary"
-                     icon={<SaveOutlined />}
-                     size="large"
-                     onClick={handleAjouter}
-                     disabled={!selectedUtilisateur}
-                  >
-                     Sélectionner
-                  </Button>
-               </Space>
-            </div>
-         )}
-
-         {utilisateursProposes && utilisateursProposes.items.length === 0 && (
-            <div className="text-center">
-               <Empty />
-               <Button className="mt-2" onClick={() => setRecherche("")}>
-                  Nouvelle recherche
-               </Button>
-            </div>
-         )}
-      </Drawer>
-   );
+      {utilisateursProposes && utilisateursProposes.items.length === 0 && (
+        <div className="text-center">
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <Button className="mt-2" onClick={() => setRecherche("")}>
+            Nouvelle recherche
+          </Button>
+        </div>
+      )}
+    </Drawer>
+  );
 }

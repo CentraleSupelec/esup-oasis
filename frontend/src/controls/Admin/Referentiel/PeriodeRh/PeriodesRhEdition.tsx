@@ -7,18 +7,19 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import { useApi } from "../../../../context/api/ApiProvider";
-import { createDateAsUTC } from "../../../../utils/dates";
+import { useApi } from "@context/api/ApiProvider";
+import { createDateAsUTC } from "@utils/dates";
 import dayjs, { Dayjs } from "dayjs";
 import { Alert, Button, Card, DatePicker, Drawer, Space, Switch, Typography } from "antd";
 import { SendOutlined, WarningFilled } from "@ant-design/icons";
 import React, { ReactElement } from "react";
 
-import { IPeriode } from "../../../../api/ApiTypeHelpers";
+import { IPeriode, QK_PERIODES } from "@api";
 
 interface PeriodesRhEditionProps {
-   periode: IPeriode;
-   setPeriode: (item: IPeriode | undefined) => void;
+  periode: IPeriode | undefined;
+  setPeriode: (item: IPeriode | undefined) => void;
+  onClose: () => void;
 }
 
 const { RangePicker } = DatePicker;
@@ -26,135 +27,134 @@ const { RangePicker } = DatePicker;
 /**
  * Editing component for a PeriodeRhItem.
  *
- * @param {IPeriode} periode - The periode object to be edited or added.
- * @param {Function} setPeriode - The function to set the periode state.
- * @return {ReactElement} - The JSX element representing the PeriodesRhEdition component.
  */
-export function PeriodesRhEdition({ periode, setPeriode }: PeriodesRhEditionProps): ReactElement {
-   const mutationPost = useApi().usePost({
-      path: "/periodes",
-      invalidationQueryKeys: ["/periodes"],
-      onSuccess: () => {
-         setPeriode(undefined);
-      },
-   });
-   const mutationPatch = useApi().usePatch({
-      path: `/periodes/{id}`,
-      invalidationQueryKeys: ["/periodes"],
-      onSuccess: () => {
-         setPeriode(undefined);
-      },
-   });
+export function PeriodesRhEdition({
+  periode,
+  setPeriode,
+  onClose,
+}: PeriodesRhEditionProps): ReactElement {
+  function handleClose() {
+    setPeriode(undefined);
+    onClose();
+  }
 
-   function createOrUpdate() {
-      if (!periode) return;
+  const mutationPost = useApi().usePost({
+    path: "/periodes",
+    invalidationQueryKeys: [QK_PERIODES],
+    onSuccess: handleClose,
+  });
+  const mutationPatch = useApi().usePatch({
+    path: `/periodes/{id}`,
+    invalidationQueryKeys: [QK_PERIODES],
+    onSuccess: handleClose,
+  });
 
-      const data = {
-         ...periode,
-         debut: createDateAsUTC(dayjs(periode.debut).startOf("day").toDate()).toISOString(),
-         fin: createDateAsUTC(dayjs(periode.fin).endOf("day").toDate()).toISOString(),
-         butoir: createDateAsUTC(dayjs(periode.butoir).endOf("day").toDate()).toISOString(),
-      };
+  function createOrUpdate() {
+    if (!periode) return;
 
-      if (periode["@id"] === undefined) {
-         // Création
-         mutationPost?.mutate({
-            data,
-         });
-      } else {
-         // Modification
-         mutationPatch?.mutate({
-            "@id": periode["@id"],
-            data,
-         });
-      }
-   }
+    const data = {
+      ...periode,
+      debut: createDateAsUTC(dayjs(periode.debut).startOf("day").toDate()).toISOString(),
+      fin: createDateAsUTC(dayjs(periode.fin).endOf("day").toDate()).toISOString(),
+      butoir: createDateAsUTC(dayjs(periode.butoir).endOf("day").toDate()).toISOString(),
+    };
 
-   function setSelectedDayRange(value: { from: Dayjs | null; to: Dayjs | null }) {
-      if (!periode) return;
-      if (!value.from || !value.to) return;
-      setPeriode({
-         ...periode,
-         debut: value.from ? createDateAsUTC(value.from.toDate()).toISOString() : null,
-         fin: value.to ? createDateAsUTC(value.to.toDate()).toISOString() : null,
+    if (periode["@id"] === undefined) {
+      // Création
+      mutationPost?.mutate({
+        data,
       });
-   }
+    } else {
+      // Modification
+      mutationPatch?.mutate({
+        "@id": periode["@id"],
+        data,
+      });
+    }
+  }
 
-   return (
-      <Drawer
-         open
-         title={
-            periode["@id"]
-               ? "Éditer un élément du référentiel"
-               : "Ajouter un élément au référentiel"
-         }
-         onClose={() => setPeriode(undefined)}
-         size="large"
-         className="bg-light-grey"
+  function setSelectedDayRange(value: { from: Dayjs | null; to: Dayjs | null }) {
+    if (!value.from || !value.to) return;
+    setPeriode({
+      ...(periode as IPeriode),
+      debut: createDateAsUTC(value.from.toDate()).toISOString(),
+      fin: createDateAsUTC(value.to.toDate()).toISOString(),
+    });
+  }
+
+  return (
+    <Drawer
+      open
+      title={
+        periode?.["@id"] ? "Éditer un élément du référentiel" : "Ajouter un élément au référentiel"
+      }
+      onClose={handleClose}
+      size="large"
+      className="bg-light-grey"
+    >
+      <Card
+        title="Période RH"
+        actions={[
+          <Button
+            disabled={!periode?.debut || !periode?.fin || !periode?.butoir}
+            onClick={createOrUpdate}
+          >
+            Enregistrer
+          </Button>,
+        ]}
       >
-         <Card
-            title="Période RH"
-            actions={[
-               <Button
-                  type="primary"
-                  disabled={!periode.debut || !periode.fin || !periode.butoir}
-                  onClick={createOrUpdate}
-               >
-                  Enregistrer
-               </Button>,
-            ]}
-         >
-            <Typography.Text strong>Période</Typography.Text>
-            <br />
-            <RangePicker
-               format="DD/MM/YYYY"
-               defaultValue={[
-                  periode.debut ? dayjs(new Date(periode.debut)) : null,
-                  periode.fin ? dayjs(new Date(periode.fin)) : null,
-               ]}
-               onCalendarChange={(dates) => setSelectedDayRange({ from: dates[0], to: dates[1] })}
-            />
-            <div className="mt-4">
-               <Typography.Text strong>Date butoir</Typography.Text>
-               <br />
-               <DatePicker
-                  className="w-100"
-                  format="DD/MM/YYYY"
-                  value={periode.butoir ? dayjs(periode.butoir) : null}
-                  onChange={(date) => {
-                     setPeriode({
-                        ...periode,
-                        butoir: date ? createDateAsUTC(date?.toDate()).toISOString() : null,
-                     });
-                  }}
-                  changeOnBlur
-               />
-            </div>
-            <div className="mt-4">
-               <Typography.Text strong>Envoyé à la RH ?</Typography.Text>
+        <Typography.Text strong>Période</Typography.Text>
+        <br />
+        <RangePicker
+          format="DD/MM/YYYY"
+          defaultValue={[
+            periode?.debut ? dayjs(new Date(periode.debut)) : null,
+            periode?.fin ? dayjs(new Date(periode.fin)) : null,
+          ]}
+          onCalendarChange={(dates) => setSelectedDayRange({ from: dates[0], to: dates[1] })}
+        />
+        <div className="mt-4">
+          <Typography.Text strong>Date butoir</Typography.Text>
+          <br />
+          <DatePicker
+            className="w-100"
+            format="DD/MM/YYYY"
+            value={periode?.butoir ? dayjs(periode.butoir) : null}
+            onChange={(date) => {
+              if (date) {
+                setPeriode({
+                  ...(periode as IPeriode),
+                  butoir: createDateAsUTC(date?.toDate()).toISOString(),
+                });
+              }
+            }}
+          />
+        </div>
+        <div className="mt-4">
+          <Typography.Text strong>Envoyé à la RH ?</Typography.Text>
 
-               <Space orientation="vertical" className="mt-2">
-                  <Alert
-                     type="warning"
-                     icon={<WarningFilled />}
-                     showIcon
-                     title="Envoi des évènements à la RH"
-                     description="Les évènements contenus dans la période ne seront plus modifiables."
-                  />
-                  <Switch
-                     disabled={periode["@id"] === undefined}
-                     checked={periode.envoyee}
-                     checkedChildren={<SendOutlined style={{ marginTop: 5 }} />}
-                     onChange={(value) => {
-                        setPeriode({
-                           ...periode,
-                           envoyee: value,
-                        });
-                     }}
-                  />
-               </Space>
-            </div>
-         </Card>
-      </Drawer>
-   );
+          <Space orientation="vertical" className="mt-2">
+            <Alert
+              type="warning"
+              icon={<WarningFilled />}
+              showIcon
+              title="Envoi des évènements à la RH"
+              description="Les évènements contenus dans la période ne seront plus modifiables."
+            />
+            <Switch
+              disabled={periode?.["@id"] === undefined}
+              checked={periode?.envoyee}
+              checkedChildren={<SendOutlined style={{ marginTop: 5 }} />}
+              onChange={(value) => {
+                setPeriode({
+                  ...(periode as IPeriode),
+                  envoyee: value,
+                });
+              }}
+            />
+          </Space>
+        </div>
+      </Card>
+    </Drawer>
+  );
 }

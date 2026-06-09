@@ -7,131 +7,101 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import { ICampus, ICompetence, IIntervenant } from "../../api/ApiTypeHelpers";
-import { useEffect, useState } from "react";
-import { useApi } from "../../context/api/ApiProvider";
-import { NB_MAX_ITEMS_PER_PAGE } from "../../constants";
-import { TableExportButton } from "../Buttons/TableExportButton";
-import { FiltreIntervenant } from "./IntervenantTable";
-import { PREFETCH_CAMPUS, PREFETCH_COMPETENCES } from "../../api/ApiPrefetchHelpers";
+import { ICampus, ICompetence, IIntervenant, PREFETCH_CAMPUS, PREFETCH_COMPETENCES } from "@api";
+import { useState } from "react";
+import { useApi } from "@context/api/ApiProvider";
+import { FiltreIntervenant } from "@controls/Table/IntervenantTable";
+import CsvExportButton from "@controls/Table/Export/CsvExportButton";
 
-const headers: {
-   label: string;
-   key: string;
-}[] = [
-   { label: "Nom", key: "nom" },
-   { label: "Prénom", key: "prenom" },
-   { label: "Email", key: "email" },
-   { label: "Numéro étudiant", key: "numeroEtudiant" },
-   { label: "Compétences", key: "competences" },
-   { label: "Campus", key: "campus" },
+const headers: { label: string; key: string }[] = [
+  { label: "Nom", key: "nom" },
+  { label: "Prénom", key: "prenom" },
+  { label: "Email", key: "email" },
+  { label: "Numéro étudiant", key: "numeroEtudiant" },
+  { label: "Compétences", key: "competences" },
+  { label: "Campus", key: "campus" },
 ];
 
 function getIntervenantsData(
-   intervenants: IIntervenant[],
-   competences: ICompetence[] | undefined,
-   campus: ICampus[] | undefined,
+  intervenants: IIntervenant[],
+  competences: ICompetence[] | undefined,
+  campus: ICampus[] | undefined,
 ) {
-   return intervenants.map((intervenant) => {
-      return {
-         key: intervenant["@id"],
-         "@id": intervenant["@id"],
-         nom: intervenant.nom?.toLocaleUpperCase(),
-         prenom: intervenant.prenom,
-         email: intervenant.email,
-         numeroEtudiant: intervenant.numeroEtudiant,
-         competences: intervenant.competences
-            ?.map((competence) => {
-               if (!competence) return null;
-               return competences?.find((c) => c["@id"] === competence);
-            })
-            .map((competence) => {
-               return competence?.libelle?.replaceAll("\"", "\"\"");
-            })
-            .join(", "),
-         campus: intervenant.campus
-            ?.map((c) => {
-               if (!c) return null;
-               return campus?.find((ca) => ca["@id"] === c);
-            })
-            ?.map((c) => {
-               return `${c?.libelle?.replaceAll("\"", "\"\"")}`;
-            })
-            .join(", "),
-      };
-   });
+  return intervenants.map((intervenant) => {
+    return {
+      key: intervenant["@id"],
+      "@id": intervenant["@id"],
+      nom: intervenant.nom?.toLocaleUpperCase(),
+      prenom: intervenant.prenom,
+      email: intervenant.email,
+      numeroEtudiant: intervenant.numeroEtudiant,
+      competences: intervenant.competences
+        ?.map((competence) => {
+          if (!competence) return null;
+          return competences?.find((c) => c["@id"] === competence);
+        })
+        .map((competence) => competence?.libelle?.replaceAll('"', '""'))
+        .join(", "),
+      campus: intervenant.campus
+        ?.map((c) => {
+          if (!c) return null;
+          return campus?.find((ca) => ca["@id"] === c);
+        })
+        ?.map((c) => `${c?.libelle?.replaceAll('"', '""')}`)
+        .join(", "),
+    };
+  });
 }
 
 interface TableIntervenantsExportProps {
-   filtreIntervenant: FiltreIntervenant;
+  filtreIntervenant: FiltreIntervenant;
 }
 
 export default function IntervenantTableExport({
-                                                  filtreIntervenant,
-                                               }: TableIntervenantsExportProps) {
-   const [exportSubmit, setExportSubmit] = useState(false);
-   const { data: intervenants, isFetching: isFetchingIntervenants } =
-      useApi().useGetCollectionPaginated({
-         path: "/intervenants",
-         page: 1,
-         itemsPerPage: NB_MAX_ITEMS_PER_PAGE,
-         query: {
-            ...filtreIntervenant,
-            page: 1,
-            itemsPerPage: NB_MAX_ITEMS_PER_PAGE,
-            intervenantArchive:
-               filtreIntervenant.intervenantArchive === "undefined"
-                  ? undefined
-                  : filtreIntervenant.intervenantArchive,
-         },
-         enabled: exportSubmit,
-      });
+  filtreIntervenant,
+}: TableIntervenantsExportProps) {
+  const [{ exportKey, exportSubmit, prevFilter }, setExportState] = useState({
+    exportKey: 0,
+    exportSubmit: false,
+    prevFilter: filtreIntervenant,
+  });
 
-   const [downloaded, setDownloaded] = useState(false);
-   const [loading, setLoading] = useState(false);
-   const { data: competences, isFetching: isFetchingCompetences } = useApi().useGetCollection({
-      ...PREFETCH_COMPETENCES,
-      enabled: exportSubmit,
-   });
-   const { data: campus, isFetching: isFetchingCampus } = useApi().useGetCollection({
-      ...PREFETCH_CAMPUS,
-      enabled: exportSubmit,
-   });
+  if (prevFilter !== filtreIntervenant) {
+    setExportState((prev) => ({
+      exportKey: prev.exportKey + 1,
+      exportSubmit: false,
+      prevFilter: filtreIntervenant,
+    }));
+  }
 
-   useEffect(() => {
-      if (competences?.items && campus?.items && intervenants?.items) {
-         setLoading(false);
-      } else {
-         setLoading(isFetchingCompetences || isFetchingCampus || isFetchingIntervenants);
-      }
-   }, [
-      isFetchingCompetences,
-      isFetchingCampus,
-      competences?.items,
-      campus?.items,
-      exportSubmit,
-      intervenants?.items,
-      isFetchingIntervenants,
-   ]);
+  const { data: competences } = useApi().useGetFullCollection({
+    ...PREFETCH_COMPETENCES,
+    enabled: exportSubmit,
+  });
+  const { data: campus } = useApi().useGetFullCollection({
+    ...PREFETCH_CAMPUS,
+    enabled: exportSubmit,
+  });
 
-   useEffect(() => {
-      setExportSubmit(false);
-      setDownloaded(false);
-   }, [intervenants]);
+  const refDataReady = !!(competences?.items && campus?.items);
 
-   return (
-      <TableExportButton
-         loading={loading}
-         setLoading={setLoading}
-         submitted={exportSubmit}
-         setSubmitted={setExportSubmit}
-         getData={() =>
-            getIntervenantsData(intervenants?.items || [], competences?.items, campus?.items)
-         }
-         downloaded={downloaded}
-         setDownloaded={setDownloaded}
-         headers={headers}
-         filename="intervenants"
-      />
-   );
+  return (
+    <CsvExportButton<"/intervenants">
+      key={exportKey}
+      path="/intervenants"
+      itemsPerPage={200}
+      query={{
+        ...filtreIntervenant,
+        intervenantArchive:
+          filtreIntervenant.intervenantArchive === "undefined"
+            ? undefined
+            : filtreIntervenant.intervenantArchive,
+      }}
+      headers={headers}
+      filename="intervenants"
+      getData={(items) => getIntervenantsData(items, competences?.items, campus?.items)}
+      ready={refDataReady}
+      onStart={() => setExportState((prev) => ({ ...prev, exportSubmit: true }))}
+    />
+  );
 }

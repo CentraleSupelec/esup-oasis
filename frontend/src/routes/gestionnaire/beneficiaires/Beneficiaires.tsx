@@ -10,11 +10,10 @@
 import React, { ReactElement, useState } from "react";
 import { FloatButton, Layout, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
-import { setDrawerUtilisateur } from "../../../redux/actions/Drawers";
-import UtilisateurCreerDrawer from "../../../controls/Drawers/Utilisateur/UtilisateurCreerDrawer";
-import { RoleValues } from "../../../lib/Utilisateur";
-import BeneficiaireTable from "../../../controls/Table/BeneficiaireTable";
+import { useDrawers } from "@context/drawers/DrawersContext";
+import UtilisateurCreerDrawer from "@controls/Drawers/Utilisateur/UtilisateurCreerDrawer";
+import { RoleValues } from "@lib";
+import BeneficiaireTable from "@controls/Table/BeneficiaireTable";
 
 /**
  * Renders the page for ROLE_GESTIONNAIRE to manage beneficiaries.
@@ -22,33 +21,31 @@ import BeneficiaireTable from "../../../controls/Table/BeneficiaireTable";
  * @returns {ReactElement} The rendered Beneficiaires component.
  */
 export default function Beneficiaires(): ReactElement {
-   const dispatch = useDispatch();
-   const [ajouterBeneficiaire, setAjouterBeneficiaire] = useState(false);
+  const { setDrawerUtilisateur } = useDrawers();
+  const [ajouterBeneficiaire, setAjouterBeneficiaire] = useState(false);
 
-   return (
-      <Layout.Content className="beneficiaires" style={{ padding: "0 50px" }}>
-         <UtilisateurCreerDrawer
-            type={RoleValues.ROLE_BENEFICIAIRE}
-            open={ajouterBeneficiaire}
-            setOpen={setAjouterBeneficiaire}
-            onChange={(utilisateur) => {
-               setAjouterBeneficiaire(false);
-               dispatch(
-                  setDrawerUtilisateur({
-                     utilisateur: utilisateur["@id"],
-                     role: RoleValues.ROLE_BENEFICIAIRE,
-                  }),
-               );
-            }}
-         />
-         <Typography.Title level={1}>Bénéficiaires</Typography.Title>
-         <BeneficiaireTable />
-         <FloatButton
-            onClick={() => setAjouterBeneficiaire(true)}
-            icon={<PlusOutlined />}
-            type="primary"
-            tooltip="Ajouter un bénéficiaire"
-         />
-      </Layout.Content>
-   );
+  return (
+    <Layout.Content className="beneficiaires" style={{ padding: "0 50px" }}>
+      <UtilisateurCreerDrawer
+        type={RoleValues.ROLE_BENEFICIAIRE}
+        open={ajouterBeneficiaire}
+        setOpen={setAjouterBeneficiaire}
+        onChange={(utilisateur) => {
+          setAjouterBeneficiaire(false);
+          setDrawerUtilisateur({
+            utilisateur: utilisateur["@id"],
+            role: RoleValues.ROLE_BENEFICIAIRE,
+          });
+        }}
+      />
+      <Typography.Title level={1}>Bénéficiaires</Typography.Title>
+      <BeneficiaireTable />
+      <FloatButton
+        onClick={() => setAjouterBeneficiaire(true)}
+        icon={<PlusOutlined />}
+        type="primary"
+        tooltip="Ajouter un bénéficiaire"
+      />
+    </Layout.Content>
+  );
 }

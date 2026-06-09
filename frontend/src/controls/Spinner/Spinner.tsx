@@ -12,9 +12,9 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { Spin } from "antd";
 
 interface ISpinner {
-   size?: number;
-   style?: React.CSSProperties;
-   className?: string;
+  size?: number;
+  style?: React.CSSProperties;
+  className?: string;
 }
 
 /**
@@ -26,11 +26,11 @@ interface ISpinner {
  * @returns {ReactElement} - The rendered Spinner component.
  */
 const Spinner = ({ size, style, className }: ISpinner): ReactElement => (
-   <Spin
-      className={`spinner text-primary ${className}`}
-      aria-label="Chargement en cours"
-      indicator={<LoadingOutlined style={{ ...style, ...{ fontSize: size || 24 } }} />}
-   />
+  <Spin
+    className={`spinner text-primary ${className}`}
+    aria-label="Chargement en cours"
+    indicator={<LoadingOutlined style={{ ...style, ...{ fontSize: size || 24 } }} />}
+  />
 );
 
 export default Spinner;

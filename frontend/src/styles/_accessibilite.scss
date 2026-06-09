@@ -7,22 +7,35 @@ $fontDyslexieArial: "Arial";
 $fontDyslexieOpenDys: "OpenDys";
 $fontDyslexieLexend: "Lexend";
 
-body.accessibilite-contraste {
+body.accessibilite-contraste:not(.dark-mode) {
   color: #000 !important;
 
-  .full-app {
-    background: variables.$white !important;
+  * {
+    --color-primary: #000;
+    --ant-color-text-secondary: #333 !important;
   }
 
-  .text-primary, .logo, .rbc-today .week-header, .rbc-today .week-header .date, .ant-btn-link, .today-carret, a, .ant-empty-description {
+  background: variables.$white !important;
+
+  .text-primary,
+  .logo,
+  .fc-day-today .week-header,
+  .fc-day-today .week-header .date,
+  .ant-btn-link,
+  .today-carret,
+  a,
+  .ant-empty-description {
     color: variables.$primary-contrast !important;
   }
 
-  .ant-picker-calendar .today, .ant-picker-calendar table.ant-picker-content thead tr th {
+  .ant-picker-calendar .today,
+  .ant-picker-calendar table.ant-picker-content thead tr th {
     color: #000 !important;
   }
 
-  .bg-primary, .ant-float-btn-primary, .ant-picker-calendar .has-event:after {
+  .bg-primary,
+  .ant-float-btn-primary,
+  .ant-picker-calendar .has-event:after {
     background-color: variables.$primary-contrast !important;
   }
 
@@ -30,7 +43,8 @@ body.accessibilite-contraste {
     border-color: variables.$primary-contrast !important;
   }
 
-  .bg-primary-light, .ant-alert-info {
+  .bg-primary-light,
+  .ant-alert-info {
     background-color: #f7f8fc !important;
   }
 
@@ -38,20 +52,25 @@ body.accessibilite-contraste {
     border: none !important;
   }
 
-  .user-space .role, .ant-layout-footer, .ant-picker-calendar .ant-picker-cell,
-  .ant-statistic .ant-statistic-title, .ant-list .ant-list-item .ant-list-item-meta .ant-list-item-meta-description {
+  .user-space .role,
+  .ant-layout-footer,
+  .ant-picker-calendar .ant-picker-cell,
+  .ant-statistic .ant-statistic-title,
+  .ant-list .ant-list-item .ant-list-item-meta .ant-list-item-meta-description {
     color: #555 !important;
   }
 
-  .statistic-danger, .statistic-warning {
-    background-color: #FFF;
+  .statistic-danger,
+  .statistic-warning {
+    background-color: #fff;
   }
 
   .calendar-sider {
     border-right: 1.5px solid #edeef3;
   }
 
-  .statistic-warning .ant-statistic-content-value span, .statistic-warning svg {
+  .statistic-warning .ant-statistic-content-value span,
+  .statistic-warning svg {
     color: #b56004 !important;
     fill: #b56004 !important;
   }
@@ -81,10 +100,10 @@ body.accessibilite-contraste {
     }
 
     .bg-#{$key}-xlight {
-      background-color: #FFF !important;
+      background-color: #fff !important;
     }
     .bg-#{$key}-xxlight {
-      background-color: #FFF !important;
+      background-color: #fff !important;
     }
   }
 
@@ -92,12 +111,12 @@ body.accessibilite-contraste {
     background-color: transparent !important;
   }
 
-
   .ant-ribbon .ant-ribbon-text {
     color: #000;
   }
 
-  .text-warning, .ant-tag-warning {
+  .text-warning,
+  .ant-tag-warning {
     color: #b56004 !important;
   }
 
@@ -106,61 +125,72 @@ body.accessibilite-contraste {
   }
 
   .ant-tag-warning {
-    background-color: #FFF;
+    background-color: #fff;
   }
 
   .bg-warning {
     background-color: #b56004 !important;
   }
 
-  .legende, .text-legende, .ant-typography-secondary {
-    color: #555 !important;
+  .legende,
+  .text-legende,
+  .ant-typography-secondary {
+    color: var(--ant-color-text-secondary) !important;
   }
 
-  .ant-tag-green, .ant-badge-color-green {
+  .ant-tag-green,
+  .ant-badge-color-green {
     background-color: var(--color-dark-green) !important;
     border-color: var(--color-dark-green) !important;
-    color: #FFF !important;
+    color: #fff !important;
   }
 
-  .ant-tag-orange, .ant-badge-color-orange {
+  .ant-tag-orange,
+  .ant-badge-color-orange {
     background-color: var(--color-dark-orange) !important;
     border-color: var(--color-dark-orange) !important;
-    color: #FFF !important;
+    color: #fff !important;
   }
 
-  .ant-tag-red, .ant-badge-color-red {
+  .ant-tag-red,
+  .ant-badge-color-red {
     background-color: var(--color-dark-red) !important;
     border-color: var(--color-dark-red) !important;
-    color: #FFF !important;
+    color: #fff !important;
   }
 
-  .ant-tag-blue, .ant-badge-color-blue {
+  .ant-tag-blue,
+  .ant-badge-color-blue {
     background-color: var(--color-dark-blue) !important;
     border-color: var(--color-dark-blue) !important;
-    color: #FFF !important;
+    color: #fff !important;
   }
 
-  .ant-tag-purple, .ant-badge-color-purple {
+  .ant-tag-purple,
+  .ant-badge-color-purple {
     background-color: var(--color-dark-purple) !important;
     border-color: var(--color-dark-purple) !important;
-    color: #FFF !important;
+    color: #fff !important;
   }
 
-  .ant-tag-cyan, .ant-badge-color-cyan {
+  .ant-tag-cyan,
+  .ant-badge-color-cyan {
     background-color: var(--color-dark-cyan) !important;
     border-color: var(--color-dark-cyan) !important;
-    color: #FFF !important;
+    color: #fff !important;
   }
 
-  .ant-tag-yellow, .ant-badge-color-yellow {
+  .ant-tag-yellow,
+  .ant-badge-color-yellow {
     background-color: var(--color-dark-yellow) !important;
     border-color: var(--color-dark-yellow) !important;
-    color: #FFF !important;
+    color: #fff !important;
   }
 
-  .ant-tag:not(.ant-tag-green):not(.ant-tag-orange):not(.ant-tag-red):not(.ant-tag-blue):not(.ant-tag-purple):not(.ant-tag-cyan):not(.ant-tag-yellow) {
-    background-color: #FFF !important;
+  .ant-tag:not(.ant-tag-green):not(.ant-tag-orange):not(.ant-tag-red):not(.ant-tag-blue):not(
+      .ant-tag-purple
+    ):not(.ant-tag-cyan):not(.ant-tag-yellow) {
+    background-color: #fff !important;
     border-color: #000 !important;
     color: #000 !important;
   }
@@ -173,10 +203,17 @@ body.accessibilite-contraste {
     background-color: var(--color-app) !important;
   }
 
-  .ant-steps .ant-steps-item-finish .ant-steps-item-icon {
-    background-color: variables.$primary-contrast !important;
-    & > .ant-steps-icon {
-      color: #fff !important;
+  .ant-steps {
+    .ant-steps-item-finish,
+    .ant-steps-item-active {
+      .ant-steps-item-icon {
+        background-color: variables.$primary-contrast !important;
+        color: #fff !important;
+
+        & > .ant-steps-icon {
+          color: #fff !important;
+        }
+      }
     }
   }
 
@@ -184,7 +221,10 @@ body.accessibilite-contraste {
     border: none;
   }
 
-  .ant-input-outlined, .ant-select-outlined, .ant-input-number-outlined, .ant-upload-btn {
+  .ant-input-outlined,
+  .ant-select-outlined,
+  .ant-input-number-outlined,
+  .ant-upload-btn {
     background: #ffffff;
     border-width: 2px;
     border-style: solid;
@@ -208,11 +248,12 @@ body.accessibilite-contraste {
   }
 
   .ant-select-outlined {
-      padding-top: 1rem;
-      padding-bottom: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
   }
 
-  .ant-input-number-input, header .ant-btn {
+  .ant-input-number-input,
+  header .ant-btn {
     font-weight: 500;
   }
 
@@ -230,48 +271,336 @@ body.accessibilite-contraste {
     padding-bottom: 1rem;
   }
 
-  .bg-beneficiaire, .bg-intervenant {
+  .bg-beneficiaire,
+  .bg-intervenant {
     background-color: #000 !important;
     color: #fff;
   }
+
+  .ant-avatar {
+    background-color: #666;
+  }
+
+  .text-light {
+    color: #333;
+  }
 }
 
-body.accessibilite-dyslexie-arial, body.accessibilite-dyslexie-open-dys, body.accessibilite-dyslexie-lexend {
+// --- Contraste : mode SOMBRE ---
+body.dark-mode.accessibilite-contraste {
+  background: #000000 !important;
+  color: #ffffff !important;
+
+  * {
+    --color-primary: var(--color-primary-contrast);
+    --ant-color-text-secondary: rgba(255, 255, 255, 0.85) !important;
+    --ant-color-text-placeholder: rgba(255, 255, 255, 0.65) !important;
+    --ant-color-text-quaternary: rgba(255, 255, 255, 0.5) !important;
+    --ant-color-text-description: rgba(255, 255, 255, 0.85) !important;
+  }
+
+  // Fond général
+  .full-app,
+  .ant-layout,
+  .ant-layout-content {
+    background: #000000 !important;
+    background-image: none !important;
+  }
+
+  // Header : fond sombre + bordure visible
+  .header {
+    background-color: #0a0a0a !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.35) !important;
+
+    // Rétablir les pilules d'icônes en dark (sombre, pas blanc)
+    .ant-menu-title-content,
+    .anticon {
+      background-color: transparent !important;
+    }
+
+    .anticon:not(.anticon-enter),
+    .user .ant-menu-title-content,
+    .recherche .ant-menu-title-content {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .ant-menu-submenu-selected .ant-menu-title-content,
+    .recherche.recherche-en-cours .ant-menu-title-content,
+    .recherche.recherche-en-cours .anticon.anticon-search {
+      background-color: var(--ant-color-primary-bg) !important;
+    }
+  }
+
+  // Panneaux / cartes : bordure visible pour délimiter les zones
+  .ant-card {
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+
+    .ant-card-head {
+      border-bottom-color: rgba(255, 255, 255, 0.2) !important;
+    }
+  }
+
+  .bg-white,
+  .bg-light-grey {
+    background-color: #0d0d0d !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .text-primary,
+  .logo,
+  .fc-day-today .week-header,
+  .fc-day-today .week-header .date,
+  .ant-btn-link,
+  .today-carret,
+  a,
+  .ant-empty-description {
+    color: var(--color-primary-contrast) !important;
+  }
+
+  .bg-primary,
+  .ant-float-btn-primary,
+  .ant-picker-calendar .has-event:after {
+    background-color: var(--color-primary-contrast) !important;
+  }
+
+  .border-primary {
+    border-color: var(--color-primary-contrast) !important;
+  }
+
+  .bg-primary-light,
+  .ant-alert-info {
+    background-color: #1a1a1a !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  }
+
+  // Texte secondaire : plus lisible qu'en dark normal (0.45 → 0.85)
+  .text-light {
+    color: rgba(255, 255, 255, 0.75) !important;
+  }
+
+  .legende,
+  .text-legende,
+  .ant-typography-secondary {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  // Rôles : texte blanc (en dark normal c'est #000 sur fond coloré light)
+  .bg-intervenant,
+  .bg-beneficiaire,
+  .bg-renfort,
+  .bg-demandeur {
+    color: #ffffff !important;
+  }
+
+  // Inputs / selects : bordures blanches épaisses
+  .ant-input-outlined,
+  .ant-select-outlined,
+  .ant-input-number-outlined,
+  .ant-upload-btn {
+    background: #0d0d0d;
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgba(255, 255, 255, 0.8);
+    border-radius: 0 !important;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+
+    .ant-select-selector {
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .ant-select-selection-item {
+      font-weight: 500;
+    }
+  }
+
+  .ant-select-outlined {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .ant-select .ant-select-arrow {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  // Boutons
+  main .ant-btn:not(.contrast-no-border) {
+    border-radius: 0;
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgba(255, 255, 255, 0.75);
+    font-weight: 600;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  // Warning / success : couleurs lumineuses sur fond noir
+  .text-warning,
+  .ant-tag-warning {
+    color: #ffb74d !important;
+  }
+
+  .statistic-warning .ant-statistic-content-value span,
+  .statistic-warning svg {
+    color: #ffb74d !important;
+    fill: #ffb74d !important;
+  }
+
+  .text-success {
+    color: #69db7c !important;
+  }
+
+  // Tags colorés : palette dark (saturée, contraste élevé sur fond noir)
+  .ant-tag-green,
+  .ant-badge-color-green {
+    background-color: var(--color-dark-green) !important;
+    border-color: var(--color-dark-green) !important;
+    color: #fff !important;
+  }
+
+  .ant-tag-orange,
+  .ant-badge-color-orange {
+    background-color: var(--color-dark-orange) !important;
+    border-color: var(--color-dark-orange) !important;
+    color: #fff !important;
+  }
+
+  .ant-tag-red,
+  .ant-badge-color-red {
+    background-color: var(--color-dark-red) !important;
+    border-color: var(--color-dark-red) !important;
+    color: #fff !important;
+  }
+
+  .ant-tag-blue,
+  .ant-badge-color-blue {
+    background-color: var(--color-dark-blue) !important;
+    border-color: var(--color-dark-blue) !important;
+    color: #fff !important;
+  }
+
+  .ant-tag-purple,
+  .ant-badge-color-purple {
+    background-color: var(--color-dark-purple) !important;
+    border-color: var(--color-dark-purple) !important;
+    color: #fff !important;
+  }
+
+  .ant-tag-cyan,
+  .ant-badge-color-cyan {
+    background-color: var(--color-dark-cyan) !important;
+    border-color: var(--color-dark-cyan) !important;
+    color: #fff !important;
+  }
+
+  .ant-tag-yellow,
+  .ant-badge-color-yellow {
+    background-color: var(--color-dark-yellow) !important;
+    border-color: var(--color-dark-yellow) !important;
+    color: #fff !important;
+  }
+
+  .ant-tag:not(.ant-tag-green):not(.ant-tag-orange):not(.ant-tag-red):not(.ant-tag-blue):not(
+      .ant-tag-purple
+    ):not(.ant-tag-cyan):not(.ant-tag-yellow) {
+    background-color: #1a1a1a !important;
+    border-color: rgba(255, 255, 255, 0.55) !important;
+    color: #fff !important;
+  }
+
+  // Steps
+  .ant-steps {
+    .ant-steps-item-finish,
+    .ant-steps-item-active {
+      .ant-steps-item-icon {
+        background-color: var(--color-primary-contrast) !important;
+        color: #fff !important;
+
+        & > .ant-steps-icon {
+          color: #fff !important;
+        }
+      }
+    }
+  }
+
+
+
+  // Sélection dans les dropdowns
+  .ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background-color: var(--color-app) !important;
+  }
+
+  // Tableau : séparateurs plus visibles
+  .ant-table {
+    .ant-table-thead > tr > th {
+      border-bottom: 2px solid rgba(255, 255, 255, 0.4) !important;
+    }
+
+    .ant-table-tbody > tr > td {
+      border-bottom-color: rgba(255, 255, 255, 0.15) !important;
+    }
+  }
+
+  // Focus : outline encore plus visible
+  :focus-visible {
+    outline: 3px solid var(--color-primary-contrast) !important;
+    outline-offset: 2px;
+  }
+}
+
+body.accessibilite-dyslexie-arial,
+body.accessibilite-dyslexie-open-dys,
+body.accessibilite-dyslexie-lexend {
   .libelle-evenement {
     line-height: 1.5;
   }
 
-  .rbc-event-label {
+  .fc-event-time {
     font-size: 1rem;
     margin-bottom: 8px;
     font-weight: 600;
   }
 
-  .calendar .rbc-header button .date {
+  .calendar .fc-col-header-cell a .date {
     font-size: 1rem;
   }
 }
 
 body.accessibilite-dyslexie-open-dys {
-  &, .rbc-label, .month-header, .rbc-header button {
+  &,
+  .fc-timegrid-slot-label-cushion,
+  .month-header,
+  .fc-col-header-cell a {
     font-family: $fontDyslexieOpenDys, serif !important;
   }
 }
 
 body.accessibilite-dyslexie-arial {
-  &, .rbc-label, .month-header, .rbc-header button {
+  &,
+  .fc-timegrid-slot-label-cushion,
+  .month-header,
+  .fc-col-header-cell a {
     font-family: $fontDyslexieArial, serif !important;
   }
 }
 
 body.accessibilite-dyslexie-lexend {
-  &, .rbc-label, .month-header, .rbc-header button {
+  &,
+  .fc-timegrid-slot-label-cushion,
+  .month-header,
+  .fc-col-header-cell a {
     font-family: $fontDyslexieLexend, serif !important;
   }
 }
 
 body.accessibilite-police-large {
-  .ant-tag, .header button, .identite, .ant-steps-item-title, .rbc-event, .legende {
+  .ant-tag,
+  .header button,
+  .identite,
+  .ant-steps-item-title,
+  .fc-event,
+  .legende {
     font-size: 1.2rem !important;
   }
 

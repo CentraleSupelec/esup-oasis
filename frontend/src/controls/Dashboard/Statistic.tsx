@@ -11,54 +11,54 @@ import React, { ReactElement } from "react";
 import { Skeleton, Statistic as AntStatistic, Tooltip } from "antd";
 import CountUp from "react-countup";
 import { CaretDownOutlined, CaretUpOutlined, PauseOutlined } from "@ant-design/icons";
-import "../../routes/intervenant/dashboard/Dashboard.scss";
+import "@routes/intervenant/dashboard/Dashboard.scss";
 
 const formatter = (value: number | string) => (
-   <CountUp end={typeof value === "string" ? parseInt(value) : value} separator="," />
+  <CountUp end={typeof value === "string" ? parseInt(value) : value} separator="," />
 );
 
 interface IStatisticProps {
-   title: string | React.ReactNode;
-   value: number;
-   precision?: number;
-   evolution?: number;
-   prefix?: React.ReactNode;
-   isFetching?: boolean;
+  title: string | React.ReactNode;
+  value: number;
+  precision?: number;
+  evolution?: number;
+  prefix?: React.ReactNode;
+  isFetching?: boolean;
 }
 
 export function EvolutionComponent(props: { evolution: number | undefined }): ReactElement {
-   let evolutionCmp = <></>;
+  let evolutionCmp = <></>;
 
-   if (props.evolution) {
-      // Construct the evolutionCmp indicator
-      if (props.evolution === 0) {
-         evolutionCmp = (
-            <Tooltip title="Identique sur la période précédente">
-               <PauseOutlined rotate={90} />
-            </Tooltip>
-         );
-      } else if (props.evolution > 0) {
-         evolutionCmp = (
-            <Tooltip title={`+${props.evolution} par rapport à la période précédente`}>
-               <span className="text-success">
-                  <CaretUpOutlined />
-                  <span>+{props.evolution}</span>
-               </span>
-            </Tooltip>
-         );
-      } else {
-         evolutionCmp = (
-            <Tooltip title={`${props.evolution} par rapport à la période précédente`}>
-               <span className="text-warning">
-                  <CaretDownOutlined />
-                  <span>{props.evolution}</span>
-               </span>
-            </Tooltip>
-         );
-      }
-   }
+  if (props.evolution) {
+    // Construct the evolutionCmp indicator
+    if (props.evolution === 0) {
+      evolutionCmp = (
+        <Tooltip title="Identique sur la période précédente">
+          <PauseOutlined rotate={90} />
+        </Tooltip>
+      );
+    } else if (props.evolution > 0) {
+      evolutionCmp = (
+        <Tooltip title={`+${props.evolution} par rapport à la période précédente`}>
+          <span className="text-success">
+            <CaretUpOutlined />
+            <span>+{props.evolution}</span>
+          </span>
+        </Tooltip>
+      );
+    } else {
+      evolutionCmp = (
+        <Tooltip title={`${props.evolution} par rapport à la période précédente`}>
+          <span className="text-warning">
+            <CaretDownOutlined />
+            <span>{props.evolution}</span>
+          </span>
+        </Tooltip>
+      );
+    }
+  }
 
-   return evolutionCmp;
+  return evolutionCmp;
 }
 
 /**
@@ -74,41 +74,41 @@ export function EvolutionComponent(props: { evolution: number | undefined }): Re
  * @returns {ReactElement} The Statistic component.
  */
 export default function Statistic({
-   title,
-   value,
-   precision = 0,
-   evolution,
-   prefix,
-   isFetching,
+  title,
+  value,
+  precision = 0,
+  evolution,
+  prefix,
+  isFetching,
 }: IStatisticProps): ReactElement {
-   if (isFetching) {
-      return (
-         <Skeleton
-            className="m-0"
-            active
-            paragraph={{
-               rows: 1,
-               width: "100%",
-               className: "mb-05",
-            }}
-         />
-      );
-   }
-
-   return (
-      <AntStatistic
-         title={title}
-         value={value}
-         precision={precision}
-         formatter={formatter}
-         prefix={prefix}
-         suffix={
-            <div className="ml-3 fs-09">
-               <EvolutionComponent evolution={evolution} />
-            </div>
-         }
-         loading={isFetching}
-         className="appear"
+  if (isFetching) {
+    return (
+      <Skeleton
+        className="m-0"
+        active
+        paragraph={{
+          rows: 1,
+          width: "100%",
+          className: "mb-05",
+        }}
       />
-   );
+    );
+  }
+
+  return (
+    <AntStatistic
+      title={title}
+      value={value}
+      precision={precision}
+      formatter={formatter}
+      prefix={prefix}
+      suffix={
+        <div className="ml-3 fs-09">
+          <EvolutionComponent evolution={evolution} />
+        </div>
+      }
+      loading={isFetching}
+      className="appear"
+    />
+  );
 }

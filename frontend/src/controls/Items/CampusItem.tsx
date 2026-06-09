@@ -7,26 +7,25 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement } from "react";
 import { Breakpoint, Space, Typography } from "antd";
-import Spinner from "../Spinner/Spinner";
-import { CampusAvatar } from "../Avatars/CampusAvatar";
+import Spinner from "@controls/Spinner/Spinner";
+import { CampusAvatar } from "@controls/Avatars/CampusAvatar";
 import useBreakpoint from "antd/es/grid/hooks/useBreakpoint";
-import { useApi } from "../../context/api/ApiProvider";
-import { PREFETCH_CAMPUS } from "../../api/ApiPrefetchHelpers";
-import { ICampus } from "../../api/ApiTypeHelpers";
+import { useApi } from "@context/api/ApiProvider";
+import { ICampus, PREFETCH_CAMPUS } from "@api";
 
 /**
  * Interface representing a campus.
  * @interface
  */
 interface IItemCampus {
-   campus?: ICampus;
-   campusId?: string;
-   showAvatar?: boolean;
-   responsive?: Breakpoint;
-   className?: string;
-   salle?: string | null;
+  campus?: ICampus;
+  campusId?: string;
+  showAvatar?: boolean;
+  responsive?: Breakpoint;
+  className?: string;
+  salle?: string | null;
 }
 
 /**
@@ -42,33 +41,28 @@ interface IItemCampus {
  *
  * @returns {ReactElement} The rendered campus item component.
  */
-export default function CampusItem({
-                                      campus,
-                                      campusId,
-                                      showAvatar = true,
-                                      responsive,
-                                      className,
-                                      salle,
-                                   }: IItemCampus): ReactElement {
-   const [item, setItem] = useState(campus);
-   const { data: dataCampus, isFetching } = useApi().useGetCollection(PREFETCH_CAMPUS);
-   const screens = useBreakpoint();
+export function CampusItem({
+  campus,
+  campusId,
+  showAvatar = true,
+  responsive,
+  className,
+  salle,
+}: IItemCampus): ReactElement {
+  const { data: dataCampus, isFetching } = useApi().useGetFullCollection(PREFETCH_CAMPUS);
+  const item = campus ?? dataCampus?.items.find((t) => t["@id"] === campusId);
+  const screens = useBreakpoint();
 
-   useEffect(() => {
-      if (dataCampus && campusId) {
-         setItem(dataCampus.items.find((t) => t["@id"] === campusId));
-      }
-   }, [dataCampus, campusId]);
+  if (!item || isFetching) return <Spinner />;
 
-   if (!item || isFetching) return <Spinner />;
-
-   return (
-      <Space className={className}>
-         {showAvatar && (!responsive || screens[responsive]) && <CampusAvatar campus={item} />}
-         <span>
-            {item?.libelle}
-            {salle && <Typography.Text type="secondary"> &bull; {salle}</Typography.Text>}
-         </span>
-      </Space>
-   );
+  return (
+    <Space className={className}>
+      {showAvatar && (!responsive || screens[responsive]) && <CampusAvatar campus={item} />}
+      <span>
+        {item?.libelle}
+        {!item?.actif && " (Inactif)"}
+        {salle && <Typography.Text type="secondary"> &bull; {salle}</Typography.Text>}
+      </span>
+    </Space>
+  );
 }

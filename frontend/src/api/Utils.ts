@@ -13,7 +13,7 @@
  * @param entityId
  */
 export function entiteParent(entityId: string | undefined): string {
-   if (!entityId) return "";
-   const parts = entityId.split("/");
-   return parts.slice(0, parts.length - 2).join("/");
+  if (!entityId) return "";
+  const parts = entityId.split("/");
+  return parts.slice(0, parts.length - 2).join("/");
 }

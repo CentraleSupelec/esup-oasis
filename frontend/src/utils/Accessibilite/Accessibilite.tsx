@@ -8,9 +8,8 @@
  */
 
 import React, { ReactElement, useEffect } from "react";
-import { IAccessibilite } from "../../redux/context/IAccessibilite";
-import { useSelector } from "react-redux";
-import { IStore } from "../../redux/Store";
+import { useAccessibilite } from "@context/accessibilite/AccessibiliteContext";
+import { useEffectiveTheme } from "@utils/theme/useEffectiveTheme";
 
 /**
  * Gère les paramètres d'accessibilité de l'application.
@@ -20,41 +19,26 @@ import { IStore } from "../../redux/Store";
  * @returns {ReactElement} The component JSX element.
  */
 export default function Accessibilite(): ReactElement {
-   const appAccessibilite: IAccessibilite = useSelector(
-      ({ accessibilite }: Partial<IStore>) => accessibilite,
-   ) as IAccessibilite;
+  const { accessibilite: appAccessibilite } = useAccessibilite();
+  const effectiveTheme = useEffectiveTheme();
 
-   useEffect(() => {
-      if (appAccessibilite.contrast) {
-         document.body.classList.add("accessibilite-contraste");
-      } else {
-         document.body.classList.remove("accessibilite-contraste");
-      }
+  useEffect(() => {
+    document.body.classList.toggle("accessibilite-contraste", appAccessibilite.contrast);
+    document.body.classList.toggle("accessibilite-dyslexie-arial", appAccessibilite.dyslexieArial);
+    document.body.classList.toggle(
+      "accessibilite-dyslexie-lexend",
+      appAccessibilite.dyslexieLexend,
+    );
+    document.body.classList.toggle(
+      "accessibilite-dyslexie-open-dys",
+      appAccessibilite.dyslexieOpenDys,
+    );
+    document.body.classList.toggle("accessibilite-police-large", appAccessibilite.policeLarge);
+  }, [appAccessibilite]);
 
-      if (appAccessibilite.dyslexieArial) {
-         document.body.classList.add("accessibilite-dyslexie-arial");
-      } else {
-         document.body.classList.remove("accessibilite-dyslexie-arial");
-      }
+  useEffect(() => {
+    document.body.classList.toggle("dark-mode", effectiveTheme === "dark");
+  }, [effectiveTheme]);
 
-      if (appAccessibilite.dyslexieLexend) {
-         document.body.classList.add("accessibilite-dyslexie-lexend");
-      } else {
-         document.body.classList.remove("accessibilite-dyslexie-lexend");
-      }
-
-      if (appAccessibilite.dyslexieOpenDys) {
-         document.body.classList.add("accessibilite-dyslexie-open-dys");
-      } else {
-         document.body.classList.remove("accessibilite-dyslexie-open-dys");
-      }
-
-      if (appAccessibilite.policeLarge) {
-         document.body.classList.add("accessibilite-police-large");
-      } else {
-         document.body.classList.remove("accessibilite-police-large");
-      }
-   }, [appAccessibilite]);
-
-   return <></>;
+  return <></>;
 }

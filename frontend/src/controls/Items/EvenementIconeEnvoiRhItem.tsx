@@ -11,10 +11,10 @@ import React, { ReactElement } from "react";
 import { Tooltip } from "antd";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { IEvenement } from "../../api/ApiTypeHelpers";
+import { IEvenement } from "@api";
 
 interface IItemIconeEnvoiRHProps {
-   evenement: IEvenement;
+  evenement: IEvenement;
 }
 
 /**
@@ -24,19 +24,17 @@ interface IItemIconeEnvoiRHProps {
  *
  * @return {ReactElement} - The JSX element representing the icon.
  */
-export default function EvenementIconeEnvoiRhItem({
-                                                     evenement,
-                                                  }: IItemIconeEnvoiRHProps): ReactElement {
-   if (evenement.dateEnvoiRH)
-      return (
-         <Tooltip title={`Envoyé à la RH le ${dayjs(evenement.dateEnvoiRH).format("DD/MM/YYYY")}`}>
-            <CheckOutlined />
-         </Tooltip>
-      );
-
-   return (
-      <Tooltip title="Non envoyé à la RH">
-         <CloseOutlined />
+export function EvenementIconeEnvoiRhItem({ evenement }: IItemIconeEnvoiRHProps): ReactElement {
+  if (evenement.dateEnvoiRH)
+    return (
+      <Tooltip title={`Envoyé à la RH le ${dayjs(evenement.dateEnvoiRH).format("DD/MM/YYYY")}`}>
+        <CheckOutlined />
       </Tooltip>
-   );
+    );
+
+  return (
+    <Tooltip title="Non envoyé à la RH">
+      <CloseOutlined />
+    </Tooltip>
+  );
 }

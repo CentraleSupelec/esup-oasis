@@ -7,70 +7,62 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { useEffect } from "react";
-import { useApi } from "../../context/api/ApiProvider";
+import React from "react";
+import { useApi } from "@context/api/ApiProvider";
 import { Space, Tooltip } from "antd";
 import { CheckCircleFilled, HourglassOutlined } from "@ant-design/icons";
-import { env } from "../../env";
+import { env } from "@/env";
 
 export enum EtatAvisEse {
-   "ETAT_EN_COURS" = "EN_COURS",
-   "ETAT_EN_ATTENTE" = "EN_ATTENTE",
-   "ETAT_AUCUN" = "AUCUN",
+  "ETAT_EN_COURS" = "EN_COURS",
+  "ETAT_EN_ATTENTE" = "EN_ATTENTE",
+  "ETAT_AUCUN" = "AUCUN",
 }
 
 export function BeneficiaireAvisEseAvatar(props: {
-   utilisateurId?: string;
-   etatAvisEse?: EtatAvisEse;
-   className?: string;
-   showLabel?: boolean;
-   direction?: "horizontal" | "vertical";
+  utilisateurId?: string;
+  etatAvisEse?: EtatAvisEse;
+  className?: string;
+  showLabel?: boolean;
+  direction?: "horizontal" | "vertical";
 }) {
-   const [item, setItem] = React.useState<EtatAvisEse | undefined>(props.etatAvisEse);
-   const { data: utilisateur } = useApi().useGetItem({
-      path: "/utilisateurs/{uid}",
-      url: props.utilisateurId,
-      enabled: !!props.utilisateurId,
-   });
+  const { data: utilisateur } = useApi().useGetItem({
+    path: "/utilisateurs/{uid}",
+    url: props.utilisateurId,
+    enabled: !!props.utilisateurId,
+  });
+  const item = (utilisateur?.etatAvisEse as EtatAvisEse | undefined) ?? props.etatAvisEse;
 
-   useEffect(() => {
-      setItem(props.etatAvisEse);
-   }, [props.etatAvisEse]);
+  switch (item) {
+    case EtatAvisEse.ETAT_EN_ATTENTE:
+      return (
+        <Tooltip title={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en attente`}>
+          <Space size={2} orientation={props.direction}>
+            <HourglassOutlined
+              aria-hidden
+              aria-label={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en attente`}
+              className={`text-warning fs-09 ${props.className}`}
+            />
+            {props.showLabel && <span className="legende">En attente</span>}
+          </Space>
+        </Tooltip>
+      );
 
-   useEffect(() => {
-      if (utilisateur) setItem(utilisateur?.etatAvisEse as EtatAvisEse);
-   }, [utilisateur]);
+    case EtatAvisEse.ETAT_EN_COURS:
+      return (
+        <Tooltip title={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en cours`}>
+          <Space size={2} orientation={props.direction}>
+            <CheckCircleFilled
+              aria-hidden
+              aria-label={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en cours`}
+              className={`text-success fs-09 ${props.className}`}
+            />
+            {props.showLabel && <span className="legende">En cours</span>}
+          </Space>
+        </Tooltip>
+      );
 
-   switch (item) {
-      case EtatAvisEse.ETAT_EN_ATTENTE:
-         return (
-            <Tooltip title={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en attente`}>
-               <Space size={2} orientation={props.direction}>
-                  <HourglassOutlined
-                     aria-hidden
-                     aria-label={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en attente`}
-                     className={`text-warning fs-09 ${props.className}`}
-                  />
-                  {props.showLabel && <span className="legende">En attente</span>}
-               </Space>
-            </Tooltip>
-         );
-
-      case EtatAvisEse.ETAT_EN_COURS:
-         return (
-            <Tooltip title={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en cours`}>
-               <Space size={2} orientation={props.direction}>
-                  <CheckCircleFilled
-                     aria-hidden
-                     aria-label={`Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"} en cours`}
-                     className={`text-success fs-09 ${props.className}`}
-                  />
-                  {props.showLabel && <span className="legende">En cours</span>}
-               </Space>
-            </Tooltip>
-         );
-
-      default:
-         return <></>;
-   }
+    default:
+      return <></>;
+  }
 }

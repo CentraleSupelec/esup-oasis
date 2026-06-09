@@ -7,32 +7,32 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import { useApi } from "../../context/api/ApiProvider";
+import { useApi } from "@context/api/ApiProvider";
 import { Card } from "antd";
 import React from "react";
-import { UtilisateurTag } from "./UtilisateurTag";
-import { UtilisateurTagAjouter } from "./UtilisateurTagAjouter";
+import { UtilisateurTag } from "@controls/Tags/UtilisateurTag";
+import { UtilisateurTagAjouter } from "@controls/Tags/UtilisateurTagAjouter";
 
 export function UtilisateurTags(props: { utilisateurId: string }) {
-   const { data: tagsUtilisateur } = useApi().useGetCollection({
-      path: "/utilisateurs/{uid}/tags",
-      parameters: {
-         uid: props.utilisateurId,
-      },
-   });
+  const { data: tagsUtilisateur } = useApi().useGetFullCollection({
+    path: "/utilisateurs/{uid}/tags",
+    parameters: {
+      uid: props.utilisateurId,
+    },
+  });
 
-   return (
-      <Card type="inner" size="small" variant={"borderless"} className="mb-2">
-         {tagsUtilisateur?.items.map((tag) => (
-            <UtilisateurTag
-               key={tag["@id"] as string}
-               tagId={tag.tag as string}
-               utilisateurId={props.utilisateurId}
-               utilisateurTagId={tag["@id"] as string}
-               big
-            />
-         ))}
-         <UtilisateurTagAjouter utilisateurId={props.utilisateurId} />
-      </Card>
-   );
+  return (
+    <Card type="inner" size="small" variant="borderless" className="mb-2">
+      {tagsUtilisateur?.items.map((tag) => (
+        <UtilisateurTag
+          key={tag["@id"] as string}
+          tagId={tag.tag as string}
+          utilisateurId={props.utilisateurId}
+          utilisateurTagId={tag["@id"] as string}
+          big
+        />
+      ))}
+      <UtilisateurTagAjouter utilisateurId={props.utilisateurId} />
+    </Card>
+  );
 }

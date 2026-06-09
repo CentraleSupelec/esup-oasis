@@ -7,7 +7,7 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import { env } from "./env";
+import { env } from "@/env";
 
 /**
  * Nombre maximum d'éléments par page.

@@ -7,94 +7,92 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Alert, Form, Spin } from "antd";
 import { ExclamationOutlined } from "@ant-design/icons";
-import { QuestionFile } from "./QuestionFile";
-import { QuestionDate } from "./QuestionDate";
-import { QuestionSelect } from "./QuestionSelect";
-import { QuestionRadio } from "./QuestionRadio";
-import { QuestionText } from "./QuestionText";
-import { QuestionTextarea } from "./QuestionTextarea";
+import { QuestionFile } from "@controls/Questionnaire/Question/QuestionFile";
+import { QuestionDate } from "@controls/Questionnaire/Question/QuestionDate";
+import { QuestionSelect } from "@controls/Questionnaire/Question/QuestionSelect";
+import { QuestionRadio } from "@controls/Questionnaire/Question/QuestionRadio";
+import { QuestionText } from "@controls/Questionnaire/Question/QuestionText";
+import { QuestionTextarea } from "@controls/Questionnaire/Question/QuestionTextarea";
 
-import "./Question.scss";
-import { QuestionNumeric } from "./QuestionNumeric";
-import { QuestionCheckbox } from "./QuestionCheckbox";
-import { QuestionnaireQuestion } from "../../../context/demande/QuestionnaireProvider";
-import { QuestionInfo } from "./QuestionInfo";
-import { QuestionSubmit } from "./QuestionSubmit";
-import { useApi } from "../../../context/api/ApiProvider";
-import { QuestionBlocage } from "./QuestionBlocage";
+import "@controls/Questionnaire/Question/Question.scss";
+import { QuestionNumeric } from "@controls/Questionnaire/Question/QuestionNumeric";
+import { QuestionCheckbox } from "@controls/Questionnaire/Question/QuestionCheckbox";
+import { QuestionnaireQuestion } from "@context/demande/QuestionnaireProvider";
+import { QuestionInfo } from "@controls/Questionnaire/Question/QuestionInfo";
+import { QuestionSubmit } from "@controls/Questionnaire/Question/QuestionSubmit";
+import { useApi } from "@context/api/ApiProvider";
+import { QuestionBlocage } from "@controls/Questionnaire/Question/QuestionBlocage";
 
 export function Question(props: {
-   question?: QuestionnaireQuestion;
-   questionId?: string;
+  question?: QuestionnaireQuestion;
+  questionId?: string;
 }): React.ReactElement {
-   const [question, setQuestion] = useState<QuestionnaireQuestion | undefined>(props.question);
-   const { data } = useApi().useGetItem({
-      path: "/questions/{id}",
-      url: props.questionId as string,
-      enabled: !!props.questionId,
-   });
+  const { data } = useApi().useGetItem({
+    path: "/questions/{id}",
+    url: props.questionId as string,
+    enabled: !!props.questionId,
+  });
 
-   useEffect(() => {
-      if (data)
-         setQuestion({
-            "@id": data["@id"] as string,
-            libelle: data.libelle as string,
-            aide: data.aide,
-            typeReponse: data.typeReponse as string,
-            obligatoire: data.obligatoire ?? false,
-            choixMultiple: data.choixMultiple ?? false,
-         });
-   }, [data]);
+  const question = React.useMemo(() => {
+    if (props.question) return props.question;
+    if (data) {
+      return {
+        "@id": data["@id"] as string,
+        libelle: data.libelle as string,
+        aide: data.aide,
+        typeReponse: data.typeReponse as string,
+        obligatoire: data.obligatoire ?? false,
+        choixMultiple: data.choixMultiple ?? false,
+      } as QuestionnaireQuestion;
+    }
+    return undefined;
+  }, [props.question, data]);
 
-   useEffect(() => {
-      setQuestion(props.question);
-   }, [props.question]);
+  if (!question) return <Spin />;
 
-   if (!question) return <Spin />;
+  switch (question.typeReponse) {
+    case "text":
+      return <QuestionText question={question} />;
+    case "numeric":
+      return <QuestionNumeric question={question} />;
+    case "textarea":
+      return <QuestionTextarea question={question} />;
+    case "checkbox":
+      return <QuestionCheckbox question={question} />;
+    case "date":
+      return <QuestionDate question={question} />;
+    case "file":
+      return <QuestionFile key={question["@id"]} question={question} />;
 
-   switch (question.typeReponse) {
-      case "text":
-         return <QuestionText question={question} />;
-      case "numeric":
-         return <QuestionNumeric question={question} />;
-      case "textarea":
-         return <QuestionTextarea question={question} />;
-      case "checkbox":
-         return <QuestionCheckbox question={question} />;
-      case "date":
-         return <QuestionDate question={question} />;
-      case "file":
-         return <QuestionFile question={question} />;
+    case "radio":
+      return <QuestionRadio question={question} />;
+    case "select":
+      return <QuestionSelect question={question} />;
 
-      case "radio":
-         return <QuestionRadio question={question} />;
-      case "select":
-         return <QuestionSelect question={question} />;
+    case "info":
+      if (question.obligatoire) {
+        return <QuestionBlocage question={question} />;
+      }
 
-      case "info":
-         if (question.obligatoire) {
-            return <QuestionBlocage question={question} />;
-         }
+      return <QuestionInfo key={question["@id"]} question={question} />;
 
-         return <QuestionInfo key={question["@id"]} question={question} />;
+    case "submit":
+      return <QuestionSubmit question={question} />;
 
-      case "submit":
-         return <QuestionSubmit question={question} />;
-
-      default:
-         return (
-            <Form.Item>
-               <Alert
-                  type="error"
-                  icon={<ExclamationOutlined />}
-                  showIcon
-                  title="Erreur"
-                  description="Type de question inconnu."
-               />
-            </Form.Item>
-         );
-   }
+    default:
+      return (
+        <Form.Item>
+          <Alert
+            type="error"
+            icon={<ExclamationOutlined />}
+            showIcon
+            title="Erreur"
+            description="Type de question inconnu."
+          />
+        </Form.Item>
+      );
+  }
 }

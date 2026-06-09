@@ -9,8 +9,8 @@
 
 import React from "react";
 import { Empty, List, Skeleton } from "antd";
-import DemandeListItem from "../Items/DemandeListItem";
-import { IDemande } from "../../api/ApiTypeHelpers";
+import { DemandeListItem } from "@controls/Items/DemandeListItem";
+import { IDemande } from "@api";
 
 /**
  * Liste des types de demandes
@@ -20,37 +20,38 @@ import { IDemande } from "../../api/ApiTypeHelpers";
  * @constructor
  */
 function TypeDemandeList(props: { isFetching?: boolean; demandes?: IDemande[] }) {
-   if (props.isFetching) {
-      // Affiche un squelette de chargement si les données sont en cours de récupération
-      return <Skeleton paragraph={{ rows: 3 }} active />;
-   }
+  if (props.isFetching) {
+    // Affiche un squelette de chargement si les données sont en cours de récupération
+    return <Skeleton paragraph={{ rows: 3 }} active />;
+  }
 
-   if (!props.demandes) return null;
+  if (!props.demandes) return null;
 
-   if (props.demandes.length === 0)
-      return (
-         <Empty
-            description={
-               <>
-                  <div className="semi-bold">Vous n'avez aucune demande en cours.</div>
-                  <p>
-                     Pour créer une nouvelle demande, cliquez sur le bouton "Déposer une nouvelle
-                     demande" ci-dessus.
-                  </p>
-               </>
-            }
-         />
-      );
+  if (props.demandes.length === 0)
+    return (
+      <Empty
+        image={Empty.PRESENTED_IMAGE_SIMPLE}
+        description={
+          <>
+            <div className="semi-bold">Vous n'avez aucune demande en cours.</div>
+            <p>
+              Pour créer une nouvelle demande, cliquez sur le bouton "Déposer une nouvelle demande"
+              ci-dessus.
+            </p>
+          </>
+        }
+      />
+    );
 
-   return (
-      <List>
-         <ul className="pl-0">
-            {props.demandes.map((item) => (
-               <DemandeListItem key={item["@id"]} demande={item} />
-            ))}
-         </ul>
-      </List>
-   );
+  return (
+    <List>
+      <ul className="pl-0">
+        {props.demandes.map((item) => (
+          <DemandeListItem key={item["@id"]} demande={item} />
+        ))}
+      </ul>
+    </List>
+  );
 }
 
 export default TypeDemandeList;

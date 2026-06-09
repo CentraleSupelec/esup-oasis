@@ -2,7 +2,6 @@ name: Docker Build and Publish (Native Multi-Arch)
 
 on:
   push:
-    branches: [ "main" ]
     tags:
       - 'v*.*.*'
       - 'v*.*.*-*'
@@ -34,32 +33,38 @@ jobs:
             image_suffix: backend
             context: ./backend
             dockerfile: ./backend/Dockerfile
+            version_arg: APP_VERSION
           - arch: amd64
             runner: ubuntu-latest
             image_suffix: backend-worker
             context: ./backend
             dockerfile: ./backend/Dockerfile-worker
+            version_arg: APP_VERSION
           - arch: amd64
             runner: ubuntu-latest
             image_suffix: frontend
             context: ./frontend
             dockerfile: ./frontend/Dockerfile
+            version_arg: REACT_APP_VERSION
 
           - arch: arm64
             runner: ubuntu-24.04-arm
             image_suffix: backend
             context: ./backend
             dockerfile: ./backend/Dockerfile
+            version_arg: APP_VERSION
           - arch: arm64
             runner: ubuntu-24.04-arm
             image_suffix: backend-worker
             context: ./backend
             dockerfile: ./backend/Dockerfile-worker
+            version_arg: APP_VERSION
           - arch: arm64
             runner: ubuntu-24.04-arm
             image_suffix: frontend
             context: ./frontend
             dockerfile: ./frontend/Dockerfile
+            version_arg: REACT_APP_VERSION
 
     steps:
       - name: Checkout repository
@@ -94,6 +99,7 @@ jobs:
           platforms: linux/${{ matrix.arch }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: ${{ matrix.version_arg }}=${{ github.ref_name }}
           cache-from: type=gha,scope=build-${{ matrix.image_suffix }}-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=build-${{ matrix.image_suffix }}-${{ matrix.arch }}
 
@@ -142,7 +148,7 @@ jobs:
             type=semver,pattern={{version}},enable=${{ steps.release.outputs.kind == 'stable' }}
             type=semver,pattern={{major}}.{{minor}},enable=${{ steps.release.outputs.kind == 'stable' }}
             type=semver,pattern={{major}},enable=${{ steps.release.outputs.kind == 'stable' }}
-            type=raw,value=latest,enable=${{ steps.release.outputs.kind == 'stable' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+            type=raw,value=latest,enable=${{ steps.release.outputs.kind == 'stable' && github.ref_type == 'tag' }}
 
       - name: Create and push Multi-Arch Manifest
         run: |

@@ -10,7 +10,23 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-import AppWrapper from "./AppWrapper";
+import AppWrapper from "@/AppWrapper";
+import { validateEnv } from "@/env";
+
+try {
+  validateEnv();
+} catch (e) {
+  const container = document.getElementById("root") as HTMLElement;
+  container.innerHTML = `
+    <div style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;">
+      <div style="max-width:480px;padding:32px;border:1px solid #ff4d4f;border-radius:8px;background:#fff2f0;">
+        <h2 style="color:#cf1322;margin:0 0 12px">Erreur de configuration</h2>
+        <p style="margin:0;color:#333">${e instanceof Error ? e.message : String(e)}</p>
+        <p style="margin:12px 0 0;color:#666;font-size:13px">Vérifiez le fichier <code>window.env</code> (env-config.js).</p>
+      </div>
+    </div>`;
+  throw e;
+}
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(<AppWrapper />);

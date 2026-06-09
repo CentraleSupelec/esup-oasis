@@ -7,217 +7,250 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { useEffect, useState } from "react";
-import { Button, Flex, Table, Tooltip } from "antd";
-import { IBeneficiaire, IIntervenant } from "../../api/ApiTypeHelpers";
-import { intervenantTableColumns } from "./IntervenantTableColumns";
-import { setDrawerUtilisateur } from "../../redux/actions/Drawers";
-import { RoleValues } from "../../lib/Utilisateur";
-import { useApi } from "../../context/api/ApiProvider";
-import { useDispatch } from "react-redux";
-import IntervenantTableExport from "./IntervenantTableExport";
-import { useAuth } from "../../auth/AuthProvider";
-import { setAffichageFiltres } from "../../redux/actions/AffichageFiltre";
-import { initialAffichageFiltres } from "../../redux/context/IAffichageFiltres";
-import { queryClient } from "../../App";
+import React, { useEffect, useRef, useState } from "react";
+import { Button, Flex, Space, Table } from "antd";
+import { IBeneficiaire, IIntervenant } from "@api";
+import { intervenantTableColumns } from "@controls/Table/IntervenantTableColumns";
+import { RoleValues } from "@lib";
+import { useApi } from "@context/api/ApiProvider";
+import { useDrawers } from "@context/drawers/DrawersContext";
+import IntervenantTableExport from "@controls/Table/IntervenantTableExport";
+import { useAuth } from "@/auth/AuthProvider";
 import { SorterResult } from "antd/es/table/interface";
-import { IntervenantTableFilter } from "./IntervenantTableFilter";
+import { IntervenantTableFilter } from "@controls/Table/IntervenantTableFilter";
 import Icon from "@ant-design/icons";
-import { ReactComponent as Unfilter } from "../../assets/images/unfilter.svg";
-import { ascendToAsc } from "../../utils/array";
-import FiltreDescription from "./FiltreDescription";
-import { usePreferences } from "../../context/utilisateurPreferences/UtilisateurPreferencesProvider";
+import Unfilter from "@/assets/images/unfilter.svg?react";
+import { ascendToAsc } from "@utils/array";
+import FiltreDescription from "@controls/Table/FiltreDescription";
+import { usePreferences } from "@context/utilisateurPreferences/UtilisateurPreferencesProvider";
+import { useFiltreSessionStorage } from "@controls/Table/hooks/useFiltreSessionStorage";
+import { FiltreSessionSwitch } from "@controls/Table/FiltreSessionSwitch";
 import { useNavigate } from "react-router-dom";
-import { getCountLibelle } from "../../utils/table";
+import { getCountLibelle } from "@utils/table";
 
 export interface FiltreIntervenant {
-   nom?: string;
-   prenom?: string;
-   libelleCampus?: string;
-   intervenantArchive?: boolean | "undefined"; // "undefined" is used to filter on null value
-   "order[nom]"?: "asc" | "desc";
-   page: number;
-   itemsPerPage: number;
-   "intervenant.campuses[]"?: string[];
-   "intervenant.competences[]"?: string[];
-   "intervenant.typesEvenements[]"?: string[];
+  nom?: string;
+  prenom?: string;
+  libelleCampus?: string;
+  intervenantArchive?: boolean | "undefined"; // "undefined" is used to filter on null value
+  "order[nom]"?: "asc" | "desc";
+  page: number;
+  itemsPerPage: number;
+  "intervenant.campuses[]"?: string[];
+  "intervenant.competences[]"?: string[];
+  "intervenant.typesEvenements[]"?: string[];
 }
 
 export const FILTRE_INTERVENANT_DEFAULT: FiltreIntervenant = {
-   "order[nom]": "asc",
-   intervenantArchive: undefined,
-   page: 1,
-   itemsPerPage: 25,
+  "order[nom]": "asc",
+  intervenantArchive: undefined,
+  page: 1,
+  itemsPerPage: 25,
 };
 
+const SESSION_KEY_FILTRE_INTERVENANT = "oasis:filter:intervenant";
+
 export default function IntervenantTable() {
-   const dispatch = useDispatch();
-   const navigate = useNavigate();
-   const [hasImpersonate, setHasImpersonate] = useState(false);
-   const auth = useAuth();
-   const [count, setCount] = React.useState<number>();
-   const { getPreferenceArray, preferencesChargees } = usePreferences();
+  const { setDrawerUtilisateur } = useDrawers();
+  const navigate = useNavigate();
+  const auth = useAuth();
+  const { getPreferenceArray, preferencesChargees } = usePreferences();
+  const { enabled: sessionEnabled, toggle: toggleSession } = useFiltreSessionStorage();
 
-   const [filtreIntervenant, setFiltreIntervenant] = useState<FiltreIntervenant>({
+  // Capture si sessionStorage avait des données au montage (indépendamment de sessionEnabled,
+  // car sessionEnabled peut être faux avant que les préférences ne chargent)
+  const hadSessionFilter = useRef(!!sessionStorage.getItem(SESSION_KEY_FILTRE_INTERVENANT));
+  const tableRef = useRef<HTMLDivElement>(null);
+
+  const [filtreIntervenant, setFiltreIntervenant] = useState<FiltreIntervenant>(() => {
+    // Priorité 1 : filtre de session (seulement si activé)
+    if (sessionEnabled) {
+      try {
+        const stored = sessionStorage.getItem(SESSION_KEY_FILTRE_INTERVENANT);
+        if (stored) return JSON.parse(stored) as FiltreIntervenant;
+      } catch {
+        /* ignore */
+      }
+    }
+    // Priorité 2 : filtre favori des préférences
+    return {
       ...FILTRE_INTERVENANT_DEFAULT,
-      // on applique le filtre favori des préférences de l'utilisateur s'il existe
       ...{
-         ...getPreferenceArray("filtresIntervenant")?.filter((f) => f.favori)[0]?.filtre,
-         page: 1,
+        ...getPreferenceArray("filtresIntervenant")?.filter((f) => f.favori)[0]?.filtre,
+        page: 1,
       },
-   });
-   const { data: dataIntervenants, isFetching: isFetchingIntervenants } =
-      useApi().useGetCollectionPaginated({
-         path: "/intervenants",
-         page: filtreIntervenant.page || 1,
-         itemsPerPage: filtreIntervenant.itemsPerPage || 50,
-         query: {
-            ...filtreIntervenant,
-            intervenantArchive:
-               filtreIntervenant.intervenantArchive === "undefined"
-                  ? undefined
-                  : filtreIntervenant.intervenantArchive,
-         },
+    };
+  });
+  const { data: dataIntervenants, isFetching: isFetchingIntervenants } =
+    useApi().useGetCollectionPaginated({
+      path: "/intervenants",
+      page: filtreIntervenant.page || 1,
+      itemsPerPage: filtreIntervenant.itemsPerPage || 50,
+      query: {
+        ...filtreIntervenant,
+        intervenantArchive:
+          filtreIntervenant.intervenantArchive === "undefined"
+            ? undefined
+            : filtreIntervenant.intervenantArchive,
+      },
+    });
+
+  // Persiste le filtre en session à chaque changement (seulement si activé)
+  useEffect(() => {
+    if (sessionEnabled) {
+      sessionStorage.setItem(SESSION_KEY_FILTRE_INTERVENANT, JSON.stringify(filtreIntervenant));
+    }
+  }, [filtreIntervenant, sessionEnabled]);
+
+  // Synchronisation une fois les préférences chargées : point de vérité pour session + favori
+  useEffect(() => {
+    if (!preferencesChargees) return;
+
+    if (sessionEnabled && hadSessionFilter.current) {
+      try {
+        const stored = sessionStorage.getItem(SESSION_KEY_FILTRE_INTERVENANT);
+        if (stored) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
+          setFiltreIntervenant(JSON.parse(stored) as FiltreIntervenant);
+          return;
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
+    setFiltreIntervenant({
+      ...FILTRE_INTERVENANT_DEFAULT,
+      ...getPreferenceArray("filtresIntervenant")?.filter((f) => f.favori)[0]?.filtre,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preferencesChargees]);
+
+  const count = dataIntervenants?.totalItems;
+
+  // Sticky header
+  useEffect(() => {
+    let rafId: number;
+    function handleScroll() {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const container = tableRef.current;
+        const table = container?.querySelector("table");
+        const tHead = container?.querySelector<HTMLElement>(".ant-table-thead");
+        if (!table || !tHead) return;
+        tHead.style.top = `${document.documentElement.scrollTop - (table.getBoundingClientRect().top + window.scrollY - 80)}px`;
       });
+    }
 
-   useEffect(() => {
-      if (auth.impersonate && hasImpersonate) {
-         dispatch(
-            setAffichageFiltres(initialAffichageFiltres.affichage, initialAffichageFiltres.filtres),
-         );
-         queryClient.clear();
-      }
-   }, [hasImpersonate, auth.impersonate, dispatch]);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
-   useEffect(() => {
-      if (preferencesChargees) {
-         setFiltreIntervenant({
-            ...FILTRE_INTERVENANT_DEFAULT,
-            // on applique le filtre favori des préférences de l'utilisateur s'il existe
-            ...getPreferenceArray("filtresIntervenant")?.filter((f) => f.favori)[0]?.filtre,
-         });
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [preferencesChargees]);
-
-   useEffect(() => {
-      setCount(dataIntervenants?.totalItems);
-   }, [dataIntervenants]);
-
-   // Sticky header
-   useEffect(() => {
-      function handleScroll() {
-         const table = document.querySelector("table") as HTMLElement;
-         const tHead = document.querySelector(".ant-table-thead") as HTMLElement;
-         tHead.style.top = `${document.documentElement.scrollTop - (table.getBoundingClientRect().top + window.scrollY - 80)}px`;
-      }
-
-      window.addEventListener("scroll", handleScroll);
-      return () => {
-         window.removeEventListener("scroll", handleScroll);
-      };
-   }, []);
-
-   return (
-      <>
-         <IntervenantTableFilter
-            filtreIntervenant={filtreIntervenant}
-            setFiltreIntervenant={setFiltreIntervenant}
-         />
-         <Flex justify="space-between" align="center">
-            <span className="legende">{getCountLibelle(count, "intervenant")}</span>
-            <div>
-               {JSON.stringify(FILTRE_INTERVENANT_DEFAULT) !==
-                  JSON.stringify(filtreIntervenant) && (
-                  <Button.Group>
-                     <FiltreDescription
-                        filtre={filtreIntervenant}
-                        as="modal"
-                        tooltip="Décrire le filtre en cours"
-                     />
-                     <Tooltip title="Retirer les filtres">
-                        <Button
-                           className="d-flex-inline-center mr-1"
-                           icon={<Icon component={Unfilter} aria-label="Retirer les filtres" />}
-                           onClick={() => setFiltreIntervenant(FILTRE_INTERVENANT_DEFAULT)}
-                        />
-                     </Tooltip>
-                  </Button.Group>
-               )}
-               <IntervenantTableExport filtreIntervenant={filtreIntervenant} />
-            </div>
-         </Flex>
-         <Table<IIntervenant>
-            loading={isFetchingIntervenants}
-            dataSource={dataIntervenants?.items || []}
-            className="table-responsive table-thead-sticky mt-2"
-            pagination={{
-               pageSize: filtreIntervenant.itemsPerPage || 50,
-               total: dataIntervenants?.totalItems,
-               current: filtreIntervenant.page,
-               showSizeChanger: true,
-               pageSizeOptions: [25, 50, 100, 200],
-               onChange: (p, ps) => {
-                  setFiltreIntervenant({
-                     ...filtreIntervenant,
-                     page: p,
-                     itemsPerPage: ps,
-                  });
-               },
-               showTotal: (total, range) => (
-                  <div className="text-legende mr-1">
-                     {range[0]} à {range[1]} / {total}
-                  </div>
-               ),
-            }}
-            rowKey={(record) => record["@id"] as string}
-            rowClassName={(_record, index) => (index % 2 === 1 ? "bg-grey-xlight" : "")}
-            onChange={(
-               pagination,
-               _filters,
-               sorter: SorterResult<IBeneficiaire> | SorterResult<IBeneficiaire>[],
-            ) => {
-               if (Array.isArray(sorter)) {
-                  return;
-               }
-               if (sorter.field && sorter.field === "nom") {
-                  setFiltreIntervenant({
-                     ...filtreIntervenant,
-                     page: pagination.current || 1,
-                     itemsPerPage: pagination.pageSize || 50,
-                     "order[nom]": ascendToAsc(sorter.order),
-                  });
-               } else {
-                  setFiltreIntervenant({
-                     ...filtreIntervenant,
-                     page: pagination.current || 1,
-                     itemsPerPage: pagination.pageSize || 50,
-                  });
-               }
-            }}
-            columns={intervenantTableColumns({
-               user: auth.user,
-               filter: filtreIntervenant,
-               setFilter: setFiltreIntervenant,
-               onIntervenantSelected: (intervenant) => {
-                  dispatch(
-                     setDrawerUtilisateur({
-                        utilisateur: intervenant["@id"],
-                        role: intervenant.roles?.includes(RoleValues.ROLE_RENFORT)
-                           ? RoleValues.ROLE_RENFORT
-                           : RoleValues.ROLE_INTERVENANT,
-                     }),
-                  );
-               },
-               onImpersonate: (intervenantUid) => {
-                  navigate("/");
-                  window.setTimeout(() => {
-                     setHasImpersonate(true);
-                     auth.setImpersonate(intervenantUid);
-                  }, 500);
-               },
-            })}
-         />
-      </>
-   );
+  return (
+    <>
+      <IntervenantTableFilter
+        filtreIntervenant={filtreIntervenant}
+        setFiltreIntervenant={setFiltreIntervenant}
+      />
+      <Flex justify="space-between" align="center">
+        <span className="text-legende">{getCountLibelle(count, "intervenant")}</span>
+        <Space size="large">
+          <FiltreSessionSwitch
+            id="conserver-filtres-intervenant"
+            enabled={sessionEnabled}
+            toggle={toggleSession}
+          />
+          <div>
+            {JSON.stringify(FILTRE_INTERVENANT_DEFAULT) !== JSON.stringify(filtreIntervenant) && (
+              <Space.Compact>
+                <FiltreDescription
+                  filtre={filtreIntervenant}
+                  as="modal"
+                  tooltip="Décrire le filtre en cours"
+                />
+                <Button
+                  className="d-flex-inline-center mr-1"
+                  icon={<Icon component={Unfilter} aria-label="Retirer les filtres" />}
+                  onClick={() => setFiltreIntervenant(FILTRE_INTERVENANT_DEFAULT)}
+                >
+                  Retirer les filtres
+                </Button>
+              </Space.Compact>
+            )}
+            <IntervenantTableExport filtreIntervenant={filtreIntervenant} />
+          </div>
+        </Space>
+      </Flex>
+      <div ref={tableRef}>
+        <Table<IIntervenant>
+          loading={isFetchingIntervenants}
+          dataSource={dataIntervenants?.items || []}
+          className="table-responsive table-thead-sticky mt-2"
+          pagination={{
+            pageSize: filtreIntervenant.itemsPerPage || 50,
+            total: dataIntervenants?.totalItems,
+            current: filtreIntervenant.page,
+            showSizeChanger: true,
+            pageSizeOptions: [25, 50, 100, 200],
+            onChange: (p, ps) => {
+              setFiltreIntervenant({
+                ...filtreIntervenant,
+                page: p,
+                itemsPerPage: ps,
+              });
+            },
+            showTotal: (total, range) => (
+              <div className="text-legende mr-1">
+                {range[0]} à {range[1]} / {total}
+              </div>
+            ),
+          }}
+          rowKey={(record) => record["@id"] as string}
+          rowClassName={(_record, index) => (index % 2 === 1 ? "bg-grey-light" : "")}
+          onChange={(
+            pagination,
+            _filters,
+            sorter: SorterResult<IBeneficiaire> | SorterResult<IBeneficiaire>[],
+          ) => {
+            if (Array.isArray(sorter)) {
+              return;
+            }
+            if (sorter.field && sorter.field === "nom") {
+              setFiltreIntervenant({
+                ...filtreIntervenant,
+                page: pagination.current || 1,
+                itemsPerPage: pagination.pageSize || 50,
+                "order[nom]": ascendToAsc(sorter.order),
+              });
+            } else {
+              setFiltreIntervenant({
+                ...filtreIntervenant,
+                page: pagination.current || 1,
+                itemsPerPage: pagination.pageSize || 50,
+              });
+            }
+          }}
+          columns={intervenantTableColumns({
+            user: auth.user,
+            filter: filtreIntervenant,
+            setFilter: setFiltreIntervenant,
+            onIntervenantSelected: (intervenant) => {
+              setDrawerUtilisateur({
+                utilisateur: intervenant["@id"],
+                role: intervenant.roles?.includes(RoleValues.ROLE_RENFORT)
+                  ? RoleValues.ROLE_RENFORT
+                  : RoleValues.ROLE_INTERVENANT,
+              });
+            },
+            onImpersonate: (intervenantUid) => {
+              navigate(`/impersonate/${intervenantUid}`);
+            },
+          })}
+        />
+      </div>
+    </>
+  );
 }

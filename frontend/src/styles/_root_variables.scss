@@ -17,14 +17,14 @@
 
   // --- Pour les types d'évènements
 
-  @each $key, $val in colors.$colors-regular {
-    --color-#{$key}: #{$val};
+  @each $key, $val in colors.$colors-xlight {
+    --color-xlight-#{$key}: #{$val};
   }
   @each $key, $val in colors.$colors-light {
     --color-light-#{$key}: #{$val};
   }
-  @each $key, $val in colors.$colors-xlight {
-    --color-xlight-#{$key}: #{$val};
+  @each $key, $val in colors.$colors-regular {
+    --color-#{$key}: #{$val};
   }
   @each $key, $val in colors.$colors-dark {
     --color-dark-#{$key}: #{$val};
@@ -44,7 +44,8 @@
 }
 
 @each $key, $val in colors.$colors-dark {
-  .text-#{$key}-dark, .text-#{$key}-dark .ant-select-selection-item {
+  .text-#{$key}-dark,
+  .text-#{$key}-dark .ant-select-selection-item {
     color: #{$val} !important;
   }
   .bg-#{$key}-dark {
@@ -59,7 +60,8 @@
   .text-#{$key}-light {
     color: #{$val} !important;
   }
-  .bg-#{$key}-light, .bg-#{$key}-light td {
+  .bg-#{$key}-light,
+  .bg-#{$key}-light td {
     background-color: #{$val} !important;
   }
   .border-#{$key}-light {

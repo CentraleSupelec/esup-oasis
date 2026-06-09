@@ -7,21 +7,19 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { ReactElement } from "react";
-import "./AllDrawers.scss";
-import EvenementDrawer from "./Evenement/EvenementDrawer";
-import UtilisateurDrawer from "./Utilisateur/UtilisateurDrawer";
+import React, { lazy, ReactElement, Suspense } from "react";
+import "@controls/Drawers/AllDrawers.scss";
+import EvenementDrawer from "@controls/Drawers/Evenement/EvenementDrawer";
 
-/**
- * Renders all the drawers of the application.
- *
- * @return {ReactElement} - The JSX element representing all the drawers.
- */
+const UtilisateurDrawer = lazy(() => import("@controls/Drawers/Utilisateur/UtilisateurDrawer"));
+
 export default function AllDrawers(): ReactElement {
-   return (
-      <>
-         <EvenementDrawer />
-         <UtilisateurDrawer />
-      </>
-   );
+  return (
+    <>
+      <EvenementDrawer />
+      <Suspense>
+        <UtilisateurDrawer />
+      </Suspense>
+    </>
+  );
 }

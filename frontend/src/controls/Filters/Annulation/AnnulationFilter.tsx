@@ -9,18 +9,18 @@
 
 import React, { memo, ReactElement } from "react";
 import { Segmented, Tooltip } from "antd";
-import { ReactComponent as Asterisk } from "../../../assets/images/asterisk.svg";
+import Asterisk from "@/assets/images/asterisk.svg?react";
 import Icon from "@ant-design/icons";
 
 interface IAnnulationFilter {
-   value: AnnulationFilterValues;
-   setValue: (value: AnnulationFilterValues) => void;
+  value: AnnulationFilterValues;
+  setValue: (value: AnnulationFilterValues) => void;
 }
 
 export enum AnnulationFilterValues {
-   Tous = "tous",
-   EnCours = "encours",
-   Annules = "annules",
+  Tous = "tous",
+  EnCours = "encours",
+  Annules = "annules",
 }
 
 /**
@@ -33,32 +33,29 @@ export enum AnnulationFilterValues {
  * @return {ReactElement} The UI component for Annulation Filter.
  */
 export default memo(
-   function AnnulationFilter({ value, setValue }: IAnnulationFilter): ReactElement {
-      return (
-         <>
-            <Segmented
-               className="mt-1"
-               data-testid="annulation-filter"
-               options={[
-                  {
-                     label: (
-                        <Tooltip title="Tous : évènements en cours et annulés">
-                           <Icon
-                              component={Asterisk}
-                              aria-label="Tous : évènements en cours et annulés"
-                           />
-                        </Tooltip>
-                     ),
-                     value: AnnulationFilterValues.Tous,
-                  },
-                  { label: "En cours", value: AnnulationFilterValues.EnCours },
-                  { label: "Annulés", value: AnnulationFilterValues.Annules },
-               ]}
-               value={value || AnnulationFilterValues.EnCours}
-               onChange={(data) => setValue(data as AnnulationFilterValues)}
-            />
-         </>
-      );
-   },
-   (prevProps, nextProps) => prevProps.value === nextProps.value,
+  function AnnulationFilter({ value, setValue }: IAnnulationFilter): ReactElement {
+    return (
+      <>
+        <Segmented
+          className="mt-1"
+          data-testid="annulation-filter"
+          options={[
+            {
+              label: (
+                <Tooltip title="Tous : évènements en cours et annulés">
+                  <Icon component={Asterisk} aria-label="Tous : évènements en cours et annulés" />
+                </Tooltip>
+              ),
+              value: AnnulationFilterValues.Tous,
+            },
+            { label: "En cours", value: AnnulationFilterValues.EnCours },
+            { label: "Annulés", value: AnnulationFilterValues.Annules },
+          ]}
+          value={value || AnnulationFilterValues.EnCours}
+          onChange={(data) => setValue(data as AnnulationFilterValues)}
+        />
+      </>
+    );
+  },
+  (prevProps, nextProps) => prevProps.value === nextProps.value,
 );

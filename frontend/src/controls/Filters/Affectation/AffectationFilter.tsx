@@ -9,18 +9,18 @@
 
 import React, { memo, ReactElement } from "react";
 import { Segmented, Tooltip } from "antd";
-import { ReactComponent as Asterisk } from "../../../assets/images/asterisk.svg";
+import Asterisk from "@/assets/images/asterisk.svg?react";
 import Icon from "@ant-design/icons";
 
 interface IAffectationFilter {
-   value: AffectationFilterValues;
-   setValue: (value: AffectationFilterValues) => void;
+  value: AffectationFilterValues;
+  setValue: (value: AffectationFilterValues) => void;
 }
 
 export enum AffectationFilterValues {
-   Tous = "undefined",
-   Affectes = "affecte",
-   NonAffectes = "non-affecte",
+  Tous = "undefined",
+  Affectes = "affecte",
+  NonAffectes = "non-affecte",
 }
 
 /**
@@ -33,30 +33,30 @@ export enum AffectationFilterValues {
  * @returns {ReactElement} The affectation filter component.
  */
 export default memo(
-   function AffectationFilter({ value, setValue }: IAffectationFilter): ReactElement {
-      return (
-         <Segmented
-            className="mt-1"
-            data-testid="affectation-filter"
-            options={[
-               {
-                  label: (
-                     <Tooltip title="Tous : évènements affectés et non affectés">
-                        <Icon
-                           component={Asterisk}
-                           aria-label="Tous : évènements affectés et non affectés"
-                        />
-                     </Tooltip>
-                  ),
-                  value: AffectationFilterValues.Tous,
-               },
-               { label: "Affectés", value: AffectationFilterValues.Affectes },
-               { label: "Non affectés", value: AffectationFilterValues.NonAffectes },
-            ]}
-            value={value || AffectationFilterValues.Tous}
-            onChange={(data) => setValue(data as AffectationFilterValues)}
-         />
-      );
-   },
-   (prevProps, nextProps) => prevProps.value === nextProps.value,
+  function AffectationFilter({ value, setValue }: IAffectationFilter): ReactElement {
+    return (
+      <Segmented
+        className="mt-1"
+        data-testid="affectation-filter"
+        options={[
+          {
+            label: (
+              <Tooltip title="Tous : évènements affectés et non affectés">
+                <Icon
+                  component={Asterisk}
+                  aria-label="Tous : évènements affectés et non affectés"
+                />
+              </Tooltip>
+            ),
+            value: AffectationFilterValues.Tous,
+          },
+          { label: "Affectés", value: AffectationFilterValues.Affectes },
+          { label: "Non affectés", value: AffectationFilterValues.NonAffectes },
+        ]}
+        value={value || AffectationFilterValues.Tous}
+        onChange={(data) => setValue(data as AffectationFilterValues)}
+      />
+    );
+  },
+  (prevProps, nextProps) => prevProps.value === nextProps.value,
 );

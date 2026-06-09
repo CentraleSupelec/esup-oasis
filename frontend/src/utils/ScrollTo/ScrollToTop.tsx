@@ -16,19 +16,20 @@ import { useLocation } from "react-router-dom";
  * @returns {null} Returns null.
  */
 export default function ScrollToTop(): null {
-   const { pathname, hash } = useLocation();
-   useEffect(() => {
-      if (hash) {
-         try {
-            const element = document.querySelector(hash);
-            const y = (element?.getBoundingClientRect().top || 0) + window.scrollY - 100;
-            window.scrollTo({ top: y, behavior: "smooth" });
-         } catch {
-         }
-      } else {
-         window.scrollTo(0, 0);
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (hash) {
+      try {
+        const element = document.querySelector(hash);
+        const y = (element?.getBoundingClientRect().top || 0) + window.scrollY - 100;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      } catch {
+        /* empty */
       }
-   }, [pathname, hash]);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, hash]);
 
-   return null;
+  return null;
 }

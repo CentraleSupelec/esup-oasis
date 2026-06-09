@@ -7,10 +7,10 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import { Utilisateur } from "../../lib/Utilisateur";
+import { Utilisateur } from "@lib";
 import React, { ReactElement } from "react";
 import { Checkbox, Col, Form, Typography } from "antd";
-import { ICampus } from "../../api/ApiTypeHelpers";
+import { ICampus } from "@api";
 
 /**
  * Render the campus section of the user profile
@@ -21,37 +21,37 @@ import { ICampus } from "../../api/ApiTypeHelpers";
  * @returns {ReactElement} - The rendered campus section of the user profile
  */
 export function MonProfilCampus(props: {
-   user: Utilisateur | undefined;
-   campuses: ICampus[];
+  user: Utilisateur | undefined;
+  campuses: ICampus[];
 }): ReactElement {
-   return (
-      <>
-         <Col span={24}>
-            <Typography.Title level={2}>Campus</Typography.Title>
-            <div>
-               <Form.Item
-                  name="campus"
-                  label={
-                     <span className="semi-bold mb-1">
-                        {props.user?.isIntervenant
-                           ? "Campus sur lesquels vous pouvez intervenir"
-                           : "Campus que vous fréquentez"}
-                     </span>
-                  }
-               >
-                  <Checkbox.Group
-                     className="checkbox-group-vertical"
-                     options={(props.campuses || [])
-                        .filter((campus) => campus.actif)
-                        .sort((a, b) => a.libelle.localeCompare(b.libelle))
-                        .map((campus) => ({
-                           label: campus.libelle,
-                           value: campus["@id"] as string,
-                        }))}
-                  />
-               </Form.Item>
-            </div>
-         </Col>
-      </>
-   );
+  return (
+    <>
+      <Col span={24}>
+        <Typography.Title level={2}>Campus</Typography.Title>
+        <div>
+          <Form.Item
+            name="campus"
+            label={
+              <span className="semi-bold mb-1">
+                {props.user?.isIntervenant
+                  ? "Campus sur lesquels vous pouvez intervenir"
+                  : "Campus que vous fréquentez"}
+              </span>
+            }
+          >
+            <Checkbox.Group
+              className="checkbox-group-vertical"
+              options={(props.campuses || [])
+                .filter((campus) => campus.actif)
+                .sort((a, b) => a.libelle.localeCompare(b.libelle))
+                .map((campus) => ({
+                  label: campus.libelle,
+                  value: campus["@id"] as string,
+                }))}
+            />
+          </Form.Item>
+        </div>
+      </Col>
+    </>
+  );
 }

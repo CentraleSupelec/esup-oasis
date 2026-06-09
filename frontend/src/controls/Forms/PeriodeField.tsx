@@ -10,57 +10,53 @@
 import React from "react";
 import { Select } from "antd";
 import dayjs from "dayjs";
-import { IPeriode } from "../../api/ApiTypeHelpers";
-import { useApi } from "../../context/api/ApiProvider";
-import { NB_MAX_ITEMS_PER_PAGE } from "../../constants";
+import { IPeriode } from "@api";
+import { useApi } from "@context/api/ApiProvider";
 
 export default function PeriodeField(props: {
-   value?: IPeriode;
-   onChange?: (value: IPeriode | IPeriode[] | undefined) => void;
-   mode?: "multiple" | "tags";
-   placeholder?: string;
-   seulementPeriodesEnvoyees?: boolean;
+  value?: IPeriode;
+  onChange?: (value: IPeriode | IPeriode[] | undefined) => void;
+  mode?: "multiple" | "tags";
+  placeholder?: string;
+  seulementPeriodesEnvoyees?: boolean;
 }) {
-   const { data: periodes, isFetching } = useApi().useGetCollectionPaginated({
-      path: "/periodes",
-      page: 1,
-      itemsPerPage: NB_MAX_ITEMS_PER_PAGE,
-      query: {
-         "order[debut]": "desc",
-      },
-   });
+  const { data: periodes, isFetching } = useApi().useGetFullCollection({
+    path: "/periodes",
+    query: {
+      "order[debut]": "desc",
+    },
+  });
 
-   return (
-      <Select
-         className="w-100"
-         placeholder={
-            props.placeholder ||
-            (props.mode ? "Sélectionnez des périodes" : "Sélectionnez une période")
-         }
-         mode={props.mode}
-         options={periodes?.items
-            .filter(
-               (p) =>
-                  props.seulementPeriodesEnvoyees === undefined ||
-                  (props.seulementPeriodesEnvoyees && p.envoyee) ||
-                  !props.seulementPeriodesEnvoyees,
-            )
-            .sort((a, b) => dayjs(b.debut).diff(dayjs(a.debut)))
-            .map((p) => ({
-               label: `Période du ${dayjs(p.debut).format("DD/MM/YYYY")} au ${dayjs(p.fin).format(
-                  "DD/MM/YYYY",
-               )}`,
-               value: p["@id"] as string,
-            }))}
-         loading={isFetching}
-         onChange={(value: string | string[]) => {
-            if (Array.isArray(value)) {
-               props.onChange?.(periodes?.items.filter((p) => value.includes(p["@id"] as string)));
-            } else {
-               props.onChange?.(periodes?.items.find((p) => p["@id"] === value));
-            }
-         }}
-         value={props.value?.["@id"]}
-      />
-   );
+  return (
+    <Select
+      className="w-100"
+      placeholder={
+        props.placeholder || (props.mode ? "Sélectionnez des périodes" : "Sélectionnez une période")
+      }
+      mode={props.mode}
+      options={periodes?.items
+        .filter(
+          (p) =>
+            props.seulementPeriodesEnvoyees === undefined ||
+            (props.seulementPeriodesEnvoyees && p.envoyee) ||
+            !props.seulementPeriodesEnvoyees,
+        )
+        .sort((a, b) => dayjs(b.debut).diff(dayjs(a.debut)))
+        .map((p) => ({
+          label: `Période du ${dayjs(p.debut).format("DD/MM/YYYY")} au ${dayjs(p.fin).format(
+            "DD/MM/YYYY",
+          )}`,
+          value: p["@id"] as string,
+        }))}
+      loading={isFetching}
+      onChange={(value: string | string[]) => {
+        if (Array.isArray(value)) {
+          props.onChange?.(periodes?.items.filter((p) => value.includes(p["@id"] as string)));
+        } else {
+          props.onChange?.(periodes?.items.find((p) => p["@id"] === value));
+        }
+      }}
+      value={props.value?.["@id"]}
+    />
+  );
 }

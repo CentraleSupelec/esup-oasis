@@ -9,13 +9,13 @@
 
 import { Checkbox, Form } from "antd";
 import React, { ReactElement } from "react";
-import { useApi } from "../../context/api/ApiProvider";
-import { Utilisateur } from "../../lib/Utilisateur";
-import { PREFETCH_CAMPUS } from "../../api/ApiPrefetchHelpers";
+import { useApi } from "@context/api/ApiProvider";
+import { Utilisateur } from "@lib";
+import { PREFETCH_CAMPUS } from "@api";
 
 interface ITabCampus {
-   utilisateur: Utilisateur;
-   setUtilisateur: (utilisateur: Utilisateur) => void;
+  utilisateur: Utilisateur;
+  setUtilisateur: (utilisateur: Utilisateur) => void;
 }
 
 /**
@@ -28,29 +28,32 @@ interface ITabCampus {
  * @returns {ReactElement} - The rendered JSX component.
  */
 export function TabCampuses({ utilisateur, setUtilisateur }: ITabCampus): ReactElement {
-   const { data } = useApi().useGetCollection(PREFETCH_CAMPUS);
+  const { data } = useApi().useGetFullCollection(PREFETCH_CAMPUS);
 
-   return (
-      <>
-         <Form.Item name="campus">
-            <Checkbox.Group
-               className="checkbox-group-vertical"
-               value={utilisateur.campus}
-               options={data?.items.map((item) => ({
-                  label: item.libelle,
-                  value: item["@id"] as string,
-                  disabled: !item.actif,
-               }))}
-               onChange={(checkedValues) => {
-                  setUtilisateur(
-                     new Utilisateur({
-                        ...utilisateur,
-                        campus: checkedValues as string[],
-                     }),
-                  );
-               }}
-            />
-         </Form.Item>
-      </>
-   );
+  return (
+    <>
+      <Form.Item name="campus">
+        <Checkbox.Group
+          className="checkbox-group-vertical"
+          value={utilisateur.campus}
+          options={data?.items
+            // on ne conserve que les campus actifs ou les campus actifs de l'utilisateur
+            .filter((item) => item.actif || utilisateur.campus?.includes(item["@id"] as string))
+            .map((item) => ({
+              label: item.libelle,
+              value: item["@id"] as string,
+              disabled: !item.actif,
+            }))}
+          onChange={(checkedValues) => {
+            setUtilisateur(
+              new Utilisateur({
+                ...utilisateur,
+                campus: checkedValues as string[],
+              }),
+            );
+          }}
+        />
+      </Form.Item>
+    </>
+  );
 }

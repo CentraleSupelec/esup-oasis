@@ -8,14 +8,15 @@
  */
 
 import React, { ReactElement } from "react";
-import { getRoleLabel, RoleValues, Utilisateur } from "../../lib/Utilisateur";
+import { getRoleLabel, RoleValues, Utilisateur } from "@lib";
 import { Tag } from "antd";
 import { UserOutlined } from "@ant-design/icons";
+import { IUtilisateur } from "@api";
 
 interface IItemRoleProps {
-   role?: string;
-   roles?: string[];
-   className?: string;
+  role?: string;
+  roles?: string[];
+  className?: string;
 }
 
 /**
@@ -26,16 +27,16 @@ interface IItemRoleProps {
  * @param {Array<string>} [props.roles] - The roles associated with the item.
  * @returns {ReactElement} - The JSX element representing the calculated role tag.
  */
-export default function RoleCalculeItem({ role, roles, className }: IItemRoleProps): ReactElement {
-   const utilisateur = new Utilisateur({ roles: role ? [role] : roles });
+export function RoleCalculeItem({ role, roles, className }: IItemRoleProps): ReactElement {
+  const utilisateur = new Utilisateur({ roles: role ? [role] : roles } as IUtilisateur);
 
-   return (
-      <Tag
-         icon={<UserOutlined aria-hidden />}
-         color={utilisateur.getRoleColor()}
-         className={className}
-      >
-         {getRoleLabel(utilisateur.roleCalcule as RoleValues)}
-      </Tag>
-   );
+  return (
+    <Tag
+      icon={<UserOutlined aria-hidden />}
+      color={utilisateur.getRoleColor()}
+      className={className}
+    >
+      {getRoleLabel(utilisateur.roleCalcule as RoleValues)}
+    </Tag>
+  );
 }

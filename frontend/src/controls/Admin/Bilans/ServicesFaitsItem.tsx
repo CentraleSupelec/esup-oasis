@@ -9,16 +9,16 @@
 
 import React, { ReactElement } from "react";
 import { Typography } from "antd";
-import PeriodeRhItem from "../../Items/PeriodeRhItem";
-import { useApi } from "../../../context/api/ApiProvider";
+import { GestionnaireItem } from "@controls/Items/GestionnaireItem";
+import { PeriodeRhItem } from "@controls/Items/PeriodeRhItem";
+import { useApi } from "@context/api/ApiProvider";
 import dayjs from "dayjs";
-import GestionnaireItem from "../../Items/GestionnaireItem";
-import Spinner from "../../Spinner/Spinner";
-import { ServicesFaitsDetailsTable } from "../../Table/ServicesFaitsDetailsTable";
-import { IPeriode } from "../../../api/ApiTypeHelpers";
+import Spinner from "@controls/Spinner/Spinner";
+import { ServicesFaitsDetailsTable } from "@controls/Table/ServicesFaitsDetailsTable";
+import { IPeriode } from "@api";
 
 interface ServicesFaitsModaleProps {
-   periode: IPeriode;
+  periode: IPeriode;
 }
 
 /**
@@ -30,30 +30,27 @@ interface ServicesFaitsModaleProps {
  * @return {ReactElement} A React component to display the ServicesFaitsItem details.
  */
 export function ServicesFaitsItem({ periode }: ServicesFaitsModaleProps): ReactElement {
-   const { data: servicesFaits, isFetching } = useApi().useGetItem({
-      path: "/periodes/{id}/services_faits",
-      parameters: {
-         id: periode["@id"] as string,
-      },
-   });
+  const { data: servicesFaits, isFetching } = useApi().useGetItem({
+    path: "/periodes/{id}/services_faits",
+    parameters: {
+      id: periode["@id"] as string,
+    },
+  });
 
-   return (
-      <>
-         <Typography.Title level={5}>
-            Période : <PeriodeRhItem periodeId={periode["@id"]} />
-         </Typography.Title>
-         <Typography.Paragraph>
-            Envoi à la RH : le {dayjs(periode.dateEnvoi as string).format("DD/MM/YYYY")} par{" "}
-            <GestionnaireItem
-               showAvatar={false}
-               gestionnaireId={periode.utilisateurEnvoi as string}
-            />
-         </Typography.Paragraph>
-         {servicesFaits ? (
-            <ServicesFaitsDetailsTable servicesFaits={servicesFaits} isFetching={isFetching} />
-         ) : (
-            <Spinner />
-         )}
-      </>
-   );
+  return (
+    <>
+      <Typography.Title level={5}>
+        Période : <PeriodeRhItem periodeId={periode["@id"]} />
+      </Typography.Title>
+      <Typography.Paragraph>
+        Envoi à la RH : le {dayjs(periode.dateEnvoi as string).format("DD/MM/YYYY")} par{" "}
+        <GestionnaireItem showAvatar={false} gestionnaireId={periode.utilisateurEnvoi as string} />
+      </Typography.Paragraph>
+      {servicesFaits ? (
+        <ServicesFaitsDetailsTable servicesFaits={servicesFaits} isFetching={isFetching} />
+      ) : (
+        <Spinner />
+      )}
+    </>
+  );
 }

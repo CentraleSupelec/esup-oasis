@@ -9,11 +9,11 @@
 
 import { Form, Radio } from "antd";
 import React, { ReactElement } from "react";
-import { useApi } from "../../context/api/ApiProvider";
-import { PREFETCH_TYPES_EVENEMENTS } from "../../api/ApiPrefetchHelpers";
+import { useApi } from "@context/api/ApiProvider";
+import { PREFETCH_TYPES_EVENEMENTS } from "@api";
 
 interface ITabCategorie {
-   defaultValue?: string;
+  defaultValue?: string;
 }
 
 /**
@@ -23,22 +23,22 @@ interface ITabCategorie {
  * @returns {ReactElement} - The rendered JSX for the tab.
  */
 export function TabTypeEvenement({ defaultValue }: ITabCategorie): ReactElement {
-   const { data } = useApi().useGetCollection(PREFETCH_TYPES_EVENEMENTS);
+  const { data } = useApi().useGetFullCollection(PREFETCH_TYPES_EVENEMENTS);
 
-   return (
-      <>
-         <Form.Item name="intervenant.typesEvenements">
-            <Radio.Group
-               className="checkbox-group-vertical"
-               options={data?.items
-                  .filter((c) => c.actif)
-                  .map((item) => ({
-                     label: item.libelle,
-                     value: item["@id"] as string,
-                  }))}
-               defaultValue={defaultValue}
-            />
-         </Form.Item>
-      </>
-   );
+  return (
+    <>
+      <Form.Item name="intervenant.typesEvenements">
+        <Radio.Group
+          className="checkbox-group-vertical"
+          options={data?.items
+            .filter((c) => c.actif)
+            .map((item) => ({
+              label: item.libelle,
+              value: item["@id"] as string,
+            }))}
+          defaultValue={defaultValue}
+        />
+      </Form.Item>
+    </>
+  );
 }

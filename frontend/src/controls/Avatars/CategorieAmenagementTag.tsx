@@ -7,16 +7,16 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import { useApi } from "../../context/api/ApiProvider";
-import { PREFETCH_CATEGORIES_AMENAGEMENTS } from "../../api/ApiPrefetchHelpers";
-import Spinner from "../Spinner/Spinner";
+import { useApi } from "@context/api/ApiProvider";
+import { PREFETCH_CATEGORIES_AMENAGEMENTS } from "@api";
+import Spinner from "@controls/Spinner/Spinner";
 import { Tag } from "antd";
 import React from "react";
 
 export function CategorieAmenagementTag(props: { categorieId: undefined | string }) {
-   const { data: categories } = useApi().useGetCollection(PREFETCH_CATEGORIES_AMENAGEMENTS);
+  const { data: categories } = useApi().useGetFullCollection(PREFETCH_CATEGORIES_AMENAGEMENTS);
 
-   if (!categories) return <Spinner />;
+  if (!categories) return <Spinner />;
 
-   return <Tag>{categories?.items.find((c) => c["@id"] === props.categorieId)?.libelle}</Tag>;
+  return <Tag>{categories?.items.find((c) => c["@id"] === props.categorieId)?.libelle}</Tag>;
 }

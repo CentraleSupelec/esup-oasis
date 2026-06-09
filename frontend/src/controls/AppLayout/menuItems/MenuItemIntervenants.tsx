@@ -19,24 +19,24 @@ import React from "react";
  * @return {MenuProps["items"]} - The menu items for the "Intervenants" menu item.
  */
 export const menuItemIntervenants = (
-   setSelectedKey: (key: string) => void,
-   navigate: NavigateFunction,
+  setSelectedKey: (key: string) => void,
+  navigate: NavigateFunction,
 ): MenuProps["items"] => [
-   {
-      key: "intervenants",
-      label: (
-         <Button
-            type="text"
-            className="no-hover p-0"
-            onClick={() => {
-               setSelectedKey("intervenants");
-               navigate("/intervenants");
-            }}
-         >
-            Intervenants
-         </Button>
-      ),
-      children: [],
-      popupClassName: "d-none",
-   },
+  {
+    key: "intervenants",
+    label: (
+      <Button
+        type="text"
+        className="no-hover p-0"
+        onClick={() => {
+          setSelectedKey("intervenants");
+          navigate("/intervenants");
+        }}
+      >
+        Intervenants
+      </Button>
+    ),
+    children: [],
+    popupClassName: "d-none",
+  },
 ];

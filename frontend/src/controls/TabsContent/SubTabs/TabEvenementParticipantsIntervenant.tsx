@@ -8,20 +8,19 @@
  */
 
 import React, { ReactElement, useState } from "react";
-import { TYPE_EVENEMENT_RENFORT } from "../../../constants";
+import { TYPE_EVENEMENT_RENFORT } from "@/constants";
 import { Button, Form } from "antd";
-import UtilisateurFormItemSelect from "../../Forms/UtilisateurFormItemSelect";
-import { RoleValues } from "../../../lib/Utilisateur";
+import UtilisateurFormItemSelect from "@controls/Forms/UtilisateurFormItemSelect";
+import { Evenement, RoleValues } from "@lib";
 import { MinusCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import IntervenantRechercherDrawer from "../../Drawers/Intervenant/IntervenantRechercherDrawer";
-import { Evenement } from "../../../lib/Evenement";
-import { IPartialEvenement } from "../../../api/ApiTypeHelpers";
-import { env } from "../../../env";
+import IntervenantRechercherDrawer from "@controls/Drawers/Intervenant/IntervenantRechercherDrawer";
+import { IPartialEvenement } from "@api";
+import { env } from "@/env";
 
 interface TabEvenementParticipantsIntervenantProps {
-   evenement: Evenement | undefined;
-   setEvenement: (data: IPartialEvenement | undefined, forceResetForm: boolean) => void;
-   intervenantDisabled?: boolean;
+  evenement: Evenement | undefined;
+  setEvenement: (data: IPartialEvenement | undefined, forceResetForm: boolean) => void;
+  intervenantDisabled?: boolean;
 }
 
 /**
@@ -35,107 +34,107 @@ interface TabEvenementParticipantsIntervenantProps {
  * @returns {ReactElement} The rendered component.
  */
 export function TabEvenementParticipantsIntervenant({
-   evenement,
-   setEvenement,
-   intervenantDisabled,
+  evenement,
+  setEvenement,
+  intervenantDisabled,
 }: TabEvenementParticipantsIntervenantProps): ReactElement {
-   const [rechercherIntervenant, setRechercherIntervenant] = useState(false);
+  const [rechercherIntervenant, setRechercherIntervenant] = useState(false);
 
-   return (
-      <div className="ant-form-item">
-         <b className="semi-bold">
-            {evenement?.type === TYPE_EVENEMENT_RENFORT ? "Renfort" : "Intervenant"}
-         </b>
-         <Form.Item
-            noStyle
-            name="intervenant"
-            label={
-               evenement?.type === TYPE_EVENEMENT_RENFORT ? (
-                  <b className="semi-bold">Renfort {env.REACT_APP_SERVICE}</b>
-               ) : (
-                  <b className="semi-bold">Intervenant</b>
-               )
-            }
-            className="mt-2"
-            required={evenement?.type === TYPE_EVENEMENT_RENFORT}
-            rules={[
-               {
-                  required: evenement?.type === TYPE_EVENEMENT_RENFORT,
-                  message: "Le champ Renfort doit être complété",
-               },
-            ]}
-         >
-            <UtilisateurFormItemSelect
-               disabled={intervenantDisabled}
-               style={{ width: "calc(100% - 35px)" }}
-               intervenantArchive={false}
-               onSelect={(value) => {
-                  setEvenement(
-                     {
-                        intervenant: value,
-                     },
-                     true,
-                  );
-               }}
-               placeholder={
-                  evenement?.type === TYPE_EVENEMENT_RENFORT
-                     ? "Rechercher un renfort"
-                     : "Rechercher un intervenant"
-               }
-               roleUtilisateur={
-                  evenement?.type === TYPE_EVENEMENT_RENFORT
-                     ? RoleValues.ROLE_RENFORT
-                     : RoleValues.ROLE_INTERVENANT
-               }
-            />
-         </Form.Item>
-         {evenement?.intervenant ? (
-            <Button
-               type="link"
-               icon={<MinusCircleOutlined />}
-               className="dynamic-delete-button m-0 p-0"
-               onClick={() => {
-                  setEvenement(
-                     {
-                        intervenant: undefined,
-                     },
-                     true,
-                  );
-               }}
-            />
-         ) : (
-            <>
-               <IntervenantRechercherDrawer
-                  afficherFiltres
-                  open={rechercherIntervenant}
-                  setOpen={setRechercherIntervenant}
-                  onChange={(value) => {
-                     setEvenement(
-                        {
-                           intervenant: value,
-                        },
-                        true,
-                     );
-                     setRechercherIntervenant(false);
-                  }}
-                  defaultSearchOptions={{
-                     beneficiaire: evenement?.beneficiaires?.[0],
-                     "intervenant.typesEvenements": evenement?.type,
-                     "intervenant.campuses": evenement?.campus,
-                     "creneau[debut]": evenement?.debut,
-                     "creneau[fin]": evenement?.fin,
-                  }}
-               />
-               <Button
-                  type="link"
-                  icon={<SearchOutlined />}
-                  className="dynamic-delete-button m-0 p-0"
-                  onClick={() => {
-                     setRechercherIntervenant(true);
-                  }}
-               />
-            </>
-         )}
-      </div>
-   );
+  return (
+    <div className="ant-form-item">
+      <b className="semi-bold">
+        {evenement?.type === TYPE_EVENEMENT_RENFORT ? "Renfort" : "Intervenant"}
+      </b>
+      <Form.Item
+        noStyle
+        name="intervenant"
+        label={
+          evenement?.type === TYPE_EVENEMENT_RENFORT ? (
+            <b className="semi-bold">Renfort {env.REACT_APP_SERVICE}</b>
+          ) : (
+            <b className="semi-bold">Intervenant</b>
+          )
+        }
+        className="mt-2"
+        required={evenement?.type === TYPE_EVENEMENT_RENFORT}
+        rules={[
+          {
+            required: evenement?.type === TYPE_EVENEMENT_RENFORT,
+            message: "Le champ Renfort doit être complété",
+          },
+        ]}
+      >
+        <UtilisateurFormItemSelect
+          disabled={intervenantDisabled}
+          style={{ width: "calc(100% - 35px)" }}
+          intervenantArchive={false}
+          onSelect={(value) => {
+            setEvenement(
+              {
+                intervenant: value,
+              },
+              true,
+            );
+          }}
+          placeholder={
+            evenement?.type === TYPE_EVENEMENT_RENFORT
+              ? "Rechercher un renfort"
+              : "Rechercher un intervenant"
+          }
+          roleUtilisateur={
+            evenement?.type === TYPE_EVENEMENT_RENFORT
+              ? RoleValues.ROLE_RENFORT
+              : RoleValues.ROLE_INTERVENANT
+          }
+        />
+      </Form.Item>
+      {evenement?.intervenant ? (
+        <Button
+          type="link"
+          icon={<MinusCircleOutlined />}
+          className="dynamic-delete-button m-0 p-0"
+          onClick={() => {
+            setEvenement(
+              {
+                intervenant: undefined,
+              },
+              true,
+            );
+          }}
+        />
+      ) : (
+        <>
+          <IntervenantRechercherDrawer
+            afficherFiltres
+            open={rechercherIntervenant}
+            setOpen={setRechercherIntervenant}
+            onChange={(value) => {
+              setEvenement(
+                {
+                  intervenant: value,
+                },
+                true,
+              );
+              setRechercherIntervenant(false);
+            }}
+            defaultSearchOptions={{
+              beneficiaire: evenement?.beneficiaires?.[0],
+              "intervenant.typesEvenements": evenement?.type,
+              "intervenant.campuses": evenement?.campus,
+              "creneau[debut]": evenement?.debut,
+              "creneau[fin]": evenement?.fin,
+            }}
+          />
+          <Button
+            type="link"
+            icon={<SearchOutlined />}
+            className="dynamic-delete-button m-0 p-0"
+            onClick={() => {
+              setRechercherIntervenant(true);
+            }}
+          />
+        </>
+      )}
+    </div>
+  );
 }

@@ -1,0 +1,40 @@
+:80 {
+    root * /usr/share/caddy
+
+    encode zstd gzip
+
+    header {
+        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' {$REACT_APP_API} {$REACT_APP_OAUTH_PROVIDER}; frame-ancestors 'none'; object-src 'none';"
+        X-Frame-Options "DENY"
+        X-Content-Type-Options "nosniff"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    }
+
+    @static path_regexp \.(js|css|woff2?|ttf|otf|eot|svg|ico)$
+    header @static Cache-Control "public, immutable, max-age=31536000"
+
+    @images path_regexp \.(jpg|jpeg|gif|png|webp|avif)$
+    header @images Cache-Control "public, max-age=2592000"
+
+    @indexhtml path /index.html
+    header @indexhtml {
+        Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+        Expires "-1"
+    }
+
+    # Fichiers personnalisables par l'établissement : servis tels quels, sans fallback SPA.
+    # Si le fichier est absent, Caddy retourne 404 (et non index.html).
+    # IMPORTANT : doit être un bloc `handle` pour être terminal et court-circuiter le try_files
+    # ci-dessous (try_files est un rewrite qui s'exécute avant les matchers de route dans Caddy).
+    handle /mentions-legales.html {
+        file_server
+    }
+
+    # Tous les autres chemins : SPA fallback vers index.html
+    handle {
+        try_files {path} /index.html
+        file_server
+    }
+}

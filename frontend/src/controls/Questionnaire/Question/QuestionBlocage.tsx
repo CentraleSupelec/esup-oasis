@@ -8,38 +8,40 @@
  */
 
 import { Alert, Form } from "antd";
-import {
-   QuestionnaireQuestion,
-   useQuestionnaire,
-} from "../../../context/demande/QuestionnaireProvider";
+import { QuestionnaireQuestion, useQuestionnaire } from "@context/demande/QuestionnaireProvider";
 import { useEffect } from "react";
 import { WarningFilled } from "@ant-design/icons";
+import { sanitizeHtml } from "@utils/sanitize";
 
 export function QuestionBlocage(props: { question: QuestionnaireQuestion }) {
-   const { setBlocage } = useQuestionnaire();
+  const { setBlocage } = useQuestionnaire();
 
-   useEffect(() => {
-      setBlocage(true);
-   }, [setBlocage]);
+  useEffect(() => {
+    setBlocage(true);
+  }, [setBlocage]);
 
-   // props.question.aide contient du HTML
-   return (
-      <>
-         <Form.Item
-            className="mb-0"
-            rootClassName="question-item question-blocage"
-            name={props.question["@id"]}
-         >
-            <Alert
-               icon={<WarningFilled />}
-               showIcon
-               type="warning"
-               title={props.question.libelle}
-               description={
-                  <span dangerouslySetInnerHTML={{ __html: props.question.aide as string }} />
-               }
+  // props.question.aide contient du HTML
+  return (
+    <>
+      <Form.Item
+        className="mb-0"
+        rootClassName="question-item question-blocage"
+        name={props.question["@id"]}
+      >
+        <Alert
+          icon={<WarningFilled />}
+          showIcon
+          type="warning"
+          title={props.question.libelle}
+          description={
+            <span
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHtml(props.question.aide as string),
+              }}
             />
-         </Form.Item>
-      </>
-   );
+          }
+        />
+      </Form.Item>
+    </>
+  );
 }

@@ -8,14 +8,13 @@
  */
 
 import React, { ReactElement } from "react";
-import { useApi } from "../../context/api/ApiProvider";
-import { NB_MAX_ITEMS_PER_PAGE } from "../../constants";
-import Spinner from "../Spinner/Spinner";
+import { useApi } from "@context/api/ApiProvider";
+import Spinner from "@controls/Spinner/Spinner";
 import { Tag } from "antd";
 
 interface IItemServiceProps {
-   service?: string;
-   services?: string[];
+  service?: string;
+  services?: string[];
 }
 
 /**
@@ -27,27 +26,24 @@ interface IItemServiceProps {
  *
  * @returns {ReactElement} - The rendered list of service items.
  */
-export default function ServiceItem({ service, services }: IItemServiceProps): ReactElement {
-   const data = service ? [service] : services;
-   const { data: dataServices, isFetching: isFetchingServices } =
-      useApi().useGetCollectionPaginated({
-         path: "/services",
-         page: 1,
-         itemsPerPage: NB_MAX_ITEMS_PER_PAGE,
-      });
+export function ServiceItem({ service, services }: IItemServiceProps): ReactElement {
+  const data = service ? [service] : services;
+  const { data: dataServices, isFetching: isFetchingServices } = useApi().useGetFullCollection({
+    path: "/services",
+  });
 
-   if (isFetchingServices || !data) return <Spinner />;
+  if (isFetchingServices || !data) return <Spinner />;
 
-   return (
-      <>
-         {data.map((s) => {
-            const serv = dataServices?.items.find((ob) => ob["@id"] === s);
-            return (
-               <Tag key={s} className="mb-1">
-                  {serv?.libelle}
-               </Tag>
-            );
-         })}
-      </>
-   );
+  return (
+    <>
+      {data.map((s) => {
+        const serv = dataServices?.items.find((ob) => ob["@id"] === s);
+        return (
+          <Tag key={s} className="mb-1">
+            {serv?.libelle}
+          </Tag>
+        );
+      })}
+    </>
+  );
 }

@@ -11,26 +11,26 @@ import React from "react";
 import { Typography } from "antd";
 
 export const EllipsisParagraph: React.FC<{
-   content: string;
-   className?: string;
-   type?: "secondary" | "success" | "warning" | "danger";
+  content: string;
+  className?: string;
+  type?: "secondary" | "success" | "warning" | "danger";
 }> = ({ content, className, type }) => {
-   const [expanded, setExpanded] = React.useState<boolean>(false);
-   return (
-      <Typography.Paragraph
-         type={type}
-         className={`pointer ${className}`}
-         ellipsis={{
-            rows: 2,
-            expandable: "collapsible",
-            symbol: expanded ? "moins" : "plus",
-            expanded: expanded,
-            tooltip: !expanded ? content : undefined,
-            onExpand: (_e, info) => setExpanded(info.expanded),
-         }}
-         onClick={() => setExpanded(!expanded)}
-      >
-         {content}
-      </Typography.Paragraph>
-   );
+  const [expanded, setExpanded] = React.useState<boolean>(false);
+  return (
+    <Typography.Paragraph
+      type={type}
+      className={`pointer ${className}`}
+      ellipsis={{
+        rows: 2,
+        expandable: "collapsible",
+        symbol: expanded ? "moins" : "plus",
+        expanded: expanded,
+        tooltip: !expanded ? content : undefined,
+        onExpand: (_e, info) => setExpanded(info.expanded),
+      }}
+      onClick={() => setExpanded(!expanded)}
+    >
+      {content}
+    </Typography.Paragraph>
+  );
 };

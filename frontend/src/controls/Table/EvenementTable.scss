@@ -1,18 +1,18 @@
-@import "src/styles/variables";
+@use "../../styles/variables" as variables;
 
 .stripped {
   background-image: url("../../assets/images/strip.svg");
   background-position: left top;
 }
 
-.not-affecte, .not-affecte .ant-table-column-sort {
-  background-color: $error-light !important;
+.not-affecte,
+.not-affecte .ant-table-column-sort {
+  background-color: variables.$error-light !important;
 
   td:first-child {
-    border-left: 3px solid $error;
+    border-left: 3px solid variables.$error;
   }
 }
-
 
 .affecte td:first-child {
   border-left: 3px solid transparent;

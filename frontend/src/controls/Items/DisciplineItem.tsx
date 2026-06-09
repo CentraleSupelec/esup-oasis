@@ -7,20 +7,19 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement } from "react";
 import { Breakpoint, Tag, Tooltip } from "antd";
-import Spinner from "../Spinner/Spinner";
-import { useApi } from "../../context/api/ApiProvider";
-import { NB_MAX_ITEMS_PER_PAGE } from "../../constants";
-import { IDiscipline } from "../../api/ApiTypeHelpers";
+import Spinner from "@controls/Spinner/Spinner";
+import { useApi } from "@context/api/ApiProvider";
+import { IDiscipline } from "@api";
 
 interface IItemDiscipline {
-   discipline?: IDiscipline;
-   disciplineId?: string;
-   showAvatar?: boolean;
-   responsive?: Breakpoint;
-   className?: string;
-   styleLibelle?: React.CSSProperties;
+  discipline?: IDiscipline;
+  disciplineId?: string;
+  showAvatar?: boolean;
+  responsive?: Breakpoint;
+  className?: string;
+  styleLibelle?: React.CSSProperties;
 }
 
 /**
@@ -32,28 +31,17 @@ interface IItemDiscipline {
  *
  * @returns {ReactElement} The rendered discipline item component.
  */
-export default function DisciplineItem({
-                                          discipline,
-                                          disciplineId,
-                                       }: IItemDiscipline): ReactElement {
-   const [item, setItem] = useState(discipline);
-   const { data: dataDiscipline, isFetching } = useApi().useGetCollectionPaginated({
-      path: "/disciplines_sportives",
-      page: 1,
-      itemsPerPage: NB_MAX_ITEMS_PER_PAGE,
-   });
+export function DisciplineItem({ discipline, disciplineId }: IItemDiscipline): ReactElement {
+  const { data: dataDiscipline, isFetching } = useApi().useGetFullCollection({
+    path: "/disciplines_sportives",
+  });
+  const item = discipline ?? dataDiscipline?.items.find((t) => t["@id"] === disciplineId);
 
-   useEffect(() => {
-      if (dataDiscipline && disciplineId) {
-         setItem(dataDiscipline.items.find((t) => t["@id"] === disciplineId));
-      }
-   }, [dataDiscipline, disciplineId]);
+  if (!item || isFetching) return <Spinner />;
 
-   if (!item || isFetching) return <Spinner />;
-
-   return (
-      <Tooltip title={item?.libelle}>
-         <Tag>{item?.libelle}</Tag>
-      </Tooltip>
-   );
+  return (
+    <Tooltip title={item?.libelle}>
+      <Tag>{item?.libelle}</Tag>
+    </Tooltip>
+  );
 }

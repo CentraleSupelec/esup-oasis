@@ -12,7 +12,7 @@
  * @param object
  */
 export const objectToQuery = (object: Record<string, string>) => {
-   return new URLSearchParams(object).toString();
+  return new URLSearchParams(object).toString();
 };
 
 /**
@@ -20,6 +20,6 @@ export const objectToQuery = (object: Record<string, string>) => {
  * @param query
  */
 export const queryToObject = (query: string) => {
-   const parameters = new URLSearchParams(query);
-   return Object.fromEntries(parameters.entries());
+  const parameters = new URLSearchParams(query);
+  return Object.fromEntries(parameters.entries());
 };

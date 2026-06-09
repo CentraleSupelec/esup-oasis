@@ -1,5 +1,5 @@
 # --- Étape 1 : Build ---
-FROM node:22.11-alpine AS build
+FROM node:24-alpine AS build
 
 WORKDIR /app
 
@@ -9,35 +9,25 @@ COPY package.json yarn.lock ./
 # Installation des dépendances (frozen-lockfile pour garantir l'intégrité)
 RUN yarn install --frozen-lockfile
 
-# Copie du reste du code et build
 COPY . .
+ARG REACT_APP_VERSION=dev
+ENV REACT_APP_VERSION=$REACT_APP_VERSION
 RUN yarn build
 
 # --- Étape 2 : Production ---
-FROM nginx:alpine
+FROM caddy:alpine
 
-# Installation de Node.js (version légère sur Alpine) uniquement pour react-inject-env
-# Alternative : installer react-inject-env globalement ou copier node_modules sélectivement
-RUN apk add --no-cache nodejs npm
-
-WORKDIR /usr/share/nginx/html
+WORKDIR /usr/share/caddy
 
 # Copie des fichiers compilés
-COPY --from=build /app/build/ .
+COPY --from=build /app/dist/ .
 
-# Configuration Nginx
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+# Configuration Caddy (les {$REACT_APP_*} sont substitués nativement par Caddy au démarrage)
+COPY docker/Caddyfile /etc/caddy/Caddyfile
 
 # Script d'entrée
 COPY --link --chmod=755 docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 
-# On s'assure que l'utilisateur nginx a les droits sur le dossier web
-# (Nécessaire si on veut passer en mode non-root plus tard)
-RUN chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/log/nginx /etc/nginx/conf.d
-
 EXPOSE 80
-
-# On peut aussi envisager de passer en USER nginx ici,
-# mais cela demande d'ajuster le port (>1024) et les permissions des dossiers de logs/cache de nginx.
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]

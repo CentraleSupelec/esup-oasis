@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
+ *
+ * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
+ *
+ * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
+ *
+ */
+
+@use "sass:color";
+@use "sass:map";
+@use "../../styles/colors";
+@use "../../styles/variables" as variables;
+
 .scrollbar-container-horizontal {
   position: sticky;
   bottom: 16px;
@@ -25,4 +40,50 @@
 
 .position-relative {
   position: relative;
+}
+
+// Lignes impaires : gris clair par défaut, teinte plus soutenue pour les colonnes aménagement
+tr.row-odd {
+  td {
+    background-color: variables.$light-grey !important;
+  }
+}
+
+@each $key, $val in colors.$colors-xlight {
+  tr.row-odd td.bg-#{$key}-xxlight {
+    background-color: #{$val} !important; // xxlight → xlight
+  }
+  tr.row-odd td.bg-#{$key}-xlight {
+    background-color: #{map.get(colors.$colors-light, $key)} !important; // xlight → light
+  }
+}
+
+body.dark-mode {
+  tr.row-odd {
+    td {
+      background-color: rgba(255, 255, 255, 0.04) !important;
+    }
+  }
+
+  @each $key, $val in colors.$colors-dark {
+    tr.row-odd td.bg-#{$key}-xxlight {
+      background-color: #{color.change($val, $alpha: 0.22)} !important;
+    }
+    tr.row-odd td.bg-#{$key}-xlight {
+      background-color: #{color.change($val, $alpha: 0.30)} !important;
+    }
+
+    // Header opaque pour les classes de couleur au scroll
+    .table-thead-sticky .ant-table-thead > tr > th.bg-#{$key}-xlight,
+    .table-thead-sticky .ant-table-thead > tr > th.bg-#{$key}-xxlight {
+      background-color: color-mix(in srgb, #{$val} 15%, var(--ant-color-bg-elevated)) !important;
+    }
+  }
+
+  // En dark mode, les th sont transparents — fond opaque sur les cellules pour le header sticky
+  // Sans !important : les classes de couleur (bg-purple-xlight !important, etc.) l'écrasent correctement
+  .table-thead-sticky .ant-table-thead > tr > th,
+  .table-thead-sticky .ant-table-thead > tr > td {
+    background-color: var(--ant-color-bg-elevated);
+  }
 }

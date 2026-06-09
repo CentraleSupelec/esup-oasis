@@ -12,154 +12,156 @@ import { Button, notification, Space } from "antd";
 import { CopyOutlined, LoginOutlined } from "@ant-design/icons";
 import { NavigateFunction } from "react-router-dom";
 import { ReactElement } from "react";
-import { RequestMethod } from "../ApiProvider";
-import { queryClient } from "../../../App";
-import { AuthContextType } from "../../../auth/AuthProvider";
+import { RequestMethod } from "@context/api/ApiProvider";
+import { queryClient } from "@/queryClient";
+import { AuthContextType } from "@/auth/AuthProvider";
+import { logger } from "@utils/logger";
 
+/** Structure d'une notification d'erreur affichée via Ant Design `notification.error`. Passer une instance à `onError` pour intercepter l'erreur avant son affichage global. */
 export interface IErreurNotification {
-   message: string;
-   description: ReactElement;
-   statusText?: string;
-   duration: number;
+  title: string;
+  description: ReactElement;
+  statusText?: string;
+  duration: number;
 }
 
-// On stocke 1 sec la précédente erreur pour ne pas la représenter à l'utilisateur
-let previousError: IErreurNotification = {
-   message: "",
-   description: <></>,
-   statusText: "",
-   duration: 0,
-};
+// Clés des erreurs en cours d'affichage (TTL 1,5 s) pour éviter les doublons.
+// Utiliser un Set plutôt qu'un objet mutable unique permet à deux erreurs
+// simultanées différentes d'être toutes les deux affichées sans s'écraser.
+const activeErrors = new Set<string>();
 
+function getErrorKey(notif: IErreurNotification): string {
+  return `${notif.title}|${notif.statusText ?? ""}`;
+}
+
+/**
+ * Traite la réponse brute d'un `fetch` API Platform et lève une erreur React Query si le statut HTTP ≥ 400.
+ *
+ * Comportements non évidents :
+ * - **401** : déconnecte automatiquement l'utilisateur (`auth.signOut`) et vide le cache React Query après 1 s.
+ * - **204** : retourne `undefined` (DELETE réussi).
+ * - Erreurs dupliquées (même titre + statusText dans la fenêtre de 1,5 s) : affichées une seule fois.
+ * - Si `onError` est fourni, il reçoit la notification et supprime l'affichage global (`notification.error`).
+ */
 export async function handleApiResponse(
-   requestMethod: RequestMethod,
-   response: Response,
-   navigate: NavigateFunction,
-   auth: AuthContextType,
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   options?: any,
-   additionalInfos?: string,
-   onError?: (notif: IErreurNotification) => void,
+  requestMethod: RequestMethod,
+  response: Response,
+  navigate: NavigateFunction,
+  auth: AuthContextType,
+  options?: unknown,
+  additionalInfos?: string,
+  onError?: (notif: IErreurNotification) => void,
 ) {
-   function afficherErreur(notif: IErreurNotification) {
-      if (onError) {
-         onError(notif);
-         return;
+  function afficherErreur(notif: IErreurNotification) {
+    if (onError) {
+      onError(notif);
+      return;
+    }
+
+    const key = getErrorKey(notif);
+    if (!activeErrors.has(key)) {
+      // Nouvelle erreur : l'enregistrer et afficher la notification
+      activeErrors.add(key);
+      notification.error({ ...notif, duration: notif.duration || 5 });
+      logger.error(response, options);
+
+      window.setTimeout(() => {
+        // Libérer la clé après 1,5 s pour permettre l'affichage futur de la même erreur
+        activeErrors.delete(key);
+      }, 1500);
+    }
+  }
+
+  if (response.status >= 400) {
+    // Gestion des erreurs
+    try {
+      let notif: IErreurNotification = {
+        title: "Erreur",
+        description: (
+          <>
+            Erreur {response.status} : {response.statusText || "Erreur inconnue"}
+          </>
+        ),
+        statusText: response.statusText || "Erreur inconnue",
+        duration: 5,
+      };
+
+      const data = await response.json();
+      if (response.status === 401) {
+        window.setTimeout(() => {
+          queryClient.clear();
+          auth.signOut(() => navigate("/"));
+        }, 1000);
+        // Erreur d'authentification
+        notif = {
+          title: "Erreur d'authentification",
+          description: (
+            <Space orientation="vertical">
+              <div>Votre session a expiré. Veuillez vous reconnecter.</div>
+              <Button
+                icon={<LoginOutlined />}
+                onClick={() => window.location.assign(window.location.origin)}
+              >
+                Se reconnecter
+              </Button>
+            </Space>
+          ),
+          statusText: "Votre session a expiré. Veuillez vous reconnecter.",
+          duration: 0,
+        };
+      } else if (data["hydra:description"] || data.detail) {
+        const msg = data["hydra:description"] || data.detail;
+        // Erreur avec message emabarqué
+        notif = {
+          title: "Une erreur a été détectée",
+          statusText: msg,
+          duration: 5,
+          description: (
+            <>
+              Erreur {response.status} : {msg}
+              <div className="mt-2">
+                <Button
+                  icon={<CopyOutlined />}
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      `Statut : ${response.status}\n` +
+                        `Description : ${msg}\n\n` +
+                        `Méthode : ${requestMethod}\n` +
+                        `URL : ${response.url}${
+                          options ? `\nOptions : ${JSON.stringify(options, null, 2)}` : ""
+                        }\n\n` +
+                        `Infos supplémentaires : ${additionalInfos || "-"}`,
+                    );
+                  }}
+                >
+                  Copier
+                </Button>
+              </div>
+            </>
+          ),
+        };
       }
 
-      if (
-         previousError.message !== notif.message ||
-         previousError.statusText !== notif.statusText
-      ) {
-         // Nouvelle erreur
-         notification.error({ ...notif, duration: notif.duration || 5 });
-         console.error(response, options);
-         previousError = notif;
+      afficherErreur(notif);
+    } catch {
+      // Erreur inconnue
+      afficherErreur({
+        description: (
+          <>
+            Erreur {response.status} : {response.statusText || "Erreur inconnue"}
+          </>
+        ),
+        title: "Erreur",
+        statusText: response.statusText || "Erreur inconnue",
+        duration: 5,
+      });
+    }
 
-         window.setTimeout(() => {
-            // Réinitialisation de l'erreur précédente après 1 sec
-            previousError = {
-               message: "",
-               description: <></>,
-               statusText: "",
-               duration: 0,
-            };
-         }, 1500);
-      }
-   }
+    throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
+  }
 
-   if (response.status >= 400) {
-      // Gestion des erreurs
-      try {
-         let notif: IErreurNotification = {
-            message: "Erreur",
-            description: (
-               <>
-                  Erreur {response.status} : {response.statusText || "Erreur inconnue"}
-               </>
-            ),
-            statusText: response.statusText || "Erreur inconnue",
-            duration: 5,
-         };
+  // No content
+  if (response.status === 204) return;
 
-         const data = await response.json();
-         if (response.status === 401) {
-            window.setTimeout(() => {
-               queryClient.clear();
-               auth.signOut(() => navigate("/"));
-            }, 1000);
-            // Erreur d'authentification
-            notif = {
-               message: "Erreur d'authentification",
-               description: (
-                  <Space orientation="vertical">
-                     <div>Votre session a expiré. Veuillez vous reconnecter.</div>
-                     <Button
-                        icon={<LoginOutlined />}
-                        onClick={() => window.location.assign(window.location.origin)}
-                     >
-                        Se reconnecter
-                     </Button>
-                  </Space>
-               ),
-               statusText: "Votre session a expiré. Veuillez vous reconnecter.",
-               duration: 0,
-            };
-         } else if (data["hydra:description"] || data.detail) {
-            const msg = data["hydra:description"] || data.detail;
-            // Erreur avec message emabarqué
-            notif = {
-               message: "Une erreur a été détectée",
-               statusText: msg,
-               duration: 5,
-               description: (
-                  <>
-                     Erreur {response.status} : {msg}
-                     <div className="mt-2">
-                        <Button
-                           icon={<CopyOutlined />}
-                           onClick={() => {
-                              navigator.clipboard.writeText(
-                                 `Statut : ${response.status}\n` +
-                                 `Description : ${msg}\n\n` +
-                                 `Méthode : ${requestMethod}\n` +
-                                 `URL : ${response.url}${
-                                    options
-                                       ? `\nOptions : ${JSON.stringify(options, null, 2)}`
-                                       : ""
-                                 }\n\n` +
-                                 `Infos supplémentaires : ${additionalInfos || "-"}`,
-                              );
-                           }}
-                        >
-                           Copier
-                        </Button>
-                     </div>
-                  </>
-               ),
-            };
-         }
-
-         afficherErreur(notif);
-      } catch (e) {
-         // Erreur inconnue
-         afficherErreur({
-            description: (
-               <>
-                  Erreur ${response.status} : ${response.statusText || "Erreur inconnue"}
-               </>
-            ),
-            message: "Erreur",
-            statusText: response.statusText || "Erreur inconnue",
-            duration: 5,
-         });
-      }
-
-      throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
-   }
-
-   // No content
-   if (response.status === 204) return;
-
-   return response.json();
+  return response.json();
 }

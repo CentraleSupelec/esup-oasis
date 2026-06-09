@@ -9,14 +9,14 @@
 
 import React, { ReactElement } from "react";
 import { App, Button, Card, Drawer, Form, Typography } from "antd";
-import { useApi } from "../../../context/api/ApiProvider";
-import Spinner from "../../Spinner/Spinner";
+import { useApi } from "@context/api/ApiProvider";
+import Spinner from "@controls/Spinner/Spinner";
 import { PlusOutlined } from "@ant-design/icons";
-import ParametreFormItem from "./ParametreFormItem";
+import ParametreFormItem from "@controls/Admin/Parametres/ParametreFormItem";
 
 interface ParametresEditionProps {
-   parametreId: string;
-   onClose: () => void;
+  parametreId: string;
+  onClose: () => void;
 }
 
 /**
@@ -28,87 +28,87 @@ interface ParametresEditionProps {
  * @return {ReactElement | null} The rendered form.
  */
 export default function ParametresEdition({
-   parametreId,
-   onClose,
+  parametreId,
+  onClose,
 }: ParametresEditionProps): ReactElement | null {
-   const { message } = App.useApp();
-   const { data: parametre, isFetching } = useApi().useGetItem({
-      path: `/parametres/{cle}`,
-      url: parametreId,
-      enabled: !!parametreId,
-   });
+  const { message } = App.useApp();
+  const { data: parametre, isFetching } = useApi().useGetItem({
+    path: `/parametres/{cle}`,
+    url: parametreId,
+    enabled: !!parametreId,
+  });
 
-   if (isFetching || !parametre) return <Spinner />;
+  if (isFetching || !parametre) return <Spinner />;
 
-   if (!parametre["@id"]) {
-      message.error("Le paramètre n'existe pas.").then();
-      onClose();
-      return null;
-   }
+  if (!parametre["@id"]) {
+    message.error("Le paramètre n'existe pas.").then();
+    onClose();
+    return null;
+  }
 
-   return (
-      <Drawer
-         open
-         title="Éditer un paramètre du référentiel"
-         onClose={onClose}
-         size="large"
-         className="bg-light-grey"
+  return (
+    <Drawer
+      open
+      title="Éditer un paramètre du référentiel"
+      onClose={onClose}
+      size="large"
+      className="bg-light-grey"
+    >
+      <Card
+        title={`Paramètre : ${parametre.cle}`}
+        actions={[
+          <Button type="primary" onClick={onClose}>
+            Fermer
+          </Button>,
+        ]}
       >
-         <Card
-            title={`Paramètre : ${parametre.cle}`}
-            actions={[
-               <Button type="primary" onClick={onClose}>
-                  Fermer
-               </Button>,
-            ]}
-         >
-            <Typography.Text strong>Valeurs du paramètre</Typography.Text>
-            <br />
-            <Form initialValues={parametre} className="mt-2">
-               <Form.List name="valeurs">
-                  {(fields, { add, remove }, { errors }) => (
-                     <>
-                        {fields.map((field) => (
-                           <Form.Item className="mb-0" required key={field.key}>
-                              <Form.Item
-                                 {...field}
-                                 validateTrigger={["onChange", "onBlur"]}
-                                 rules={[
-                                    {
-                                       required: true,
-                                       whitespace: true,
-                                       message: "Une valeur est nécessaire ou supprimez ce champ.",
-                                    },
-                                 ]}
-                                 noStyle
-                              >
-                                 <ParametreFormItem
-                                    parametre={parametre}
-                                    onCancel={() => {
-                                       remove(field.name);
-                                    }}
-                                 />
-                              </Form.Item>
-                           </Form.Item>
-                        ))}
-                        <Form.Item>
-                           <Button
-                              type="link"
-                              onClick={() => {
-                                 add();
-                              }}
-                              icon={<PlusOutlined />}
-                              className="p-0 mt-0 fs-09"
-                           >
-                              Ajouter une valeur
-                           </Button>
-                           <Form.ErrorList errors={errors} />
-                        </Form.Item>
-                     </>
-                  )}
-               </Form.List>
-            </Form>
-         </Card>
-      </Drawer>
-   );
+        <Typography.Text strong>Valeurs du paramètre</Typography.Text>
+        <br />
+        <Form initialValues={parametre} className="mt-2">
+          <Form.List name="valeurs">
+            {(fields, { add, remove }, { errors }) => (
+              <>
+                {fields.map(({ key, ...field }) => (
+                  <Form.Item className="mb-0" required key={key}>
+                    <Form.Item
+                      {...field}
+                      validateTrigger={["onChange", "onBlur"]}
+                      rules={[
+                        {
+                          required: true,
+                          whitespace: true,
+                          message: "Une valeur est nécessaire ou supprimez ce champ.",
+                        },
+                      ]}
+                      noStyle
+                    >
+                      <ParametreFormItem
+                        parametre={parametre}
+                        onCancel={() => {
+                          remove(field.name);
+                        }}
+                      />
+                    </Form.Item>
+                  </Form.Item>
+                ))}
+                <Form.Item>
+                  <Button
+                    type="link"
+                    onClick={() => {
+                      add();
+                    }}
+                    icon={<PlusOutlined />}
+                    className="p-0 mt-0 fs-09"
+                  >
+                    Ajouter une valeur
+                  </Button>
+                  <Form.ErrorList errors={errors} />
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
+        </Form>
+      </Card>
+    </Drawer>
+  );
 }

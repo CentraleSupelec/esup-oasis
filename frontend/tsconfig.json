@@ -1,27 +1,36 @@
 {
-  "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
-  },
-  "include": [
-    "src",
-    "./src/env.ts"
-  ]
+   "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+         "@/*": ["./src/*"],
+         "@assets/*": ["./src/assets/*"],
+         "@controls/*": ["./src/controls/*"],
+         "@controls/Items": ["./src/controls/Items/index.ts"],
+         "@context/*": ["./src/context/*"],
+         "@lib": ["./src/lib/index.ts"],
+         "@lib/*": ["./src/lib/*"],
+         "@utils/*": ["./src/utils/*"],
+         "@utils/dates": ["./src/utils/dates/index.ts"],
+         "@api": ["./src/api/index.ts"],
+         "@api/*": ["./src/api/*"],
+         "@routes/*": ["./src/routes/*"]
+      },
+      "target": "es2020",
+      "lib": ["dom", "dom.iterable", "esnext"],
+      "allowJs": true,
+      "skipLibCheck": true,
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "strict": true,
+      "forceConsistentCasingInFileNames": true,
+      "noFallthroughCasesInSwitch": true,
+      "types": ["vitest/globals"],
+      "module": "esnext",
+      "moduleResolution": "bundler",
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "noEmit": true,
+      "jsx": "react-jsx"
+   },
+   "include": ["src", "./src/env.ts"]
 }

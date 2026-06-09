@@ -8,11 +8,11 @@
  */
 
 import React, { ReactElement, useMemo } from "react";
-import { Evenement } from "../../lib/Evenement";
-import Progress from "./Progress";
+import { Evenement } from "@lib";
+import Progress from "@controls/Progress/Progress";
 
 interface IProgressAffectation {
-   evenements: Evenement[];
+  evenements: Evenement[];
 }
 
 /**
@@ -24,23 +24,18 @@ interface IProgressAffectation {
  * @return {ReactElement} - The progress component displaying the affectation progress.
  */
 export default function ProgressAffectation({ evenements }: IProgressAffectation): ReactElement {
-   return useMemo(() => {
-      const evts = evenements.filter((e) => !e.dateAnnulation)
-      const taux =
-         evenements.length === 0
-            ? 100
-            : Math.round(
-                 (100 *
-                     evts.filter((e) => e.isAffecte())
-                       .length) /
-                 evts.length,
-              );
+  return useMemo(() => {
+    const evts = evenements.filter((e) => !e.dateAnnulation);
+    const taux =
+      evenements.length === 0
+        ? 100
+        : Math.round((100 * evts.filter((e) => e.isAffecte()).length) / evts.length);
 
-      return (
-         <Progress
-            value={taux}
-            tooltip={`Taux d'affectation des évènements : ${taux.toString(10)}%`}
-         />
-      );
-   }, [evenements]);
+    return (
+      <Progress
+        value={taux}
+        tooltip={`Taux d'affectation des évènements : ${taux.toString(10)}%`}
+      />
+    );
+  }, [evenements]);
 }

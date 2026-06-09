@@ -11,8 +11,8 @@ import React, { ReactElement } from "react";
 import { Breadcrumb, Layout, Space, Typography } from "antd";
 import { NavLink } from "react-router-dom";
 import { HomeFilled } from "@ant-design/icons";
-import ParametresTable from "../../../controls/Table/Admin/ParametresTable";
-import "./Parametres.scss";
+import ParametresTable from "@controls/Table/Admin/ParametresTable";
+import "@routes/administration/Parametres/Parametres.scss";
 
 /**
  * Renders the administration page for managing application parameters.
@@ -20,34 +20,34 @@ import "./Parametres.scss";
  * @returns {ReactElement} The content to be rendered.
  */
 export default function Parametres(): ReactElement {
-   return (
-      <Layout.Content className="administration" style={{ padding: "0 50px" }}>
-         <Typography.Title level={1}>Administration</Typography.Title>
-         <Breadcrumb
-            className="mt-2"
-            items={[
-               {
-                  key: "administration",
-                  title: (
-                     <NavLink to="/administration">
-                        <Space>
-                           <HomeFilled />
-                           Administration
-                        </Space>
-                     </NavLink>
-                  ),
-               },
-               {
-                  key: "parametres",
-                  title: "Paramètres de l'application",
-               },
-            ]}
-         />
-         <Typography.Title level={2}>Paramètres</Typography.Title>
-         <Typography.Paragraph>
-            Vous pouvez modifier ici les constantes utilisées par l'application.
-         </Typography.Paragraph>
-         <ParametresTable />
-      </Layout.Content>
-   );
+  return (
+    <Layout.Content className="administration" style={{ padding: "0 50px" }}>
+      <Typography.Title level={1}>Administration</Typography.Title>
+      <Breadcrumb
+        className="mt-2"
+        items={[
+          {
+            key: "administration",
+            title: (
+              <NavLink to="/administration">
+                <Space>
+                  <HomeFilled />
+                  Administration
+                </Space>
+              </NavLink>
+            ),
+          },
+          {
+            key: "parametres",
+            title: "Paramètres de l'application",
+          },
+        ]}
+      />
+      <Typography.Title level={2}>Paramètres</Typography.Title>
+      <Typography.Paragraph>
+        Vous pouvez modifier ici les constantes utilisées par l'application.
+      </Typography.Paragraph>
+      <ParametresTable />
+    </Layout.Content>
+  );
 }

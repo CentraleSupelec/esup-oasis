@@ -7,21 +7,20 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { ReactElement, useEffect, useState } from "react";
-import Spinner from "../Spinner/Spinner";
-import { useApi } from "../../context/api/ApiProvider";
-import { NB_MAX_ITEMS_PER_PAGE } from "../../constants";
+import React, { ReactElement } from "react";
+import Spinner from "@controls/Spinner/Spinner";
+import { useApi } from "@context/api/ApiProvider";
 import { Tag, Tooltip } from "antd";
 import dayjs from "dayjs";
 import { MinusOutlined, SendOutlined } from "@ant-design/icons";
-import { IPeriode } from "../../api/ApiTypeHelpers";
+import { IPeriode } from "@api";
 
 interface IItemPeriode {
-   periode?: IPeriode;
-   periodeId?: string;
-   showIcon?: boolean;
-   showTooltip?: boolean;
-   className?: string;
+  periode?: IPeriode;
+  periodeId?: string;
+  showIcon?: boolean;
+  showTooltip?: boolean;
+  className?: string;
 }
 
 /**
@@ -35,43 +34,31 @@ interface IItemPeriode {
  * @param {string} [IItemPeriode.className] - The class name for the item.
  * @returns {ReactElement} The rendered period item.
  */
-export default function PeriodeRhItem({
-                                         periode,
-                                         periodeId,
-                                         showIcon = true,
-                                         showTooltip = true,
-                                         className,
-                                      }: IItemPeriode): ReactElement {
-   const [item, setItem] = useState(periode);
-   const { data: periodeData } = useApi().useGetCollectionPaginated({
-      path: "/periodes",
-      page: 1,
-      itemsPerPage: NB_MAX_ITEMS_PER_PAGE,
-   });
+export function PeriodeRhItem({
+  periode,
+  periodeId,
+  showIcon = true,
+  showTooltip = true,
+  className,
+}: IItemPeriode): ReactElement {
+  const { data: periodeData } = useApi().useGetFullCollection({
+    path: "/periodes",
+  });
+  const item = periode ?? periodeData?.items.find((x) => x["@id"] === periodeId);
+  if (!item) return <Spinner />;
 
-   useEffect(() => {
-      if (periodeData && periodeId) {
-         setItem(periodeData.items.find((x) => x["@id"] === periodeId));
-      }
-   }, [periodeData, periodeId]);
+  function getIcon() {
+    if (!showIcon) return null;
+    return item?.dateEnvoi ? <SendOutlined /> : <MinusOutlined />;
+  }
 
-   useEffect(() => {
-      if (periode) setItem(periode);
-   }, [periode]);
-   if (!item) return <Spinner />;
-
-   function getIcon() {
-      if (!showIcon) return null;
-      return item?.dateEnvoi ? <SendOutlined /> : <MinusOutlined />;
-   }
-
-   return (
-      <Tooltip
-         title={showTooltip ? `Période ${item.dateEnvoi ? "envoyée" : "non envoyée"}` : undefined}
-      >
-         <Tag icon={getIcon()} className={className}>
-            {dayjs(item.debut).format("DD/MM/YYYY")} au {dayjs(item.fin).format("DD/MM/YYYY")}
-         </Tag>
-      </Tooltip>
-   );
+  return (
+    <Tooltip
+      title={showTooltip ? `Période ${item.dateEnvoi ? "envoyée" : "non envoyée"}` : undefined}
+    >
+      <Tag icon={getIcon()} className={className}>
+        {dayjs(item.debut).format("DD/MM/YYYY")} au {dayjs(item.fin).format("DD/MM/YYYY")}
+      </Tag>
+    </Tooltip>
+  );
 }

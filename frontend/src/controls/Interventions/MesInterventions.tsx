@@ -8,30 +8,29 @@
  */
 
 import React, { useEffect } from "react";
-import "../../routes/administration/Administration.scss";
-import PlanningWithSider from "../Calendar/PlanningWithSider";
-import { PlanningLayout } from "../../redux/context/IAffichageFiltres";
-import { useDispatch } from "react-redux";
-import { setAffichageFiltres } from "../../redux/actions/AffichageFiltre";
-import { useAuth } from "../../auth/AuthProvider";
+import "@routes/administration/Administration.scss";
+import PlanningWithSider from "@controls/Calendar/PlanningWithSider";
+import {
+  PlanningLayout,
+  useAffichageFiltres,
+} from "@context/affichageFiltres/AffichageFiltresContext";
+import { useAuth } from "@/auth/AuthProvider";
 
 /**
  * Renders the page for ROLE_GESTIONNAIRE to manage his own interventions.
  */
 export default function MesInterventions() {
-   const dispatch = useDispatch();
-   const auth = useAuth();
+  const { setAffichageFiltres } = useAffichageFiltres();
+  const auth = useAuth();
 
-   useEffect(() => {
-      dispatch(
-         setAffichageFiltres({ layout: PlanningLayout.table }, { intervenant: auth.user?.["@id"] }),
-      );
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, []);
+  useEffect(() => {
+    setAffichageFiltres({ layout: PlanningLayout.table }, { intervenant: auth.user?.["@id"] });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-   return (
-      <>
-         <PlanningWithSider saisieEvtRenfort={true} />
-      </>
-   );
+  return (
+    <>
+      <PlanningWithSider saisieEvtRenfort={true} />
+    </>
+  );
 }

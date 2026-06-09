@@ -7,54 +7,34 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { memo, ReactElement, useEffect, useState } from "react";
+import React, { memo, ReactElement } from "react";
 import { Avatar } from "antd";
 import { BankOutlined } from "@ant-design/icons";
-import { useApi } from "../../context/api/ApiProvider";
-import { PREFETCH_CAMPUS } from "../../api/ApiPrefetchHelpers";
-import { ICampus } from "../../api/ApiTypeHelpers";
+import { useApi } from "@context/api/ApiProvider";
+import { ICampus, PREFETCH_CAMPUS } from "@api";
 
 interface IAvatarCampus {
-   campus?: ICampus;
-   campusId?: string;
+  campus?: ICampus;
+  campusId?: string;
 }
 
-/**
- * React a campus avatar.
- *
- * @component
- * @param {IAvatarCampus} props - The component props.
- * @param {ICampus} [props.campus] - The campus object.
- * @param {string} [props.campusId] - The ID of the campus.
- * @returns {ReactElement} - The rendered component.
- */
 export const CampusAvatar: React.FC<IAvatarCampus> = memo(
-   ({ campus, campusId }: IAvatarCampus): ReactElement => {
-      const [campusData, setCampusData] = useState<ICampus | undefined>(campus);
-      const { data: dataCampus, isFetching } = useApi().useGetCollection(PREFETCH_CAMPUS);
+  ({ campus, campusId }: IAvatarCampus): ReactElement => {
+    const { data: dataCampus, isFetching } = useApi().useGetFullCollection(PREFETCH_CAMPUS);
 
-      useEffect(() => {
-         if (dataCampus && campusId) {
-            setCampusData(dataCampus.items.find((t) => t["@id"] === campusId));
-         }
-         // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [dataCampus, campusId]);
+    const campusData = campus ?? dataCampus?.items.find((t) => t["@id"] === campusId);
 
-      useEffect(() => {
-         if (campus) setCampusData(campus);
-      }, [campus]);
+    if (isFetching || campusData === undefined) {
+      return <Avatar className="bg-primary" icon={<BankOutlined />} />;
+    }
 
-      if (isFetching || campusData === undefined) {
-         return <Avatar className="bg-primary" icon={<BankOutlined />} />;
-      }
-
-      return (
-         <Avatar data-testid={campusData.libelle} className="bg-primary" aria-hidden>
-            {campusData.libelle[0].toUpperCase()}
-         </Avatar>
-      );
-   },
-   (prevProps, nextProps) =>
-      prevProps.campusId === nextProps.campusId &&
-      JSON.stringify(prevProps.campus) === JSON.stringify(nextProps.campus),
+    return (
+      <Avatar data-testid={campusData.libelle} className="bg-primary" aria-hidden>
+        {campusData.libelle[0].toUpperCase()}
+      </Avatar>
+    );
+  },
+  (prevProps, nextProps) =>
+    prevProps.campusId === nextProps.campusId &&
+    JSON.stringify(prevProps.campus) === JSON.stringify(nextProps.campus),
 );

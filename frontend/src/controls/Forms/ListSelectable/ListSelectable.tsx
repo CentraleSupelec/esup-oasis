@@ -11,15 +11,15 @@ import React, { ReactElement } from "react";
 import { List } from "antd";
 
 interface IListSelectable<T extends { "@id"?: string | undefined }> {
-   items: T[];
-   renderItem: (item: T) => React.ReactNode;
-   onSelect: (item: T | undefined) => void;
-   selectedItemId?: string;
-   extra?: (item: T) => React.ReactNode;
-   className?: string;
-   classNameSelected?: string;
-   header?: React.ReactNode;
-   loading?: boolean;
+  items: T[];
+  renderItem: (item: T) => React.ReactNode;
+  onSelect: (item: T | undefined) => void;
+  selectedItemId?: string;
+  extra?: (item: T) => React.ReactNode;
+  className?: string;
+  classNameSelected?: string;
+  header?: React.ReactNode;
+  loading?: boolean;
 }
 
 /**
@@ -39,47 +39,47 @@ interface IListSelectable<T extends { "@id"?: string | undefined }> {
  * @returns {ReactElement} The rendered selectable list component
  */
 export default function ListSelectable<T extends { "@id"?: string | undefined }>({
-                                                                                    items,
-                                                                                    renderItem,
-                                                                                    onSelect,
-                                                                                    selectedItemId,
-                                                                                    extra,
-                                                                                    className,
-                                                                                    classNameSelected,
-                                                                                    header,
-                                                                                    loading,
-                                                                                 }: IListSelectable<T>): ReactElement {
-   const getClassName = (item: T) => {
-      if (selectedItemId) {
-         if (item["@id"] === selectedItemId) {
-            return `ant-list-selectable-selected ${classNameSelected}`;
-         }
-         return "ant-list-selectable d-none";
+  items,
+  renderItem,
+  onSelect,
+  selectedItemId,
+  extra,
+  className,
+  classNameSelected,
+  header,
+  loading,
+}: IListSelectable<T>): ReactElement {
+  const getClassName = (item: T) => {
+    if (selectedItemId) {
+      if (item["@id"] === selectedItemId) {
+        return `ant-list-selectable-selected ${classNameSelected}`;
       }
+      return "ant-list-selectable d-none";
+    }
 
-      return `ant-list-selectable-selected`;
-   };
+    return `ant-list-selectable-selected`;
+  };
 
-   return (
-      <List<T> className={`selectable ${className}`} header={header} loading={loading}>
-         {items.map((item) => {
-            return (
-               <List.Item
-                  key={item["@id"]}
-                  extra={extra?.(item)}
-                  className={getClassName(item)}
-                  onClick={() => {
-                     if (item["@id"] === selectedItemId) {
-                        onSelect(undefined);
-                        return;
-                     }
-                     onSelect(item);
-                  }}
-               >
-                  {renderItem(item)}
-               </List.Item>
-            );
-         })}
-      </List>
-   );
+  return (
+    <List<T> className={`selectable ${className}`} header={header} loading={loading}>
+      {items.map((item) => {
+        return (
+          <List.Item
+            key={item["@id"]}
+            extra={extra?.(item)}
+            className={getClassName(item)}
+            onClick={() => {
+              if (item["@id"] === selectedItemId) {
+                onSelect(undefined);
+                return;
+              }
+              onSelect(item);
+            }}
+          >
+            {renderItem(item)}
+          </List.Item>
+        );
+      })}
+    </List>
+  );
 }

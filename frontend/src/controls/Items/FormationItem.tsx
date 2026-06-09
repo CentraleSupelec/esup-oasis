@@ -7,21 +7,20 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { memo, ReactElement } from "react";
 import { Breakpoint, Tooltip } from "antd";
-import Spinner from "../Spinner/Spinner";
-import { useApi } from "../../context/api/ApiProvider";
-import { PREFETCH_FORMATIONS } from "../../api/ApiPrefetchHelpers";
-import { IFormation } from "../../api/ApiTypeHelpers";
-import { EllipsisMiddle } from "../Typography/EllipsisMiddle";
+import Spinner from "@controls/Spinner/Spinner";
+import { useApi } from "@context/api/ApiProvider";
+import { IFormation, PREFETCH_FORMATIONS } from "@api";
+import { EllipsisMiddle } from "@controls/Typography/EllipsisMiddle";
 
 interface IItemFormation {
-   formation?: IFormation;
-   formationId?: string;
-   showAvatar?: boolean;
-   responsive?: Breakpoint;
-   className?: string;
-   styleLibelle?: React.CSSProperties;
+  formation?: IFormation;
+  formationId?: string;
+  showAvatar?: boolean;
+  responsive?: Breakpoint;
+  className?: string;
+  styleLibelle?: React.CSSProperties;
 }
 
 /**
@@ -33,21 +32,22 @@ interface IItemFormation {
  *
  * @returns {ReactElement} The rendered formation item component.
  */
-export default function FormationItem({ formation, formationId }: IItemFormation): ReactElement {
-   const [item, setItem] = useState(formation);
-   const { data: dataFormation, isFetching } = useApi().useGetCollection(PREFETCH_FORMATIONS);
+function FormationItem({ formation, formationId }: IItemFormation): ReactElement {
+  const { data: dataFormation, isFetching } = useApi().useGetFullCollection(PREFETCH_FORMATIONS);
+  const item = formation ?? dataFormation?.items.find((t) => t["@id"] === formationId);
 
-   useEffect(() => {
-      if (dataFormation && formationId) {
-         setItem(dataFormation.items.find((t) => t["@id"] === formationId));
-      }
-   }, [dataFormation, formationId]);
+  if (!item || isFetching) return <Spinner />;
 
-   if (!item || isFetching) return <Spinner />;
-
-   return (
-      <Tooltip title={item?.libelle}>
-         <EllipsisMiddle content={item?.libelle as string} suffixCount={12} expandable />
-      </Tooltip>
-   );
+  return (
+    <Tooltip title={item?.libelle}>
+      <EllipsisMiddle content={item?.libelle as string} suffixCount={12} expandable />
+    </Tooltip>
+  );
 }
+
+const FormationItemMemo = memo(
+  FormationItem,
+  (prev, next) =>
+    prev.formationId === next.formationId && prev.formation?.["@id"] === next.formation?.["@id"],
+);
+export { FormationItemMemo as FormationItem };

@@ -8,19 +8,19 @@
  */
 
 import { Divider, Space } from "antd";
-import { TabEvenementParticipantsBeneficiaires } from "./TabEvenementParticipantsBeneficiaires";
-import { TabEvenementParticipantsIntervenant } from "./TabEvenementParticipantsIntervenant";
-import { TabEvenementParticipantsSuppleants } from "./TabEvenementParticipantsSuppleants";
-import { TabEvenementParticipantsEnseignants } from "./TabEvenementParticipantsEnseignants";
+import { TabEvenementParticipantsBeneficiaires } from "@controls/TabsContent/SubTabs/TabEvenementParticipantsBeneficiaires";
+import { TabEvenementParticipantsIntervenant } from "@controls/TabsContent/SubTabs/TabEvenementParticipantsIntervenant";
+import { TabEvenementParticipantsSuppleants } from "@controls/TabsContent/SubTabs/TabEvenementParticipantsSuppleants";
+import { TabEvenementParticipantsEnseignants } from "@controls/TabsContent/SubTabs/TabEvenementParticipantsEnseignants";
 import React, { ReactElement } from "react";
-import { Evenement } from "../../../lib/Evenement";
-import { IPartialEvenement } from "../../../api/ApiTypeHelpers";
-import EventMailCopyButton from "../../Buttons/EventMailCopyButton";
+import { Evenement } from "@lib";
+import { IPartialEvenement } from "@api";
+import EventMailCopyButton from "@controls/Buttons/EventMailCopyButton";
 
 interface TabEvenementParticipantsProps {
-   evenement: Evenement | undefined;
-   setEvenement: (data: IPartialEvenement | undefined, forceResetForm: boolean) => void;
-   intervenantDisabled?: boolean;
+  evenement: Evenement | undefined;
+  setEvenement: (data: IPartialEvenement | undefined, forceResetForm: boolean) => void;
+  intervenantDisabled?: boolean;
 }
 
 /**
@@ -34,34 +34,34 @@ interface TabEvenementParticipantsProps {
  * @returns {ReactElement} The rendered tab component.
  */
 export function TabEvenementParticipants({
-   evenement,
-   setEvenement,
-   intervenantDisabled,
+  evenement,
+  setEvenement,
+  intervenantDisabled,
 }: TabEvenementParticipantsProps): ReactElement {
-   return (
-      <>
-         <Divider>
-            <Space>
-               Participants
-               <EventMailCopyButton evenement={evenement} />
-            </Space>
-         </Divider>
+  return (
+    <>
+      <Divider>
+        <Space>
+          Participants
+          <EventMailCopyButton evenement={evenement} />
+        </Space>
+      </Divider>
 
-         <TabEvenementParticipantsBeneficiaires
-            evenement={evenement}
-            setEvenement={setEvenement}
-            title={<div className="semi-bold">Bénéficiaires</div>}
-         />
+      <TabEvenementParticipantsBeneficiaires
+        evenement={evenement}
+        setEvenement={setEvenement}
+        title={<div className="semi-bold">Bénéficiaires</div>}
+      />
 
-         <TabEvenementParticipantsIntervenant
-            evenement={evenement}
-            setEvenement={setEvenement}
-            intervenantDisabled={intervenantDisabled}
-         />
+      <TabEvenementParticipantsIntervenant
+        evenement={evenement}
+        setEvenement={setEvenement}
+        intervenantDisabled={intervenantDisabled}
+      />
 
-         <TabEvenementParticipantsSuppleants evenement={evenement} setEvenement={setEvenement} />
+      <TabEvenementParticipantsSuppleants evenement={evenement} setEvenement={setEvenement} />
 
-         <TabEvenementParticipantsEnseignants evenement={evenement} setEvenement={setEvenement} />
-      </>
-   );
+      <TabEvenementParticipantsEnseignants evenement={evenement} setEvenement={setEvenement} />
+    </>
+  );
 }

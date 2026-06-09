@@ -9,29 +9,29 @@
 
 import { Modal } from "antd";
 import React from "react";
-import { QuestionnaireProvider } from "../../../context/demande/QuestionnaireProvider";
-import { TypeDemandeContent } from "../../Questionnaire/TypeDemandeContent";
+import { QuestionnaireProvider } from "@context/demande/QuestionnaireProvider";
+import { TypeDemandeContent } from "@controls/Questionnaire/TypeDemandeContent";
 
 export default function QuestionnaireModale(props: {
-   typeDemandeId: string | undefined;
-   setTypeDemandeId: (typeDemandeId: string | undefined) => void;
+  typeDemandeId: string | undefined;
+  setTypeDemandeId: (typeDemandeId: string | undefined) => void;
 }) {
-   if (!props.typeDemandeId) return null;
+  if (!props.typeDemandeId) return null;
 
-   return (
-      <Modal
-         open={!!props.typeDemandeId}
-         centered
-         width="90%"
-         title="Aperçu du questionnaire"
-         onCancel={() => props.setTypeDemandeId(undefined)}
-         onOk={() => props.setTypeDemandeId(undefined)}
-         cancelButtonProps={{ style: { display: "none" } }}
-         okText="Fermer"
-      >
-         <QuestionnaireProvider typeDemandeId={props.typeDemandeId} mode="preview">
-            <TypeDemandeContent />
-         </QuestionnaireProvider>
-      </Modal>
-   );
+  return (
+    <Modal
+      open={!!props.typeDemandeId}
+      centered
+      width="90%"
+      title="Aperçu du questionnaire"
+      onCancel={() => props.setTypeDemandeId(undefined)}
+      onOk={() => props.setTypeDemandeId(undefined)}
+      cancelButtonProps={{ style: { display: "none" } }}
+      okText="Fermer"
+    >
+      <QuestionnaireProvider typeDemandeId={props.typeDemandeId} mode="preview">
+        <TypeDemandeContent />
+      </QuestionnaireProvider>
+    </Modal>
+  );
 }

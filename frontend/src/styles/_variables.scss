@@ -14,7 +14,7 @@ $app-contrast: var(--color-app-contrast);
 // ---
 
 $warning: var(--color-warning);
-$warning-light: var(---color-warning-light);
+$warning-light: var(--color-warning-light);
 $error: var(--color-error);
 $error-light: var(--color-error-light);
 $success: var(--color-success);
@@ -28,8 +28,9 @@ $white: #fff;
 $light-grey: #f7f8fc;
 $light-grey-border: #edeef3;
 $light-grey-border-dark: #d9d9d9;
-$light-color: #AAA;
+$light-color: #aaa;
 
+$black: #1A1A1A;
 $legende: #666;
 
 $radius: 7px;
@@ -37,7 +38,6 @@ $fw-bold: 600;
 $fw-semi-bold: 500;
 $fw-regular: 400;
 $fw-light: 300;
-
 
 // --- Couleurs utilisées dans l'application
 

@@ -7,15 +7,14 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { ReactElement, useEffect, useState } from "react";
-import Spinner from "../Spinner/Spinner";
-import { useApi } from "../../context/api/ApiProvider";
-import { PREFETCH_TYPES_EQUIPEMENTS } from "../../api/ApiPrefetchHelpers";
-import { ITypeEquipement } from "../../api/ApiTypeHelpers";
+import React, { memo, ReactElement } from "react";
+import Spinner from "@controls/Spinner/Spinner";
+import { useApi } from "@context/api/ApiProvider";
+import { ITypeEquipement, PREFETCH_TYPES_EQUIPEMENTS } from "@api";
 
 interface IItemTypeEquipement {
-   typeEquipement?: ITypeEquipement;
-   typeEquipementId?: string;
+  typeEquipement?: ITypeEquipement;
+  typeEquipementId?: string;
 }
 
 /**
@@ -27,25 +26,27 @@ interface IItemTypeEquipement {
  *
  * @returns {ReactElement} The rendered TypeEquipementItem component.
  */
-export default function TypeEquipementItem({
-                                              typeEquipement,
-                                              typeEquipementId,
-                                           }: IItemTypeEquipement): ReactElement {
-   const [item, setItem] = useState(typeEquipement);
-   const { data: typeEquipementData } = useApi().useGetCollection(PREFETCH_TYPES_EQUIPEMENTS);
+function TypeEquipementItem({
+  typeEquipement,
+  typeEquipementId,
+}: IItemTypeEquipement): ReactElement {
+  const { data: typeEquipementData } = useApi().useGetFullCollection(PREFETCH_TYPES_EQUIPEMENTS);
+  const item =
+    typeEquipement ?? typeEquipementData?.items.find((x) => x["@id"] === typeEquipementId);
 
-   useEffect(() => {
-      if (typeEquipementData) {
-         setItem(typeEquipementData.items.find((x) => x["@id"] === typeEquipementId));
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [typeEquipementData]);
+  if (!item) return <Spinner />;
 
-   if (!item) return <Spinner />;
-
-   return (
-      <div>
-         <span>{item?.libelle}</span>
-      </div>
-   );
+  return (
+    <div>
+      <span>{item?.libelle}</span>
+    </div>
+  );
 }
+
+const TypeEquipementItemMemo = memo(
+  TypeEquipementItem,
+  (prev, next) =>
+    prev.typeEquipementId === next.typeEquipementId &&
+    prev.typeEquipement?.["@id"] === next.typeEquipement?.["@id"],
+);
+export { TypeEquipementItemMemo as TypeEquipementItem };

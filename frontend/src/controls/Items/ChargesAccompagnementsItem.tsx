@@ -7,42 +7,37 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import { IUtilisateur } from "../../api/ApiTypeHelpers";
-import React, { useEffect, useState } from "react";
-import { useApi } from "../../context/api/ApiProvider";
-import GestionnaireItem from "./GestionnaireItem";
+import { IUtilisateur } from "@api";
+import React from "react";
+import { useApi } from "@context/api/ApiProvider";
+import { GestionnaireItem } from "./GestionnaireItem";
 import { useInView } from "react-intersection-observer";
 import { Skeleton } from "antd";
 
 export function ChargesAccompagnementsItem(props: {
-   utilisateurId?: string | undefined;
-   utilisateur?: IUtilisateur;
+  utilisateurId?: string | undefined;
+  utilisateur?: IUtilisateur;
 }) {
-   const [item, setItem] = useState(props.utilisateur);
-   const { ref, inView } = useInView();
+  const { ref, inView } = useInView();
 
-   const { data } = useApi().useGetItem({
-      path: "/utilisateurs/{uid}",
-      url: props.utilisateurId,
-      enabled: !!props.utilisateurId && inView,
-   });
+  const { data } = useApi().useGetItem({
+    path: "/utilisateurs/{uid}",
+    url: props.utilisateurId,
+    enabled: !!props.utilisateurId && inView,
+  });
 
-   useEffect(() => {
-      if (data) {
-         setItem(data);
-      }
-   }, [data]);
+  const item = data ?? props.utilisateur;
 
-   if (!item)
-      return (
-         <div ref={ref}>
-            <Skeleton.Input className="mb-05" active />
-         </div>
-      );
-
-   return item.gestionnairesActifs?.map((g: string) => (
-      <div key={g} style={{ margin: "2px 0" }}>
-         <GestionnaireItem gestionnaireId={g} initialePrenom />
+  if (!item)
+    return (
+      <div ref={ref}>
+        <Skeleton.Input className="mb-05" active />
       </div>
-   ));
+    );
+
+  return item.gestionnairesActifs?.map((g: string) => (
+    <div key={g} style={{ margin: "2px 0" }}>
+      <GestionnaireItem gestionnaireId={g} initialePrenom />
+    </div>
+  ));
 }

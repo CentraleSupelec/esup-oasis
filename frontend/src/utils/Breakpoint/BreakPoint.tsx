@@ -8,8 +8,8 @@
  */
 
 import React, { ReactElement, useState } from "react";
-import { Button, Grid, Tag } from "antd";
-import "./BreakPoint.scss";
+import { Button, Grid, Space, Tag } from "antd";
+import "@utils/Breakpoint/BreakPoint.scss";
 import { CloseOutlined, EllipsisOutlined } from "@ant-design/icons";
 
 const { useBreakpoint } = Grid;
@@ -20,25 +20,25 @@ const { useBreakpoint } = Grid;
  * @return {ReactElement} - The rendered break points.
  */
 function BreakPoint(): ReactElement {
-   const screens = useBreakpoint();
-   const [open, setOpen] = useState(false);
-   return (
-      <div className="breakpoints hide-on-print d-flex-center">
-         {open &&
-            Object.entries(screens).map((screen) => (
-               <Tag color={screen[1] ? "success" : "#edeef3"} key={screen[0]}>
-                  {screen[0]}
-               </Tag>
-            ))}
-         <Button
-            icon={open ? <CloseOutlined /> : <EllipsisOutlined />}
-            size="small"
-            className="mb-0"
-            shape="circle"
-            onClick={() => setOpen(!open)}
-         />
-      </div>
-   );
+  const screens = useBreakpoint();
+  const [open, setOpen] = useState(false);
+  return (
+    <Space className="breakpoints hide-on-print d-flex-center">
+      {open &&
+        Object.entries(screens).map((screen) => (
+          <Tag color={screen[1] ? "success" : undefined} key={screen[0]}>
+            {screen[0]}
+          </Tag>
+        ))}
+      <Button
+        icon={open ? <CloseOutlined /> : <EllipsisOutlined />}
+        size="small"
+        className="mb-0"
+        shape="circle"
+        onClick={() => setOpen(!open)}
+      />
+    </Space>
+  );
 }
 
 export default BreakPoint;

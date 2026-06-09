@@ -7,16 +7,16 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import { useApi } from "../../context/api/ApiProvider";
-import { PREFETCH_TYPES_AMENAGEMENTS } from "../../api/ApiPrefetchHelpers";
-import Spinner from "../Spinner/Spinner";
+import { useApi } from "@context/api/ApiProvider";
+import { PREFETCH_TYPES_AMENAGEMENTS } from "@api";
+import Spinner from "@controls/Spinner/Spinner";
 import { Tag } from "antd";
 import React from "react";
 
 export function TypeAmenagementTag(props: { typeId: undefined | string }) {
-   const { data: types } = useApi().useGetCollection(PREFETCH_TYPES_AMENAGEMENTS);
+  const { data: types } = useApi().useGetFullCollection(PREFETCH_TYPES_AMENAGEMENTS);
 
-   if (!types) return <Spinner />;
+  if (!types) return <Spinner />;
 
-   return <Tag>{types?.items.find((c) => c["@id"] === props.typeId)?.libelle}</Tag>;
+  return <Tag>{types?.items.find((c) => c["@id"] === props.typeId)?.libelle}</Tag>;
 }

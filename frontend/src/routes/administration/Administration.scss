@@ -1,5 +1,4 @@
-@import "../../styles/variables";
-@import "../../styles/helpers";
+@use "../../styles/variables" as variables;
 
 .grid-admin {
   max-width: 90%;
@@ -11,7 +10,6 @@
   grid-gap: 10px;
 
   .grid-admin-item {
-
     .grid-admin-item-content-title {
       font-size: 1.2rem;
       margin: 10px 0;
@@ -25,25 +23,24 @@
       white-space: break-spaces;
 
       &:hover {
-        background-color: $app;
-        color: $text;
-        border-color: $app;
-        @extend .shadow-1;
-        transition: all .25s;
+        background-color: variables.$app;
+        color: variables.$text;
+        border-color: variables.$app;
+        box-shadow: 0 5px 7px rgb(0 0 0 / 5%) !important;
+        transition: all 0.25s;
 
         .grid-admin-item-content-desc {
-          color: $text;
+          color: variables.$text;
         }
       }
     }
-
   }
 }
 
 .ref-inactif td:not(.commandes) {
-  background-color: $light-grey;
-  color: $light-color;
-  opacity: .5;
+  background-color: var(--ant-color-bg-layout);
+  color: var(--ant-color-text-secondary);
+  opacity: 0.5;
 }
 
 .administration {

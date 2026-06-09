@@ -8,15 +8,13 @@
  */
 
 import React, { ReactElement } from "react";
-import { useAuth } from "../../auth/AuthProvider";
-import { useDispatch } from "react-redux";
-import { useApi } from "../../context/api/ApiProvider";
-import { NB_MAX_ITEMS_PER_PAGE } from "../../constants";
-import Spinner from "../Spinner/Spinner";
+import { useAuth } from "@/auth/AuthProvider";
+import { useApi } from "@context/api/ApiProvider";
+import { useModals } from "@context/modals/ModalsContext";
+import Spinner from "@controls/Spinner/Spinner";
 import { Table } from "antd";
-import { Evenement } from "../../lib/Evenement";
-import { evenementTableColumns } from "../Table/EvenementTableColumns";
-import { setModalEvenementId } from "../../redux/actions/Modals";
+import { Evenement } from "@lib";
+import { evenementTableColumns } from "@controls/Table/EvenementTableColumns";
 
 /**
  * Returns a table component that displays ongoing events.
@@ -24,37 +22,35 @@ import { setModalEvenementId } from "../../redux/actions/Modals";
  * @returns {ReactElement} The table component displaying the ongoing events.
  */
 export function EvenementsEnCoursTable(): ReactElement {
-   const user = useAuth().user;
-   const dispatch = useDispatch();
-   const { data: evenementsEnCours, isLoading } = useApi().useGetCollectionPaginated({
-      path: "/evenements",
-      page: 1,
-      itemsPerPage: NB_MAX_ITEMS_PER_PAGE,
-      query: {
-         intervenant: user?.["@id"],
-         "exists[periodePriseEnCompteRH]": false,
-         "exists[dateAnnulation]": false,
-      },
-      enabled: !!user?.["@id"],
-   });
+  const user = useAuth().user;
+  const { setModalEvenementId } = useModals();
+  const { data: evenementsEnCours, isLoading } = useApi().useGetFullCollection({
+    path: "/evenements",
+    query: {
+      intervenant: user?.["@id"],
+      "exists[periodePriseEnCompteRH]": false,
+      "exists[dateAnnulation]": false,
+    },
+    enabled: !!user?.["@id"],
+  });
 
-   if (!evenementsEnCours) {
-      return <Spinner />;
-   }
+  if (!evenementsEnCours) {
+    return <Spinner />;
+  }
 
-   return (
-      <Table<Evenement>
-         dataSource={evenementsEnCours?.items.map((e) => new Evenement(e))}
-         loading={isLoading}
-         rowKey={(record) => record["@id"] as string}
-         pagination={false}
-         columns={evenementTableColumns({
-            saisieEvtRenfort: false,
-            afficherEtatEnvoiRh: false,
-            onEvenementSelected: (evenement) => {
-               dispatch(setModalEvenementId(evenement["@id"] as string));
-            },
-         })}
-      />
-   );
+  return (
+    <Table<Evenement>
+      dataSource={evenementsEnCours?.items.map((e) => new Evenement(e))}
+      loading={isLoading}
+      rowKey={(record) => record["@id"] as string}
+      pagination={false}
+      columns={evenementTableColumns({
+        saisieEvtRenfort: false,
+        afficherEtatEnvoiRh: false,
+        onEvenementSelected: (evenement) => {
+          setModalEvenementId(evenement["@id"] as string);
+        },
+      })}
+    />
+  );
 }

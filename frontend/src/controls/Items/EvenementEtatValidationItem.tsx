@@ -10,12 +10,11 @@
 import React, { ReactElement } from "react";
 import { Tag } from "antd";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import { useApi } from "../../context/api/ApiProvider";
-import { PREFETCH_TYPES_EVENEMENTS } from "../../api/ApiPrefetchHelpers";
-import { IEvenement } from "../../api/ApiTypeHelpers";
+import { useApi } from "@context/api/ApiProvider";
+import { IEvenement, PREFETCH_TYPES_EVENEMENTS } from "@api";
 
 interface IItemEtatValidationProps {
-   evenement: IEvenement;
+  evenement: IEvenement;
 }
 
 /**
@@ -26,24 +25,24 @@ interface IItemEtatValidationProps {
  *
  * @return {ReactElement | null} - The validation status component, or null if validation is not required.
  */
-export default function EvenementEtatValidationItem({
-                                                       evenement,
-                                                    }: IItemEtatValidationProps): ReactElement | null {
-   const { data: typesEvenements } = useApi().useGetCollection(PREFETCH_TYPES_EVENEMENTS);
+export function EvenementEtatValidationItem({
+  evenement,
+}: IItemEtatValidationProps): ReactElement | null {
+  const { data: typesEvenements } = useApi().useGetFullCollection(PREFETCH_TYPES_EVENEMENTS);
 
-   if (typesEvenements?.items.find((t) => t["@id"] === evenement.type)?.avecValidation === false)
-      return null;
+  if (typesEvenements?.items.find((t) => t["@id"] === evenement.type)?.avecValidation === false)
+    return null;
 
-   if (evenement.dateValidation)
-      return (
-         <Tag color="green" icon={<CheckOutlined />}>
-            Validé par chargé d'accomp.
-         </Tag>
-      );
-
-   return (
-      <Tag color="warning" icon={<CloseOutlined />}>
-         Non validé par chargé d'accomp.
+  if (evenement.dateValidation)
+    return (
+      <Tag color="green" icon={<CheckOutlined />}>
+        Validé par chargé d'accomp.
       </Tag>
-   );
+    );
+
+  return (
+    <Tag color="warning" icon={<CloseOutlined />}>
+      Non validé par chargé d'accomp.
+    </Tag>
+  );
 }

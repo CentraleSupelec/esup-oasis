@@ -25,6 +25,7 @@ du projet. Un fichier `.env.example` est fourni pour servir de base à la config
 | `REACT_APP_EMAIL_DPD`                 | Email du Délégué à la Protection des Données                  | dpo@esup-portail.org                        | Non             |
 | `REACT_APP_INFOS_AUTH`                | URL d'aide à la connexion au SI de l'établissement            | https://identite-numerique.esup-portail.org | Non             |
 | `REACT_APP_LOGO`                      | Logo de l'établissement (URL)                                 | /images/logo.svg                            | Non             |
+| `REACT_APP_LOGO_DARK`                 | Logo de l'établissement (URL) pour le mode dark               | /images/logo-dark.svg                       | Non             |
 
 Pour la personnalisation du logo de l'établissement : se reporter à
 la [section dédiée](personnalisation-ui.md#logo-de-létablissement).
@@ -50,7 +51,6 @@ Si elle est renseignée, une nouvelle section est affichée dans le menu "Mon co
 | **Variable**              | **Description**                                                                   | **Exemple**           | **Obligatoire** |
 |---------------------------|-----------------------------------------------------------------------------------|-----------------------|-----------------|
 | `REACT_APP_VISITE_GUIDEE` | Détermine si la visite guidée est affichée sur les écrans de gestion des demandes | false                 | Non             |
-| `REACT_APP_VERSION`       | Version de l'application                                                          | 2.1.0                 | Oui             |
 | `REACT_APP_MSG_ACCUEIL`   | Message d'accueil affiché sur la page d'accueil                                   | Université ESUP;oasis | Non             |
 
 - `REACT_APP_VISITE_GUIDEE` : à destination des membres de commission, une aide contextuelle présente l'interface et les

@@ -10,8 +10,8 @@
 import React, { ReactElement } from "react";
 import { Breadcrumb, Layout, Space, Typography } from "antd";
 import { NavLink, useParams } from "react-router-dom";
-import DossierBeneficiaire from "../../../controls/Description/DossierBeneficiaire";
-import { useApi } from "../../../context/api/ApiProvider";
+import DossierBeneficiaire from "@controls/Description/DossierBeneficiaire";
+import { useApi } from "@context/api/ApiProvider";
 import { HomeFilled } from "@ant-design/icons";
 
 /**
@@ -20,50 +20,50 @@ import { HomeFilled } from "@ant-design/icons";
  * @returns {ReactElement} The rendered Beneficiaires component.
  */
 export default function Beneficiaire(): ReactElement {
-   const { id } = useParams<"id">();
-   const { data: beneficiaire } = useApi().useGetItem({
-      path: "/utilisateurs/{uid}",
-      url: `/utilisateurs/${id}`,
-      enabled: !!id,
-   });
+  const { id } = useParams<"id">();
+  const { data: beneficiaire } = useApi().useGetItem({
+    path: "/utilisateurs/{uid}",
+    url: `/utilisateurs/${id}`,
+    enabled: !!id,
+  });
 
-   if (!beneficiaire) {
-      return (
-         <Layout.Content className="beneficiaires" style={{ padding: "0 50px" }}>
-            <Typography.Title level={1}>Bénéficiaire</Typography.Title>
-            <Typography.Paragraph>Aucun bénéficiaire sélectionné.</Typography.Paragraph>
-         </Layout.Content>
-      );
-   }
-
-   return (
+  if (!beneficiaire) {
+    return (
       <Layout.Content className="beneficiaires" style={{ padding: "0 50px" }}>
-         <Typography.Title level={1}>Bénéficiaire</Typography.Title>
-         <Breadcrumb
-            className="mt-2 mb-2"
-            items={[
-               {
-                  key: "beneficiaires",
-                  title: (
-                     <NavLink to="/beneficiaires">
-                        <Space>
-                           <HomeFilled />
-                           Bénéficaires
-                        </Space>
-                     </NavLink>
-                  ),
-               },
-               {
-                  key: "beneficiaire",
-                  title: (
-                     <>
-                        {beneficiaire.prenom} {beneficiaire.nom?.toLocaleUpperCase()}
-                     </>
-                  ),
-               },
-            ]}
-         />
-         <DossierBeneficiaire beneficiaireId={`/utilisateurs/${id}`} />
+        <Typography.Title level={1}>Bénéficiaire</Typography.Title>
+        <Typography.Paragraph>Aucun bénéficiaire sélectionné.</Typography.Paragraph>
       </Layout.Content>
-   );
+    );
+  }
+
+  return (
+    <Layout.Content className="beneficiaires" style={{ padding: "0 50px" }}>
+      <Typography.Title level={1}>Bénéficiaire</Typography.Title>
+      <Breadcrumb
+        className="mt-2 mb-2"
+        items={[
+          {
+            key: "beneficiaires",
+            title: (
+              <NavLink to="/beneficiaires">
+                <Space>
+                  <HomeFilled />
+                  Bénéficaires
+                </Space>
+              </NavLink>
+            ),
+          },
+          {
+            key: "beneficiaire",
+            title: (
+              <>
+                {beneficiaire.prenom} {beneficiaire.nom?.toLocaleUpperCase()}
+              </>
+            ),
+          },
+        ]}
+      />
+      <DossierBeneficiaire beneficiaireId={`/utilisateurs/${id}`} />
+    </Layout.Content>
+  );
 }

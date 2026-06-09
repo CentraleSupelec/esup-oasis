@@ -15,35 +15,35 @@
  * @returns {boolean} - Returns true if the array contains duplicates, otherwise false.
  */
 export function arrayContainsDuplicates<T>(array: T[]): boolean {
-   return new Set(array).size !== array.length;
+  return new Set(array).size !== array.length;
 }
 
 export function arrayUnique<T>(value: T, index: number, array: T[]) {
-   return array.indexOf(value) === index;
+  return array.indexOf(value) === index;
 }
 
 // ---
 
 export function ascToAscend(
-   str: "asc" | "desc" | null | undefined,
+  str: "asc" | "desc" | null | undefined,
 ): "ascend" | "descend" | undefined {
-   if (str === "asc") {
-      return "ascend";
-   }
-   if (str === "desc") {
-      return "descend";
-   }
-   return undefined;
+  if (str === "asc") {
+    return "ascend";
+  }
+  if (str === "desc") {
+    return "descend";
+  }
+  return undefined;
 }
 
 export function ascendToAsc(
-   str: "ascend" | "descend" | null | undefined,
+  str: "ascend" | "descend" | null | undefined,
 ): "asc" | "desc" | undefined {
-   if (str === "ascend") {
-      return "asc";
-   }
-   if (str === "descend") {
-      return "desc";
-   }
-   return undefined;
+  if (str === "ascend") {
+    return "asc";
+  }
+  if (str === "descend") {
+    return "desc";
+  }
+  return undefined;
 }

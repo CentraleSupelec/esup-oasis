@@ -7,279 +7,186 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useRef, useState } from "react";
-import useLocalStorageState from "use-local-storage-state";
-import { DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD, OAUTH_RESPONSE } from "./constants";
-import { objectToQuery, queryToObject } from "../../utils/url";
-import { generateState, removeState, saveState, State } from "./state";
-import { closeAuthPopup, openAuthPopup } from "./popup";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD,
+  OAUTH_CALLBACK_PAYLOAD_KEY,
+} from "@/auth/hook/constants";
+import {
+  generateNonce,
+  generateState,
+  getNonce,
+  removeNonce,
+  removeState,
+  saveNonce,
+  saveState,
+} from "@/auth/hook/state";
+import { enhanceAuthorizeUrl, formatExchangeCodeForTokenServerURL } from "@/auth/hook/urlBuilders";
 
-/**
- * Auth token payload
- */
 export type AuthTokenPayload = {
-   token_type: string;
-   expires_in: number;
-   access_token: string;
-   scope: string;
-   refresh_token: string;
+  token_type: string;
+  expires_in: number;
+  access_token: string;
+  scope: string;
+  refresh_token: string;
 };
 
-/**
- * Response type based props
- */
 export type ResponseTypeBasedProps<TData> =
-   | {
-   responseType: "code";
-   exchangeCodeForTokenServerURL: string;
-   exchangeCodeForTokenMethod?: "POST" | "GET";
-   onSuccess?: (payload: TData) => void;
-}
-   | {
-   responseType: "token";
-   onSuccess?: (payload: TData) => void;
-}
-   | {
-   responseType: never;
-   onSuccess?: (payload: TData) => void;
-};
+  | {
+      responseType: "code";
+      exchangeCodeForTokenServerURL: string;
+      exchangeCodeForTokenMethod?: "POST" | "GET";
+      onSuccess?: (payload: TData) => void;
+    }
+  | {
+      responseType: "token";
+      onSuccess?: (payload: TData) => void;
+    }
+  | {
+      responseType: never;
+      onSuccess?: (payload: TData) => void;
+    };
 
-/**
- * Oauth2 props
- */
 export type Oauth2Props<TData = AuthTokenPayload> = {
-   authorizeUrl: string;
-   clientId: string;
-   redirectUri: string;
-   clientUri: string;
-   scope?: string;
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   extraQueryParameters?: Record<string, any>;
-   onError?: (error: string) => void;
+  authorizeUrl: string;
+  clientId: string;
+  redirectUri: string;
+  clientUri: string;
+  scope?: string;
+
+  extraQueryParameters?: Record<string, string | number | boolean>;
+  onError?: (error: string) => void;
 } & ResponseTypeBasedProps<TData>;
 
 /**
- * Création de l'url d'autorisation
- * @param authorizeUrl
- * @param clientId
- * @param redirectUri
- * @param scope
- * @param state
- * @param responseType
- * @param extraQueryParametersRef
- */
-const enhanceAuthorizeUrl = (
-   authorizeUrl: string,
-   clientId: string,
-   redirectUri: string,
-   scope: string,
-   state: string,
-   responseType: Oauth2Props["responseType"],
-   extraQueryParametersRef: React.RefObject<Oauth2Props["extraQueryParameters"]>,
-) => {
-   const query = objectToQuery({
-      response_type: responseType,
-      client_id: clientId,
-      redirect_uri: redirectUri,
-      scope,
-      state,
-      ...extraQueryParametersRef.current,
-   });
-
-   return `${authorizeUrl}?${query}`;
-};
-
-const formatExchangeCodeForTokenServerURL = (
-   exchangeCodeForTokenServerURL: string,
-   clientId: string,
-   code: string,
-   redirectUri: string,
-   state: string,
-) => {
-   const queryIndex = exchangeCodeForTokenServerURL.indexOf("?");
-   const url =
-      queryIndex === -1
-         ? exchangeCodeForTokenServerURL
-         : exchangeCodeForTokenServerURL.slice(0, queryIndex);
-   const anySearchParameters = queryToObject(exchangeCodeForTokenServerURL.slice(queryIndex + 1));
-
-   return `${url}?${objectToQuery({
-      ...anySearchParameters,
-      client_id: clientId,
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: redirectUri,
-      state,
-   })}`;
-};
-
-/**
- * Hook personnalisé `useOAuth2`pour gérer l'authentification OAuth2 :
+ * Hook `useOAuth2` — flow redirect (sans popup).
  *
- * Ce hook encapsule toute la logique nécessaire pour gérer le processus d'authentification OAuth2,
- * y compris l'ouverture d'une fenêtre popup pour l'authentification, la gestion de l'état, et le traitement des réponses.
+ * - `getAuth()` redirige la fenêtre principale vers le provider OAuth.
+ *   Un `state` (CSRF) et un `nonce` (replay) sont générés en sessionStorage.
+ * - Au retour (après `/callback`), `OAuthCallback` valide le state, stocke le payload
+ *   en sessionStorage et redirige vers la racine.
+ * - Un `useEffect` au montage lit ce payload, vérifie le nonce si le serveur l'a
+ *   inclus dans la réponse (OIDC), puis appelle `onSuccess`/`onError`.
+ *
+ * Note : pour les providers OAuth2 pur (non OIDC), le nonce est envoyé mais ne peut
+ * pas être vérifié côté client (il n'est pas inclus dans l'access_token). La vérification
+ * est assurée côté serveur si le provider supporte OIDC.
  */
 const useOAuth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
-   const {
-      authorizeUrl,
-      clientId,
-      redirectUri,
-      clientUri,
-      scope = "",
-      responseType,
-      extraQueryParameters = {},
-      onSuccess,
-      onError,
-   } = props;
+  const {
+    authorizeUrl,
+    clientId,
+    redirectUri,
+    scope = "",
+    responseType,
+    extraQueryParameters = {},
+    onSuccess,
+    onError,
+  } = props;
 
-   const extraQueryParametersRef = useRef(extraQueryParameters);
-   const popupRef = useRef<Window | null>(null);
-   const intervalRef = useRef<any>(null);
-   const [{ loading, error }, setUI] = useState({ loading: false, error: null });
-   const [data, setData, { removeItem: removeLocalStorage }] =
-      useLocalStorageState<State<TData> | null>(
-         `${responseType}-${authorizeUrl}-${clientId}-${scope}`,
-      );
-   const exchangeCodeForTokenServerURL =
-      responseType === "code" && props.exchangeCodeForTokenServerURL;
-   const exchangeCodeForTokenMethod = responseType === "code" && props.exchangeCodeForTokenMethod;
+  const extraQueryParametersRef = useRef(extraQueryParameters);
+  const [{ loading, error }, setUI] = useState<{ loading: boolean; error: string | null }>({
+    loading: false,
+    error: null,
+  });
 
-   const cleanup = (handleMessageListener: any) => {
-      clearInterval(intervalRef.current);
-      closeAuthPopup(popupRef);
-      removeState();
-      removeLocalStorage();
-      window.removeEventListener("message", handleMessageListener);
-   };
+  const exchangeCodeForTokenServerURL =
+    responseType === "code" && props.exchangeCodeForTokenServerURL;
+  const exchangeCodeForTokenMethod = responseType === "code" && props.exchangeCodeForTokenMethod;
 
-   const getAuth = useCallback(() => {
-      // 1. Initialisation
-      setUI({
-         loading: true,
-         error: null,
-      });
+  // Refs stables pour les callbacks (évite de les mettre en dépendances du useEffect de montage)
+  const onSuccessRef = useRef(onSuccess);
+  const onErrorRef = useRef(onError);
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+  }, [onSuccess]);
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
 
-      // 2. Générer un état et le sauvegarder dans le stockage local
-      const state = generateState();
-      saveState(state);
+  // Au montage, traiter le payload laissé par OAuthCallback après le redirect
+  useEffect(() => {
+    const stored = sessionStorage.getItem(OAUTH_CALLBACK_PAYLOAD_KEY);
+    if (!stored) return;
 
-      // 3. Ouverture de la fenêtre popup
-      popupRef.current = openAuthPopup(
-         enhanceAuthorizeUrl(
-            authorizeUrl,
-            clientId,
-            redirectUri,
-            scope,
-            state,
-            responseType,
-            extraQueryParametersRef,
-         ),
-      );
+    sessionStorage.removeItem(OAUTH_CALLBACK_PAYLOAD_KEY);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setUI({ loading: true, error: null });
 
-      // 4. Gestion de la réponse : écouteur d'événements de message
-      async function handleMessageListener(message: MessageEvent<any>) {
-         if (!message.origin.includes(clientUri)) throw new Error("Invalid origin");
+    void (async () => {
+      try {
+        const message: { error?: string; payload?: Record<string, string> } = JSON.parse(stored);
 
-         const type = message?.data?.type;
-         if (type !== OAUTH_RESPONSE) {
-            return;
-         }
-         try {
-            const errorMaybe = message?.data?.error;
-            if (errorMaybe) {
-               setUI({
-                  loading: false,
-                  error: errorMaybe,
-               });
-               if (onError) onError(errorMaybe);
-            } else {
-               let payload = message?.data?.payload;
+        if (message.error) {
+          setUI({ loading: false, error: message.error });
+          onErrorRef.current?.(message.error);
+          return;
+        }
 
-               if (responseType === "code" && exchangeCodeForTokenServerURL) {
-                  const response = await fetch(
-                     formatExchangeCodeForTokenServerURL(
-                        exchangeCodeForTokenServerURL,
-                        clientId,
-                        payload?.code,
-                        redirectUri,
-                        state,
-                     ),
-                     {
-                        method:
-                           exchangeCodeForTokenMethod || DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD,
-                     },
-                  );
-                  payload = await response.json();
-               }
-               setUI({
-                  loading: false,
-                  error: null,
-               });
-               setData(payload);
+        // Vérification du nonce si le serveur l'a inclus dans la réponse (providers OIDC)
+        const storedNonce = getNonce();
+        if (storedNonce && message.payload?.nonce && message.payload.nonce !== storedNonce) {
+          setUI({ loading: false, error: "OAuth error: Nonce mismatch." });
+          onErrorRef.current?.("OAuth error: Nonce mismatch.");
+          return;
+        }
 
-               if (onSuccess) {
-                  onSuccess(payload);
-               }
-            }
-         } catch (genericError: any) {
-            console.error(genericError);
-            setUI({
-               loading: false,
-               error: genericError.toString(),
-            });
-         } finally {
-            // Clear stuff ...
-            cleanup(handleMessageListener);
-         }
+        let payload: TData | Record<string, string> | undefined = message.payload;
+
+        if (responseType === "code" && exchangeCodeForTokenServerURL) {
+          const state = message.payload?.state ?? "";
+          const response = await fetch(
+            formatExchangeCodeForTokenServerURL(
+              exchangeCodeForTokenServerURL,
+              clientId,
+              message.payload?.code ?? "",
+              redirectUri,
+              state,
+            ),
+            {
+              method: exchangeCodeForTokenMethod || DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD,
+            },
+          );
+          payload = await response.json();
+        }
+
+        setUI({ loading: false, error: null });
+        onSuccessRef.current?.(payload as TData);
+      } catch (err: unknown) {
+        setUI({
+          loading: false,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      } finally {
+        removeState();
+        removeNonce();
       }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionnellement vide : s'exécute uniquement au montage
 
-      // Ajout d'un écouteur d'événements de message
-      window.addEventListener("message", (event) => {
-         if (event.origin !== clientUri) {
-            throw new Error("Invalid origin for oauth2 response");
-         }
-         handleMessageListener(event).then();
-      });
+  const getAuth = useCallback(() => {
+    setUI({ loading: true, error: null });
 
-      // 5. Vérification de la fermeture de la fenêtre popup
-      intervalRef.current = setInterval(() => {
-         const popupClosed = !popupRef.current?.window || popupRef.current?.window?.closed;
-         if (popupClosed) {
-            // Popup was closed before completing auth...
-            setUI((ui) => ({
-               ...ui,
-               loading: false,
-            }));
-            console.warn("Warning: Popup was closed before completing authentication.");
-            clearInterval(intervalRef.current);
-            removeState();
-            window.removeEventListener("message", handleMessageListener);
-         }
-      }, 250);
+    const state = generateState();
+    saveState(state);
 
-      // 0. Nettoyage
-      return () => {
-         window.removeEventListener("message", handleMessageListener);
-         if (intervalRef.current) clearInterval(intervalRef.current);
-      };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [
+    const nonce = generateNonce();
+    saveNonce(nonce);
+
+    window.location.href = enhanceAuthorizeUrl(
       authorizeUrl,
       clientId,
-      clientUri,
       redirectUri,
       scope,
+      state,
+      nonce,
       responseType,
-      exchangeCodeForTokenServerURL,
-      exchangeCodeForTokenMethod,
-      onSuccess,
-      onError,
-      setUI,
-      setData,
-   ]);
+      extraQueryParametersRef.current,
+    );
+  }, [authorizeUrl, clientId, redirectUri, scope, responseType]);
 
-   return { data, loading, error, getAuth };
+  return { loading, error, getAuth };
 };
 
 export default useOAuth2;

@@ -16,16 +16,16 @@ import { useEffect, useState } from "react";
  * @return {boolean} - The boolean value.
  */
 export function useWait(delay: number): boolean {
-   const [wait, setWait] = useState(true);
+  const [wait, setWait] = useState(true);
 
-   useEffect(() => {
-      const timer = window.setTimeout(() => {
-         setWait(false);
-      }, delay);
-      return () => {
-         window.clearTimeout(timer);
-      };
-   });
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setWait(false);
+    }, delay);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [delay]);
 
-   return wait;
+  return wait;
 }

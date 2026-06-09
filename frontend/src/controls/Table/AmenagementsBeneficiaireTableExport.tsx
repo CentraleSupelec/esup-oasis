@@ -8,198 +8,186 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { ITag, ITypeAmenagement, PREFETCH_TAGS } from "@api";
+import { useMemo, useState } from "react";
+import { useApi } from "@context/api/ApiProvider";
+import { FiltreAmenagement, filtreAmenagementToApi } from "@controls/Table/AmenagementTableLayout";
 import {
-   ITag,
-   ITypeAmenagement,
-} from "../../api/ApiTypeHelpers";
-import { useEffect, useMemo, useState } from "react";
-import { useApi } from "../../context/api/ApiProvider";
-import { NB_MAX_ITEMS_PER_PAGE } from "../../constants";
-import { TableExportButton } from "../Buttons/TableExportButton";
-import { FiltreAmenagement, filtreAmenagementToApi } from "./AmenagementTableLayout";
-import {  PREFETCH_TAGS } from "../../api/ApiPrefetchHelpers";
-import {
-   buildAmenagementsBenefDatasource,
-   getTypesAmenagements,
-   TypesDomainesAmenagements,
-} from "./AmenagementsBeneficiaireTable";
-import { DOMAINES_AMENAGEMENTS_INFOS } from "../../lib/amenagements";
-import { ModeAffichageAmenagement } from "../../routes/gestionnaire/beneficiaires/Amenagements";
-import { useAuth } from "../../auth/AuthProvider";
-import { Utilisateur } from "../../lib/Utilisateur";
-import { env } from "../../env";
+  buildAmenagementsBenefDatasource,
+  getTypesAmenagements,
+  TypesDomainesAmenagements,
+} from "@controls/Table/AmenagementsBeneficiaireTable";
+import { DOMAINES_AMENAGEMENTS_INFOS, Utilisateur } from "@lib";
+import { ModeAffichageAmenagement } from "@routes/gestionnaire/beneficiaires/Amenagements";
+import { useAuth } from "@/auth/AuthProvider";
+import { env } from "@/env";
+import CsvExportButton from "@controls/Table/Export/CsvExportButton";
 
 function getHeader(
-   typesAmenagementsUtilises: TypesDomainesAmenagements[],
-   user: Utilisateur | undefined,
+  typesAmenagementsUtilises: TypesDomainesAmenagements[],
+  user: Utilisateur | undefined,
 ) {
-   const headers = [
-      { label: "Nom", key: "nom" },
-      { label: "Prénom", key: "prenom" },
-      { label: "Email", key: "email" },
-      { label: "Numéro étudiant", key: "numeroEtudiant" },
-      { label: "Composante", key: "composante" },
-      { label: "Formation", key: "formation" },
-      user?.isGestionnaire ? { label: "Tags", key: "tags" } : null,
-      user?.isGestionnaire
-         ? { label: `Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"}`, key: "avisESE" }
-         : null,
-   ];
+  const headers = [
+    { label: "Nom", key: "nom" },
+    { label: "Prénom", key: "prenom" },
+    { label: "Email", key: "email" },
+    { label: "Numéro étudiant", key: "numeroEtudiant" },
+    { label: "Composante", key: "composante" },
+    { label: "Formation", key: "formation" },
+    user?.isGestionnaire ? { label: "Tags", key: "tags" } : null,
+    user?.isGestionnaire
+      ? { label: `Avis ${env.REACT_APP_ESPACE_SANTE_ABV || "santé"}`, key: "avisESE" }
+      : null,
+  ];
 
-   Object.keys(DOMAINES_AMENAGEMENTS_INFOS)
-      .filter((domainKey) => {
-         return user?.isGestionnaire || DOMAINES_AMENAGEMENTS_INFOS[domainKey].visibleReferent;
-      })
-      .forEach((domaineKey) => {
-         const domaine = DOMAINES_AMENAGEMENTS_INFOS[domaineKey];
-         headers.push({
-            label: `Nombre ${domaine.libelleLongPluriel}`,
-            key: `${domaineKey}_count`,
-         });
-
-         typesAmenagementsUtilises
-            .filter((ta) => ta.domaine.id === domaine.id)
-            .forEach((ta) => {
-               headers.push({
-                  label: ta.typeAmenagement.libelle.replaceAll('"', '""'),
-                  key: ta.typeAmenagement["@id"] as string,
-               });
-               headers.push({
-                  label: `${ta.typeAmenagement.libelle.replaceAll('"', '""')} - Commentaire`,
-                  key: `${ta.typeAmenagement["@id"]}_commentaire`,
-               });
-            });
+  Object.keys(DOMAINES_AMENAGEMENTS_INFOS)
+    .filter((domainKey) => {
+      return user?.isGestionnaire || DOMAINES_AMENAGEMENTS_INFOS[domainKey].visibleReferent;
+    })
+    .forEach((domaineKey) => {
+      const domaine = DOMAINES_AMENAGEMENTS_INFOS[domaineKey];
+      headers.push({
+        label: `Nombre ${domaine.libelleLongPluriel}`,
+        key: `${domaineKey}_count`,
       });
 
-   return headers.filter((h) => h) as { label: string; key: string }[];
+      typesAmenagementsUtilises
+        .filter((ta) => ta.domaine.id === domaine.id)
+        .forEach((ta) => {
+          headers.push({
+            label: ta.typeAmenagement.libelle.replaceAll('"', '""'),
+            key: ta.typeAmenagement["@id"] as string,
+          });
+          headers.push({
+            label: `${ta.typeAmenagement.libelle.replaceAll('"', '""')} - Commentaire`,
+            key: `${ta.typeAmenagement["@id"]}_commentaire`,
+          });
+        });
+    });
+
+  return headers.filter((h) => h) as { label: string; key: string }[];
 }
 
-function getAmenagementsBeneficiaireData(
-   user: Utilisateur | undefined,
-   amenagements: any[],
-   typesAmenagementsUtilises: TypesDomainesAmenagements[],
-   tags?: ITag[],
+function formatAmenagementsBeneficiaireData(
+  amenagements: any[],
+  typesAmenagementsUtilises: TypesDomainesAmenagements[],
+  tags?: ITag[],
 ) {
-   return amenagements.map((amenagement) => {
-      const data: any = {
-         key: amenagement.key,
-         "@id": amenagement.key,
-         nom: amenagement.nom?.toLocaleUpperCase(),
-         prenom: amenagement.prenom,
-         email: amenagement.email,
-         numeroEtudiant: amenagement.numeroEtudiant,
-         composante: amenagement.inscription?.formation?.composante?.libelle?.replaceAll('"', '""'),
-         formation: amenagement.inscription?.formation?.libelle?.replaceAll('"', '""'),
-         tags:
-            (amenagement.tags as string[])
-               ?.map((tag) => tags?.find((t) => t["@id"] === tag))
-               .map((tag) => tag?.libelle)
-               .join(", ") || "",
-         avisESE: amenagement?.etatAvisEse,
-      };
+  return amenagements.map((amenagement) => {
+    const data: any = {
+      key: amenagement.key,
+      "@id": amenagement.key,
+      nom: amenagement.nom?.toLocaleUpperCase(),
+      prenom: amenagement.prenom,
+      email: amenagement.email,
+      numeroEtudiant: amenagement.numeroEtudiant,
+      composante: amenagement.inscription?.formation?.composante?.libelle?.replaceAll('"', '""'),
+      formation: amenagement.inscription?.formation?.libelle?.replaceAll('"', '""'),
+      tags:
+        (amenagement.tags as string[])
+          ?.map((tag) => tags?.find((t) => t["@id"] === tag))
+          .map((tag) => tag?.libelle)
+          .join(", ") || "",
+      avisESE: amenagement?.etatAvisEse,
+    };
 
-      typesAmenagementsUtilises.forEach((ta) => {
-         const am = amenagement[ta.typeAmenagement["@id"] as string];
-         if (am) {
-            data[ta.typeAmenagement["@id"] as string] = "Oui";
-            data[`${ta.typeAmenagement["@id"]}_commentaire`] = (am.commentaire || "").replaceAll(
-               '"',
-               '""',
-            );
-         }
-      });
+    typesAmenagementsUtilises.forEach((ta) => {
+      const am = amenagement[ta.typeAmenagement["@id"] as string];
+      if (am) {
+        data[ta.typeAmenagement["@id"] as string] = "Oui";
+        data[`${ta.typeAmenagement["@id"]}_commentaire`] = (am.commentaire || "").replaceAll(
+          '"',
+          '""',
+        );
+      }
+    });
 
-      Object.keys(DOMAINES_AMENAGEMENTS_INFOS).forEach((domaineKey) => {
-         const domaine = DOMAINES_AMENAGEMENTS_INFOS[domaineKey];
-         data[`${domaineKey}_count`] = typesAmenagementsUtilises.filter(
-            (c) => c.domaine.id === domaine.id && amenagement[c.typeAmenagement["@id"] as string],
-         ).length;
-      });
+    Object.keys(DOMAINES_AMENAGEMENTS_INFOS).forEach((domaineKey) => {
+      const domaine = DOMAINES_AMENAGEMENTS_INFOS[domaineKey];
+      data[`${domaineKey}_count`] = typesAmenagementsUtilises.filter(
+        (c) => c.domaine.id === domaine.id && amenagement[c.typeAmenagement["@id"] as string],
+      ).length;
+    });
 
-      return data;
-   });
+    return data;
+  });
 }
 
 interface TableAmenagementsExportProps {
-   filtreAmenagement: FiltreAmenagement;
-   typesAmenagements: ITypeAmenagement[];
+  filtreAmenagement: FiltreAmenagement;
+  typesAmenagements: ITypeAmenagement[];
 }
 
 export default function AmenagementsBeneficiaireTableExport({
-   filtreAmenagement,
-   typesAmenagements,
+  filtreAmenagement,
+  typesAmenagements,
 }: TableAmenagementsExportProps) {
-   const [exportSubmit, setExportSubmit] = useState(false);
-   const [downloaded, setDownloaded] = useState(false);
-   const [loading, setLoading] = useState(false);
-   const user = useAuth().user;
+  const [{ exportKey, exportSubmit, prevFilter }, setExportState] = useState({
+    exportKey: 0,
+    exportSubmit: false,
+    prevFilter: filtreAmenagement,
+  });
 
-   const { data: amenagements, isFetching: isFetchingAmenagements } = useApi().useGetCollection({
-      path: "/amenagements/utilisateurs",
-      query: {
-         ...filtreAmenagementToApi(filtreAmenagement, ModeAffichageAmenagement.ParBeneficiaire),
-         page: 1,
-         itemsPerPage: NB_MAX_ITEMS_PER_PAGE,
-      },
-      enabled: exportSubmit,
-   });
+  if (prevFilter !== filtreAmenagement) {
+    setExportState((prev) => ({
+      exportKey: prev.exportKey + 1,
+      exportSubmit: false,
+      prevFilter: filtreAmenagement,
+    }));
+  }
 
-   const { data: tags, isFetching: isFetchingTags } = useApi().useGetCollection({
-      ...PREFETCH_TAGS,
-      enabled: exportSubmit,
-   });
+  const user = useAuth().user;
 
-   // --- Prepare data
+  const {
+    data: amenagements,
+    fetchedCount: amFetchedCount,
+    totalItems: amTotalItems,
+    isLoadingPage1: amIsLoadingPage1,
+  } = useApi().useGetFullCollection({
+    path: "/amenagements/utilisateurs",
+    query: filtreAmenagementToApi(filtreAmenagement, ModeAffichageAmenagement.ParBeneficiaire),
+    enabled: exportSubmit,
+    concurrency: 5,
+  });
 
-   const typesAmenagementsUtilises = useMemo(() => {
-      return getTypesAmenagements(amenagements?.items || [], typesAmenagements).sort((a, b) =>
-         a.typeAmenagement.libelle.localeCompare(b.typeAmenagement.libelle),
-      );
-   }, [amenagements?.items, typesAmenagements]);
+  const {
+    data: tags,
+    fetchedCount: tagsFetchedCount,
+    totalItems: tagsTotalItems,
+  } = useApi().useGetFullCollection({
+    ...PREFETCH_TAGS,
+    enabled: exportSubmit,
+  });
 
-   const data = useMemo(
-      () => {
-         return buildAmenagementsBenefDatasource(
-            amenagements?.items || [],
-            typesAmenagementsUtilises,
-         );
-      },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [amenagements?.items, typesAmenagementsUtilises],
-   );
+  const typesAmenagementsUtilises = useMemo(
+    () =>
+      getTypesAmenagements(amenagements?.items || [], typesAmenagements).sort((a, b) =>
+        a.typeAmenagement.libelle.localeCompare(b.typeAmenagement.libelle),
+      ),
+    [amenagements?.items, typesAmenagements],
+  );
 
-   // ---
+  const data = useMemo(
+    () => buildAmenagementsBenefDatasource(amenagements?.items || [], typesAmenagementsUtilises),
+    [amenagements?.items, typesAmenagementsUtilises],
+  );
 
-   useEffect(() => {
-      if (amenagements?.items && tags?.items) {
-         setLoading(false);
-      } else {
-         setLoading(isFetchingAmenagements || isFetchingTags);
+  const refDataReady = !!(amenagements?.items && tags?.items);
+  const globalFetchedCount = amFetchedCount + tagsFetchedCount;
+  const globalTotalItems = amIsLoadingPage1 ? 0 : amTotalItems + tagsTotalItems;
+
+  return (
+    <CsvExportButton
+      key={exportKey}
+      getData={() =>
+        formatAmenagementsBeneficiaireData(data || [], typesAmenagementsUtilises, tags?.items)
       }
-   }, [exportSubmit, isFetchingAmenagements, amenagements?.items, tags?.items, isFetchingTags]);
-
-   // --- Export
-
-   const headers = getHeader(typesAmenagementsUtilises, user);
-
-   return (
-      <TableExportButton
-         loading={loading}
-         setLoading={setLoading}
-         submitted={exportSubmit}
-         setSubmitted={setExportSubmit}
-         getData={() =>
-            getAmenagementsBeneficiaireData(
-               user,
-               data || [],
-               typesAmenagementsUtilises,
-               tags?.items,
-            )
-         }
-         downloaded={downloaded}
-         setDownloaded={setDownloaded}
-         headers={headers}
-         filename="amenagements"
-      />
-   );
+      headers={getHeader(typesAmenagementsUtilises, user)}
+      filename="amenagements"
+      ready={refDataReady}
+      fetchedCount={globalFetchedCount}
+      totalItems={globalTotalItems}
+      onStart={() => setExportState((prev) => ({ ...prev, exportSubmit: true }))}
+    />
+  );
 }

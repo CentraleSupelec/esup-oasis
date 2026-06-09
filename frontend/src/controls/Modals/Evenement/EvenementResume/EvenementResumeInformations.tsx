@@ -8,11 +8,11 @@
  */
 
 import { Descriptions } from "antd";
-import TypeEvenementItem from "../../../Items/TypeEvenementItem";
+import { CampusItem } from "@controls/Items/CampusItem";
+import { TypeEvenementItem } from "@controls/Items/TypeEvenementItem";
 import dayjs from "dayjs";
-import CampusItem from "../../../Items/CampusItem";
 import React, { ReactElement, useMemo } from "react";
-import { Evenement } from "../../../../lib/Evenement";
+import { Evenement } from "@lib";
 
 /**
  * Generates a description list of general information about an event.
@@ -23,27 +23,27 @@ import { Evenement } from "../../../../lib/Evenement";
  * @returns {ReactElement} - The JSX element for the description list component.
  */
 export function EvenementResumeInformations(props: {
-   evenement: Evenement | undefined;
+  evenement: Evenement | undefined;
 }): ReactElement {
-   return useMemo(
-      () => (
-         <Descriptions title="Informations générales" bordered column={1}>
-            {props.evenement?.libelle ? (
-               <Descriptions.Item label="Évènement">{props.evenement?.libelle}</Descriptions.Item>
-            ) : null}
-            <Descriptions.Item label="Catégorie">
-               <TypeEvenementItem typeEvenementId={props.evenement?.type} forceBlackText />
-            </Descriptions.Item>
-            <Descriptions.Item label="Date et heure">
-               {dayjs(props.evenement?.debut).format("dddd DD MMMM YYYY")} de{" "}
-               {dayjs(props.evenement?.debut).format("HH:mm")} à{" "}
-               {dayjs(props.evenement?.fin).format("HH:mm")}
-            </Descriptions.Item>
-            <Descriptions.Item label="Localisation">
-               <CampusItem campusId={props.evenement?.campus} salle={props.evenement?.salle} />
-            </Descriptions.Item>
-         </Descriptions>
-      ),
-      [props.evenement],
-   );
+  return useMemo(
+    () => (
+      <Descriptions title="Informations générales" bordered column={1}>
+        {props.evenement?.libelle ? (
+          <Descriptions.Item label="Évènement">{props.evenement?.libelle}</Descriptions.Item>
+        ) : null}
+        <Descriptions.Item label="Catégorie">
+          <TypeEvenementItem typeEvenementId={props.evenement?.type} forceBlackText />
+        </Descriptions.Item>
+        <Descriptions.Item label="Date et heure">
+          {dayjs(props.evenement?.debut).format("dddd DD MMMM YYYY")} de{" "}
+          {dayjs(props.evenement?.debut).format("HH:mm")} à{" "}
+          {dayjs(props.evenement?.fin).format("HH:mm")}
+        </Descriptions.Item>
+        <Descriptions.Item label="Localisation">
+          <CampusItem campusId={props.evenement?.campus} salle={props.evenement?.salle} />
+        </Descriptions.Item>
+      </Descriptions>
+    ),
+    [props.evenement],
+  );
 }

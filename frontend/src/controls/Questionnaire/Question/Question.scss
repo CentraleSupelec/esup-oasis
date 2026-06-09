@@ -5,7 +5,6 @@
 }
 
 .questionnaire-blocage {
-
 }
 
 .question-checkbox {
@@ -27,7 +26,7 @@
     border: 1px solid variables.$light-grey-border-dark;
     border-radius: variables.$radius;
     height: auto !important;
-    background-color: white !important;
+    background-color: white;
 
     .ant-btn {
       width: auto !important;
@@ -37,5 +36,14 @@
   .ant-upload-list-item-actions {
     display: flex;
     gap: 12px;
+  }
+}
+
+body.dark-mode {
+  .questionnaire-file {
+    .question-file-item {
+      border-color: transparent;
+      background-color: var(--ant-card-actions-bg);
+    }
   }
 }

@@ -1,0 +1,265 @@
+// --- Surcharge des styles pour le dark mode ---
+
+@use "sass:color";
+@use "sass:map";
+@use "colors";
+@use "variables";
+
+body.dark-mode {
+  background-color: var(--noir);
+
+  // Le fond principal (Ant Design gère le background global via darkAlgorithm)
+  color: var(--blanc);
+
+  // Fond de l'app (remplace le gradient clair)
+  .full-app {
+    background-image: none;
+    background-color: var(--ant-color-bg-layout);
+  }
+
+  // Utilitaires de fond
+  .bg-white,
+  .bg-white .ant-table-cell {
+    background-color: var(--ant-color-bg-container) !important;
+  }
+
+  // Texte
+  .text-legende,
+  .legende {
+    color: rgba(255, 255, 255, 0.55) !important;
+  }
+
+  .text-light {
+    color: rgba(255, 255, 255, 0.55) !important;
+  }
+
+  // Ombres adaptées au dark mode
+  .shadow-1 {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45) !important;
+  }
+
+  .shadow-2 {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55) !important;
+  }
+
+  .shadow-5 {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65) !important;
+  }
+
+  // Classes de fond pour les rôles
+  .bg-intervenant {
+    background-color: var(--color-intervenant) !important;
+    color: #000 !important;
+  }
+
+  .bg-beneficiaire {
+    background-color: var(--color-beneficiaire) !important;
+    color: #000 !important;
+  }
+
+  .bg-renfort {
+    background-color: var(--color-renfort) !important;
+    color: #000 !important;
+  }
+
+  .bg-demandeur {
+    background-color: var(--color-demandeur) !important;
+    color: #000 !important;
+  }
+
+  // Classes utilitaires de couleur pour les types d'événements Material
+  @each $key, $val in colors.$colors-dark {
+    .bg-#{$key}-xlight,
+    .bg-#{$key}-xxlight {
+      background-color: #{color.change($val, $alpha: 0.15)} !important;
+    }
+
+    .bg-#{$key}-light {
+      background-color: #{color.change($val, $alpha: 0.25)} !important;
+    }
+
+    .bg-#{$key} {
+      background-color: #{map.get(colors.$colors-regular, $key)} !important;
+    }
+
+    .text-#{$key},
+    .text-#{$key} .ant-select-selection-item {
+      color: #{map.get(colors.$colors-regular, $key)} !important;
+    }
+
+    .text-#{$key}-dark,
+    .text-#{$key}-dark .ant-select-selection-item {
+      color: #{map.get(colors.$colors-light, $key)} !important;
+    }
+  }
+
+  // Statistiques
+  .statistic-danger,
+  .statistic-warning {
+    background-color: var(--ant-color-bg-elevated);
+  }
+
+  // Calendrier : Ant Design + FullCalendar
+  .fc-theme-standard {
+    .fc-scrollgrid {
+      border-color: var(--ant-color-border);
+    }
+
+    td,
+    th {
+      border-color: var(--ant-color-border);
+    }
+  }
+
+  .fc-day-today {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .fc-col-header-cell.fc-day-today {
+    background-color: rgba(255, 255, 255, 0.10) !important;
+  }
+
+  // Not affecté
+  .not-affecte {
+    background-color: transparent !important;
+  }
+
+  // Séparateurs et bordures légères
+  .border-light {
+    border-color: var(--ant-color-border) !important;
+  }
+
+  .border-light-grey {
+    border-color: var(--ant-color-border-secondary) !important;
+  }
+
+  // .text-text : la valeur SCSS $text est #333 (trop sombre pour fond sombre)
+  .text-text,
+  .text-text input,
+  .text-text .ant-input-group-addon {
+    color: rgba(255, 255, 255, 0.85);
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.85);
+    }
+  }
+
+  textarea {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  // Stats sous-lignes (dashboard)
+  .stats-subrow {
+    background-color: var(--ant-color-bg-elevated);
+    border-color: var(--ant-color-border);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  }
+
+  // Hover sur les lignes de tableau
+  .table-responsive .ant-table tbody tr:hover td {
+    background-color: #484848 !important;
+    border-top-color: var(--ant-color-border) !important;
+    border-bottom-color: var(--ant-color-border) !important;
+  }
+
+  // Inputs / selects / textareas désactivés : meilleur contraste
+  .ant-input[disabled],
+  .ant-input-number-input[disabled],
+  .ant-select-disabled .ant-select-selector,
+  textarea[disabled],
+  .ant-picker-disabled .ant-picker-input input {
+    color: rgba(255, 255, 255, 0.4) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  // Header / menu principal
+  .header {
+    background-color: rgba(28, 30, 40, 0.95);
+    border-bottom-color: var(--ant-color-border);
+
+    // Pilules d'icône dans le menu
+    .anticon:not(.anticon-enter) {
+      background-color: var(--ant-color-bg-text-hover);
+    }
+
+    .user .ant-menu-title-content,
+    .recherche .ant-menu-title-content {
+      background-color: var(--ant-color-bg-text-hover);
+    }
+
+    .ant-menu-submenu-selected .ant-menu-title-content,
+    .recherche.recherche-en-cours .ant-menu-title-content,
+    .recherche.recherche-en-cours .anticon.anticon-search {
+      background-color: var(--ant-color-primary-bg);
+      color: var(--blanc);
+    }
+
+    .ant-menu-submenu-selected .ant-menu-title-content button,
+    .recherche.recherche-en-cours .ant-menu-title-content button {
+      color: var(--blanc);
+    }
+  }
+
+  .fc-col-header {
+    border-bottom-color: var(--ant-color-border);
+  }
+
+  // Tableau caption
+  .ant-table-caption {
+    background-color: var(--ant-color-bg-layout);
+  }
+
+  .bg-app.text-text {
+    color: var(--noir);
+  }
+
+  .ant-ribbon .ant-ribbon-content {
+    color: var(--noir);
+  }
+
+  .user.ant-menu-submenu-selected .role,
+  .ant-menu-submenu.user .identite,
+  .ant-menu-submenu.user .role,
+  .ant-menu-light .ant-menu-submenu-selected > .ant-menu-submenu-title {
+    color: var(--blanc);
+  }
+
+  // Liste avec bordures et rayon
+  .ant-list-radius .ant-list-item {
+    border-color: var(--ant-color-border) !important;
+
+    &:hover {
+      background-color: var(--ant-color-bg-text-hover);
+    }
+  }
+
+  // Onglets en mode carte : contenu
+  .tabs-tab-card .ant-tabs-content-holder {
+    background-color: var(--ant-color-bg-container);
+    border-color: var(--ant-color-border);
+  }
+
+  .calendar-sider.ant-layout-sider,
+  .fc .fc-scrollgrid-section-sticky > * {
+    background-color: var(--ant-color-bg-layout);
+  }
+
+  .event-annule {
+    opacity: 0.75;
+  }
+  .fc-timegrid-event-harness-inset .fc-timegrid-event {
+    box-shadow: 0 0 0 1px var(--ant-color-border);
+  }
+
+  .stats-subrow::before {
+    background-image: url("../assets/images/corner-dark.svg");
+  }
+
+  .ant-avatar-icon {
+    --color-text: var(--noir);
+  }
+
+  .bg-light-grey, .bg-grey-light, .bg-grey-light td, .bg-light-grey td {
+    background-color: var(--ant-color-bg-layout) !important;
+  }
+}

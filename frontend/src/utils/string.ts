@@ -14,13 +14,23 @@
  * @return {string} - The capitalized string.
  */
 export function capitalize(str: string): string {
-   return str.charAt(0).toUpperCase() + str.slice(1);
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 export const removeAccents = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
 export function pluriel(n: number, singular: string, plural: string) {
-   return n > 1 ? plural : singular;
+  return n > 1 ? plural : singular;
 }
 
 export type DateAsString = string;
+
+/**
+ * Cleans an identifier by removing non-alphanumeric characters.
+ *
+ * @param {string} id - The identifier to clean.
+ * @return {string} - The cleaned identifier.
+ */
+export function cleanUri(id: string): string {
+  return id.replace(/[^a-zA-Z0-9]/g, "");
+}

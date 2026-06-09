@@ -8,14 +8,19 @@
  */
 
 import { Button, Card, Drawer, Form, Input, Select, Switch } from "antd";
-import { useApi } from "../../../../context/api/ApiProvider";
+import { useApi } from "@context/api/ApiProvider";
 import React, { ReactElement, useEffect } from "react";
-import { ITag } from "../../../../api/ApiTypeHelpers";
-import { PREFETCH_CATEGORIES_TAGS } from "../../../../api/ApiPrefetchHelpers";
+import {
+  ITag,
+  PREFETCH_CATEGORIES_TAGS,
+  QK_CATEGORIES_TAGS,
+  QK_CATEGORIES_TAGS_ITEMS,
+  QK_TAGS,
+} from "@api";
 
 interface TagEditionProps {
-   editedItem?: ITag;
-   setEditedItem: (item: ITag | undefined) => void;
+  editedItem?: ITag;
+  setEditedItem: (item: ITag | undefined) => void;
 }
 
 /**
@@ -27,95 +32,98 @@ interface TagEditionProps {
  * @returns {ReactElement} - The rendered component.
  */
 export function TagEdition({ editedItem, setEditedItem }: TagEditionProps): ReactElement {
-   const [form] = Form.useForm();
-   const { data: categories } = useApi().useGetCollection(PREFETCH_CATEGORIES_TAGS);
+  const [form] = Form.useForm();
+  const { data: categories } = useApi().useGetFullCollection(PREFETCH_CATEGORIES_TAGS);
 
-   const mutationPost = useApi().usePost({
-      path: "/tags",
-      invalidationQueryKeys: ["/tags", "/categories_tags", "/categories_tags/{id}/tags"],
-      onSuccess: () => {
-         setEditedItem(undefined);
-      },
-   });
+  const mutationPost = useApi().usePost({
+    path: "/tags",
+    invalidationQueryKeys: [QK_TAGS, QK_CATEGORIES_TAGS, QK_CATEGORIES_TAGS_ITEMS],
+    onSuccess: () => {
+      setEditedItem(undefined);
+    },
+  });
 
-   const mutationPatch = useApi().usePatch({
-      path: `/tags/{id}`,
-      invalidationQueryKeys: ["/tags", "/categories_tags", "/categories_tags/{id}/tags"],
-      onSuccess: () => {
-         setEditedItem(undefined);
-      },
-   });
+  const mutationPatch = useApi().usePatch({
+    path: `/tags/{id}`,
+    invalidationQueryKeys: [QK_TAGS, QK_CATEGORIES_TAGS, QK_CATEGORIES_TAGS_ITEMS],
+    onSuccess: () => {
+      setEditedItem(undefined);
+    },
+  });
 
-   function createOrUpdate(values: ITag) {
-      if (!editedItem) return;
+  function createOrUpdate(values: ITag) {
+    if (!editedItem) return;
 
-      if (editedItem["@id"] === undefined) {
-         // Création
-         mutationPost?.mutate({
-            data: values,
-         });
-      } else {
-         // Modification
-         mutationPatch?.mutate({
-            "@id": editedItem["@id"],
-            data: values,
-         });
-      }
-   }
+    if (editedItem["@id"] === undefined) {
+      // Création
+      mutationPost?.mutate({
+        data: values,
+      });
+    } else {
+      // Modification
+      mutationPatch?.mutate({
+        "@id": editedItem["@id"],
+        data: values,
+      });
+    }
+  }
 
-   // Synchronisation editedItem / form
-   useEffect(() => {
-      if (editedItem) {
-         form.setFieldsValue(editedItem);
-      }
-   }, [editedItem, form]);
+  // Synchronisation editedItem / form
+  useEffect(() => {
+    if (editedItem) {
+      form.setFieldsValue(editedItem);
+    }
+  }, [editedItem, form]);
 
-   useEffect(() => {
-      if (editedItem && editedItem["@id"]) {
-         form.setFieldsValue(editedItem);
-      }
-   }, [editedItem, form]);
+  useEffect(() => {
+    if (editedItem && editedItem["@id"]) {
+      form.setFieldsValue(editedItem);
+    }
+  }, [editedItem, form]);
 
-   return (
-      <Drawer
-         className="bg-light-grey"
-         open
-         title={editedItem?.["@id"] ? "Éditer un tag" : "Ajouter un tag"}
-         onClose={() => setEditedItem(undefined)}
-         size="large"
+  return (
+    <Drawer
+      className="bg-light-grey"
+      open
+      title={editedItem?.["@id"] ? "Éditer un tag" : "Ajouter un tag"}
+      onClose={() => setEditedItem(undefined)}
+      size="large"
+    >
+      <Card
+        title="Tag"
+        actions={[
+          <Button onClick={() => setEditedItem(undefined)}>Annuler</Button>,
+          <Button type="primary" onClick={form.submit}>
+            Enregistrer
+          </Button>,
+        ]}
       >
-         <Card
-            title="Tag"
-            actions={[
-               <Button onClick={() => setEditedItem(undefined)}>Annuler</Button>,
-               <Button type="primary" onClick={form.submit}>
-                  Enregistrer
-               </Button>,
-            ]}
-         >
-            <Form
-               className="w-100"
-               form={form}
-               layout="vertical"
-               onFinish={(values) => {
-                  createOrUpdate(values);
-               }}
-               initialValues={editedItem}
-            >
-               <Form.Item name="categorie" label="Catégorie de tag">
-                  <Select
-                     disabled
-                     options={categories?.items.map((c) => ({ label: c.libelle, value: c["@id"] }))}
-                  />
-               </Form.Item>
-               <Form.Item name="libelle" label="Libellé" rules={[{ required: true }]} required>
-                  <Input autoFocus />
-               </Form.Item>
-               <Form.Item name="actif" label="Actif" valuePropName="checked">
-                  <Switch />
-               </Form.Item>
-            </Form>
-         </Card>
-      </Drawer>
-   );
+        <Form
+          className="w-100"
+          form={form}
+          layout="vertical"
+          onFinish={(values) => {
+            createOrUpdate(values);
+          }}
+          initialValues={editedItem}
+        >
+          <Form.Item name="categorie" label="Catégorie de tag">
+            <Select
+              disabled
+              options={categories?.items.map((c) => ({
+                label: c.libelle,
+                value: c["@id"],
+              }))}
+            />
+          </Form.Item>
+          <Form.Item name="libelle" label="Libellé" rules={[{ required: true }]} required>
+            <Input autoFocus />
+          </Form.Item>
+          <Form.Item name="actif" label="Actif" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+        </Form>
+      </Card>
+    </Drawer>
+  );
 }

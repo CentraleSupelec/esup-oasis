@@ -3,12 +3,11 @@
 @use "../../../../src/styles/helpers";
 
 .calendar-sider {
-
   .collapse-trigger {
     position: fixed;
     left: 260px;
     top: 60px;
-    z-index: 30;
+    z-index: 100;
     transition: left 0.3s ease-in-out;
 
     .ant-btn {
@@ -17,11 +16,11 @@
   }
 
   .with-value {
-    .label, .ant-select-selection-item {
+    .label,
+    .ant-select-selection-item {
       font-weight: variables.$fw-semi-bold;
     }
   }
-
 
   &.ant-layout-sider-collapsed {
     flex: 0 0 20px !important;
@@ -45,9 +44,8 @@
     flex-direction: column;
   }
 
-
   &.ant-layout-sider {
-    background: variables.$light-grey;
+    background: var(--ant-color-bg-layout);
   }
 
   .filters {
@@ -67,7 +65,6 @@
 
     .label {
       font-size: 1.05rem;
-      color: variables.$text;
     }
   }
 
@@ -86,23 +83,21 @@
       }
 
       &:not(.ant-checkbox-wrapper-checked) {
-        opacity: .45;
+        opacity: 0.45;
       }
     }
   }
-
 }
 
 .event-annule {
   border: 3px dashed !important;
-  opacity: .5;
+  opacity: 0.5;
 
   &:hover {
     opacity: 1;
-    transition: all .3s ease-in-out;
+    transition: all 0.3s ease-in-out;
   }
 }
-
 
 @media screen and (max-width: 768px) {
   .calendar-sider {

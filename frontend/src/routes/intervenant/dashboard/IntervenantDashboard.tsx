@@ -9,31 +9,31 @@
 
 import React, { ReactElement } from "react";
 import { Layout, Typography } from "antd";
-import "./Dashboard.scss";
-import DashboardUtilisateurStats from "../../../controls/Dashboard/DashboardUtilisateurStats";
-import { useAuth } from "../../../auth/AuthProvider";
-import { IntervenantDashboardServicesFaits } from "../../../controls/Dashboard/IntervenantDashboardServicesFaits";
-import AlertCompleterProfil from "../../../controls/Dashboard/AlertCompleterProfil";
+import "@routes/intervenant/dashboard/Dashboard.scss";
+import DashboardUtilisateurStats from "@controls/Dashboard/DashboardUtilisateurStats";
+import { useAuth } from "@/auth/AuthProvider";
+import { IntervenantDashboardServicesFaits } from "@controls/Dashboard/IntervenantDashboardServicesFaits";
+import AlertCompleterProfil from "@controls/Dashboard/AlertCompleterProfil";
 
 /**
  * Represents the dashboard component for the intervenant.
  * @returns {ReactElement} The rendered dashboard component.
  */
 export function IntervenantDashboard(): ReactElement {
-   const user = useAuth().user;
+  const user = useAuth().user;
 
-   return (
-      <Layout.Content style={{ padding: "0 50px" }}>
-         <Typography.Title level={1}>Tableau de bord</Typography.Title>
-         <AlertCompleterProfil />
+  return (
+    <Layout.Content style={{ padding: "0 50px" }}>
+      <Typography.Title level={1}>Tableau de bord</Typography.Title>
+      <AlertCompleterProfil />
 
-         {user && user.isRenfort && (
-            <DashboardUtilisateurStats utilisateurId={user?.["@id"] as string} />
-         )}
+      {user?.isIntervenantOuRenfort && (
+        <DashboardUtilisateurStats utilisateurId={user?.["@id"] as string} />
+      )}
 
-         <IntervenantDashboardServicesFaits />
-      </Layout.Content>
-   );
+      <IntervenantDashboardServicesFaits />
+    </Layout.Content>
+  );
 }
 
 export default IntervenantDashboard;

@@ -12,10 +12,10 @@ import { Tag } from "antd";
 import React from "react";
 
 export function GenreItem(props: { genre: string | null | undefined }) {
-   if (!props.genre) return <MinusOutlined />;
+  if (!props.genre) return <MinusOutlined />;
 
-   if (props.genre === "M") return <Tag>Masculin</Tag>;
-   if (props.genre === "F") return <Tag>Féminin</Tag>;
+  if (props.genre === "M") return <Tag>Masculin</Tag>;
+  if (props.genre === "F") return <Tag>Féminin</Tag>;
 
-   return null;
+  return null;
 }

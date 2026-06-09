@@ -7,24 +7,23 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { memo, ReactElement } from "react";
 import { Breakpoint, Popover, Space, Tag, Tooltip, Typography } from "antd";
-import Spinner from "../Spinner/Spinner";
+import Spinner from "@controls/Spinner/Spinner";
 import useBreakpoint from "antd/es/grid/hooks/useBreakpoint";
 import { BankFilled } from "@ant-design/icons";
-import { IComposante } from "../../api/ApiTypeHelpers";
-import { PREFETCH_COMPOSANTES } from "../../api/ApiPrefetchHelpers";
-import { useApi } from "../../context/api/ApiProvider";
+import { IComposante, PREFETCH_COMPOSANTES } from "@api";
+import { useApi } from "@context/api/ApiProvider";
 
 interface IItemComposante {
-   composante?: IComposante;
-   composanteId?: string;
-   showAvatar?: boolean;
-   responsive?: Breakpoint;
-   className?: string;
-   ellipsis?: boolean;
-   maxWidth?: number;
-   popoverContent?: React.ReactElement;
+  composante?: IComposante;
+  composanteId?: string;
+  showAvatar?: boolean;
+  responsive?: Breakpoint;
+  className?: string;
+  ellipsis?: boolean;
+  maxWidth?: number;
+  popoverContent?: React.ReactElement;
 }
 
 /**
@@ -39,78 +38,76 @@ interface IItemComposante {
  *
  * @return {ReactElement} The rendered ComposanteItem component.
  */
-export default function ComposanteItem({
-                                          composante,
-                                          composanteId,
-                                          showAvatar = true,
-                                          responsive,
-                                          className,
-                                          ellipsis,
-                                          maxWidth,
-                                          popoverContent,
-                                       }: IItemComposante): ReactElement {
-   const [item, setItem] = useState(composante);
-   const { data: composantes } = useApi().useGetCollection(PREFETCH_COMPOSANTES);
-   const screens = useBreakpoint();
+function ComposanteItem({
+  composante,
+  composanteId,
+  showAvatar = true,
+  responsive,
+  className,
+  ellipsis,
+  maxWidth,
+  popoverContent,
+}: IItemComposante): ReactElement {
+  const { data: composantes } = useApi().useGetFullCollection(PREFETCH_COMPOSANTES);
+  const item = composante ?? composantes?.items.find((c) => c["@id"] === composanteId);
+  const screens = useBreakpoint();
 
-   useEffect(() => {
-      if (composantes) {
-         setItem(composantes.items.find((c) => c["@id"] === composanteId));
-      }
-   }, [composantes, composanteId]);
+  if (!item) return <Spinner />;
 
-   useEffect(() => {
-      if (composante) setItem(composante);
-   }, [composante]);
-
-   if (!item) return <Spinner />;
-
-   if (popoverContent)
-      return (
-         <Space className={className}>
-            {showAvatar && (!responsive || screens[responsive]) && (
-               <Popover
-                  trigger={["click"]}
-                  title="Composante"
-                  content={
-                     <>
-                        <p style={{ maxWidth: 400 }}>{item?.libelle}</p>
-                        {popoverContent}
-                     </>
-                  }
-               >
-                  <Tag key={item["@id"]} className="bg-app text-text" icon={<BankFilled />}>
-                     {ellipsis ? (
-                        <Typography.Text
-                           ellipsis
-                           style={{ maxWidth: maxWidth ?? 175, fontSize: 14 }}
-                        >
-                           {item?.libelle}
-                        </Typography.Text>
-                     ) : (
-                        item?.libelle
-                     )}
-                  </Tag>
-               </Popover>
-            )}
-         </Space>
-      );
-
-   return (
+  if (popoverContent)
+    return (
       <Space className={className}>
-         {showAvatar && (!responsive || screens[responsive]) && (
-            <Tooltip title={item?.libelle}>
-               <Tag key={item["@id"]} className="bg-app text-text" icon={<BankFilled />}>
-                  {ellipsis ? (
-                     <Typography.Text ellipsis style={{ maxWidth: maxWidth ?? 175 }}>
-                        {item?.libelle}
-                     </Typography.Text>
-                  ) : (
-                     item?.libelle
-                  )}
-               </Tag>
-            </Tooltip>
-         )}
+        {showAvatar && (!responsive || screens[responsive]) && (
+          <Popover
+            trigger={["click"]}
+            title="Composante"
+            content={
+              <>
+                <p style={{ maxWidth: 400 }}>{item?.libelle}</p>
+                {popoverContent}
+              </>
+            }
+          >
+            <Tag key={item["@id"]} className="bg-app text-text" icon={<BankFilled />}>
+              {ellipsis ? (
+                <Typography.Text ellipsis style={{ maxWidth: maxWidth ?? 175, fontSize: 14 }}>
+                  {item?.libelle}
+                </Typography.Text>
+              ) : (
+                item?.libelle
+              )}
+            </Tag>
+          </Popover>
+        )}
       </Space>
-   );
+    );
+
+  return (
+    <Space className={className}>
+      {showAvatar && (!responsive || screens[responsive]) && (
+        <Tooltip title={item?.libelle}>
+          <Tag key={item["@id"]} className="bg-app text-text" icon={<BankFilled />}>
+            {ellipsis ? (
+              <Typography.Text ellipsis style={{ maxWidth: maxWidth ?? 175, color: "inherit" }}>
+                {item?.libelle}
+              </Typography.Text>
+            ) : (
+              item?.libelle
+            )}
+          </Tag>
+        </Tooltip>
+      )}
+    </Space>
+  );
 }
+
+const ComposanteItemMemo = memo(
+  ComposanteItem,
+  (prev, next) =>
+    prev.composanteId === next.composanteId &&
+    prev.composante?.["@id"] === next.composante?.["@id"] &&
+    prev.showAvatar === next.showAvatar &&
+    prev.ellipsis === next.ellipsis &&
+    prev.maxWidth === next.maxWidth,
+);
+export { ComposanteItemMemo as ComposanteItem };

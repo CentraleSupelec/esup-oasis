@@ -8,12 +8,12 @@
  */
 
 import React, { ReactElement } from "react";
-import { Evenement } from "../../../lib/Evenement";
-import EvenementTable from "../../Table/EvenementTable";
+import { Evenement } from "@lib";
+import EvenementTable from "@controls/Table/EvenementTable";
 
 interface CalendarTableProps {
-   events: Evenement[];
-   saisieEvtRenfort?: boolean;
+  events: Evenement[];
+  saisieEvtRenfort?: boolean;
 }
 
 /**
@@ -26,8 +26,8 @@ interface CalendarTableProps {
  * @return {ReactElement} - The generated calendar table component.
  */
 export default function CalendarTable({
-   events,
-   saisieEvtRenfort = false,
+  events,
+  saisieEvtRenfort = false,
 }: CalendarTableProps): ReactElement {
-   return <EvenementTable events={events} saisieEvtRenfort={saisieEvtRenfort} />;
+  return <EvenementTable events={events} saisieEvtRenfort={saisieEvtRenfort} />;
 }

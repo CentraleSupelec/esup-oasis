@@ -9,11 +9,11 @@
 
 import { Form, Radio } from "antd";
 import React, { ReactElement } from "react";
-import { useApi } from "../../context/api/ApiProvider";
-import { PREFETCH_CAMPUS } from "../../api/ApiPrefetchHelpers";
+import { useApi } from "@context/api/ApiProvider";
+import { PREFETCH_CAMPUS } from "@api";
 
 interface ITabCampus {
-   defaultValue?: string;
+  defaultValue?: string;
 }
 
 /**
@@ -26,23 +26,23 @@ interface ITabCampus {
  * @return {ReactElement} The rendered radio group component.
  */
 export function TabCampus({ defaultValue }: ITabCampus): ReactElement {
-   const { data } = useApi().useGetCollection(PREFETCH_CAMPUS);
+  const { data } = useApi().useGetFullCollection(PREFETCH_CAMPUS);
 
-   return (
-      <>
-         <Form.Item name="intervenant.campuses">
-            <Radio.Group
-               className="checkbox-group-vertical"
-               defaultValue={defaultValue}
-               options={data?.items
-                  .filter((c) => c.actif)
-                  .map((item) => ({
-                     label: item.libelle,
-                     value: item["@id"] as string,
-                     disabled: !item.actif,
-                  }))}
-            />
-         </Form.Item>
-      </>
-   );
+  return (
+    <>
+      <Form.Item name="intervenant.campuses">
+        <Radio.Group
+          className="checkbox-group-vertical"
+          defaultValue={defaultValue}
+          options={data?.items
+            .filter((c) => c.actif)
+            .map((item) => ({
+              label: item.libelle,
+              value: item["@id"] as string,
+              disabled: !item.actif,
+            }))}
+        />
+      </Form.Item>
+    </>
+  );
 }

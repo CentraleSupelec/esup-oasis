@@ -9,10 +9,9 @@
 
 import { Badge } from "antd";
 import React, { useMemo } from "react";
-import { useApi } from "../../context/api/ApiProvider";
-import { NB_MAX_ITEMS_PER_PAGE } from "../../constants";
-import { DomaineAmenagementInfos, getDomaineAmenagement } from "../../lib/amenagements";
-import { PREFETCH_TYPES_AMENAGEMENTS } from "../../api/ApiPrefetchHelpers";
+import { useApi } from "@context/api/ApiProvider";
+import { DomaineAmenagementInfos, getDomaineAmenagement } from "@lib";
+import { PREFETCH_TYPES_AMENAGEMENTS } from "@api";
 
 /**
  * Badge pour afficher le nombre d'aménagements d'un domaine pour un utilisateur
@@ -20,28 +19,25 @@ import { PREFETCH_TYPES_AMENAGEMENTS } from "../../api/ApiPrefetchHelpers";
  * @constructor
  */
 export default function AmenagementDomaineBadge(props: {
-   utilisateurId: string;
-   domaineAmenagement?: DomaineAmenagementInfos;
+  utilisateurId: string;
+  domaineAmenagement?: DomaineAmenagementInfos;
 }) {
-   const { data: types } = useApi().useGetCollection(PREFETCH_TYPES_AMENAGEMENTS);
-   const { data: amenagements } = useApi().useGetCollectionPaginated({
-      path: "/utilisateurs/{uid}/amenagements",
-      parameters: {
-         uid: props.utilisateurId,
-      },
-      page: 1,
-      itemsPerPage: NB_MAX_ITEMS_PER_PAGE,
-   });
+  const { data: types } = useApi().useGetFullCollection(PREFETCH_TYPES_AMENAGEMENTS);
+  const { data: amenagements } = useApi().useGetFullCollection({
+    path: "/utilisateurs/{uid}/amenagements",
+    parameters: {
+      uid: props.utilisateurId,
+    },
+  });
 
-   const nb = useMemo(() => {
-      return amenagements?.items
-         .map((a) => {
-            const type = types?.items.find((t) => t["@id"] === a.typeAmenagement);
-            return getDomaineAmenagement(type);
-         })
-         .filter((d) => !props.domaineAmenagement?.id || props.domaineAmenagement.id === d?.id)
-         .length;
-   }, [amenagements, types, props.domaineAmenagement]);
+  const nb = useMemo(() => {
+    return amenagements?.items
+      .map((a) => {
+        const type = types?.items.find((t) => t["@id"] === a.typeAmenagement);
+        return getDomaineAmenagement(type);
+      })
+      .filter((d) => !props.domaineAmenagement?.id || props.domaineAmenagement.id === d?.id).length;
+  }, [amenagements, types, props.domaineAmenagement]);
 
-   return nb && nb > 0 ? <Badge color="cyan" size="small" count={nb} /> : null;
+  return nb && nb > 0 ? <Badge color="cyan" size="small" count={nb} /> : null;
 }

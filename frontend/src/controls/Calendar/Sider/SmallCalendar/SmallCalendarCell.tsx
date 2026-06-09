@@ -7,21 +7,21 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React, { ReactElement } from "react";
-import { Evenement } from "../../../../lib/Evenement";
+import React, { memo, ReactElement } from "react";
+import { Evenement } from "@lib";
 import {
-   filtreToApiOnBackend,
-   IAffichageFiltres,
-} from "../../../../redux/context/IAffichageFiltres";
+  filtreToApiOnBackend,
+  IAffichageFiltres,
+} from "@context/affichageFiltres/AffichageFiltresContext";
 import dayjs from "dayjs";
-import { isSameDay } from "../../../../utils/dates";
-import { useApi } from "../../../../context/api/ApiProvider";
-import { useAuth } from "../../../../auth/AuthProvider";
-import { ApiPathMethodQuery } from "../../../../api/SchemaHelpers";
+import { isSameDay } from "@utils/dates";
+import { useApi } from "@context/api/ApiProvider";
+import { useAuth } from "@/auth/AuthProvider";
+import { ApiPathMethodQuery } from "@api";
 
 interface ISmallCalendarCellProps {
-   date: dayjs.Dayjs;
-   affichageFiltres: IAffichageFiltres;
+  date: dayjs.Dayjs;
+  affichageFiltres: IAffichageFiltres;
 }
 
 /**
@@ -33,79 +33,81 @@ interface ISmallCalendarCellProps {
  *
  * @returns {ReactElement} - The rendered component.
  */
-export default function SmallCalendarCell({
-   date,
-   affichageFiltres,
-}: ISmallCalendarCellProps): ReactElement {
-   const user = useAuth().user;
+function SmallCalendarCell({ date, affichageFiltres }: ISmallCalendarCellProps): ReactElement {
+  const user = useAuth().user;
 
-   const { data: eventsMonth } = useApi().useGetCollectionPaginated({
-      path: "/evenements",
-      page: 1,
-      itemsPerPage: 1000,
-      query: {
-         ...(filtreToApiOnBackend(affichageFiltres.filtres) as ApiPathMethodQuery<
-            "/evenements",
-            "get"
-         >),
-         "debut[after]": date.startOf("month").toISOString(),
-         "fin[before]": date.endOf("month").toISOString(),
-      },
-   });
+  const { data: eventsMonth } = useApi().useGetCollectionPaginated({
+    path: "/evenements",
+    page: 1,
+    itemsPerPage: 1000,
+    query: {
+      ...(filtreToApiOnBackend(affichageFiltres.filtres) as ApiPathMethodQuery<
+        "/evenements",
+        "get"
+      >),
+      "debut[after]": date.startOf("month").toISOString(),
+      "fin[before]": date.endOf("month").toISOString(),
+    },
+  });
 
-   function dayHasEventNonAffecte() {
-      return eventsMonth?.items.some((ev) => {
-         const event = new Evenement(ev);
-         return (
-            user?.isPlanificateur &&
-            event.debutDate() &&
-            isSameDay(date.toDate(), event.debutDate() as Date) &&
-            !event.isAffecte()
-         );
-      });
-   }
+  function dayHasEventNonAffecte() {
+    return eventsMonth?.items.some((ev) => {
+      const event = new Evenement(ev);
+      return (
+        user?.isPlanificateur &&
+        event.debutDate() &&
+        isSameDay(date.toDate(), event.debutDate() as Date) &&
+        !event.isAffecte()
+      );
+    });
+  }
 
-   function dayHasEvent() {
-      return eventsMonth?.items.some((ev) => {
-         const event = new Evenement(ev);
-         return event.debutDate() && isSameDay(date.toDate(), event.debutDate() as Date);
-      });
-   }
+  function dayHasEvent() {
+    return eventsMonth?.items.some((ev) => {
+      const event = new Evenement(ev);
+      return event.debutDate() && isSameDay(date.toDate(), event.debutDate() as Date);
+    });
+  }
 
-   function getClassName() {
-      let className = "";
-      if (isSameDay(date.toDate(), new Date())) {
-         className = "today";
-      }
+  function getClassName() {
+    let className = "";
+    if (isSameDay(date.toDate(), new Date())) {
+      className = "today";
+    }
 
-      if (
-         date.endOf("day").isAfter(dayjs(affichageFiltres.filtres.debut).startOf("day")) &&
-         date.startOf("day").isBefore(dayjs(affichageFiltres.filtres.fin).endOf("day"))
-      ) {
-         className += " bg-app";
-      }
+    if (
+      date.endOf("day").isAfter(dayjs(affichageFiltres.filtres.debut).startOf("day")) &&
+      date.startOf("day").isBefore(dayjs(affichageFiltres.filtres.fin).endOf("day"))
+    ) {
+      className += " bg-app";
+    }
 
-      if (isSameDay(date.toDate(), affichageFiltres.filtres.debut)) {
-         className += " cell-start";
-      }
-      if (isSameDay(date.toDate(), affichageFiltres.filtres.fin)) {
-         className += " cell-end";
-      }
+    if (isSameDay(date.toDate(), affichageFiltres.filtres.debut)) {
+      className += " cell-start";
+    }
+    if (isSameDay(date.toDate(), affichageFiltres.filtres.fin)) {
+      className += " cell-end";
+    }
 
-      if (dayHasEventNonAffecte()) {
-         className += " has-event-warning";
-      } else if (dayHasEvent()) {
-         className += " has-event";
-      }
+    if (dayHasEventNonAffecte()) {
+      className += " has-event-warning";
+    } else if (dayHasEvent()) {
+      className += " has-event";
+    }
 
-      return className;
-   }
+    return className;
+  }
 
-   return (
-      <div>
-         <div className={`ant-picker-calendar-date-value ${getClassName()}`}>
-            {date.format("D")}
-         </div>
-      </div>
-   );
+  return (
+    <div>
+      <div className={`ant-picker-calendar-date-value ${getClassName()}`}>{date.format("D")}</div>
+    </div>
+  );
 }
+
+export default memo(
+  SmallCalendarCell,
+  (prev, next) =>
+    prev.date.valueOf() === next.date.valueOf() &&
+    prev.affichageFiltres.filtres === next.affichageFiltres.filtres,
+);

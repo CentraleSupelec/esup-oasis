@@ -1,0 +1,148 @@
+@use "../../styles/variables" as v;
+
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-image: radial-gradient(#e0e0e0 0%, v.$light-grey 80%);
+  padding: 2rem;
+  overflow: hidden;
+  position: relative;
+
+  :global(.dark) & {
+    background-image: radial-gradient(#2a2a2a 0%, #1a1a1a 80%);
+  }
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+}
+
+.backdropNumber {
+  font-family: "NoirPro", serif;
+  font-weight: 800;
+  font-size: clamp(18rem, 40vw, 36rem);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(0, 0, 0, 0.06);
+  letter-spacing: -0.05em;
+  animation: floatNumber 8s ease-in-out infinite;
+
+  :global(.dark) & {
+    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.06);
+  }
+}
+
+@keyframes floatNumber {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-2rem) rotate(-2deg); }
+}
+
+.card {
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border-radius: 1.5rem;
+  padding: 3.5rem 4rem;
+  max-width: 520px;
+  width: 100%;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 20px 60px -10px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  margin-bottom: 6rem;
+
+  :global(.dark) & {
+    background: rgba(30, 30, 30, 0.85);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.3),
+      0 20px 60px -10px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.accent {
+  display: inline-block;
+  font-family: "NoirPro", serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-primary, #4a6cf7);
+  margin-bottom: 1.25rem;
+  animation: fadeUp 0.6s 0.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 1.5rem;
+    height: 2px;
+    background: var(--color-primary, #4a6cf7);
+    vertical-align: middle;
+    margin-right: 0.625rem;
+    border-radius: 1px;
+  }
+}
+
+.title {
+  font-family: "NoirPro", serif;
+  font-weight: 700;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  line-height: 1.15;
+  color: #1a1a1a;
+  margin: 0 0 1rem;
+  animation: fadeUp 0.6s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  :global(.dark) & {
+    color: #f0f0f0;
+  }
+}
+
+.description {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: v.$legende;
+  margin-bottom: 2.5rem;
+  animation: fadeUp 0.6s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  :global(.dark) & {
+    color: #888;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  animation: fadeUp 0.6s 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.divider {
+  width: 3rem;
+  height: 3px;
+  background: var(--color-primary, #4a6cf7);
+  border-radius: 2px;
+  margin-bottom: 2rem;
+  animation: fadeUp 0.6s 0.12s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

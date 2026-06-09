@@ -1,18 +1,18 @@
-@import "../../styles/variables";
+@use "../../styles/variables" as variables;
 
 .progress {
-  background-color: #fff;
-  border-radius: 2 * $radius;
+  background-color: var(--ant-color-bg-container);
+  border-radius: 2 * variables.$radius;
   position: relative;
   margin: 15px 0;
   height: 30px;
   width: 300px;
-  border: 1px solid $light-grey-border;
+  border: 1px solid var(--ant-color-border);
 }
 
 .progress-done {
-  border-radius: 2 * $radius;
-  color: $text;
+  border-radius: 2 * variables.$radius;
+  color: var(--ant-color-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,7 +25,8 @@
 
 .CircularProgressbar .CircularProgressbar-text {
   font-size: 36px !important;
-  color: #000 !important;
-  fill: #000 !important;
+  color: var(--noir) !important;
+  fill: var(--noir) !important;
   font-weight: 500;
+  transform: translateY(4px);
 }

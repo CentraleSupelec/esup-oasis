@@ -1,4 +1,4 @@
-@import "src/styles/variables.scss";
+@use "../../styles/variables" as variables;
 
 .tabs-tab-card {
   .ant-tabs-nav {
@@ -7,10 +7,10 @@
 
   .ant-tabs-content-holder {
     padding: 16px 28px;
-    background-color: $white;
-    border-left: 1px solid $light-grey-border;
-    border-right: 1px solid $light-grey-border;
-    border-bottom: 1px solid $light-grey-border;
-    border-radius: 0 0 $radius $radius;
+    background-color: variables.$white;
+    border-left: 1px solid variables.$light-grey-border;
+    border-right: 1px solid variables.$light-grey-border;
+    border-bottom: 1px solid variables.$light-grey-border;
+    border-radius: 0 0 variables.$radius variables.$radius;
   }
 }

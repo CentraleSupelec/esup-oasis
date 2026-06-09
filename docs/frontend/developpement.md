@@ -16,12 +16,11 @@ Si votre environnement nécessite une connexion sécurisée via HTTPS/SSL (par e
 votre CAS - Central Authentication Service), il est important de personnaliser la variable HOST dans le fichier
 package.json.
 
-### Modifier le fichier package.json :
+### Démarrer l'application en mode HTTPS :
 
-```
-"scripts": {
-    "start": "react-scripts start",
-    "start:https": "sudo PORT=443 HOST='dev.esup-portail.org' HTTPS=true ./node_modules/.bin/react-scripts start",
+```json
+{
+  "start:https": "sudo HTTPS=true vite --host dev.esup-portail.org --port 443"
 }
 ```
 
@@ -29,10 +28,20 @@ package.json.
 
 Le site de développement est alors accessible à l'adresse https://dev.esup-portail.org.
 
-### Démarrer l'application en mode HTTPS :
-
-Une fois la variable HOST configurée, exécutez la commande suivante pour lancer l'application en mode HTTPS :
-
 ```bash
 yarn start:https
+```
+
+## Mettre à jour le `schema.d.ts`
+
+Suite à une modification du backend, il peut être nécessaire de mettre à jour la définition TypeScript de l'API.
+
+Pour ce faire, sur le backend :
+```shell
+bin/console api:openapi:export --yaml > ./OpenApi.yml
+```
+Côté frontend, récupérer le fichier `OpenApi.yml` et le placer dans le dossier `src/api`.
+Éxécuter :
+```shell
+yarn run generate:api
 ```

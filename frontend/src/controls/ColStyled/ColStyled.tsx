@@ -16,29 +16,28 @@ declare type ColSpanType = number | string;
 declare type FlexType = number | "none" | "auto" | string;
 
 export interface ColSizeStyled {
-   flex?: FlexType;
-   span?: ColSpanType;
-   order?: ColSpanType;
-   offset?: ColSpanType;
-   push?: ColSpanType;
-   pull?: ColSpanType;
-   style?: CSSProperties;
+  flex?: FlexType;
+  span?: ColSpanType;
+  order?: ColSpanType;
+  offset?: ColSpanType;
+  push?: ColSpanType;
+  pull?: ColSpanType;
+  style?: CSSProperties;
 }
 
 type ColPropsStyledItem = ColSpanType | ColSize | ColSizeStyled;
 
 export interface ColPropsStyled extends ColProps {
-   xs?: ColPropsStyledItem;
-   sm?: ColPropsStyledItem;
-   md?: ColPropsStyledItem;
-   lg?: ColPropsStyledItem;
-   xl?: ColPropsStyledItem;
-   xxl?: ColPropsStyledItem;
+  xs?: ColPropsStyledItem;
+  sm?: ColPropsStyledItem;
+  md?: ColPropsStyledItem;
+  lg?: ColPropsStyledItem;
+  xl?: ColPropsStyledItem;
+  xxl?: ColPropsStyledItem;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isColSizeStyled(object: any): object is ColSizeStyled {
-   return object instanceof Object && "style" in object;
+function isColSizeStyled(object: unknown): object is ColSizeStyled {
+  return object instanceof Object && "style" in object;
 }
 
 /**
@@ -48,25 +47,24 @@ function isColSizeStyled(object: any): object is ColSizeStyled {
  * @returns {ReactElement} - The rendered responsive column with custom styling.
  */
 export default function ColStyled(props: React.PropsWithChildren<ColPropsStyled>): ReactElement {
-   const currentScreens = Object.entries(useBreakpoint())
-      .filter((s) => s[1])
-      .map((s) => s[0]);
+  const currentScreens = Object.entries(useBreakpoint())
+    .filter((s) => s[1])
+    .map((s) => s[0]);
 
-   const style = currentScreens.reduce((acc, screen) => {
-      // @ts-ignore
-      if (screen in props && isColSizeStyled(props[screen])) {
-         return {
-            ...acc,
-            // @ts-ignore
-            ...props[screen].style,
-         };
-      }
-      return acc;
-   }, {});
+  const style = currentScreens.reduce((acc, screen) => {
+    const prop = props[screen as keyof ColPropsStyled];
+    if (prop && isColSizeStyled(prop)) {
+      return {
+        ...acc,
+        ...prop.style,
+      };
+    }
+    return acc;
+  }, {});
 
-   return (
-      <Col {...props} style={style}>
-         {props.children}
-      </Col>
-   );
+  return (
+    <Col {...props} style={style}>
+      {props.children}
+    </Col>
+  );
 }

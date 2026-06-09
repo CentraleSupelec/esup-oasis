@@ -1,15 +1,19 @@
 @font-face {
-    font-family: 'OpenDys';
-    src: url('subset-OpenDyslexic-Bold.woff') format('woff'),
-    url('subset-OpenDyslexic-Bold.woff2') format('woff2');
-    font-weight: 600;
-    font-style: normal;
+  font-family: "OpenDys";
+  src:
+    url("subset-OpenDyslexic-Bold.woff") format("woff"),
+    url("subset-OpenDyslexic-Bold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: 'OpenDys';
-    src: url('subset-OpenDyslexic-Regular.woff') format('woff'),
-    url('subset-OpenDyslexic-Regular.woff2') format('woff2');
-    font-weight: 400;
-    font-style: normal;
+  font-family: "OpenDys";
+  src:
+    url("subset-OpenDyslexic-Regular.woff") format("woff"),
+    url("subset-OpenDyslexic-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }

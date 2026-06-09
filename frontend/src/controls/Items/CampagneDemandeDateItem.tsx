@@ -7,33 +7,27 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import { useEffect, useState } from "react";
-import { ICampagneDemande } from "../../api/ApiTypeHelpers";
-import { useApi } from "../../context/api/ApiProvider";
+import { ICampagneDemande } from "@api";
+import { useApi } from "@context/api/ApiProvider";
 import dayjs from "dayjs";
 
-export default function CampagneDemandeDateItem(props: {
-   campagneDemande?: ICampagneDemande;
-   campagneDemandeId?: string;
-   templateString: string;
+export function CampagneDemandeDateItem(props: {
+  campagneDemande?: ICampagneDemande;
+  campagneDemandeId?: string;
+  templateString: string;
 }) {
-   const [item, setItem] = useState<ICampagneDemande | undefined>(props.campagneDemande);
-   const { data: campagneDemandeData } = useApi().useGetItem({
-      path: "/types_demandes/{typeId}/campagnes/{id}",
-      url: props.campagneDemandeId,
-      enabled: !!props.campagneDemandeId,
-   });
-   useEffect(() => {
-      if (campagneDemandeData) {
-         setItem(campagneDemandeData);
-      }
-   }, [campagneDemandeData]);
+  const { data: campagneDemandeData } = useApi().useGetItem({
+    path: "/types_demandes/{typeId}/campagnes/{id}",
+    url: props.campagneDemandeId,
+    enabled: !!props.campagneDemandeId,
+  });
+  const item = campagneDemandeData ?? props.campagneDemande;
 
-   if (!item) return null;
+  if (!item) return null;
 
-   return props.templateString.replace(
-      /{{(.*?)}}/g,
-      (match, p1: "debut" | "fin" | "dateCommission") =>
-         dayjs(item?.[p1]).format("DD/MM/YYYY") ?? match,
-   );
+  return props.templateString.replace(
+    /{{(.*?)}}/g,
+    (match, p1: "debut" | "fin" | "dateCommission") =>
+      dayjs(item?.[p1]).format("DD/MM/YYYY") ?? match,
+  );
 }

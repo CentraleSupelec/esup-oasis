@@ -8,13 +8,13 @@
  */
 
 import { Button, Card, Drawer, Form, Input, Switch } from "antd";
-import { useApi } from "../../../../context/api/ApiProvider";
+import { useApi } from "@context/api/ApiProvider";
 import React, { ReactElement, useEffect } from "react";
-import { IProfil } from "../../../../api/ApiTypeHelpers";
+import { IProfil, QK_PROFILS } from "@api";
 
 interface ProfilsEditionProps {
-   editedItem?: IProfil;
-   setEditedItem: (item: IProfil | undefined) => void;
+  editedItem?: IProfil;
+  setEditedItem: (item: IProfil | undefined) => void;
 }
 
 /**
@@ -26,99 +26,99 @@ interface ProfilsEditionProps {
  * @returns {ReactElement} - The rendered component.
  */
 export function ProfilsEdition({ editedItem, setEditedItem }: ProfilsEditionProps): ReactElement {
-   const [form] = Form.useForm();
+  const [form] = Form.useForm();
 
-   const mutationPost = useApi().usePost({
-      path: "/profils",
-      invalidationQueryKeys: ["/profils"],
-      onSuccess: () => {
-         setEditedItem(undefined);
-      },
-   });
+  const mutationPost = useApi().usePost({
+    path: "/profils",
+    invalidationQueryKeys: [QK_PROFILS],
+    onSuccess: () => {
+      setEditedItem(undefined);
+    },
+  });
 
-   const mutationPatch = useApi().usePatch({
-      path: `/profils/{id}`,
-      invalidationQueryKeys: ["/profils"],
-      onSuccess: () => {
-         setEditedItem(undefined);
-      },
-   });
+  const mutationPatch = useApi().usePatch({
+    path: `/profils/{id}`,
+    invalidationQueryKeys: [QK_PROFILS],
+    onSuccess: () => {
+      setEditedItem(undefined);
+    },
+  });
 
-   function createOrUpdate(values: IProfil) {
-      if (!editedItem) return;
+  function createOrUpdate(values: IProfil) {
+    if (!editedItem) return;
 
-      if (editedItem["@id"] === undefined) {
-         // Création
-         mutationPost?.mutate({
-            data: values,
-         });
-      } else {
-         // Modification
-         mutationPatch?.mutate({
-            "@id": editedItem["@id"],
-            data: values,
-         });
+    if (editedItem["@id"] === undefined) {
+      // Création
+      mutationPost?.mutate({
+        data: values,
+      });
+    } else {
+      // Modification
+      mutationPatch?.mutate({
+        "@id": editedItem["@id"],
+        data: values,
+      });
+    }
+  }
+
+  // Synchronisation editedItem / form
+  useEffect(() => {
+    if (editedItem) {
+      form.setFieldsValue(editedItem);
+    }
+  }, [editedItem, form]);
+
+  useEffect(() => {
+    if (editedItem && editedItem["@id"]) {
+      form.setFieldsValue(editedItem);
+    }
+  }, [editedItem, form]);
+
+  return (
+    <Drawer
+      className="bg-light-grey"
+      open
+      title={
+        editedItem?.["@id"]
+          ? "Éditer un élément du référentiel"
+          : "Ajouter un élément au référentiel"
       }
-   }
-
-   // Synchronisation editedItem / form
-   useEffect(() => {
-      if (editedItem) {
-         form.setFieldsValue(editedItem);
-      }
-   }, [editedItem, form]);
-
-   useEffect(() => {
-      if (editedItem && editedItem["@id"]) {
-         form.setFieldsValue(editedItem);
-      }
-   }, [editedItem, form]);
-
-   return (
-      <Drawer
-         className="bg-light-grey"
-         open
-         title={
-            editedItem?.["@id"]
-               ? "Éditer un élément du référentiel"
-               : "Ajouter un élément au référentiel"
-         }
-         onClose={() => setEditedItem(undefined)}
-         size="large"
+      onClose={() => setEditedItem(undefined)}
+      size="large"
+    >
+      <Card
+        title="Catégorie d'évènement"
+        actions={[
+          <Button onClick={() => setEditedItem(undefined)}>Annuler</Button>,
+          <Button type="primary" onClick={form.submit}>
+            Enregistrer
+          </Button>,
+        ]}
       >
-         <Card
-            title={"Catégorie d'évènement"}
-            actions={[
-               <Button onClick={() => setEditedItem(undefined)}>Annuler</Button>,
-               <Button type="primary" onClick={form.submit}>
-                  Enregistrer
-               </Button>,
-            ]}
-         >
-            <Form
-               className="w-100"
-               form={form}
-               layout="vertical"
-               onFinish={(values) => {
-                  createOrUpdate(values);
-               }}
-               initialValues={editedItem}
-            >
-               <Form.Item name="libelle" label="Libellé" rules={[{ required: true }]} required>
-                  <Input autoFocus />
-               </Form.Item>
-               <Form.Item name="actif" label="Actif" valuePropName="checked">
-                  <Switch />
-               </Form.Item>
-               <Form.Item
-                  name="avecTypologie"
-                  label="Typologie de handicap à associer"
-                  valuePropName="checked"
-               >
-                  <Switch />
-               </Form.Item>
-            </Form>
-         </Card>
-      </Drawer>
-   );
+        <Form
+          className="w-100"
+          form={form}
+          layout="vertical"
+          onFinish={(values) => {
+            createOrUpdate(values);
+          }}
+          initialValues={editedItem}
+        >
+          <Form.Item name="libelle" label="Libellé" rules={[{ required: true }]} required>
+            <Input autoFocus />
+          </Form.Item>
+          <Form.Item name="actif" label="Actif" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+          <Form.Item
+            name="avecTypologie"
+            label="Typologie de handicap à associer"
+            valuePropName="checked"
+          >
+            <Switch />
+          </Form.Item>
+        </Form>
+      </Card>
+    </Drawer>
+  );
 }

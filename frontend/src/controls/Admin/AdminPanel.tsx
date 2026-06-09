@@ -9,16 +9,15 @@
 
 import { useNavigate } from "react-router-dom";
 import { Button, Tooltip } from "antd";
-import Icon from "@ant-design/icons";
+import { default as Icon } from "@ant-design/icons";
 import React, { ReactElement } from "react";
 
 interface IAdminPanelComponent {
-   title: string;
-   description: string;
-   onClickUrl: string;
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   icon: React.ForwardRefExoticComponent<any>;
-   disabled?: boolean;
+  title: string;
+  description: string;
+  onClickUrl: string;
+  icon: React.ComponentType;
+  disabled?: boolean;
 }
 
 /**
@@ -34,27 +33,23 @@ interface IAdminPanelComponent {
  * @return {ReactElement} The rendered admin panel component.
  */
 export function AdminPanel({
-   title,
-   description,
-   icon,
-   onClickUrl,
-   disabled = false,
+  title,
+  description,
+  icon,
+  onClickUrl,
+  disabled = false,
 }: IAdminPanelComponent): ReactElement {
-   const navigate = useNavigate();
-   return (
-      <Tooltip title={description} placement="bottom">
-         <div key={title} className="grid-admin-item appear">
-            <Button data-testid="panel" disabled={disabled} onClick={() => navigate(onClickUrl)}>
-               <Icon
-                  component={icon}
-                  className="mt-2 grid-admin-item-icon"
-                  style={{ fontSize: 75 }}
-               />
-               <div className="grid-admin-item-content text-center">
-                  <div className="grid-admin-item-content-title">{title}</div>
-               </div>
-            </Button>
-         </div>
-      </Tooltip>
-   );
+  const navigate = useNavigate();
+  return (
+    <Tooltip title={description} placement="bottom">
+      <div key={title} className="grid-admin-item appear">
+        <Button data-testid="panel" disabled={disabled} onClick={() => navigate(onClickUrl)}>
+          <Icon component={icon} className="mt-2 grid-admin-item-icon" style={{ fontSize: 75 }} />
+          <div className="grid-admin-item-content text-center">
+            <div className="grid-admin-item-content-title">{title}</div>
+          </div>
+        </Button>
+      </div>
+    </Tooltip>
+  );
 }

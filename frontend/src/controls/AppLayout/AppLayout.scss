@@ -1,18 +1,17 @@
-@import "../../styles/variables";
-@import "../../styles/helpers";
+@use "../../styles/variables" as variables;
 
 #main main {
-  min-height: calc(100vh - 160px)
+  min-height: calc(100vh - 160px);
 }
 
 .header {
   position: sticky;
   top: 0;
   z-index: 99;
-  background-color: rgb(255, 255, 255, .9) !important;
+  background-color: rgb(255, 255, 255, 0.9);
   height: 80px;
   font-weight: 300;
-  border-bottom: 1.5px solid $light-grey-border;
+  border-bottom: 1.5px solid variables.$light-grey-border;
   backdrop-filter: blur(5px);
 
   button {
@@ -20,8 +19,9 @@
     font-weight: 300;
   }
 
-  .ant-menu-title-content, .anticon {
-    //background-color: $light-grey;
+  .ant-menu-title-content,
+  .anticon {
+    //background-color: variables.$light-grey;
     padding: 8px 24px;
     border-radius: 30px;
   }
@@ -34,17 +34,19 @@
     padding: 0 !important;
   }
 
-  .user .ant-menu-title-content, .recherche .ant-menu-title-content {
-    background-color: $light-grey;
+  .user .ant-menu-title-content,
+  .recherche .ant-menu-title-content {
+    background-color: variables.$light-grey;
   }
 
   .anticon:not(.anticon-enter) {
-    background-color: $light-grey;
+    background-color: variables.$light-grey;
     padding: 16px;
     border-radius: 30px;
   }
 
-  .ant-select-arrow, .ant-select-clear {
+  .ant-select-arrow,
+  .ant-select-clear {
     .anticon {
       background-color: transparent;
       padding: 0;
@@ -69,12 +71,18 @@
     }
   }
 
-  .ant-menu-submenu-selected .ant-menu-title-content, .recherche.recherche-en-cours .ant-menu-title-content, .recherche.recherche-en-cours .anticon.anticon-search {
-    background-color: $primary-light;
-    transition: background-color .5s;
+  .ant-menu-submenu-selected .ant-menu-title-content,
+  .recherche.recherche-en-cours .ant-menu-title-content,
+  .recherche.recherche-en-cours .anticon.anticon-search {
+    background-color: variables.$primary-light;
+    transition: background-color 0.5s;
   }
 
-  .logo, .recherche:not(.recherche-en-cours), .notifications, .item-accessibilite {
+  .logo,
+  .recherche:not(.recherche-en-cours),
+  .notifications,
+  .item-accessibilite,
+  .item-theme {
     .ant-menu-title-content {
       background-color: transparent;
       padding: 0;
@@ -82,9 +90,9 @@
     }
   }
 
-  .item-accessibilite .ant-menu-submenu-title {
-    display: flex;
-    align-items: center;
+  .item-accessibilite,
+  .item-theme {
+    margin-top: 7px !important;
   }
 
   .ant-menu .recherche {
@@ -92,19 +100,19 @@
   }
 
   .recherche.recherche-en-cours {
-
     .ant-menu-submenu-title {
       display: flex;
       align-items: center;
     }
 
     .anticon.anticon-search {
-      color: $primary;
+      color: variables.$primary;
       height: 51px;
       padding-top: 14px;
     }
 
-    .anticon, .ant-menu-item-icon {
+    .anticon,
+    .ant-menu-item-icon {
       border-radius: 30px 0 0 30px;
       margin-right: 0;
       padding-right: 0;
@@ -156,15 +164,13 @@
 }
 
 .ant-layout-footer {
-  color: #AAA !important;
+  color: #aaa !important;
   background: none;
 }
 
-
-
 .sider-trigger {
   background: transparent !important;
-  color: $primary;
+  color: variables.$primary;
 }
 
 .ant-menu-light {
@@ -203,7 +209,7 @@
   align-items: center;
   justify-content: center;
   margin-right: auto !important;
-  color: $primary;
+  color: variables.$primary;
   font-weight: 500;
   font-size: 26px !important;
 
@@ -220,27 +226,32 @@
   }
 }
 
-.ant-menu-item-selected, .ant-menu-submenu-selected {
-  .ant-menu-title-content, button {
+.ant-menu-item-selected,
+.ant-menu-submenu-selected {
+  .ant-menu-title-content,
+  button {
     font-weight: 500 !important;
-    color: $primary;
-    transition: all .5s;
+    color: variables.$primary;
+    transition: all 0.5s;
   }
 }
 
-.accessibilite-contraste {
+.accessibilite-contraste:not(.dark-mode) {
   .header {
-    background-color: $white !important;
+    background-color: variables.$white !important;
   }
 
-  .ant-menu-item-selected, .ant-menu-submenu-selected {
-    .ant-menu-title-content, button {
-      color: $primary-contrast;
+  .ant-menu-item-selected,
+  .ant-menu-submenu-selected {
+    .ant-menu-title-content,
+    button {
+      color: variables.$primary-contrast;
     }
   }
 
-  .header .ant-menu-title-content, .header .anticon {
-    background-color: $white;
+  .header .ant-menu-title-content,
+  .header .anticon {
+    background-color: variables.$white;
   }
 }
 
@@ -248,7 +259,7 @@
   bottom: 40px;
   right: 50px;
   border-radius: 100%;
-  @extend .shadow-2;
+  box-shadow: 0 10px 17px rgb(0 0 0 / 15%);
 }
 
 .ant-float-btn-group {
@@ -269,7 +280,6 @@
   align-items: center;
   justify-content: center;
 }
-
 
 .ant-layout-header {
   padding-inline: 0;
@@ -302,21 +312,22 @@
     }
 
     .role {
-      color: $legende;
+      color: variables.$legende;
       font-weight: 300;
-      font-size: .8rem;
+      font-size: 0.8rem;
     }
 
     .identite {
       font-weight: 500;
-      font-size: .9rem;
+      font-size: 0.9rem;
     }
   }
 }
 
 .user.ant-menu-submenu-selected {
-  .role, .identite {
-    color: $text;
+  .role,
+  .identite {
+    color: variables.$text;
   }
 }
 
@@ -339,7 +350,7 @@
 
 .header .ant-select-selection-item {
   .ant-avatar {
-    transform: scale(.5);
+    transform: scale(0.5);
     margin-left: 0;
   }
 
@@ -349,7 +360,8 @@
 }
 
 @media screen and (max-width: 768px) {
-  main, .ant-layout .ant-layout-header {
+  main,
+  .ant-layout .ant-layout-header {
     padding: 10px !important;
   }
 

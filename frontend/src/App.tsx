@@ -7,67 +7,52 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import React from "react";
-import "./styles/app.scss";
+import React, { lazy, Suspense } from "react";
+import "@/styles/app.scss";
 import { App as AntApp } from "antd";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { QueryClientProvider } from "@tanstack/react-query";
 import "dayjs/locale/fr";
-import Accessibilite from "./utils/Accessibilite/Accessibilite";
-import { ApiProvider } from "./context/api/ApiProvider";
-import { useAuth } from "./auth/AuthProvider";
+import Accessibilite from "@utils/Accessibilite/Accessibilite";
+import { ApiProvider } from "@context/api/ApiProvider";
+import { useAuth } from "@/auth/AuthProvider";
 import dayjs from "dayjs";
-import BreakPoint from "./utils/Breakpoint/BreakPoint";
-import ScrollToTop from "./utils/ScrollTo/ScrollToTop";
-import "moment/locale/fr";
-import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
-import Router from "./routes/ProdRouter";
-import { AppConfigProvider } from "./AppConfigProvider";
-import { env } from "./env";
+import BreakPoint from "@utils/Breakpoint/BreakPoint";
+import ScrollToTop from "@utils/ScrollTo/ScrollToTop";
+import Router from "@routes/AppRouter";
+import { AppConfigProvider } from "@/AppConfigProvider";
+import { env } from "@/env";
+import { queryClient } from "@/queryClient";
 
-dayjs.locale("fr"); // use loaded locale globally
+const ReactQueryDevtools = lazy(() =>
+  import("@tanstack/react-query-devtools").then((m) => ({ default: m.ReactQueryDevtools })),
+);
 
-export const queryClient = new QueryClient({
-   defaultOptions: {
-      queries: {
-         refetchOnWindowFocus: "always",
-         retry: 1,
-         retryDelay: 1000,
-         staleTime: 1000 * 60 * 5, // 5 minutes
-      },
-   },
-});
-
-broadcastQueryClient({
-   queryClient,
-   broadcastChannel: "oasis-app",
-   options: {
-      type: "localstorage",
-   },
-});
+dayjs.locale("fr"); // applique la locale globalement (pas uniquement par instance)
 
 function App() {
-   const auth = useAuth();
+  const auth = useAuth();
 
-   return (
-      <AppConfigProvider>
-         <AntApp>
-            <Accessibilite />
-            <ScrollToTop />
-            <ApiProvider baseUrl={env.REACT_APP_API as string} auth={auth} client={queryClient}>
-               <div className="full-app">
-                  <QueryClientProvider client={queryClient}>
-                     <Router />
-                     {env.REACT_APP_VERSION === "localdev" && (
-                        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
-                     )}
-                  </QueryClientProvider>
-               </div>
-            </ApiProvider>
-            {env.REACT_APP_VERSION === "localdev" && <BreakPoint />}
-         </AntApp>
-      </AppConfigProvider>
-   );
+  return (
+    <AppConfigProvider>
+      <AntApp>
+        <Accessibilite />
+        <ScrollToTop />
+        <ApiProvider baseUrl={env.REACT_APP_API as string} auth={auth} client={queryClient}>
+          <div className="full-app">
+            <QueryClientProvider client={queryClient}>
+              <Router />
+              {env.REACT_APP_ENVIRONMENT === "localdev" && (
+                <Suspense>
+                  <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+                </Suspense>
+              )}
+            </QueryClientProvider>
+          </div>
+        </ApiProvider>
+        {env.REACT_APP_ENVIRONMENT === "localdev" && <BreakPoint />}
+      </AntApp>
+    </AppConfigProvider>
+  );
 }
 
 export default App;

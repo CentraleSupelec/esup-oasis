@@ -8,20 +8,20 @@
  */
 
 export function montantToString(
-   nbHeures?: string,
-   tauxHoraire?: string,
-   coefCoutCharge?: string,
+  nbHeures?: string,
+  tauxHoraire?: string,
+  coefCoutCharge?: string,
 ): string {
-   let montant = parseFloat(nbHeures || "0") * parseFloat(tauxHoraire || "0");
-   if (coefCoutCharge) {
-      montant = montant * parseFloat(coefCoutCharge);
-   }
-   return montant.toFixed(2).toString().replace(".", ",");
+  let montant = parseFloat(nbHeures || "0") * parseFloat(tauxHoraire || "0");
+  if (coefCoutCharge) {
+    montant = montant * parseFloat(coefCoutCharge);
+  }
+  return montant.toFixed(2).toString().replace(".", ",");
 }
 
 export function to2Digits(value?: string | number, defaultValue = "0.00") {
-   if (value === undefined) {
-      return defaultValue;
-   }
-   return parseFloat(value.toString()).toFixed(2).replace(".", ",");
+  if (value === undefined) {
+    return defaultValue;
+  }
+  return parseFloat(value.toString()).toFixed(2).replace(".", ",");
 }

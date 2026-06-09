@@ -19,25 +19,25 @@ import React from "react";
  * @return {Array} - An array of menu item objects.
  */
 export const menuItemAmenagementsForReferents = (
-   setSelectedKey: (key: string) => void,
-   navigate: NavigateFunction,
+  setSelectedKey: (key: string) => void,
+  navigate: NavigateFunction,
 ): MenuProps["items"] => [
-   {
-      key: "beneficaires",
-      className: "mr-auto",
-      children: [],
-      popupClassName: "d-none",
-      label: (
-         <Button
-            type="text"
-            className="no-hover p-0"
-            onClick={() => {
-               setSelectedKey("beneficaires");
-               navigate("/amenagements?mode=beneficiaire");
-            }}
-         >
-            Aménagements
-         </Button>
-      ),
-   },
+  {
+    key: "beneficiaires",
+    className: "mr-auto",
+    children: [],
+    popupClassName: "d-none",
+    label: (
+      <Button
+        type="text"
+        className="no-hover p-0"
+        onClick={() => {
+          setSelectedKey("beneficiaires");
+          navigate("/amenagements?mode=beneficiaire");
+        }}
+      >
+        Aménagements
+      </Button>
+    ),
+  },
 ];

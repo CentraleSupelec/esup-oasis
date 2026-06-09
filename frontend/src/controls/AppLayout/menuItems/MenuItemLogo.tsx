@@ -10,7 +10,7 @@
 import { NavigateFunction } from "react-router-dom";
 import { Badge, MenuProps } from "antd";
 import React from "react";
-import { env } from "../../../env";
+import { env } from "@/env";
 
 /**
  * Generates the logo menu item with env ribbon.
@@ -20,32 +20,30 @@ import { env } from "../../../env";
  * @return {MenuProps["items"]} The generated logo menu item.
  */
 export function menuItemLogo(
-   setSelectedKey: (key: string | undefined) => void,
-   navigate: NavigateFunction,
+  setSelectedKey: (key: string | undefined) => void,
+  navigate: NavigateFunction,
 ): MenuProps["items"] {
-   return [
-      {
-         key: "logo",
-         label:
-            env.REACT_APP_ENVIRONMENT === "production" ? (
-               <span className="logo">{env.REACT_APP_TITRE}</span>
-            ) : (
-               <Badge.Ribbon
-                  color="var(--color-danger)"
-                  className="fs-08"
-                  style={{ top: 0, right: -15 }}
-                  text={
-                     ["local", "dev"].includes(env.REACT_APP_ENVIRONMENT as string) ? "DEV" : "TEST"
-                  }
-               >
-                  {env.REACT_APP_TITRE}️
-               </Badge.Ribbon>
-            ),
-         className: "logo text-primary",
-         onClick: () => {
-            setSelectedKey(undefined);
-            navigate("/dashboard");
-         },
+  return [
+    {
+      key: "logo",
+      label:
+        env.REACT_APP_ENVIRONMENT === "production" ? (
+          <span className="logo">{env.REACT_APP_TITRE}</span>
+        ) : (
+          <Badge.Ribbon
+            color="var(--color-danger)"
+            className="fs-08"
+            style={{ top: 0, right: -15 }}
+            text={["local", "dev"].includes(env.REACT_APP_ENVIRONMENT as string) ? "DEV" : "TEST"}
+          >
+            {env.REACT_APP_TITRE}️
+          </Badge.Ribbon>
+        ),
+      className: "logo text-primary",
+      onClick: () => {
+        setSelectedKey(undefined);
+        navigate("/dashboard");
       },
-   ];
+    },
+  ];
 }
