@@ -1,14 +1,30 @@
 /// <reference types="vitest" />
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
 import basicSsl from "@vitejs/plugin-basic-ssl";
 import { visualizer } from "rollup-plugin-visualizer";
 import { resolve } from "path";
 
-export default defineConfig(() => {
+/**
+ * Hôtes autorisés du serveur de dev :
+ * dérivés de REACT_APP_FRONTEND ou FRONT_URL.
+ * localhost reste toujours autorisé par Vite.
+ */
+function buildAllowedHosts(env: Record<string, string>): string[] | undefined {
+  const frontUrl = env.REACT_APP_FRONTEND || env.FRONT_URL;
+  if (!frontUrl) return undefined;
+  try {
+    return [new URL(frontUrl).hostname];
+  } catch {
+    return undefined;
+  }
+}
+
+export default defineConfig(({ mode }) => {
   const isAnalyze = process.env.ANALYZE === "true";
   const isHttps = process.env.HTTPS === "true";
+  const allowedHosts = buildAllowedHosts(loadEnv(mode, __dirname, ""));
 
   return {
     plugins: [
@@ -37,6 +53,7 @@ export default defineConfig(() => {
 
     server: {
       port: 3000,
+      ...(allowedHosts ? { allowedHosts } : {}),
     },
 
     css: {
@@ -49,17 +66,18 @@ export default defineConfig(() => {
     },
 
     test: {
-         globals: true,
-         environment: "jsdom",
-         setupFiles: ["./src/setupTests.ts"],
-         include: ["src/**/*.{test,spec}.{ts,tsx}"],
-         coverage: {
-            provider: "v8",
-            reporter: ["text", "lcov"],
-            include: ["src/**/*.{ts,tsx}"],
-            exclude: ["src/**/*.d.ts", "src/api/schema.d.ts", "src/main.tsx"],
-         },
-      },build: {
+      globals: true,
+      environment: "jsdom",
+      setupFiles: ["./src/setupTests.ts"],
+      include: ["src/**/*.{test,spec}.{ts,tsx}"],
+      coverage: {
+        provider: "v8",
+        reporter: ["text", "lcov"],
+        include: ["src/**/*.{ts,tsx}"],
+        exclude: ["src/**/*.d.ts", "src/api/schema.d.ts", "src/main.tsx"],
+      },
+    },
+    build: {
       outDir: "dist",
       sourcemap: false,
       rollupOptions: {

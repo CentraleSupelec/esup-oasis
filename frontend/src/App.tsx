@@ -41,7 +41,7 @@ function App() {
           <div className="full-app">
             <QueryClientProvider client={queryClient}>
               <Router />
-              {env.REACT_APP_ENVIRONMENT === "localdev" && (
+              {env.MODE === "development" && (
                 <Suspense>
                   <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
                 </Suspense>
@@ -49,7 +49,7 @@ function App() {
             </QueryClientProvider>
           </div>
         </ApiProvider>
-        {env.REACT_APP_ENVIRONMENT === "localdev" && <BreakPoint />}
+        {env.MODE === "development" && <BreakPoint />}
       </AntApp>
     </AppConfigProvider>
   );

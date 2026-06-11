@@ -11,4 +11,4 @@ RUN yarn install --frozen-lockfile
 EXPOSE 80
 ENV PORT=80
 
-CMD ["yarn", "start", "--port", "80"]
+CMD ["yarn", "start", "--port", "80", "--host", "0.0.0.0"]
