@@ -72,6 +72,9 @@ export function usePatch<P extends Path>(
       );
     },
     onSuccess: (data, variables) => {
+      // Évite la race condition entre fermeture du composant et invalidation async.
+      client.setQueriesData({ queryKey: [variables["@id"]] }, data);
+
       if (options.invalidationQueryKeys) handleInvalidation(client, options.invalidationQueryKeys);
       if (options.onSuccess) options.onSuccess(data, variables);
     },

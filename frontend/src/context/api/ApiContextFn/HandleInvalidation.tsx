@@ -9,6 +9,7 @@
 
 // --- INVALIDATION ---
 import { QueryClient } from "@tanstack/react-query";
+import { env } from "@/env";
 
 /** Invalide manuellement des entrées du cache React Query (usage hors mutation). Pour les mutations, préférer `invalidationQueryKeys` dans les options du hook. */
 export type UseInvalidationHook = (queryKeys: string[], onSuccess?: VoidFunction) => void;
@@ -32,7 +33,10 @@ export function handleInvalidation(
         query.queryKey["0"] !== undefined &&
         query.queryKey["0"] !== null &&
         queryKeys.some((qk) => {
-          return (query.queryKey[0] as string).startsWith(qk);
+          const key = query.queryKey[0] as string;
+          const prefix = env.REACT_APP_API_PREFIX ?? "";
+          const normalizedKey = prefix && key.startsWith(prefix) ? key.slice(prefix.length) : key;
+          return normalizedKey.startsWith(qk);
         }),
     })
     .then(() => onSuccess && onSuccess());

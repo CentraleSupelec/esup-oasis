@@ -18,6 +18,7 @@ import { ParametreFormItemString } from "@controls/Admin/Parametres/items/Parame
 interface ParametreFormItemProps {
   value?: string;
   onCancel?: () => void;
+  onSuccess?: () => void;
   parametre?: IParametre;
 }
 
@@ -34,6 +35,7 @@ interface ParametreFormItemProps {
 export default function ParametreFormItem({
   value,
   onCancel,
+  onSuccess,
   parametre,
 }: ParametreFormItemProps): ReactElement {
   const { message } = App.useApp();
@@ -59,6 +61,7 @@ export default function ParametreFormItem({
     onSuccess: () => {
       message.success("Valeur du paramètre modifiée");
       setEditingItem(undefined);
+      onSuccess?.();
     },
   });
 
@@ -66,11 +69,12 @@ export default function ParametreFormItem({
     path: "/parametres/{cle}/valeurs",
     invalidationQueryKeys: [QK_PARAMETRES],
     parameters: {
-      cle: `/parametres/${parametre?.["@id"]?.split("/")[2]}`,
+      cle: parametre?.["@id"] as string,
     },
     onSuccess: () => {
       message.success("Valeur du paramètre sauvegardée").then();
       setEditingItem(undefined);
+      onSuccess?.();
     },
   });
 

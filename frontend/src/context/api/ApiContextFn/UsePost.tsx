@@ -69,6 +69,9 @@ export function usePost<P extends Path>(
       );
     },
     onSuccess: (data, variables) => {
+      if (data && typeof data === "object" && "@id" in data && data["@id"]) {
+        client.setQueryData([data["@id"]], data);
+      }
       if (options.invalidationQueryKeys) handleInvalidation(client, options.invalidationQueryKeys);
       if (options.onSuccess) options.onSuccess(data, variables);
     },
