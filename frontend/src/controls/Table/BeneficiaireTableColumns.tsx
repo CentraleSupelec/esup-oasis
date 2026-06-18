@@ -222,6 +222,7 @@ export function beneficiaireTableColumns({
     {
       key: "actions",
       filteredValue: null,
+      title: <span className="sr-only">Actions</span>,
       className: "text-right",
       width: 160,
       render: (_value: unknown, record: IBeneficiaire) => (

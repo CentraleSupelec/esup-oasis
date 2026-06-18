@@ -220,8 +220,8 @@ export function getEtatDemandeIndex(etat: string) {
   return ETATS_DEMANDES.findIndex((e) => e.id === etat);
 }
 
-export function getEtatDemandeOrdre(etat: string) {
-  return ETATS_DEMANDES.find((e) => e.id === etat)?.ordre || 0;
+export function getEtatDemandeOrdre(etat: string): number {
+  return ETATS_DEMANDES.find((e) => e.id === etat)?.ordre ?? -1;
 }
 
 export function getEtatDemande(etat: string) {

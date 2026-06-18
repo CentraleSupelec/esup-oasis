@@ -18,6 +18,15 @@ expect.extend({ toHaveNoViolations });
 // window.env est injecté au runtime via public/env.js — on le mock pour les tests
 (window as unknown as Record<string, unknown>).env = {};
 
+// Mock global de la config runtime : évite les `REACT_APP_*` undefined et la
+// répétition d'un `vi.mock("@/env", …)` dans chaque test (cf. src/test/env.ts).
+// Un test qui a besoin de valeurs spécifiques surcharge localement via son
+// propre `vi.mock("@/env", () => ({ env: makeTestEnv({ … }) }))`.
+vi.mock("@/env", async () => {
+  const { TEST_ENV } = await import("@/test/env");
+  return { env: TEST_ENV, validateEnv: () => undefined };
+});
+
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
@@ -42,6 +51,16 @@ Object.defineProperty(globalThis, "crypto", {
 const nodeAbortController = transferableAbortController();
 globalThis.AbortController = Object.getPrototypeOf(nodeAbortController).constructor;
 globalThis.AbortSignal = Object.getPrototypeOf(nodeAbortController.signal).constructor;
+
+// Ant Design Table (et @rc-component/resize-observer) utilisent ResizeObserver,
+// absent de JSDOM — polyfill minimal pour les tests.
+if (typeof globalThis.ResizeObserver === "undefined") {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
 
 // Node.js 22+ définit localStorage comme undefined sans --localstorage-file.
 // Ce polyfill rétablit l'implémentation jsdom sur globalThis pour tous les tests.

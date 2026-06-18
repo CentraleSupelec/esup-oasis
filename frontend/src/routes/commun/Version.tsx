@@ -40,25 +40,32 @@ export default function Version(): ReactElement {
     }
   }
 
+  const sortedVersions = [...VERSIONS].sort((v1, v2) => v2.version.localeCompare(v1.version));
+
   return (
     <Layout.Content style={{ padding: "0 50px" }}>
       <Typography.Title level={1}>Notes de version</Typography.Title>
       <Card>
-        <List className="ant-list-radius">
-          {VERSIONS.sort((v1, v2) => v2.version.localeCompare(v1.version)).map(
-            (version, indexVersion) => {
-              const isActive =
-                env.REACT_APP_VERSION === version.version ||
-                (env.REACT_APP_ENVIRONMENT === "dev" && indexVersion === 0);
-              return (
-                <List.Item key={version.version}>
-                  <List.Item.Meta
-                    title={
-                      <Typography.Text className="mt-0 text-primary" style={{ fontSize: 18 }}>
+        {/* dataSource force le rendu <ul> (sans dataSource, List place les <li> dans un <div>). */}
+        {/* List.Item.Meta.title hardcode un <h4> : on l'évite en passant le titre en <h2> dans description. */}
+        <List
+          className="ant-list-radius"
+          dataSource={sortedVersions}
+          renderItem={(version, indexVersion) => {
+            const isActive =
+              env.REACT_APP_VERSION === version.version ||
+              (env.REACT_APP_ENVIRONMENT === "dev" && indexVersion === 0);
+            return (
+              <List.Item key={version.version}>
+                <List.Item.Meta
+                  description={
+                    <div className="d-block w-100">
+                      <h2
+                        className="mt-0 text-primary"
+                        style={{ fontSize: 18, fontWeight: "normal" }}
+                      >
                         Version {version.version} - {version.description}
-                      </Typography.Text>
-                    }
-                    description={
+                      </h2>
                       <div className="d-block w-100 mt-2">
                         {version.changes?.map((change, index) => (
                           <div key={index} className="w-100 mb-2">
@@ -92,18 +99,18 @@ export default function Version(): ReactElement {
                           </div>
                         ))}
                       </div>
-                    }
-                    avatar={
-                      <ArrowRightOutlined
-                        className={`fs-13 text-primary ${isActive ? "" : "v-hidden"}`}
-                      />
-                    }
-                  />
-                </List.Item>
-              );
-            },
-          )}
-        </List>
+                    </div>
+                  }
+                  avatar={
+                    <ArrowRightOutlined
+                      className={`fs-13 text-primary ${isActive ? "" : "v-hidden"}`}
+                    />
+                  }
+                />
+              </List.Item>
+            );
+          }}
+        />
       </Card>
     </Layout.Content>
   );

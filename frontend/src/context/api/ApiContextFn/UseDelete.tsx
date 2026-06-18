@@ -59,7 +59,7 @@ export function useDelete<P extends Path>(
         options,
       );
     },
-    onSuccess: (variables) => {
+    onSuccess: (_data, variables) => {
       if (options.invalidationQueryKeys) handleInvalidation(client, options.invalidationQueryKeys);
       if (options.onSuccess) options.onSuccess(variables);
     },

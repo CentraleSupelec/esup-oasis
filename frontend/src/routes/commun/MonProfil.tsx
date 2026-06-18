@@ -189,8 +189,8 @@ export default function MonProfil(): ReactElement {
                   ),
                 },
               ]
-                // On supprime les tabs masqués
-                .filter((tab) => tab !== false) as { key: string; label: string }[]
+                // On supprime les tabs masqués (false, null, undefined)
+                .filter(Boolean) as { key: string; label: string }[]
             }
           />
 

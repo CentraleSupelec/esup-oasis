@@ -30,7 +30,7 @@ export default function EvenementModalFooter({
   const { notification } = App.useApp();
 
   return (
-    <Row>
+    <Row className="w-100">
       <Col xs={8} sm={8} lg={12} className="text-left">
         <Space>
           {evenement["@id"] && <EventDeleteButton evenement={evenement} onDelete={onDelete} />}

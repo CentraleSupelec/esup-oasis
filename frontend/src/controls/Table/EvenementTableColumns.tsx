@@ -80,50 +80,52 @@ export function evenementTableColumns({
         );
       },
     },
-    saisieEvtRenfort
-      ? {}
-      : {
-          title: "Intervenant",
-          dataIndex: "intervenant",
-          key: "intervenant",
-          render: (intervenant: string) => {
-            return (
-              <EtudiantItem
-                utilisateurId={intervenant}
-                responsive="lg"
-                role={RoleValues.ROLE_INTERVENANT}
-              />
-            );
+    ...(!saisieEvtRenfort
+      ? [
+          {
+            title: "Intervenant",
+            dataIndex: "intervenant",
+            key: "intervenant",
+            render: (intervenant: string) => {
+              return (
+                <EtudiantItem
+                  utilisateurId={intervenant}
+                  responsive="lg"
+                  role={RoleValues.ROLE_INTERVENANT}
+                />
+              );
+            },
           },
-        },
-    saisieEvtRenfort
-      ? {}
-      : {
-          title: "Campus",
-          dataIndex: "campus",
-          key: "campus",
-          responsive: ["xl"],
-          render: (campus: string) => {
-            return <CampusItem campusId={campus} responsive="lg" />;
+          {
+            title: "Campus",
+            dataIndex: "campus",
+            key: "campus",
+            responsive: ["xl"] as const,
+            render: (campus: string) => {
+              return <CampusItem campusId={campus} responsive="lg" />;
+            },
           },
-        },
-    afficherEtatEnvoiRh
-      ? {
-          title: "Transmis RH",
-          dataIndex: "dateEnvoiRH",
-          className: "text-center",
-          key: "dateEnvoiRH",
-          responsive: ["lg"],
-          render: (_data: boolean, record: Evenement) => {
-            return <EvenementIconeEnvoiRhItem evenement={record} />;
+        ]
+      : []),
+    ...(afficherEtatEnvoiRh
+      ? [
+          {
+            title: "Transmis RH",
+            dataIndex: "dateEnvoiRH",
+            className: "text-center",
+            key: "dateEnvoiRH",
+            responsive: ["lg"] as const,
+            render: (_data: boolean, record: Evenement) => {
+              return <EvenementIconeEnvoiRhItem evenement={record} />;
+            },
           },
-        }
-      : {},
+        ]
+      : []),
     {
-      title: "",
       key: "actions",
+      title: <span className="sr-only">Actions</span>,
       className: "text-right",
-      render: (_value, record) => {
+      render: (_value: unknown, record: Evenement) => {
         return (
           <Button
             icon={<EyeOutlined />}
@@ -136,5 +138,5 @@ export function evenementTableColumns({
         );
       },
     },
-  ];
+  ] as ColumnType<Evenement>[];
 }

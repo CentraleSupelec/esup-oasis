@@ -116,6 +116,7 @@ export default function ValidationInterventionTable() {
           <span>Masquer les annulations</span>
           <Switch
             size="small"
+            aria-label="Masquer les annulations"
             checked={filtreValidationInterventions["exists[dateAnnulation]"] === false}
             onChange={(checked) => {
               setFiltreValidationInterventions({

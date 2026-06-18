@@ -271,3 +271,138 @@ describe("getRoleLabel", () => {
     expect(getRoleLabel(undefined)).toBe("-Rôle inconnu-");
   });
 });
+
+// ---------------------------------------------------------------------------
+// isIntervenantOuRenfort
+// ---------------------------------------------------------------------------
+
+describe("Utilisateur.isIntervenantOuRenfort", () => {
+  it("true pour ROLE_INTERVENANT", () => {
+    expect(makeUser([RoleValues.ROLE_INTERVENANT]).isIntervenantOuRenfort).toBe(true);
+  });
+
+  it("true pour ROLE_RENFORT", () => {
+    expect(makeUser([RoleValues.ROLE_RENFORT]).isIntervenantOuRenfort).toBe(true);
+  });
+
+  it("true pour ROLE_INTERVENANT + ROLE_RENFORT", () => {
+    expect(
+      makeUser([RoleValues.ROLE_INTERVENANT, RoleValues.ROLE_RENFORT]).isIntervenantOuRenfort,
+    ).toBe(true);
+  });
+
+  it("false pour ROLE_GESTIONNAIRE", () => {
+    expect(makeUser([RoleValues.ROLE_GESTIONNAIRE]).isIntervenantOuRenfort).toBe(false);
+  });
+
+  it("false pour un tableau vide", () => {
+    expect(makeUser([]).isIntervenantOuRenfort).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// roleCalcule — chemins manquants (commission, référent)
+// ---------------------------------------------------------------------------
+
+describe("Utilisateur.roleCalcule — chemins commission et référent", () => {
+  it("ROLE_MEMBRE_COMMISSION seul", () => {
+    expect(makeUser([RoleValues.ROLE_MEMBRE_COMMISSION]).roleCalcule).toBe(
+      RoleValues.ROLE_MEMBRE_COMMISSION,
+    );
+  });
+
+  it("ROLE_REFERENT_COMPOSANTE seul", () => {
+    expect(makeUser([RoleValues.ROLE_REFERENT_COMPOSANTE]).roleCalcule).toBe(
+      RoleValues.ROLE_REFERENT_COMPOSANTE,
+    );
+  });
+
+  it("ROLE_GESTIONNAIRE prime sur ROLE_MEMBRE_COMMISSION", () => {
+    expect(
+      makeUser([RoleValues.ROLE_GESTIONNAIRE, RoleValues.ROLE_MEMBRE_COMMISSION]).roleCalcule,
+    ).toBe(RoleValues.ROLE_GESTIONNAIRE);
+  });
+
+  it("ROLE_MEMBRE_COMMISSION prime sur ROLE_REFERENT_COMPOSANTE", () => {
+    expect(
+      makeUser([RoleValues.ROLE_MEMBRE_COMMISSION, RoleValues.ROLE_REFERENT_COMPOSANTE])
+        .roleCalcule,
+    ).toBe(RoleValues.ROLE_MEMBRE_COMMISSION);
+  });
+
+  it("ROLE_REFERENT_COMPOSANTE prime sur ROLE_INTERVENANT", () => {
+    expect(
+      makeUser([RoleValues.ROLE_REFERENT_COMPOSANTE, RoleValues.ROLE_INTERVENANT]).roleCalcule,
+    ).toBe(RoleValues.ROLE_REFERENT_COMPOSANTE);
+  });
+
+  it("ROLE_RENFORT seul", () => {
+    expect(makeUser([RoleValues.ROLE_RENFORT]).roleCalcule).toBe(RoleValues.ROLE_RENFORT);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Agrégation de rôles — combinaisons métier réalistes
+// ---------------------------------------------------------------------------
+
+describe("Utilisateur — cumul de rôles (agrégation)", () => {
+  it("gestionnaire + bénéficiaire : isGestionnaire=true, isBeneficiaire=true", () => {
+    const u = makeUser([RoleValues.ROLE_GESTIONNAIRE, RoleValues.ROLE_BENEFICIAIRE]);
+    expect(u.isGestionnaire).toBe(true);
+    expect(u.isBeneficiaire).toBe(true);
+  });
+
+  it("admin + intervenant : isAdmin=true, isIntervenant=true, isPlanificateur=true", () => {
+    const u = makeUser([RoleValues.ROLE_ADMIN, RoleValues.ROLE_INTERVENANT]);
+    expect(u.isAdmin).toBe(true);
+    expect(u.isIntervenant).toBe(true);
+    expect(u.isPlanificateur).toBe(true);
+  });
+
+  it("renfort + intervenant : isIntervenantOuRenfort=true, isPlanificateur=true", () => {
+    const u = makeUser([RoleValues.ROLE_RENFORT, RoleValues.ROLE_INTERVENANT]);
+    expect(u.isIntervenantOuRenfort).toBe(true);
+    expect(u.isPlanificateur).toBe(true);
+  });
+
+  it("commission + référent : roleCalcule = ROLE_MEMBRE_COMMISSION", () => {
+    const u = makeUser([RoleValues.ROLE_MEMBRE_COMMISSION, RoleValues.ROLE_REFERENT_COMPOSANTE]);
+    expect(u.roleCalcule).toBe(RoleValues.ROLE_MEMBRE_COMMISSION);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getRoleColor — priorité avec rôles combinés
+// ---------------------------------------------------------------------------
+
+describe("Utilisateur.getRoleColor — combinaisons", () => {
+  it("admin + gestionnaire → 'gold' (admin prime)", () => {
+    expect(makeUser([RoleValues.ROLE_ADMIN, RoleValues.ROLE_GESTIONNAIRE]).getRoleColor()).toBe(
+      "gold",
+    );
+  });
+
+  it("gestionnaire + commission → 'blue' (gestionnaire prime)", () => {
+    expect(
+      makeUser([RoleValues.ROLE_GESTIONNAIRE, RoleValues.ROLE_MEMBRE_COMMISSION]).getRoleColor(),
+    ).toBe("blue");
+  });
+
+  it("renfort + commission → 'processing' (renfort prime)", () => {
+    expect(
+      makeUser([RoleValues.ROLE_RENFORT, RoleValues.ROLE_MEMBRE_COMMISSION]).getRoleColor(),
+    ).toBe("processing");
+  });
+
+  it("intervenant seul → 'default'", () => {
+    expect(makeUser([RoleValues.ROLE_INTERVENANT]).getRoleColor()).toBe("default");
+  });
+
+  it("demandeur seul → 'default'", () => {
+    expect(makeUser([RoleValues.ROLE_DEMANDEUR]).getRoleColor()).toBe("default");
+  });
+
+  it("référent composante seul → 'default'", () => {
+    expect(makeUser([RoleValues.ROLE_REFERENT_COMPOSANTE]).getRoleColor()).toBe("default");
+  });
+});

@@ -1,20 +1,11 @@
-import React from "react";
-import { renderHook, act, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactNode } from "react";
+import { act, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { server } from "@/mocks/server";
+import { createTestQueryClient, renderHookWithProviders } from "@/test";
 import { ApiProvider } from "@context/api/ApiProvider";
 import { QuestionnaireProvider, useQuestionnaire, FONCTIONNALITES } from "./QuestionnaireProvider";
-
-vi.mock("@/env", () => ({
-  env: {
-    REACT_APP_API: "http://api.test",
-    REACT_APP_API_PREFIX: "",
-    REACT_APP_ENVIRONMENT: "test",
-  },
-}));
 
 vi.mock("@/queryClient", () => ({
   queryClient: { clear: vi.fn(), invalidateQueries: vi.fn() },
@@ -33,20 +24,23 @@ vi.mock("@/auth/AuthProvider", () => ({
 
 const BASE_URL = "http://api.test";
 
-function makeWrapper(providerProps: { demandeId?: string; typeDemandeId?: string }) {
-  const client = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return (
-      <QueryClientProvider client={client}>
-        <MemoryRouter>
-          <ApiProvider baseUrl={BASE_URL} client={client}>
-            <QuestionnaireProvider {...providerProps}>{children}</QuestionnaireProvider>
-          </ApiProvider>
-        </MemoryRouter>
-      </QueryClientProvider>
-    );
+/**
+ * Options de rendu pour `useQuestionnaire`, basées sur le socle de test :
+ * le `QueryClient` est partagé avec l'`ApiProvider` (qui le reçoit en prop), et le
+ * `QuestionnaireProvider` est imbriqué via `extraWrappers`.
+ */
+function makeOptions(providerProps: { demandeId?: string; typeDemandeId?: string }) {
+  const client = createTestQueryClient();
+  return {
+    queryClient: client,
+    withRouter: true,
+    extraWrappers: [
+      (children: ReactNode) => (
+        <ApiProvider baseUrl={BASE_URL} client={client}>
+          <QuestionnaireProvider {...providerProps}>{children}</QuestionnaireProvider>
+        </ApiProvider>
+      ),
+    ],
   };
 }
 
@@ -97,9 +91,10 @@ describe("QuestionnaireProvider", () => {
       }),
     );
 
-    const { result } = renderHook(() => useQuestionnaire(), {
-      wrapper: makeWrapper({ demandeId: "/demandes/1" }),
-    });
+    const { result } = renderHookWithProviders(
+      () => useQuestionnaire(),
+      makeOptions({ demandeId: "/demandes/1" }),
+    );
 
     await waitFor(() => expect(result.current.campagne).toBeDefined(), {
       timeout: 3000,
@@ -134,9 +129,10 @@ describe("QuestionnaireProvider", () => {
       }),
     );
 
-    const { result } = renderHook(() => useQuestionnaire(), {
-      wrapper: makeWrapper({ demandeId: "/demandes/1" }),
-    });
+    const { result } = renderHookWithProviders(
+      () => useQuestionnaire(),
+      makeOptions({ demandeId: "/demandes/1" }),
+    );
 
     await waitFor(() => expect(result.current.demande).toBeDefined(), { timeout: 3000 });
     const callsBefore = demandeCalls;
@@ -152,9 +148,10 @@ describe("QuestionnaireProvider", () => {
   it("mode admin (typeDemandeId seul) → questionnaire construit depuis typeDemande", async () => {
     server.use(http.get(`${BASE_URL}/types_demandes/5`, () => HttpResponse.json(typeDemande)));
 
-    const { result } = renderHook(() => useQuestionnaire(), {
-      wrapper: makeWrapper({ typeDemandeId: "/types_demandes/5" }),
-    });
+    const { result } = renderHookWithProviders(
+      () => useQuestionnaire(),
+      makeOptions({ typeDemandeId: "/types_demandes/5" }),
+    );
 
     await waitFor(() => expect(result.current.questionnaire).toBeDefined(), { timeout: 3000 });
 
@@ -166,9 +163,7 @@ describe("QuestionnaireProvider", () => {
   it("auth.user absent → toutes les fonctionnalités bloquées", async () => {
     mockUser = null;
 
-    const { result } = renderHook(() => useQuestionnaire(), {
-      wrapper: makeWrapper({}),
-    });
+    const { result } = renderHookWithProviders(() => useQuestionnaire(), makeOptions({}));
 
     await waitFor(() => expect(result.current.questUtils).toBeDefined());
 
@@ -180,9 +175,7 @@ describe("QuestionnaireProvider", () => {
   it("ROLE_MEMBRE_COMMISSION : droits fonctionnels — résultat selon rolesCommission", async () => {
     mockUser = { uid: "mc@test.fr", roles: ["ROLE_MEMBRE_COMMISSION"] };
 
-    const { result } = renderHook(() => useQuestionnaire(), {
-      wrapper: makeWrapper({}),
-    });
+    const { result } = renderHookWithProviders(() => useQuestionnaire(), makeOptions({}));
 
     await waitFor(() => expect(result.current.questUtils).toBeDefined());
 
@@ -200,9 +193,7 @@ describe("QuestionnaireProvider", () => {
   });
 
   it("ROLE_GESTIONNAIRE → fonctionnalité autorisée (droits booléens)", async () => {
-    const { result } = renderHook(() => useQuestionnaire(), {
-      wrapper: makeWrapper({}),
-    });
+    const { result } = renderHookWithProviders(() => useQuestionnaire(), makeOptions({}));
 
     await waitFor(() => expect(result.current.questUtils).toBeDefined());
 

@@ -14,6 +14,7 @@ import { useApi } from "@context/api/ApiProvider";
 import { QK_COMMISSIONS_MEMBRES, QK_ROLES_UTILISATEURS } from "@api";
 import { RoleValues } from "@lib";
 import UtilisateurFormItemSelect from "@controls/Forms/UtilisateurFormItemSelect";
+import { env } from "@/env";
 
 interface CommissionsMemberAddFormProps {
   commissionId: string | undefined;
@@ -44,9 +45,10 @@ export const CommissionsMemberAddForm: React.FC<CommissionsMemberAddFormProps> =
           layout="vertical"
           className="w-100"
           onFinish={(values) => {
+            console.log(values);
             mutationPut.mutate({
-              "@id": `${commissionId}/membres/${(values.uid as string).replace(
-                "/utilisateurs/",
+              "@id": `${commissionId}/membres/${(values.utilisateur_iri as string).replace(
+                `${env.REACT_APP_API_PREFIX}/utilisateurs/`,
                 "",
               )}`,
               data: {
@@ -60,7 +62,7 @@ export const CommissionsMemberAddForm: React.FC<CommissionsMemberAddFormProps> =
         >
           <Form.Item
             label="Membre"
-            name="uid"
+            name="utilisateur_iri"
             required
             rules={[
               {

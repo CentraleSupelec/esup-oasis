@@ -1,9 +1,8 @@
-import React from "react";
-import { renderHook, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { server } from "@/mocks/server";
+import { renderHookWithProviders, hydraCollection } from "@/test";
 import { useGetFullCollection } from "./UseGetFullCollection";
 
 vi.mock("@/queryClient", () => ({
@@ -23,30 +22,16 @@ const BASE_URL = "http://api.test";
 const API_URL = `${BASE_URL}/utilisateurs`;
 const FETCH_OPTIONS: RequestInit = { credentials: "include" };
 
-function makeWrapper() {
-  const client = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
-  };
-}
-
-function hydraPage(items: unknown[], totalItems: number) {
-  return { "hydra:member": items, "hydra:totalItems": totalItems };
-}
-
 describe("useGetFullCollection", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("collection vide : isSuccess et data.items = []", async () => {
-    server.use(http.get(API_URL, () => HttpResponse.json(hydraPage([], 0))));
+    server.use(http.get(API_URL, () => HttpResponse.json(hydraCollection([], 0))));
 
-    const { result } = renderHook(
-      () => useGetFullCollection(BASE_URL, FETCH_OPTIONS, { path: "/utilisateurs" }),
-      { wrapper: makeWrapper() },
+    const { result } = renderHookWithProviders(() =>
+      useGetFullCollection(BASE_URL, FETCH_OPTIONS, { path: "/utilisateurs" }),
     );
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -57,11 +42,10 @@ describe("useGetFullCollection", () => {
 
   it("collection tenant sur une seule page : data contient tous les items", async () => {
     const items = [{ uid: "u1" }, { uid: "u2" }, { uid: "u3" }];
-    server.use(http.get(API_URL, () => HttpResponse.json(hydraPage(items, 3))));
+    server.use(http.get(API_URL, () => HttpResponse.json(hydraCollection(items, 3))));
 
-    const { result } = renderHook(
-      () => useGetFullCollection(BASE_URL, FETCH_OPTIONS, { path: "/utilisateurs" }),
-      { wrapper: makeWrapper() },
+    const { result } = renderHookWithProviders(() =>
+      useGetFullCollection(BASE_URL, FETCH_OPTIONS, { path: "/utilisateurs" }),
     );
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -80,17 +64,15 @@ describe("useGetFullCollection", () => {
     server.use(
       http.get(API_URL, ({ request }) => {
         const page = new URL(request.url).searchParams.get("page") ?? "1";
-        return HttpResponse.json(hydraPage(pages[page] ?? [], 5));
+        return HttpResponse.json(hydraCollection(pages[page] ?? [], 5));
       }),
     );
 
-    const { result } = renderHook(
-      () =>
-        useGetFullCollection(BASE_URL, FETCH_OPTIONS, {
-          path: "/utilisateurs",
-          itemsPerPage: 2,
-        }),
-      { wrapper: makeWrapper() },
+    const { result } = renderHookWithProviders(() =>
+      useGetFullCollection(BASE_URL, FETCH_OPTIONS, {
+        path: "/utilisateurs",
+        itemsPerPage: 2,
+      }),
     );
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -105,18 +87,19 @@ describe("useGetFullCollection", () => {
       http.get(API_URL, ({ request }) => {
         const page = parseInt(new URL(request.url).searchParams.get("page") ?? "1", 10);
         return HttpResponse.json(
-          hydraPage([{ uid: `u${(page - 1) * 2 + 1}` }, { uid: `u${(page - 1) * 2 + 2}` }], 16),
+          hydraCollection(
+            [{ uid: `u${(page - 1) * 2 + 1}` }, { uid: `u${(page - 1) * 2 + 2}` }],
+            16,
+          ),
         );
       }),
     );
 
-    const { result } = renderHook(
-      () =>
-        useGetFullCollection(BASE_URL, FETCH_OPTIONS, {
-          path: "/utilisateurs",
-          itemsPerPage: 2,
-        }),
-      { wrapper: makeWrapper() },
+    const { result } = renderHookWithProviders(() =>
+      useGetFullCollection(BASE_URL, FETCH_OPTIONS, {
+        path: "/utilisateurs",
+        itemsPerPage: 2,
+      }),
     );
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true), { timeout: 3000 });
@@ -125,13 +108,11 @@ describe("useGetFullCollection", () => {
   });
 
   it("enabled = false : aucun fetch, état initial inactif", () => {
-    const { result } = renderHook(
-      () =>
-        useGetFullCollection(BASE_URL, FETCH_OPTIONS, {
-          path: "/utilisateurs",
-          enabled: false,
-        }),
-      { wrapper: makeWrapper() },
+    const { result } = renderHookWithProviders(() =>
+      useGetFullCollection(BASE_URL, FETCH_OPTIONS, {
+        path: "/utilisateurs",
+        enabled: false,
+      }),
     );
 
     expect(result.current.isLoading).toBe(false);
@@ -146,20 +127,18 @@ describe("useGetFullCollection", () => {
         const page = new URL(request.url).searchParams.get("page");
         if (page === "1") {
           return HttpResponse.json(
-            hydraPage([{ uid: "u1" }, { uid: "u2" }, { uid: "u3" }, { uid: "u4" }], 4),
+            hydraCollection([{ uid: "u1" }, { uid: "u2" }, { uid: "u3" }, { uid: "u4" }], 4),
           );
         }
-        return HttpResponse.json(hydraPage([], 4));
+        return HttpResponse.json(hydraCollection([], 4));
       }),
     );
 
-    const { result } = renderHook(
-      () =>
-        useGetFullCollection(BASE_URL, FETCH_OPTIONS, {
-          path: "/utilisateurs",
-          itemsPerPage: 2,
-        }),
-      { wrapper: makeWrapper() },
+    const { result } = renderHookWithProviders(() =>
+      useGetFullCollection(BASE_URL, FETCH_OPTIONS, {
+        path: "/utilisateurs",
+        itemsPerPage: 2,
+      }),
     );
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -167,11 +146,10 @@ describe("useGetFullCollection", () => {
   });
 
   it("stableData : la référence data ne change pas entre deux re-renders sans mutation", async () => {
-    server.use(http.get(API_URL, () => HttpResponse.json(hydraPage([{ uid: "u1" }], 1))));
+    server.use(http.get(API_URL, () => HttpResponse.json(hydraCollection([{ uid: "u1" }], 1))));
 
-    const { result, rerender } = renderHook(
-      () => useGetFullCollection(BASE_URL, FETCH_OPTIONS, { path: "/utilisateurs" }),
-      { wrapper: makeWrapper() },
+    const { result, rerender } = renderHookWithProviders(() =>
+      useGetFullCollection(BASE_URL, FETCH_OPTIONS, { path: "/utilisateurs" }),
     );
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -189,13 +167,11 @@ describe("useGetFullCollection", () => {
     );
 
     const onError = vi.fn();
-    const { result } = renderHook(
-      () =>
-        useGetFullCollection(BASE_URL, FETCH_OPTIONS, {
-          path: "/utilisateurs",
-          onError,
-        }),
-      { wrapper: makeWrapper() },
+    const { result } = renderHookWithProviders(() =>
+      useGetFullCollection(BASE_URL, FETCH_OPTIONS, {
+        path: "/utilisateurs",
+        onError,
+      }),
     );
 
     await waitFor(() => expect(result.current.isError).toBe(true));

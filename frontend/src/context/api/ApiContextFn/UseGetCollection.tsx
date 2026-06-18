@@ -91,8 +91,8 @@ export type UseGetCollectionHook = <P extends Path>(options: {
  */
 export type UseGetCollectionPaginatedHook = <P extends Path>(options: {
   path: P;
-  page: number;
-  itemsPerPage: number;
+  page?: number;
+  itemsPerPage?: number;
   query?: ApiPathMethodQuery<P, "get">;
   enabled?: boolean;
   parameters?: ApiPathMethodParameters<P, "get">;

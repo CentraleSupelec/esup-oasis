@@ -27,7 +27,12 @@ export function DureeTotaleEvenementField({ evenement }: IDureeTotaleEvenementFi
   return (
     <>
       <Space.Compact className="w-100">
-        <Input className="text-center text-primary semi-bold" disabled value={dureeTotale} />
+        <Input
+          className="text-center text-primary semi-bold"
+          aria-label="Durée totale de l'événement en minutes"
+          disabled
+          value={dureeTotale}
+        />
         <Button disabled className="bg-light text-dark border-left-0">
           {dureeTotale > 1 ? "minutes" : "minute"}
         </Button>

@@ -198,8 +198,8 @@ export function amenagementTableColumns(props: {
       },
     },
     {
-      title: "",
       dataIndex: "actions",
+      title: <span className="sr-only">Actions</span>,
       className: "text-right",
       render: (_value: string, record: IAmenagement) => {
         if (props.setEditedItem) {

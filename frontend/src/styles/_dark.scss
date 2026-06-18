@@ -6,6 +6,7 @@
 @use "variables";
 
 body.dark-mode {
+  --background-color: var(--noir);
   background-color: var(--noir);
 
   // Le fond principal (Ant Design gère le background global via darkAlgorithm)
@@ -168,8 +169,8 @@ body.dark-mode {
   .ant-select-disabled .ant-select-selector,
   textarea[disabled],
   .ant-picker-disabled .ant-picker-input input {
-    color: rgba(255, 255, 255, 0.4) !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
+    color: rgba(255, 255, 255, 0.55) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.55) !important;
   }
 
   // Header / menu principal

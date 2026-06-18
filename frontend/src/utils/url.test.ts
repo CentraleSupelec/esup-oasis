@@ -7,7 +7,7 @@
  * @author Julien Lemonnier <julien.lemonnier@u-bordeaux.fr>
  */
 
-import { objectToQuery, queryToObject } from "./url";
+import { mailtoHref, objectToQuery, queryToObject } from "./url";
 
 // ---------------------------------------------------------------------------
 // objectToQuery
@@ -58,5 +58,38 @@ describe("objectToQuery / queryToObject (aller-retour)", () => {
   it("restitue l'objet d'origine après conversion", () => {
     const original = { role: "gestionnaire", page: "2" };
     expect(queryToObject(objectToQuery(original))).toEqual(original);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// mailtoHref — contrat de sécurité : neutralisation des injections de paramètres
+// ---------------------------------------------------------------------------
+
+describe("mailtoHref", () => {
+  it("préfixe une adresse email normale avec mailto:", () => {
+    // encodeURIComponent encode aussi '@' → 'user%40domain.com'
+    expect(mailtoHref("user@domain.com")).toBe("mailto:user%40domain.com");
+  });
+
+  it("neutralise l'injection de paramètre via '?'", () => {
+    const result = mailtoHref("user@domain.com?subject=pirate");
+    expect(result).not.toContain("?");
+    expect(result).toContain("%3F");
+  });
+
+  it("neutralise l'injection de paramètre via '&'", () => {
+    const result = mailtoHref("user@domain.com&bcc=evil@example.com");
+    expect(result).not.toContain("&");
+    expect(result).toContain("%26");
+  });
+
+  it("neutralise l'injection de fragment via '#'", () => {
+    const result = mailtoHref("user@domain.com#fragment");
+    expect(result).not.toContain("#");
+    expect(result).toContain("%23");
+  });
+
+  it("retourne 'mailto:' pour une adresse vide", () => {
+    expect(mailtoHref("")).toBe("mailto:");
   });
 });

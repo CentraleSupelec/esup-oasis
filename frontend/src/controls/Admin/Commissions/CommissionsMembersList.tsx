@@ -18,9 +18,10 @@ import {
   Skeleton,
   Space,
   Tag,
+  Tooltip,
   Typography,
 } from "antd";
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined, UserSwitchOutlined } from "@ant-design/icons";
 import {
   ICommissionMembre,
   IUtilisateur,
@@ -30,6 +31,8 @@ import {
 import { useApi } from "@context/api/ApiProvider";
 import { RoleValues, Utilisateur } from "@lib";
 import { UtilisateurAvatar } from "@controls/Avatars/UtilisateurAvatar";
+import { useNavigate } from "react-router-dom";
+import { env } from "@/env";
 
 import { CommissionsMemberAddForm } from "@controls/Admin/Commissions/CommissionsMemberAddForm";
 
@@ -137,6 +140,7 @@ function CommissionsEditionMembreRole(props: { membre: ICommissionMembre }) {
 
 function CommissionsEditionMembre(props: { membre: ICommissionMembre }) {
   const { message } = App.useApp();
+  const navigate = useNavigate();
   const { data: membre, isFetching } = useApi().useGetItem({
     path: "/utilisateurs/{uid}",
     url: props.membre.utilisateur,
@@ -161,6 +165,22 @@ function CommissionsEditionMembre(props: { membre: ICommissionMembre }) {
   return (
     <List.Item
       actions={[
+        env.REACT_APP_ENVIRONMENT !== "production" ? (
+          <Popconfirm
+            key="impersonate"
+            title="Êtes-vous sûr de vouloir prendre l'identité de cet utilisateur ?"
+            onConfirm={() => {
+              navigate(`/impersonate/${membre.uid}`);
+            }}
+            okText="Oui"
+            cancelText="Non"
+            placement="left"
+          >
+            <Tooltip title="Prendre l'identité">
+              <Button icon={<UserSwitchOutlined aria-hidden />} />
+            </Tooltip>
+          </Popconfirm>
+        ) : null,
         <Popconfirm
           key="delete"
           title="Voulez-vous vraiment retirer ce membre de la commission ?"
@@ -180,7 +200,7 @@ function CommissionsEditionMembre(props: { membre: ICommissionMembre }) {
             Supprimer
           </Button>
         </Popconfirm>,
-      ]}
+      ].filter(Boolean)}
     >
       <List.Item.Meta
         title={`${membre?.nom} ${membre?.prenom}`}

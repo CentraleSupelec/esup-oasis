@@ -30,6 +30,7 @@ export default function DureeEvenementField({
     <Space.Compact className="w-100">
       <Input
         className={`text-center text-text semi-bold ${className}`}
+        aria-label="Durée de l'événement en minutes"
         disabled
         value={nbMinutes}
         width={width}

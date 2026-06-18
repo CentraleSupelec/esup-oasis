@@ -109,9 +109,9 @@ export default function PlanningWithSider({
 
   return (
     <Layout>
-      <h1 className="sr-only">Planning</h1>
       <CalendarSider saisieEvtRenfort={saisieEvtRenfort} />
       <Layout.Content className="calendar-table-content">
+        <h1 className="sr-only">Planning</h1>
         <Toolbar saisieEvtRenfort={saisieEvtRenfort} evenements={events} />
         <TimezoneAlert />
         {isFetching && (
@@ -123,7 +123,7 @@ export default function PlanningWithSider({
               zIndex: 100,
               width: "100%",
               height: "calc(100vh - 80px)",
-              backgroundColor: "#FFFFFFAA",
+              backgroundColor: "var(--background-color)",
             }}
           >
             <Spinner size={100} />

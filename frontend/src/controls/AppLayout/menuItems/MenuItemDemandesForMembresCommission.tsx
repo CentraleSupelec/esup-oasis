@@ -19,7 +19,7 @@ export const menuItemDemandesForMembresCommission = (
   if (env.REACT_APP_GERER_DEMANDES) {
     return [
       {
-        key: "demandeurs",
+        key: "demandeurs-commission",
         className: "mr-auto",
         children: [],
         popupClassName: "d-none",
@@ -28,7 +28,7 @@ export const menuItemDemandesForMembresCommission = (
             type="text"
             className="no-hover p-0"
             onClick={() => {
-              setSelectedKey("demandeurs");
+              setSelectedKey("demandeurs-commission");
               navigate("/demandes");
             }}
           >

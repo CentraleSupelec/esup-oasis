@@ -101,6 +101,7 @@ export function ServicesFaitsIntervenantTable(): ReactElement {
           },
           {
             key: "actions",
+            title: <span className="sr-only">Actions</span>,
             className: "text-right",
             width: 115,
             render: (_value, record) => (

@@ -103,7 +103,9 @@ export default function ReferentsTable({ onEdit }: TableReferentsProps) {
                           <Popconfirm
                             title="Êtes-vous sûr de vouloir prendre l'identité de cet utilisateur ?"
                             onConfirm={() => {
-                              navigate(`/impersonate/${value.replace("/utilisateurs/", "")}`);
+                              navigate(
+                                `/impersonate/${value.replace(`${env.REACT_APP_API_PREFIX}/utilisateurs/`, "")}`,
+                              );
                             }}
                             okText="Oui"
                             cancelText="Non"

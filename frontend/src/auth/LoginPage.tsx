@@ -80,7 +80,7 @@ export default function LoginPage(): ReactElement {
               </a>
             </div>
           )}
-          <HomepageImage className="pointer" />
+          <HomepageImage />
         </Col>
         <Col xs={24} sm={24} md={24} lg={8} className="login-form">
           <main className="content" style={{ minHeight: "50vh" }}>
@@ -155,7 +155,11 @@ export default function LoginPage(): ReactElement {
                   aria-label={`Visiter le site de ${env.REACT_APP_ETABLISSEMENT}`}
                 >
                   <img
-                    src={env.REACT_APP_LOGO}
+                    src={
+                      isDark && env.REACT_APP_LOGO_DARK
+                        ? env.REACT_APP_LOGO_DARK
+                        : env.REACT_APP_LOGO
+                    }
                     alt=""
                     style={{
                       maxWidth: "50vw",
