@@ -6,10 +6,17 @@ du projet.
 L'application utilise par défaut la police **NoirPro**. Pour la personnalisation des illustrations, cette police est
 incluse dans le dossier `ressources/fonts`.
 
+## Où placer les personnalisations ?
+
+- Si vous utilisez le déploiement tout-en-un du projet (`/installation`), les personnalisations doivent être placées dans
+le dossier `installation/frontend/personnalisation`.
+- Si vous utilisez le déploiement par container, les personnalisations doivent être placées dans le dossier
+`frontend/public` lors du build.
+
 ## Logo de l'établissement
 
 Pour la personnalisation du logo de l'établissement, il est recommandé d'utiliser le format SVG pour une meilleure
-qualité d'affichage. Le fichier doit être placé dans le dossier `public/images`. L'URL à renseigner dans la variable
+qualité d'affichage. Le fichier doit être placé dans le dossier `./images`. L'URL à renseigner dans la variable
 `REACT_APP_LOGO` du fichier `.env` est alors du type `/images/fichier-logo.svg`.
 
 Ce logo est uniquement affiché sur la page de connexion de l'application et sur la page d'information sur l'utilisation
@@ -21,22 +28,22 @@ Il est possible de ne pas afficher le logo en laissant la variable `REACT_APP_LO
 
 ## Favicon
 
-La favicon de l'application est à personnaliser en remplaçant le fichier `public/favicon.ico`. Il est recommandé
+La favicon de l'application est à personnaliser en remplaçant le fichier `./favicon.ico`. Il est recommandé
 d'utiliser un fichier au format `.ico` et l'icône doit être de taille 16x16 ou 32x32 pixels pour une meilleure
 compatibilité.
 
 ## apple-touch-icon
 
 Pour les appareils Apple, il est recommandé de personnaliser l'icône affichée sur l'écran d'accueil. Pour cela, il faut
-remplacer le fichier `public/apple-touch-icon.png`. Il est recommandé d'utiliser un fichier au format `.png` et l'icône
+remplacer le fichier `./apple-touch-icon.png`. Il est recommandé d'utiliser un fichier au format `.png` et l'icône
 doit être de taille 192x192 pixels.
 
 ## Icônes de l'application en mode PWA
 
 Pour les appareils mobiles, il est recommandé de personnaliser les icônes de l'application en mode PWA (Progressive Web
-App). Ces icônes sont déclarées dans le fichier `public/manifest.json`.
+App). Ces icônes sont déclarées dans le fichier `./manifest.json`.
 
-Les icônes sont stockées dans le dossier `public/images/icons`. Il est recommandé d'utiliser des fichiers au format
+Les icônes sont stockées dans le dossier `./images/icons`. Il est recommandé d'utiliser des fichiers au format
 `.png` et les icônes doivent être de taille 192x192 et 512x512 pixels pour chaque situation (maskable et non maskable).
 La version "maskable" est utilisée pour les appareils Android.
 
