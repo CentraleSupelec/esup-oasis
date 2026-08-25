@@ -86,6 +86,47 @@ le dossier `config/apogee` (attention à bien respecter les noms des champs reto
 Les versions livrées de ces requêtes s'appuient sur une table locale `extern_niveau_etape` pour remonter le niveau LMD,
 vous devrez donc les adapter. Le niveau LMD peut être simplement laissé vide.
 
+##### Colonnes (alias) attendues par le code
+
+Le code PHP ne connaît pas les noms de colonnes réels d'Apogée : il lit les **alias** renvoyés par les requêtes (oci8 les
+remonte en MAJUSCULES). Adapter le connecteur à un autre établissement revient donc à **modifier uniquement les deux
+fichiers SQL** pour que chaque colonne réelle soit renvoyée sous l'alias attendu ci-dessous ; le reste du code n'est pas
+à toucher.
+
+`apogee_get_inscriptions.sql`, paramètres liés : `:codEtu`, `:debut`, `:fin`.
+
+Alias obligatoires (le SQL doit les renvoyer) :
+
+| Alias | Alimente | Remarque |
+| --- | --- | --- |
+| `COD_ETP` | code étape (cursus et dérivation du niveau) | |
+| `COD_VRS_VET` | version d'étape | |
+| `LIB_WEB_VET` | libellé de la formation | |
+| `COD_CMP`, `LIB_CMP` | composante | |
+| `COD_ANU` | année universitaire (début/fin figés au 01/09 et 31/08) | |
+| `TEM_BRS_IAA` | témoin boursier (`O`/`N`) | déprécié, conservé pour compatibilité |
+| `LIB_RGI` | régime d'inscription (rangé dans le champ `statut`) | |
+| `NIVEAU` | niveau LMD affiché | Bordeaux : table locale `extern_niveau_etape` ; peut être renvoyé vide |
+| `LIB_DSI` | discipline | |
+| `LIB_DIP` | diplôme | |
+
+Alias optionnels (absents, valent `null`, sans erreur) :
+
+| Alias | Alimente | Remarque |
+| --- | --- | --- |
+| `NUM_TEL` | téléphone perso | |
+| `DATE_NAI_IND` | date de naissance | |
+| `COD_SEX_ETU` | civilité d'usage | |
+| `COD_SOC`, `LIB_SOC` | situation sociale (boursier `NO`/`BO`, etc.) | codes SISE |
+| `ADR_LIB_AD1`, `ADR_LIB_AD2`, `ADR_LIB_AD3`, `ADR_COD_BDI`, `ADR_LIB_VIL`, `ADR_COD_PAY` | adresse postale (annuelle, repli fixe) | |
+| `NBR_INS_ETP` | nombre d'inscriptions à l'étape (base du redoublement) | compteur natif |
+| `COD_SIS_CUR_AMG`, `LIB_CUR_AMG` | cursus aménagé | code SISE |
+| `CYCLE` | cycle du diplôme (1 = Licence, 2 = Master, 3 = Doctorat) | avec `ANNEE_DIPLOME`, dérive le niveau LMD (données SISE nationales, donc portables) |
+| `ANNEE_DIPLOME` | année dans le diplôme (`cod_sis_daa`) | idem |
+
+`apogee_get_formation.sql`, paramètres liés : `:codEtp`, `:codVrsVet`. Renvoie `LIB_DIP` (diplôme), `NIVEAU` (niveau
+LMD, peut être vide), `LIB_DSI` (discipline).
+
 #### Implémentation sa propre classe
 
 Vous pouvez aussi opter pour une réimplémentation locale de l'interfaçage avec le SI scolarité (pour utiliser les WS

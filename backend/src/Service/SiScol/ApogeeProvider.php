@@ -66,9 +66,9 @@ class ApogeeProvider extends AbstractSiScolDataProvider
         }
         $formations = [];
         while ($row = oci_fetch_object($stmt)) {
-            $numTel = $row->NUM_TEL;
-            $dateNai = $row->DATE_NAI_IND;
-            $codSexEtu = $row->COD_SEX_ETU;
+            $numTel = $row->NUM_TEL ?? null;
+            $dateNai = $row->DATE_NAI_IND ?? null;
+            $codSexEtu = $row->COD_SEX_ETU ?? null;
             $formations[] = [
                 'codeFormation' => $row->COD_ETP . '#' . $row->COD_VRS_VET,
                 'libFormation' => $row->LIB_WEB_VET,
@@ -77,10 +77,41 @@ class ApogeeProvider extends AbstractSiScolDataProvider
                 'debut' => new DateTime($row->COD_ANU . '-09-01'),
                 'fin' => new DateTime(($row->COD_ANU + 1) . '-08-31'),
                 'boursier' => $row->TEM_BRS_IAA == 'O',
+                // Situation sociale Apogée (oci renvoie les colonnes en MAJUSCULES).
+                // Le code et son libellé sont repris tels quels : leur signification est
+                // propre à chaque établissement et se paramètre dans la requête.
+                'codeSituationSociale' => isset($row->COD_SOC) ? trim($row->COD_SOC) : null,
+                'libelleSituationSociale' => isset($row->LIB_SOC) ? trim($row->LIB_SOC) : null,
                 'statut' => $row->LIB_RGI, //changement de dernière minute... on colle le régime dans le champ "statut"
-                'niveau' => $row->NIVEAU,
+                'niveau' => $row->NIVEAU ?? null,
                 'discipline' => $row->LIB_DSI,
                 'diplome' => $row->LIB_DIP,
+                // adresse postale (annuelle puis fixe en fallback)
+                'adresseLigne1' => isset($row->ADR_LIB_AD1) ? trim($row->ADR_LIB_AD1) : null,
+                'adresseLigne2' => isset($row->ADR_LIB_AD2) ? trim($row->ADR_LIB_AD2) : null,
+                'adresseComplement' => isset($row->ADR_LIB_AD3) ? trim($row->ADR_LIB_AD3) : null,
+                'adresseCodePostal' => isset($row->ADR_COD_BDI) ? trim($row->ADR_COD_BDI) : null,
+                'adresseVille' => isset($row->ADR_LIB_VIL) ? trim($row->ADR_LIB_VIL) : null,
+                'adressePays' => isset($row->ADR_COD_PAY) ? trim($row->ADR_COD_PAY) : null,
+                // code étape (cod_etp) pour exposer le cursus
+                // d'inscription et en dériver le niveau LMD côté API.
+                'codeEtape' => isset($row->COD_ETP) ? trim($row->COD_ETP) : null,
+                // compteur natif (nbr_ins_etp) du nombre
+                // d'inscriptions à l'étape, base du calcul redoublement.
+                // TODO(apogée-réel): confirmer la sémantique exacte de
+                // nbr_ins_etp avec la DSI (incrémenté aussi sur
+                // changement d'accréditation/régime, cf. limite documentée
+                // dans RedoublementCalculator).
+                'nombreInscriptionsEtape' => isset($row->NBR_INS_ETP) ? (int) $row->NBR_INS_ETP : null,
+                // cursus aménagé SISE (cod_sis_cur_amg / lib_cur_amg).
+                // TODO(apogée-réel): confirmer le rattachement
+                // cod_cur_amg sur ins_adm_etp et la table cursus_amg.
+                'codeCursusAmenage' => isset($row->COD_SIS_CUR_AMG) ? trim($row->COD_SIS_CUR_AMG) : null,
+                'libelleCursusAmenage' => isset($row->LIB_CUR_AMG) ? trim($row->LIB_CUR_AMG) : null,
+                // Cycle du diplôme (cod_cyc) + année dans le diplôme (cod_sis_daa,
+                // SISE national) : base du niveau LMD dérivé côté API par NiveauResolver.
+                'cycle' => isset($row->CYCLE) && trim((string) $row->CYCLE) !== '' ? (int) $row->CYCLE : null,
+                'anneeDansDiplome' => isset($row->ANNEE_DIPLOME) && trim((string) $row->ANNEE_DIPLOME) !== '' ? (int) $row->ANNEE_DIPLOME : null,
             ];
         }
 
@@ -139,7 +170,20 @@ class ApogeeProvider extends AbstractSiScolDataProvider
         oci_bind_by_name($stmt, 'codVrsVet', $codVrsVet);
 
         if (!oci_execute($stmt)) {
-            $this->logger->warning('Récupération des infos formation impossible, apogée indisponible');
+            // Apogée répond mais refuse la requête, typiquement parce qu'elle ne
+            // correspond pas au schéma de l'établissement (table ou colonne absente).
+            // On remonte l'erreur réelle : sans cela, diplôme, discipline et niveau
+            // resteraient vides sur toutes les formations, sans aucun signal.
+            $erreur = oci_error($stmt);
+            $this->logger->error(
+                'Requête formation refusée par Apogée. Diplôme, discipline et niveau resteront '
+                . "vides. Vérifier que la requête correspond au schéma de l'établissement.",
+                [
+                    'code' => $erreur['code'] ?? null,
+                    'message' => $erreur['message'] ?? 'inconnue',
+                ],
+            );
+
             return [];
         }
 
@@ -147,7 +191,7 @@ class ApogeeProvider extends AbstractSiScolDataProvider
         if ($row = oci_fetch_object($stmt)) {
             $data = [
                 'diplome' => $row->LIB_DIP,
-                'niveau' => $row->NIVEAU,
+                'niveau' => $row->NIVEAU ?? null,
                 'discipline' => $row->LIB_DSI,
             ];
         }
