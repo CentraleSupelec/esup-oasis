@@ -19,6 +19,9 @@
          cacheDirectory="var/phpunit.cache"
 >
     <php>
+        <!-- Fuseau fixe : les tests comparent des dates sérialisées avec leur décalage,
+             qui varierait sinon selon le fuseau de la machine ou de l'image. -->
+        <ini name="date.timezone" value="UTC"/>
         <ini name="display_errors" value="1"/>
         <ini name="error_reporting" value="-1"/>
         <server name="APP_ENV" value="test" force="true"/>

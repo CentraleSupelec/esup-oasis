@@ -180,3 +180,34 @@ App\Entity\Utilisateur:
     prenom: 'beneficiaire'
     admin: false
     roles: [ 'ROLE_USER' ]
+  # Dossier de référence pour le profil administratif : adresse postale complète,
+  # situation sociale boursier, et statut d'inscription administrative EN_COURS
+  # (dérivé de l'inscription courante déclarée dans inscriptions.yaml).
+  # Volontairement sans numeroEtudiant : la mise à jour scolarité ne se déclenche
+  # donc jamais sur cet utilisateur et ne peut ni écraser l'adresse et la situation
+  # sociale, ni supprimer les inscriptions. Le jeu de données reste reproductible.
+  etudiant-dossier-administratif:
+    uid: 'etudiant-dossier-administratif'
+    email: 'etudiant-dossier-administratif@app.fr'
+    nom: 'dossier'
+    prenom: 'administratif'
+    admin: false
+    boursier: true
+    codeSituationSociale: 'BO'
+    libelleSituationSociale: 'Boursier'
+    adresse.ligne1: '12 rue des Lilas'
+    adresse.codePostal: '33000'
+    adresse.ville: 'Bordeaux'
+    adresse.pays: 'FRANCE'
+    roles: [ 'ROLE_BENEFICIAIRE' ]
+
+  # Dossier de référence pour le profil académique : quatre inscriptions couvrant
+  # le cas nominal, le redoublement et deux cursus aménagés distincts.
+  # Également sans numeroEtudiant, pour la même raison.
+  etudiant-parcours-academique:
+    uid: 'etudiant-parcours-academique'
+    email: 'etudiant-parcours-academique@app.fr'
+    nom: 'parcours'
+    prenom: 'academique'
+    admin: false
+    roles: [ 'ROLE_BENEFICIAIRE' ]
