@@ -11,6 +11,7 @@ import { App, Button, Dropdown, Popconfirm, Space, Tooltip } from "antd";
 import { useApi } from "@context/api/ApiProvider";
 import {
   CheckCircleFilled,
+  EditOutlined,
   EyeOutlined,
   FileDoneOutlined,
   ReloadOutlined,
@@ -21,12 +22,14 @@ import { useAuth } from "@/auth/AuthProvider";
 import { QK_BENEFICIAIRES, QK_UTILISATEURS_DECISIONS, QK_UTILISATEURS_ITEM } from "@api";
 import apiDownloader from "@utils/apiDownloader";
 import { EtatDecisionEtablissement } from "@controls/Avatars/DecisionEtablissementAvatar";
+import { ModalDecisionObservations } from "@controls/Modals/ModalDecisionObservations";
 import { queryClient } from "@/queryClient";
 import { env } from "@/env";
 
 export function BoutonDecisionEtab(props: { utilisateurId: string }) {
   const auth = useAuth();
   const [loading, setLoading] = React.useState<boolean>(false);
+  const [observationsOpen, setObservationsOpen] = React.useState<boolean>(false);
   const { message } = App.useApp();
   const { data: utilisateur } = useApi().useGetItem({
     path: "/utilisateurs/{uid}",
@@ -60,10 +63,103 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
     return <></>;
   }
 
+  const decisionIri = utilisateur.decisionAmenagementAnneeEnCours["@id"] as string;
+  const observationsMenuItem = {
+    key: "observations",
+    icon: <EditOutlined />,
+    label: "Saisir / modifier les observations",
+    onClick: () => setObservationsOpen(true),
+  };
+  const observationsModal = (
+    <ModalDecisionObservations
+      open={observationsOpen}
+      setOpen={setObservationsOpen}
+      decisionId={decisionIri}
+      utilisateurId={props.utilisateurId}
+    />
+  );
+
   switch (utilisateur.decisionAmenagementAnneeEnCours.etat) {
     case EtatDecisionEtablissement.ATTENTE_VALIDATION_CAS:
       return (
-        <Tooltip title="En attente validation CAS">
+        <>
+          {observationsModal}
+          <Tooltip title="En attente validation CAS">
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: "apercu",
+                    icon: <EyeOutlined />,
+                    label: "Aperçu de la décision",
+                    onClick: () => {
+                      setLoading(true);
+                      apiDownloader(
+                        `${env.REACT_APP_API}${decisionIri}`,
+                        auth,
+                        {
+                          Accept: "application/pdf",
+                        },
+                        `${env.REACT_APP_TITRE?.toLocaleUpperCase()}_DecisionEtablissement.pdf`,
+                        () => setLoading(false),
+                        () => setLoading(false),
+                      ).then();
+                    },
+                  },
+                  observationsMenuItem,
+                  {
+                    type: "divider",
+                    key: "divider",
+                  },
+                  {
+                    key: "send",
+                    icon: <SendOutlined />,
+                    label: (
+                      <Popconfirm
+                        title={
+                          auth.user?.isAdmin
+                            ? "Envoyer la décision d'établissement ?"
+                            : "Demander l'édition de la décision d'établissement ?"
+                        }
+                        onConfirm={() => {
+                          setLoading(true);
+                          mutateDecisionEtab.mutate({
+                            data: {
+                              etat: auth.user?.isAdmin
+                                ? EtatDecisionEtablissement.EDITION_DEMANDEE
+                                : EtatDecisionEtablissement.VALIDE,
+                            },
+                            "@id": decisionIri,
+                          });
+                        }}
+                      >
+                        <Button loading={loading} type="text" className="p-0 m-0 no-hover">
+                          {auth.user?.isAdmin
+                            ? "Envoyer la décision étab."
+                            : "Demander l'édition décision étab."}
+                        </Button>
+                      </Popconfirm>
+                    ),
+                  },
+                ],
+              }}
+            >
+              <Button
+                loading={loading}
+                icon={<FileDoneOutlined />}
+                className="text-warning border-orange mr-2"
+              >
+                Décision d'étab. en attente
+              </Button>
+            </Dropdown>
+          </Tooltip>
+        </>
+      );
+
+    case EtatDecisionEtablissement.VALIDE:
+      return (
+        <>
+          {observationsModal}
           <Dropdown
             menu={{
               items: [
@@ -74,7 +170,7 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
                   onClick: () => {
                     setLoading(true);
                     apiDownloader(
-                      `${env.REACT_APP_API}${utilisateur.decisionAmenagementAnneeEnCours?.["@id"]}`,
+                      `${env.REACT_APP_API}${decisionIri}`,
                       auth,
                       {
                         Accept: "application/pdf",
@@ -85,106 +181,37 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
                     ).then();
                   },
                 },
-                {
-                  type: "divider",
-                  key: "divider",
-                },
-                {
-                  key: "send",
-                  icon: <SendOutlined />,
-                  label: (
-                    <Popconfirm
-                      title={
-                        auth.user?.isAdmin
-                          ? "Envoyer la décision d'établissement ?"
-                          : "Demander l'édition de la décision d'établissement ?"
-                      }
-                      onConfirm={() => {
+                observationsMenuItem,
+                auth.user?.isAdmin
+                  ? {
+                      type: "divider",
+                      key: "divider",
+                    }
+                  : null,
+                auth.user?.isAdmin
+                  ? {
+                      key: "send",
+                      icon: <SendOutlined />,
+                      label: "Envoyer la décision",
+                      onClick: () => {
                         setLoading(true);
                         mutateDecisionEtab.mutate({
                           data: {
-                            etat: auth.user?.isAdmin
-                              ? EtatDecisionEtablissement.EDITION_DEMANDEE
-                              : EtatDecisionEtablissement.VALIDE,
+                            etat: EtatDecisionEtablissement.EDITION_DEMANDEE,
                           },
-                          "@id": utilisateur.decisionAmenagementAnneeEnCours?.["@id"] as string,
+                          "@id": decisionIri,
                         });
-                      }}
-                    >
-                      <Button loading={loading} type="text" className="p-0 m-0 no-hover">
-                        {auth.user?.isAdmin
-                          ? "Envoyer la décision étab."
-                          : "Demander l'édition décision étab."}
-                      </Button>
-                    </Popconfirm>
-                  ),
-                },
+                      },
+                    }
+                  : null,
               ],
             }}
           >
-            <Button
-              loading={loading}
-              icon={<FileDoneOutlined />}
-              className="text-warning border-orange mr-2"
-            >
-              Décision d'étab. en attente
+            <Button disabled loading={loading} icon={<FileDoneOutlined />} className="mr-2">
+              {auth.user?.isAdmin ? "Éditer décision étab." : "Décision d'étab. demandée"}
             </Button>
           </Dropdown>
-        </Tooltip>
-      );
-
-    case EtatDecisionEtablissement.VALIDE:
-      return (
-        <Dropdown
-          menu={{
-            items: [
-              {
-                key: "apercu",
-                icon: <EyeOutlined />,
-                label: "Aperçu de la décision",
-                onClick: () => {
-                  setLoading(true);
-                  apiDownloader(
-                    `${env.REACT_APP_API}${utilisateur.decisionAmenagementAnneeEnCours?.["@id"]}`,
-                    auth,
-                    {
-                      Accept: "application/pdf",
-                    },
-                    `${env.REACT_APP_TITRE?.toLocaleUpperCase()}_DecisionEtablissement.pdf`,
-                    () => setLoading(false),
-                    () => setLoading(false),
-                  ).then();
-                },
-              },
-              auth.user?.isAdmin
-                ? {
-                    type: "divider",
-                    key: "divider",
-                  }
-                : null,
-              auth.user?.isAdmin
-                ? {
-                    key: "send",
-                    icon: <SendOutlined />,
-                    label: "Envoyer la décision",
-                    onClick: () => {
-                      setLoading(true);
-                      mutateDecisionEtab.mutate({
-                        data: {
-                          etat: EtatDecisionEtablissement.EDITION_DEMANDEE,
-                        },
-                        "@id": utilisateur.decisionAmenagementAnneeEnCours?.["@id"] as string,
-                      });
-                    },
-                  }
-                : null,
-            ],
-          }}
-        >
-          <Button disabled loading={loading} icon={<FileDoneOutlined />} className="mr-2">
-            {auth.user?.isAdmin ? "Éditer décision étab." : "Décision d'étab. demandée"}
-          </Button>
-        </Dropdown>
+        </>
       );
 
     case EtatDecisionEtablissement.EDITION_DEMANDEE:
@@ -197,7 +224,7 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
             onClick={() => {
               setLoading(true);
               apiDownloader(
-                `${env.REACT_APP_API}${utilisateur.decisionAmenagementAnneeEnCours?.["@id"]}`,
+                `${env.REACT_APP_API}${decisionIri}`,
                 auth,
                 {
                   Accept: "application/pdf",
@@ -239,7 +266,7 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
             onClick={() => {
               setLoading(true);
               apiDownloader(
-                `${env.REACT_APP_API}${utilisateur.decisionAmenagementAnneeEnCours?.["@id"]}`,
+                `${env.REACT_APP_API}${decisionIri}`,
                 auth,
                 {
                   Accept: "application/pdf",
