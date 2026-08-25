@@ -17,38 +17,105 @@
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 14px;
+            font-size: 10pt;
             color: #333333;
-            line-height: 1.4em;
-            width: 92%;
+            line-height: 1.2em;
+            width: 94%;
             margin: auto;
+        }
+
+        .logo-bloc {
+            margin: 0 0 6px 0;
+        }
+
+        .paeh-titre {
+            text-align: center;
+            font-size: 13pt;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #000000;
+            padding: 6px 10px;
+            margin: 0 auto 10px auto;
+            line-height: 1.3em;
+        }
+
+        .paeh-header {
+            width: 100%;
+            font-size: 9.5pt;
+            color: #444444;
+            padding: 2px 0;
+            margin: 0 auto 14px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .paeh-header .annee {
+            font-weight: bold;
+        }
+
+        .paeh-header .version {
+            font-weight: bold;
+        }
+
+        .paeh-header .composante {
+            text-align: right;
         }
 
         header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin: -20px auto 30px auto;
+            align-items: flex-start;
+            margin: 0 auto 10px auto;
             width: 100%;
         }
 
         .expediteur {
-            width: 40%;
+            width: 45%;
         }
 
         .destinataire {
             width: 50%;
-            text-align: left;
+            text-align: right;
+        }
+
+        .destinataire-identite {
+            margin: 0 0 4px 0;
+        }
+
+        .destinataire-identite b {
+            font-size: 11.5pt;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .destinataire-meta {
+            font-size: 10pt;
+            line-height: 1.3em;
+            margin: 0 0 4px 0;
+        }
+
+        .destinataire-contact {
+            font-size: 9pt;
+            font-style: italic;
+            line-height: 1.3em;
+            margin: 0;
+        }
+
+        .destinataire b {
+            display: inline-block;
+            font-size: 11.5pt;
+            margin-bottom: 3px;
         }
 
         main {
-            width: 92%;
+            width: 94%;
             margin: auto;
         }
 
         .gestionnaire {
-            padding-left: 2%;
-            font-size: 11px;
+            font-size: 9.5pt;
+            line-height: 1.3em;
         }
 
         .exergue {
@@ -56,104 +123,291 @@
         }
 
         .date-lieu {
-            margin-top: 20px;
+            margin-top: 8px;
         }
 
         .page-break-avoid {
             page-break-inside: avoid;
         }
 
-        footer {
-            width: 100%;
-            height: 80px;
-            margin-top: 30px;
-            position: fixed;
-            bottom: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: end;
-            background: url('{{ backUrl }}/images/triangle-ub.svg') bottom right no-repeat;
-            background-size: contain;
+        .visa-block {
+            margin: 10px 0 12px 0;
+            font-size: 7.5pt;
+            line-height: 1.18em;
+            color: #333333;
         }
 
-        .footer-adresse {
-            margin-bottom: 10px;
-            font-size: 11px;
+        .visa-block p {
+            margin: 0 0 4px 0;
+            text-align: justify;
+        }
+
+        .amenagements {
+            margin-top: 8px;
+        }
+
+        .categorie-titre {
+            font-size: 11pt;
+            font-weight: bold;
+            margin-top: 6px;
+            margin-bottom: 2px;
+            text-decoration: underline;
+        }
+
+        .section-titre {
+            font-size: 11.5pt;
+            font-weight: bold;
+            color: #000000;
+            border-bottom: 1px solid #999999;
+            padding-bottom: 2px;
+            margin: 14px 0 6px 0;
+        }
+
+        .sous-titre {
+            font-size: 10.5pt;
+            font-weight: bold;
+            color: #7a7a7a;
+            margin: 10px 0 2px 0;
+        }
+
+        .entete-composante {
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0 5px 0;
+        }
+
+        .entete-lieu {
+            text-align: right;
+            font-weight: bold;
+            margin: 5px 0 12px 0;
+        }
+
+        .destinataire-grid {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 4px;
+        }
+
+        .destinataire-grid > div {
+            width: 48%;
+        }
+
+        .destinataire-grid p {
+            margin: 0 0 5px 0;
+        }
+
+        .aucun-amenagement {
+            margin: 4px 0;
+            font-style: italic;
+        }
+
+        .amenagements ul {
+            margin: 4px 0 6px 0;
+            padding-left: 20px;
+        }
+
+        .amenagements li {
+            margin-bottom: 3px;
+        }
+
+        .observations {
+            margin-top: 10px;
+            page-break-inside: avoid;
+        }
+
+        .signature-block {
+            margin-top: 12px;
+            padding: 0;
+            page-break-inside: avoid;
+        }
+
+        .signature-block p {
+            margin: 4px 0;
+        }
+
+        .legal-mention {
+            margin-top: 16px;
+            padding: 8px 0 0 0;
+            border-top: 1px solid #999999;
+            font-size: 8pt;
+            line-height: 1.2em;
+            color: #444444;
+            text-align: justify;
+        }
+
+        .legal-mention p {
+            margin: 0 0 3px 0;
         }
 
         @page {
-            margin-top: 40px;
+            size: A4 portrait;
+            margin: 8mm 12mm 6mm 12mm;
         }
     </style>
 </head>
 <body>
 <div class="content">
-    <header>
-        <div class="expediteur">
-            <img src="{{ backUrl }}/images/logo_ub.svg" style="height: 125px" alt="logo"/>
-            {% set premierAmenagement = data.amenagements|first %}
-            {% set premierBeneficiaire = premierAmenagement.beneficiaires|first %}
-            <div class="gestionnaire">
-                Université de Bordeaux<br/>
-                Dossier suivi par :<br/>
-                Service PHASE<br/>
-                {{ premierBeneficiaire.gestionnaire.prenom }} {{ premierBeneficiaire.gestionnaire.nom }}
-                <br/>
-                {{ premierBeneficiaire.gestionnaire.email }}
+    {% set premierAmenagement = data.amenagements|first %}
+    {% set premierBeneficiaire = premierAmenagement.beneficiaires|first %}
+    {% set etudiant = premierBeneficiaire.utilisateur %}
+    {% set inscriptionActive = null %}
+    {% if etudiant.inscriptions is defined and etudiant.inscriptions is not null %}
+        {% for ins in etudiant.inscriptions %}
+            {% if inscriptionActive is null and ins.fin is defined and ins.fin is not null and ins.fin > date() %}
+                {% set inscriptionActive = ins %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% set formationActive = inscriptionActive is not null ? inscriptionActive.formation : null %}
+    {% set composanteActive = formationActive is not null and formationActive.composante is defined ? formationActive.composante : null %}
+
+    <div class="logo-bloc">
+        <img src="data:image/svg+xml;base64,{{ data.logo_base64 }}" style="height: 70px" alt="logo"/>
+    </div>
+
+    <h1 class="paeh-titre">Notification de Plan d'accompagnement de l'étudiant en situation de handicap (PAEH)</h1>
+
+    {% if afficherServiceReferent|default(false) %}
+        <header>
+            <div class="expediteur">
+                <div class="gestionnaire">
+                    {{ etablissementNom|default('Université de Bordeaux') }}<br/>
+                    Dossier suivi par :<br/>
+                    {{ serviceNom|default('Service PHASE') }}<br/>
+                    {{ premierBeneficiaire.gestionnaire.prenom }} {{ premierBeneficiaire.gestionnaire.nom }}<br/>
+                    {{ premierBeneficiaire.gestionnaire.email }}
+                </div>
             </div>
-        </div>
-        <div class="destinataire">
-            <b>{{ premierBeneficiaire.utilisateur.nom|upper }} {{ premierBeneficiaire.utilisateur.prenom }}</b>
-            <br/>
-            {{ premierBeneficiaire.utilisateur.email }}
-            <div class="date-lieu">
-                Talence, le {{ "now"|date("d/m/Y") }}
-            </div>
-        </div>
-    </header>
+        </header>
+    {% endif %}
 
     <main>
-        <!--<div class="exergue">
-            Les décisions d'établissement seront envoyées par courriel à l'adresse institutionnelle des étudiants contre
-            accusé de réception.
-        </div>-->
+        <div class="paeh-header">
+            <span class="annee">Année universitaire : {{ data.annee }}-{{ data.annee + 1 }}</span>
+            <span class="version">Version : Notification initiale</span>
+        </div>
+        {% if composanteActive is not null %}
+            <p class="entete-composante">Composante de l'{{ etablissementNom|default('Université de Bordeaux') }} : {{ composanteActive.libelle|default(composanteActive) }}</p>
+        {% endif %}
+        <p class="entete-lieu">Fait à {{ etablissementVille|default('Talence') }}</p>
 
-        <p class="intro">
-            Vous avez sollicité, dans les conditions prévues aux articles D613-26 à D613-28 du code de l'éducation
-            auprès du médecin désigné par la commission des droits et de l'autonomie des personnnes handicapées
-            plusieurs aménagements d'épreuves au titre de l'année universitaire {{ data.annee }}/{{ data.annee + 1 }}.
-        </p>
+        <section class="visa-block">
+            <p>Vu la loi n° 2005-102 du 11 février 2005 pour l'égalité des droits et des chances,
+                la participation et la citoyenneté des personnes handicapées&nbsp;;</p>
+            <p>Vu la loi n° 2013-660 du 22 juillet 2013 relative à l'enseignement supérieur et à la recherche&nbsp;;</p>
+            <p>Vu le décret n° 2013-756 du 19 août 2013 relatif aux dispositions réglementaires des livres VI et VII
+                du code de l'éducation (Décrets en Conseil d'État et Décrets)&nbsp;;</p>
+            <p>Vu la circulaire du 6 février 2023, BO N°10 du 9 mars 2023, relative à l'organisation des examens et
+                concours de l'Enseignement scolaire et de l'Enseignement supérieur pour les candidats présentant un
+                handicap&nbsp;;</p>
+            <p>Vu la circulaire du 10 juillet 2024 relative aux droits des étudiants en situation de handicap&nbsp;;</p>
+            <p>Vu l'avis rendu par le médecin du service universitaire de médecine préventive et de promotion
+                de la santé désigné par la CDAPH le
+                {% if data.dateAvisMedecin is defined and data.dateAvisMedecin is not null %}
+                    {{ data.dateAvisMedecin|date('d/m/Y') }}
+                {% else %}
+                    ________
+                {% endif %}&nbsp;;</p>
+        </section>
 
-        <div class="amenagements">
-            Je vous informe que j'ai pris la décision de vous accorder le bénéfice
-            {{ data.amenagements|length > 1 ? "des aménagements suivants" : "de l'aménagement suivant" }}&nbsp;:
-            <ul>
-                {% for amenagement in data.amenagements %}
-                    <li class="page-break-avoid">{{ amenagement.type.libelleLong|default(amenagement.type.libelle) }}
-                        {% if amenagement.commentaire != null %}
-                            <br/> {{ amenagement.commentaire|nl2br }}
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
+        <h2 class="section-titre">Destinataire :</h2>
+        <div class="destinataire-grid">
+            <div>
+                <p>Nom : {{ etudiant.nom|upper }}</p>
+                <p>Prénom : {{ etudiant.prenom }}</p>
+                {% if etudiant.dateNaissance is defined and etudiant.dateNaissance is not null %}
+                    <p>Date de naissance : {{ etudiant.dateNaissance|date('d/m/Y') }}</p>
+                {% endif %}
+                <p>Email : {{ etudiant.email }}</p>
+            </div>
+            <div>
+                {% if inscriptionActive is not null and inscriptionActive.niveau is defined and inscriptionActive.niveau is not null and inscriptionActive.niveau|trim != '' %}
+                    <p>Niveau : {{ inscriptionActive.niveau }}</p>
+                {% endif %}
+                {% if formationActive is not null and formationActive.libelle is defined and formationActive.libelle is not null %}
+                    <p>Formation : {{ formationActive.libelle }}</p>
+                {% endif %}
+                {% if etudiant.numeroEtudiant is defined and etudiant.numeroEtudiant is not null %}
+                    <p>Numéro d'étudiant : {{ etudiant.numeroEtudiant }}</p>
+                {% endif %}
+            </div>
         </div>
 
-        <div class="page-break-avoid">
-            <p>Le bénéfice {{ data.amenagements|length > 1 ? "des aménagements" : "de l'aménagement" }}
-                vous est accordé sous réserve des évolutions matérielles ou techniques ou de la
-                particularité de certains examens.</p>
-            <p>La reconduction de cette décision au-delà de l'année universitaire {{ data.annee }}/{{ data.annee + 1 }}
-                est soumise à la condition que vous subissiez un entretien avec le service PHASE dont vous dépendez
-                géographiquement au début de chaque année universitaire.</p>
-            <p>Je vous prie de croire à l'expression de ma considération toute particulière.</p>
-            <p>{{ data.president.qualite }}, {{ data.president.nom }},<br>
-                Et par délégation, {{ data.responsable_phase.qualite }}, {{ data.responsable_phase.nom }}<br/>
-                {% if data.responsable_phase.signature.contents != null %}
-                    <img src="data:{{ data.responsable_phase.signature.mimeType }};base64, {{ data.responsable_phase.signature.contents }}"
-                         style="height: 100px"
-                         alt="signature"/>
+        {% set etudes = data.amenagementsParCategorie.etudes %}
+        {% set aidesHumaines = data.amenagementsParCategorie.aidesHumaines %}
+        {% set examens = data.amenagementsParCategorie.examens %}
+        {% set total = etudes|length + aidesHumaines|length + examens|length %}
+
+        <h2 class="section-titre">Aménagements actifs pour l'année</h2>
+        {% if total == 0 %}
+            <p class="aucun-amenagement">Aucun aménagement actif pour l'année.</p>
+        {% else %}
+            <div class="amenagements">
+                {% if etudes|length > 0 %}
+                    <h3 class="sous-titre">Aménagements des études :</h3>
+                    <ul class="categorie-etudes">
+                        {% for amenagement in etudes %}
+                            <li class="page-break-avoid">{{ amenagement.type.libelleLong|default(amenagement.type.libelle) }}
+                                {% if amenagement.commentaire != null %}
+                                    <br/> {{ amenagement.commentaire|nl2br }}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
                 {% endif %}
-            </p>
+
+                {% if aidesHumaines|length > 0 %}
+                    <h3 class="sous-titre">Aides humaines :</h3>
+                    <ul class="categorie-aides-humaines">
+                        {% for amenagement in aidesHumaines %}
+                            <li class="page-break-avoid">{{ amenagement.type.libelleLong|default(amenagement.type.libelle) }}
+                                {% if amenagement.commentaire != null %}
+                                    <br/> {{ amenagement.commentaire|nl2br }}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {% if examens|length > 0 %}
+                    <h3 class="sous-titre">Aménagements des examens :</h3>
+                    <ul class="categorie-examens">
+                        {% for amenagement in examens %}
+                            <li class="page-break-avoid">{{ amenagement.type.libelleLong|default(amenagement.type.libelle) }}
+                                {% if amenagement.commentaire != null %}
+                                    <br/> {{ amenagement.commentaire|nl2br }}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if data.observations is defined and data.observations is not null and data.observations|trim != '' %}
+            <section class="observations">
+                <h2 class="section-titre">Observations particulières :</h2>
+                <p>{{ data.observations|nl2br }}</p>
+            </section>
+        {% endif %}
+
+        <div class="signature-block page-break-avoid">
+            <p>Le bénéfice des aménagements vous est accordé sous réserve des évolutions matérielles ou techniques ou de la particularité de certains examens. En cas de nécessité, vos besoins pourront faire l'objet d'une nouvelle évaluation.</p>
+            <p>La reconduction de cette décision au-delà de l'année universitaire {{ data.annee }}/{{ data.annee + 1 }} est soumise à la condition que vous ayez un entretien avec le service handicap de votre composante au début de chaque année universitaire.</p>
+            <div style="border: 1.5pt solid #000; padding: 8px 12px; margin-top: 12px; box-sizing: border-box; width: 100%; display: block; page-break-inside: avoid;">
+                <p>{{ data.president.qualite }}{% if data.president.nom is not empty %}<br/>{{ data.president.nom }}{% endif %}
+                    <br/>Signé numériquement le {{ data.dateSignature|default("now")|date("d/m/Y") }}
+                </p>
+            </div>
+        </div>
+
+        <div class="legal-mention">
+            <p><strong>Voies et délais de recours&nbsp;:</strong> la présente décision peut faire l'objet, dans un
+                délai de deux mois à compter de sa notification, soit d'un recours gracieux auprès de son auteur,
+                soit d'un recours hiérarchique, soit d'un recours contentieux devant le Tribunal administratif
+                de {{ tribunalAdministratifVille|default('Bordeaux') }} ({{ tribunalAdministratifAdresse|default('9 rue Tastet, 33000 Bordeaux') }}), y compris par la voie de l'application
+                «&nbsp;Télérecours citoyens&nbsp;» accessible à l'adresse www.telerecours.fr.</p>
         </div>
     </main>
 </div>
