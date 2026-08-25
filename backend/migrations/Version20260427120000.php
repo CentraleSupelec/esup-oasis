@@ -8,14 +8,14 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * OBC-1 — administrative profile import.
+ * Administrative profile import from the student information system.
  * Adds postal address columns on utilisateur as a Doctrine embeddable.
  */
 final class Version20260427120000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'OBC-1 add postal address embeddable to utilisateur';
+        return 'Add postal address embeddable to utilisateur';
     }
 
     public function up(Schema $schema): void

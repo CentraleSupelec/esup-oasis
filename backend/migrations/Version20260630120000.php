@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * OBC-1 critère 2 — situation sociale Apogée.
+ * Situation sociale Apogée.
  * Adds the social-situation code/label columns on utilisateur, fed from
  * Apogée (cod_soc / lib_soc) and projected from the most recent inscription.
  */
@@ -16,7 +16,7 @@ final class Version20260630120000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'OBC-1 add situation sociale (code/libelle) columns to utilisateur';
+        return 'Add situation sociale (code/libelle) columns to utilisateur';
     }
 
     public function up(Schema $schema): void

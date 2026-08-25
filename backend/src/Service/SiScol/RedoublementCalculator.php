@@ -13,14 +13,14 @@ namespace App\Service\SiScol;
  * Détermination du redoublement à partir du compteur natif
  * Apogée `nbr_ins_etp` (nombre d'inscriptions administratives à l'étape).
  *
- * Règle officielle V1 (Robin Kaczala, CdP OASIS, 23/06/2026) : un
+ * Règle officielle V1 retenue par la maîtrise d'ouvrage : un
  * étudiant est considéré redoublant dès lors que son compteur
  * d'inscriptions à l'étape est strictement supérieur à 1. Cette règle
  * remplace la comparaison naïve du `cod_etp` d'une année sur l'autre,
  * invalidée par le métier le 28/05/2026 car elle confondait redoublement
  * et contrat pédagogique pluri-annuel.
  *
- * Limite connue côté DSI (Erinna Gayard, Apogée) : `nbr_ins_etp > 1`
+ * Limite connue côté administration Apogée : `nbr_ins_etp > 1`
  * ne signifie pas toujours redoublement. Le compteur s'incrémente aussi
  * lors d'un changement d'accréditation ou de régime d'inscription sur la
  * même étape. La garde "cursus aménagé" couvre partiellement ces cas :

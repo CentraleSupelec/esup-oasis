@@ -8,7 +8,7 @@ use App\Entity\Utilisateur;
 use PHPUnit\Framework\TestCase;
 
 /**
- * OBC-1 critère 2 — accessors de la situation sociale sur l'entité Utilisateur.
+ * Accessors de la situation sociale sur l'entité Utilisateur.
  *
  * Ce test couvre uniquement le contrat de l'entité (valeur par défaut, get/set,
  * accessors fluents) sur les deux champs ajoutés codeSituationSociale et

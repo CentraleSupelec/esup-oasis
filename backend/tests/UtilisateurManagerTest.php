@@ -91,7 +91,7 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
 
     public function testMajInscriptionsProjetteSituationSociale(): void
     {
-        // OBC-1 critère 2 — la projection situation sociale est alimentée par le
+        // La projection situation sociale est alimentée par le
         // SiScolDataProvider. En env de test, AbstractSiScolDataProvider est aliasé
         // sur FakeSiScolDataProvider qui renvoie codeSituationSociale "NO"/"Normal"
         // et boursier=false. On valide que la projection recopie ces champs.
@@ -114,7 +114,7 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
 
     public function testMajInscriptionsCodeBoDeriveBoursier(): void
     {
-        // OBC-1 critère 2 — coeur de la règle : un code situation sociale "BO"
+        // Coeur de la règle : un code situation sociale "BO"
         // doit dériver boursier = true, MÊME si le témoin Apogée legacy est faux.
         // On exerce ici le VRAI UtilisateurManager (pas une réplique) via le
         // FakeSiScolDataProvider configuré pour renvoyer "BO".
@@ -156,7 +156,7 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
 
     public function testMajInscriptionsProjetteAdresse(): void
     {
-        // OBC-1 — l'adresse Apogée de la dernière inscription est projetée vers
+        // L'adresse Apogée de la dernière inscription est projetée vers
         // Utilisateur::adresse. Ligne2 (AD2) et complément (AD3) sont concaténés
         // sur ligne2 car notre modèle ne porte que deux lignes.
         FakeSiScolDataProvider::$adresseLigne1 = '12 rue des Lilas';
@@ -184,7 +184,7 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
 
     public function testMajInscriptionsRafraichitInscriptionExistante(): void
     {
-        // OBC-3 : le compteur d'inscriptions à l'étape et le cursus aménagé
+        // Le compteur d'inscriptions à l'étape et le cursus aménagé
         // évoluent côté SI en cours d'année pour une inscription déjà connue :
         // la MAJ doit rafraîchir ces champs sur l'inscription EXISTANTE, sans
         // la recréer. On exerce le vrai UtilisateurManager via le

@@ -8,14 +8,13 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * OBC-3 — redoublement et cursus aménagé.
+ * Redoublement et cursus aménagé.
  *
  * Ajoute trois colonnes sur `inscription` pour porter les données
- * Apogée nécessaires aux critères #3 (redoublement) et #5 (cursus
- * aménagé) :
+ * Apogée nécessaires au redoublement et au cursus aménagé :
  *   - `nombre_inscriptions_etape` : compteur natif Apogée
  *     (`nbr_ins_etp`) du nombre d'inscriptions administratives à
- *     l'étape, base officielle (Robin Kaczala 23/06/2026) du calcul
+ *     l'étape, base officielle retenue par la maîtrise d'ouvrage pour le calcul
  *     du redoublement (> 1 ⇒ redoublant) en remplacement de la
  *     comparaison `cod_etp` invalidée le 28/05/2026.
  *   - `code_cursus_amenage` / `libelle_cursus_amenage` : code et
@@ -27,7 +26,7 @@ final class Version20260630130000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'OBC-3 add nombre_inscriptions_etape, code_cursus_amenage and libelle_cursus_amenage columns to inscription';
+        return 'Add nombre_inscriptions_etape, code_cursus_amenage and libelle_cursus_amenage columns to inscription';
     }
 
     public function up(Schema $schema): void

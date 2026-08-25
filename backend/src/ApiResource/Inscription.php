@@ -156,8 +156,8 @@ final class Inscription
 
     /**
      * redoublement dérivé à la volée du compteur natif Apogée
-     * (nbr_ins_etp) via RedoublementCalculator (règle officielle Robin
-     * Kaczala 23/06/2026 : > 1 ⇒ redoublant), avec garde cursus aménagé.
+     * (nbr_ins_etp) via RedoublementCalculator (règle officielle retenue
+     * par la maîtrise d'ouvrage : > 1 ⇒ redoublant), avec garde cursus aménagé.
      * Jamais persisté.
      */
     #[Groups([Utilisateur::GROUP_OUT, Demande::GROUP_OUT, Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT])]
