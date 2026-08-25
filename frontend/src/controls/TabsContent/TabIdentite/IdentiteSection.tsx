@@ -140,6 +140,26 @@ export const IdentiteSection: React.FC<IdentiteSectionProps> = ({
                   </Typography.Text>
                 </Descriptions.Item>
               )}
+              <Descriptions.Item label="Adresse postale" span={2}>
+                {utilisateur?.adresse?.ligne1 ||
+                utilisateur?.adresse?.codePostal ||
+                utilisateur?.adresse?.ville ? (
+                  <span style={{ whiteSpace: "pre-line" }}>
+                    {[
+                      utilisateur.adresse.ligne1,
+                      utilisateur.adresse.ligne2,
+                      [utilisateur.adresse.codePostal, utilisateur.adresse.ville]
+                        .filter(Boolean)
+                        .join(" "),
+                      utilisateur.adresse.pays,
+                    ]
+                      .filter(Boolean)
+                      .join("\n")}
+                  </span>
+                ) : (
+                  <MinusOutlined />
+                )}
+              </Descriptions.Item>
             </Descriptions>
           </>
         )}
