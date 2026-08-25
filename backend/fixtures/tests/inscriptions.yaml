@@ -9,3 +9,68 @@ App\Entity\Inscription:
     formation: '@formation_1'
     debut: <date_create('today')>
     fin: <date_create('next year')>
+  # Inscription courante du dossier administratif : sa période couvre la date du
+  # jour, donc le statut d'inscription administrative vaut EN_COURS.
+  inscription_dossier_administratif:
+    etudiant: '@etudiant-dossier-administratif'
+    formation: '@formation_l3'
+    debut: <date_create('-6 months')>
+    fin: <date_create('+6 months')>
+    codeEtape: 'L3INFO'
+    cycle: 1
+    anneeDansDiplome: 3
+    nombreInscriptionsEtape: 1
+
+  # Parcours académique de référence, quatre années consécutives calées en
+  # relatif sur la date du jour pour que le jeu de données ne périme pas.
+
+  # Cas nominal : niveau L1, non redoublant, sans cursus aménagé.
+  inscription_parcours_l1:
+    etudiant: '@etudiant-parcours-academique'
+    formation: '@formation_l1'
+    debut: <date_create('-42 months')>
+    fin: <date_create('-30 months')>
+    codeEtape: 'L1INFO'
+    cycle: 1
+    anneeDansDiplome: 1
+    nombreInscriptionsEtape: 1
+
+  # Cas redoublement : niveau L2, compteur d'inscriptions à l'étape supérieur à 1
+  # et aucun cursus aménagé, donc redoublant vaut vrai.
+  inscription_parcours_l2_redoublee:
+    etudiant: '@etudiant-parcours-academique'
+    formation: '@formation_l2'
+    debut: <date_create('-30 months')>
+    fin: <date_create('-18 months')>
+    codeEtape: 'L2INFO'
+    cycle: 1
+    anneeDansDiplome: 2
+    nombreInscriptionsEtape: 2
+
+  # Cas cursus aménagé 1 : niveau L3. Le code cursus aménagé neutralise le calcul
+  # du redoublement, malgré un compteur d'inscriptions à l'étape supérieur à 1.
+  inscription_parcours_l3_cursus_amenage:
+    etudiant: '@etudiant-parcours-academique'
+    formation: '@formation_l3'
+    debut: <date_create('-18 months')>
+    fin: <date_create('-6 months')>
+    codeEtape: 'L3INFO'
+    cycle: 1
+    anneeDansDiplome: 3
+    nombreInscriptionsEtape: 2
+    codeCursusAmenage: 'ETA'
+    libelleCursusAmenage: 'Étalement de la formation'
+
+  # Cas cursus aménagé 2 : niveau M1, autre code et autre libellé de cursus
+  # aménagé. Période couvrant la date du jour, inscription affichée en cours.
+  inscription_parcours_m1_cursus_amenage:
+    etudiant: '@etudiant-parcours-academique'
+    formation: '@formation_m1'
+    debut: <date_create('-6 months')>
+    fin: <date_create('+6 months')>
+    codeEtape: 'M1INFO'
+    cycle: 2
+    anneeDansDiplome: 1
+    nombreInscriptionsEtape: 1
+    codeCursusAmenage: 'CPA'
+    libelleCursusAmenage: 'Contrat pédagogique aménagé'

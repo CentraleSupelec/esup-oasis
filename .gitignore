@@ -5,3 +5,7 @@
 installation/frontend/.env
 installation/backend/.env
 installation/.env
+
+# Local PAEH maquettes / artefacts générés (Gotenberg PDFs, PNG previews) — never push
+test-results/
+proofs/

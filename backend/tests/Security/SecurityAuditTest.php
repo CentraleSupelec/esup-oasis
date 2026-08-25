@@ -131,7 +131,9 @@ class SecurityAuditTest extends ApiTestCaseCustom
 
         $headers = $client->getResponse()->getHeaders(false);
         $location = $headers['location'][0] ?? '';
-        static::assertStringStartsWith('https://cas.univ.fr/cas/oauth2.0/authorize', $location);
+        // L'URL du fournisseur d'identité vient de la configuration : la figer ici ferait
+        // échouer le test dès qu'un établissement renseigne son propre SSO.
+        static::assertStringStartsWith((string) ($_ENV['OAUTH_URLAUTHORIZE'] ?? ''), $location);
 
         // Extraire le state généré par le serveur
         $parts = parse_url($location);

@@ -3,3 +3,28 @@ App\Entity\Formation:
     composante: '@composante_1'
     libelle: 'formation 1'
     codeExterne: 'CODE_F_1'
+  # Formations support du parcours de référence L1, L2, L3, M1.
+  formation_l1:
+    composante: '@composante_1'
+    libelle: 'Licence 1 informatique'
+    codeExterne: 'L1INFO'
+    diplome: 'Licence informatique'
+    discipline: 'Informatique'
+  formation_l2:
+    composante: '@composante_1'
+    libelle: 'Licence 2 informatique'
+    codeExterne: 'L2INFO'
+    diplome: 'Licence informatique'
+    discipline: 'Informatique'
+  formation_l3:
+    composante: '@composante_1'
+    libelle: 'Licence 3 informatique'
+    codeExterne: 'L3INFO'
+    diplome: 'Licence informatique'
+    discipline: 'Informatique'
+  formation_m1:
+    composante: '@composante_1'
+    libelle: 'Master 1 informatique'
+    codeExterne: 'M1INFO'
+    diplome: 'Master informatique'
+    discipline: 'Informatique'

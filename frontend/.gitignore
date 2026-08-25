@@ -28,3 +28,9 @@ yarn-error.log*
 
 /src/api/OpenApi.yml
 /.env
+
+# tests de bout en bout (Playwright)
+/test-results
+/playwright-report
+/blob-report
+/playwright/.cache
