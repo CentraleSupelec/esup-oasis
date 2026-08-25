@@ -57,6 +57,12 @@ class DecisionAmenagementExamens
     #[ORM\OneToOne(inversedBy: 'decisionAmenagementExamens', cascade: ['persist', 'remove'])]
     private ?Fichier $fichier = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $observations = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?DateTimeInterface $dateAvisMedecin = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -130,6 +136,32 @@ class DecisionAmenagementExamens
     public function setFichier(?Fichier $fichier): static
     {
         $this->fichier = $fichier;
+
+        return $this;
+    }
+
+    public function getObservations(): ?string
+    {
+        return $this->observations;
+    }
+
+    public function setObservations(?string $observations): static
+    {
+        $this->observations = $observations;
+
+        return $this;
+    }
+
+    public function getDateAvisMedecin(): ?DateTimeInterface
+    {
+        return $this->dateAvisMedecin;
+    }
+
+    public function setDateAvisMedecin(?DateTimeInterface $dateAvisMedecin): static
+    {
+        $this->dateAvisMedecin = $dateAvisMedecin === null
+            ? null
+            : DateTime::createFromInterface($dateAvisMedecin);
 
         return $this;
     }
