@@ -568,7 +568,9 @@ readonly class UtilisateurManager
                         ->setCodeCursusAmenage($inscription['codeCursusAmenage'] ?? null)
                         ->setLibelleCursusAmenage($inscription['libelleCursusAmenage'] ?? null)
                         ->setCycle($inscription['cycle'] ?? null)
-                        ->setAnneeDansDiplome($inscription['anneeDansDiplome'] ?? null);
+                        ->setAnneeDansDiplome($inscription['anneeDansDiplome'] ?? null)
+                        ->setCodeTypeDiplome($inscription['codeTypeDiplome'] ?? null)
+                        ->setSante($inscription['sante'] ?? false);
                     if (null === $existante->getFormation()->getDiplome()) {
                         //rattrapage pour bilan activité
                         $formation = $this->formationManager->getFormation(
@@ -607,7 +609,9 @@ readonly class UtilisateurManager
                 ->setCodeCursusAmenage($inscription['codeCursusAmenage'] ?? null)
                 ->setLibelleCursusAmenage($inscription['libelleCursusAmenage'] ?? null)
                 ->setCycle($inscription['cycle'] ?? null)
-                ->setAnneeDansDiplome($inscription['anneeDansDiplome'] ?? null);
+                ->setAnneeDansDiplome($inscription['anneeDansDiplome'] ?? null)
+                ->setCodeTypeDiplome($inscription['codeTypeDiplome'] ?? null)
+                ->setSante($inscription['sante'] ?? false);
 
             $utilisateur->addInscription($new);
         }

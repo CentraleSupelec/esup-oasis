@@ -90,6 +90,21 @@ class Inscription
     #[ORM\Column(nullable: true)]
     private ?int $anneeDansDiplome = null;
 
+    /**
+     * Type de diplôme Apogée (cod_tpd_etb, code établissement). Discrimine la
+     * famille de diplôme (Licence/Master/Doctorat vs BUT/DUT/ingénieur/DU) :
+     * seuls les types LMD donnent lieu à un niveau L/M/D (cf. NiveauResolver).
+     */
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $codeTypeDiplome = null;
+
+    /**
+     * Indicateur santé (Apogée typ_diplome.tem_sante = 'O') : formations de
+     * santé (PASS/LAS/MED…) pour lesquelles le niveau L/M/D n'est pas affiché.
+     */
+    #[ORM\Column]
+    private bool $sante = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -215,15 +230,45 @@ class Inscription
         return $this;
     }
 
+    public function getCodeTypeDiplome(): ?string
+    {
+        return $this->codeTypeDiplome;
+    }
+
+    public function setCodeTypeDiplome(?string $codeTypeDiplome): self
+    {
+        $this->codeTypeDiplome = $codeTypeDiplome;
+
+        return $this;
+    }
+
+    public function isSante(): bool
+    {
+        return $this->sante;
+    }
+
+    public function setSante(bool $sante): self
+    {
+        $this->sante = $sante;
+
+        return $this;
+    }
+
     /**
      * Niveau d'études LMD (L1..M2 / D1-D3) dérivé à la volée, jamais persisté :
      * en priorité via le cycle du diplôme + l'année dans le diplôme (données
-     * Apogée nationales), avec repli sur le préfixe du code étape. null quand
-     * le niveau n'est pas applicable. Alimente notamment l'affichage du PAEH.
+     * Apogée nationales), en séparant les familles via le type de diplôme (seul
+     * le LMD donne un niveau ; santé et autres familles restent vides), avec
+     * repli sur le préfixe du code étape. null quand le niveau n'est pas
+     * applicable. Alimente notamment l'affichage du PAEH.
      */
     public function getNiveau(): ?string
     {
-        return (new NiveauResolver())->resolve($this->cycle, $this->anneeDansDiplome)
+        // Type de diplôme obligatoire : un type manquant (inscription non
+        // synchronisée) ne doit pas produire de faux niveau LMD ; on retombe
+        // alors sur le préfixe du code étape s'il encode le niveau.
+        return (new NiveauResolver(typeDiplomeObligatoire: true))
+            ->resolve($this->cycle, $this->anneeDansDiplome, $this->codeTypeDiplome, $this->sante)
             ?? (new NiveauExtractor())->extract($this->codeEtape);
     }
 }
