@@ -115,10 +115,9 @@ final class Inscription
         get {
             $prop = new ReflectionProperty(self::class, 'niveau');
             if (!$prop->isInitialized($this) && $this->entity !== null) {
-                $this->niveau = (new \App\Service\SiScol\NiveauResolver())->resolve(
-                    $this->entity->getCycle(),
-                    $this->entity->getAnneeDansDiplome(),
-                ) ?? (new \App\Service\SiScol\NiveauExtractor())->extract($this->entity->getCodeEtape());
+                // Source unique : la dérivation du niveau (résolveur LMD + repli
+                // sur le code étape, type de diplôme obligatoire) vit sur l'entité.
+                $this->niveau = $this->entity->getNiveau();
             }
             return $this->niveau ?? null;
         }

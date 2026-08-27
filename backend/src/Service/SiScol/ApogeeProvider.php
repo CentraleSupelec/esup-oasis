@@ -124,6 +124,11 @@ class ApogeeProvider extends AbstractSiScolDataProvider
                 // SISE national) : base du niveau LMD dérivé côté API par NiveauResolver.
                 'cycle' => isset($row->CYCLE) && trim((string) $row->CYCLE) !== '' ? (int) $row->CYCLE : null,
                 'anneeDansDiplome' => isset($row->ANNEE_DIPLOME) && trim((string) $row->ANNEE_DIPLOME) !== '' ? (int) $row->ANNEE_DIPLOME : null,
+                // Type de diplôme (cod_tpd_etb) + indicateur santé (tem_sante) :
+                // séparent les familles (LMD vs santé vs BUT/DUT/ingénieur/DU),
+                // base du filtrage du niveau LMD côté API par NiveauResolver.
+                'codeTypeDiplome' => isset($row->COD_TPD_ETB) && trim((string) $row->COD_TPD_ETB) !== '' ? trim($row->COD_TPD_ETB) : null,
+                'sante' => isset($row->TEM_SANTE) && trim((string) $row->TEM_SANTE) === 'O',
             ];
         }
 

@@ -31,6 +31,8 @@ select iae.cod_anu,
        amg.cod_sis_cur_amg,
        amg.lib_cur_amg,
        dip.cod_cyc as cycle, -- cycle du diplôme (1=Licence bac+0, 2=Master bac+3, 3=Doctorat bac+5) : niveau d'entrée
+       dip.cod_tpd_etb as cod_tpd_etb, -- type de diplôme (code établissement) : discrimine la famille de diplôme (LMD vs BUT/DUT/ingénieur/DU) ; seuls les types LMD donnent lieu à un niveau L/M/D côté OASIS
+       typ.tem_sante, -- indicateur santé (O/N) porté par le type de diplôme : formations PASS/LAS/MED, sans niveau L/M/D affiché
        (select min(fra.cod_sis_daa_min)
         from vdi_fractionner_vet fra
         where fra.cod_etp = iae.cod_etp
@@ -38,6 +40,7 @@ select iae.cod_anu,
           and fra.cod_dip = iae.cod_dip) as annee_diplome -- année dans le diplôme (cod_sis_daa, SISE national) ; niveau = entrée(cycle) + annee_diplome
 from ins_adm_etp iae
          join diplome dip on dip.cod_dip = iae.cod_dip
+         left outer join typ_diplome typ on typ.cod_tpd_etb = dip.cod_tpd_etb -- type de diplôme (famille + indicateur santé)
          left outer join sec_dis_sis sds on sds.cod_sds = dip.cod_sds
          left outer join discipline_sis dsi on dsi.cod_dsi = sds.cod_dsi
          -- jointure apogee.extern_niveau_etape retirée : table spécifique Bordeaux, absente à UPSaclay (niveau dérivé côté OASIS)
