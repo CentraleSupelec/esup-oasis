@@ -74,3 +74,58 @@ App\Entity\Inscription:
     nombreInscriptionsEtape: 1
     codeCursusAmenage: 'CPA'
     libelleCursusAmenage: 'Contrat pédagogique aménagé'
+
+  # Dérivation du niveau par famille de diplôme (feat type de diplôme).
+  # Chaque cas porte un codeEtape qui N'ENCODE PAS le niveau (contrairement aux
+  # L1INFO/M1INFO ci-dessus) : le niveau observé provient donc du type de diplôme
+  # via NiveauResolver, et non du repli sur le préfixe du code étape.
+
+  # CPES (type 19) assimilé Licence : cycle 1 + année 2 => L2.
+  inscription_familles_cpes:
+    etudiant: '@etudiant-familles-diplome'
+    formation: '@formation_cpes_sciences'
+    debut: <date_create('-42 months')>
+    fin: <date_create('-30 months')>
+    codeEtape: 'O2CPSD'
+    codeTypeDiplome: '19'
+    cycle: 1
+    anneeDansDiplome: 2
+    nombreInscriptionsEtape: 1
+
+  # BUT (type 16) : libellé propre = préfixe + année => BUT2.
+  inscription_familles_but:
+    etudiant: '@etudiant-familles-diplome'
+    formation: '@formation_but_gea'
+    debut: <date_create('-30 months')>
+    fin: <date_create('-18 months')>
+    codeEtape: 'E2BTGE'
+    codeTypeDiplome: '16'
+    cycle: 1
+    anneeDansDiplome: 2
+    nombreInscriptionsEtape: 1
+
+  # PASS (type 17, santé) : niveau vide malgré cycle + année.
+  inscription_familles_pass:
+    etudiant: '@etudiant-familles-diplome'
+    formation: '@formation_pass_sante'
+    debut: <date_create('-18 months')>
+    fin: <date_create('-6 months')>
+    codeEtape: 'UPASS'
+    codeTypeDiplome: '17'
+    sante: true
+    cycle: 1
+    anneeDansDiplome: 1
+    nombreInscriptionsEtape: 1
+
+  # Inscription non synchronisée (type de diplôme absent) : le type obligatoire
+  # interdit le repli nominal LMD => niveau vide, malgré cycle + année valides.
+  # Période couvrant la date du jour (inscription affichée en cours).
+  inscription_familles_non_sync:
+    etudiant: '@etudiant-familles-diplome'
+    formation: '@formation_local_non_sync'
+    debut: <date_create('-6 months')>
+    fin: <date_create('+6 months')>
+    codeEtape: 'X2LOCAL'
+    cycle: 1
+    anneeDansDiplome: 2
+    nombreInscriptionsEtape: 1

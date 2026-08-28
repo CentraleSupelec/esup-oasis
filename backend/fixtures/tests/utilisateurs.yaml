@@ -211,3 +211,14 @@ App\Entity\Utilisateur:
     prenom: 'academique'
     admin: false
     roles: [ 'ROLE_BENEFICIAIRE' ]
+
+  # Dossier de référence pour la dérivation du niveau par famille de diplôme :
+  # porte quatre inscriptions (CPES, BUT, PASS santé, inscription non
+  # synchronisée). Sans numeroEtudiant, comme les autres dossiers de référence.
+  etudiant-familles-diplome:
+    uid: 'etudiant-familles-diplome'
+    email: 'etudiant-familles-diplome@app.fr'
+    nom: 'familles'
+    prenom: 'diplome'
+    admin: false
+    roles: [ 'ROLE_BENEFICIAIRE' ]

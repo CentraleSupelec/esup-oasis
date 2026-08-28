@@ -28,3 +28,29 @@ App\Entity\Formation:
     codeExterne: 'M1INFO'
     diplome: 'Master informatique'
     discipline: 'Informatique'
+  # Formations support de la dérivation du niveau par famille de diplôme
+  # (CPES assimilé Licence, BUT à libellé propre, PASS santé, non synchronisée).
+  formation_cpes_sciences:
+    composante: '@composante_1'
+    libelle: 'CPES 2 sciences'
+    codeExterne: 'O2CPSD'
+    diplome: 'CPES'
+    discipline: 'Sciences'
+  formation_but_gea:
+    composante: '@composante_1'
+    libelle: 'BUT 2 gestion des entreprises'
+    codeExterne: 'E2BTGE'
+    diplome: 'BUT GEA'
+    discipline: 'Gestion'
+  formation_pass_sante:
+    composante: '@composante_1'
+    libelle: 'PASS accès santé'
+    codeExterne: 'UPASS'
+    diplome: 'PASS'
+    discipline: 'Santé'
+  formation_local_non_sync:
+    composante: '@composante_1'
+    libelle: 'Formation locale non synchronisée'
+    codeExterne: 'X2LOCAL'
+    diplome: 'Diplôme local'
+    discipline: 'Divers'
