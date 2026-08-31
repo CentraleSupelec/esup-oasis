@@ -123,6 +123,8 @@ Alias optionnels (absents, valent `null`, sans erreur) :
 | `COD_SIS_CUR_AMG`, `LIB_CUR_AMG` | cursus aménagé | code SISE |
 | `CYCLE` | cycle du diplôme (1 = Licence, 2 = Master, 3 = Doctorat) | avec `ANNEE_DIPLOME`, dérive le niveau LMD (données SISE nationales, donc portables) |
 | `ANNEE_DIPLOME` | année dans le diplôme (`cod_sis_daa`) | idem |
+| `COD_TPD_ETB` | type de diplôme (famille : LMD, BUT, CPES, licence pro, ingénieur…) | code établissement ; dérive le niveau par famille. Absent → niveau vide, jamais faux |
+| `TEM_SANTE` | indicateur santé (`O` = PASS/LAS/formation de santé) | écarte le niveau des cursus santé. Absent → cursus non traité comme santé |
 
 `apogee_get_formation.sql`, paramètres liés : `:codEtp`, `:codVrsVet`. Renvoie `LIB_DIP` (diplôme), `NIVEAU` (niveau
 LMD, peut être vide), `LIB_DSI` (discipline).
