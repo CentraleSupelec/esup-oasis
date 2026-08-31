@@ -49,7 +49,10 @@ final class OAuthCookieDomaineTest extends ApiTestCaseCustom
         $cookies = $this->authentifierParTicketCas('http://' . ltrim($domaineConfigure, '.'));
 
         self::assertResponseIsSuccessful();
-        self::assertStringContainsStringIgnoringCase('domain=' . ltrim($domaineConfigure, '.'), $cookies);
+        // Le contrôleur repose le domaine configuré verbatim (un point en tête
+        // reste, c'est valide et ignoré par RFC 6265). On l'attend donc tel
+        // quel, sans le ltrim qui ne concerne que l'hôte appelé ligne 49.
+        self::assertStringContainsStringIgnoringCase('domain=' . $domaineConfigure, $cookies);
     }
 
     private function authentifierParTicketCas(string $origine): string
