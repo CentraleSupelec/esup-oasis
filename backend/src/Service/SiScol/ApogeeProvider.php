@@ -61,7 +61,19 @@ class ApogeeProvider extends AbstractSiScolDataProvider
         oci_bind_by_name($stmt, 'fin', $anneeFin);
 
         if (!oci_execute($stmt)) {
-            $this->logger->warning('Récupération des inscriptions impossible, apogée indisponible');
+            // Apogée répond mais refuse la requête, typiquement parce qu'elle ne correspond
+            // pas au schéma de l'établissement. Sans cette remontée, l'étudiant apparaîtrait
+            // simplement sans inscription, sans que rien ne signale la cause.
+            $erreur = oci_error($stmt);
+            $this->logger->error(
+                'Requête inscriptions refusée par Apogée. Identité, inscriptions et composantes '
+                . "resteront vides. Vérifier que la requête correspond au schéma de l'établissement.",
+                [
+                    'code' => $erreur['code'] ?? null,
+                    'message' => $erreur['message'] ?? 'inconnue',
+                ],
+            );
+
             return [];
         }
         $formations = [];
