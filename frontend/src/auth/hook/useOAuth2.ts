@@ -27,6 +27,10 @@ export type AuthTokenPayload = {
   access_token: string;
   scope: string;
   refresh_token: string;
+  // Flux implicite ("token") : le payload transmis à onSuccess est le hash
+  // parsé, qui peut porter le state OAuth. Requis par le pont CAS Saclay pour
+  // reconstruire l'URL de service côté serveur.
+  state?: string;
 };
 
 export type ResponseTypeBasedProps<TData> =
