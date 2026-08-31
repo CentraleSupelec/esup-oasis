@@ -86,6 +86,11 @@ le dossier `config/apogee` (attention à bien respecter les noms des champs reto
 Les versions livrées de ces requêtes s'appuient sur une table locale `extern_niveau_etape` pour remonter le niveau LMD,
 vous devrez donc les adapter. Le niveau LMD peut être simplement laissé vide.
 
+De la même façon, la jointure `typ_diplome` (qui alimente les alias `COD_TPD_ETB` et `TEM_SANTE`, servant à dériver le
+niveau par famille de diplôme) est **facultative** : si votre instance ne dispose pas de cette table, retirez-la de
+`apogee_get_inscriptions.sql`. Ces deux alias valent alors `null` et le niveau retombe sur le LMD nominal dérivé de
+`CYCLE` + `ANNEE_DIPLOME`.
+
 ##### Colonnes (alias) attendues par le code
 
 Le code PHP ne connaît pas les noms de colonnes réels d'Apogée : il lit les **alias** renvoyés par les requêtes (oci8 les
