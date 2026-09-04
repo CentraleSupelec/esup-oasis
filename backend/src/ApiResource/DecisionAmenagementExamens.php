@@ -39,6 +39,16 @@ use Symfony\Component\Serializer\Attribute\Ignore;
             securityPostDenormalize: "is_granted('" . self::MODIFIER_DECISION . "', object)",
         ),
     ],
+    // Aucune purge ne cible cette URI : le cache partagé resservait la décision et son
+    // PDF pendant une heure après modification d'un aménagement, sans aucun moyen de
+    // forcer la régénération depuis l'interface. La décision porte par ailleurs des
+    // données de santé, qui n'ont pas à séjourner dans un cache intermédiaire ni dans
+    // celui du navigateur. On la sort donc des caches : « public: false » supprime le
+    // s-maxage hérité de la configuration globale, « no_store » interdit le stockage.
+    cacheHeaders: [
+        'public' => false,
+        'no_store' => true,
+    ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
     security: "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "')",
