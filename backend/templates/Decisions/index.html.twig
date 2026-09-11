@@ -94,9 +94,9 @@
             {% set premierAmenagement = data.amenagements|first %}
             {% set premierBeneficiaire = premierAmenagement.beneficiaires|first %}
             <div class="gestionnaire">
-                Université de Bordeaux<br/>
+                {{ etablissementNom|default('Université de Bordeaux') }}<br/>
                 Dossier suivi par :<br/>
-                Service PHASE<br/>
+                {{ serviceNom|default('Service PHASE') }}<br/>
                 {{ premierBeneficiaire.gestionnaire.prenom }} {{ premierBeneficiaire.gestionnaire.nom }}
                 <br/>
                 {{ premierBeneficiaire.gestionnaire.email }}
@@ -107,7 +107,7 @@
             <br/>
             {{ premierBeneficiaire.utilisateur.email }}
             <div class="date-lieu">
-                Talence, le {{ "now"|date("d/m/Y") }}
+                {{ etablissementVille|default('Talence') }}, le {{ "now"|date("d/m/Y") }}
             </div>
         </div>
     </header>
@@ -143,7 +143,7 @@
                 vous est accordé sous réserve des évolutions matérielles ou techniques ou de la
                 particularité de certains examens.</p>
             <p>La reconduction de cette décision au-delà de l'année universitaire {{ data.annee }}/{{ data.annee + 1 }}
-                est soumise à la condition que vous subissiez un entretien avec le service PHASE dont vous dépendez
+                est soumise à la condition que vous subissiez un entretien avec le {{ serviceNom|default('service PHASE') }} dont vous dépendez
                 géographiquement au début de chaque année universitaire.</p>
             <p>Je vous prie de croire à l'expression de ma considération toute particulière.</p>
             <p>{{ data.president.qualite }}, {{ data.president.nom }},<br>
