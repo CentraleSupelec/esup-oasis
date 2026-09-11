@@ -1,9 +1,12 @@
 # Configuration de la décision d'aménagements (PAEH).
 #
 # Chaque valeur peut être surchargée par la variable d'environnement du même nom en
-# majuscules. Les valeurs par défaut reproduisent le document tel qu'il était rendu
-# jusqu'ici : une instance qui ne définit aucune de ces variables n'imprime rien de
-# différent et ne se voit imposer aucune règle nouvelle.
+# majuscules.
+#
+# RECETTE PARIS-SACLAY : l'identité de l'établissement vient de installation/.env, qui
+# n'est pas versionné. Si ce fichier ne la contient pas, le document sort aux couleurs
+# d'origine — c'est le premier point à vérifier sur un poste. Seule la date de l'avis du
+# médecin est exigée ici, le visa du document de Paris-Saclay la cite.
 parameters:
   # Identité imprimée sur le document. Le gabarit livré utilise le nom, le service et
   # la ville ; les autres sont à disposition d'un gabarit déposé en personnalisation.
@@ -23,4 +26,4 @@ parameters:
 
   # Exiger la date de l'avis du médecin avant d'éditer la décision. À activer par les
   # établissements dont le document cite cet avis dans son visa ; sans effet sinon.
-  decision.date_avis_medecin_requise: false
+  decision.date_avis_medecin_requise: true
