@@ -38,6 +38,10 @@ services:
       $urlResourceOwnerDetails: '%env(resolve:OAUTH_URLRESOURCEOWNERDETAILS)%'
       $urlGenerator: '@router'
 
+  App\Service\CasTicketService:
+    arguments:
+      $casBaseUrl: '%env(resolve:CAS_BASE_URL)%'
+
   #LDAP
   App\Service\LdapService:
     arguments:
