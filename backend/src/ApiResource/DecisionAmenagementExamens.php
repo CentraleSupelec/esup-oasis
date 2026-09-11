@@ -110,7 +110,9 @@ class DecisionAmenagementExamens
         }
     }
 
-    #[Groups([self::GROUP_OUT, self::GROUP_IN])]
+    // Le groupe « utilisateur » est nécessaire : la fiche du bénéficiaire décide d'après
+    // cette date si la demande d'édition est possible, et la lit sur la décision imbriquée.
+    #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT, self::GROUP_IN])]
     public ?DateTimeInterface $dateAvisMedecin {
         get {
             $prop = new ReflectionProperty(self::class, 'dateAvisMedecin');
