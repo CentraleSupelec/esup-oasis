@@ -35,9 +35,9 @@
 <footer>
     <div class="footer-adresse">
         Adresse postale :
-        Université de Bordeaux
-        351 cours de la libération
-        33405 Talence cedex -
+        {{ etablissementNom|default('Université de Bordeaux') }}
+        {{ etablissementAdresseRue|default('351 cours de la libération') }}
+        {{ etablissementAdressePostale|default('33405 Talence cedex') }} -
         page <span class="pageNumber"></span> sur <span class="totalPages"></span>
     </div>
 
