@@ -12,6 +12,7 @@
 
 namespace App\Controller;
 
+use App\Service\CasTicketService;
 use App\Service\ErreurLdapException;
 use App\Service\OAuthService;
 use App\State\Utilisateur\UtilisateurManager;
@@ -23,10 +24,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use UnexpectedValueException;
 
 #[Route(path: '/connect/oauth', name: 'connect_oauth_')]
@@ -34,8 +37,43 @@ class OAuthController extends AbstractController
 {
     public function __construct(
         private readonly OAuthService $oauthService,
+        private readonly CasTicketService $casTicketService,
         private readonly JWTTokenManagerInterface $jwtTokenManager,
     ) {}
+
+    /**
+     * Point d'entrée CAS "service ticket" pour contourner le besoin d'un client OAuth enregistré.
+     * Le frontend OAuth reste inchangé : il récupère un faux access_token = ticket CAS.
+     */
+    #[Route(path: '/cas/accessToken', name: 'cas_accesstoken')]
+    public function getAccessTokenFromCasTicket(Request $request): Response
+    {
+        $redirectUri = (string) $request->query->get('redirect_uri', '');
+        $state = (string) $request->query->get('state', '');
+        $ticket = (string) $request->query->get('ticket', '');
+
+        if ('' === $redirectUri) {
+            return new JsonResponse(['error' => 'parametre redirect_uri manquant'], 400);
+        }
+
+        if ('' === $ticket) {
+            $serviceUrl = $this->generateUrl('connect_oauth_cas_accesstoken', [], UrlGeneratorInterface::ABSOLUTE_URL)
+                . '?' . http_build_query([
+                    'redirect_uri' => $redirectUri,
+                    'state' => $state,
+                ]);
+
+            return new RedirectResponse($this->casTicketService->buildCasLoginUrl($serviceUrl));
+        }
+
+        $hash = http_build_query([
+            'access_token' => $ticket,
+            'state' => $state,
+            'token_type' => 'bearer',
+        ]);
+
+        return new RedirectResponse($redirectUri . '#' . $hash);
+    }
 
     /**
      * Démarre l'auth avec Oauth et retourne un accessToken (i.e. reproduit pour tests le boulot attendu coté front,
@@ -159,21 +197,54 @@ class OAuthController extends AbstractController
         #[Autowire('%env(JWT_COOKIE_DOMAIN)%')] string $cookieDomain,
     ): Response {
         $isJson = null !== $request->query->get('json');
+        $state = null;
+        $redirectUri = null;
         if (!$isJson) {
             $accessToken = $request->attributes->get('accessToken');
             if (null === $accessToken) {
                 return new JsonResponse(['error' => 'parametre accessToken manquant'], 400);
             }
+            $state = $request->get('state');
+            $redirectUri = $request->get('redirectUri');
         } else {
             //todo: utiliser json_validate
             try {
-                $accessToken = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR)['accessToken'];
+                $payload = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+                $accessToken = $payload['accessToken'] ?? null;
+                $state = $payload['state'] ?? null;
+                $redirectUri = $payload['redirectUri'] ?? null;
+                if (null === $accessToken) {
+                    return new JsonResponse(['error' => 'parametre accessToken manquant'], 400);
+                }
             } catch (JsonException) {
                 return new JsonResponse(['error' => 'json mal formé en entrée'], 400);
             }
         }
-        $resourceOwner = $this->oauthService->getResourceOwnerFromToken($accessToken);
-        $user = $utilisateurManager->parUid($resourceOwner->getId(), true);
+
+        if (str_starts_with((string) $accessToken, 'ST-')) {
+            // Ticket CAS "service ticket" (pont /connect/oauth/cas/accessToken) :
+            // validation du ticket auprès du CAS puis lookup SANS synchro LDAP,
+            // l'utilisateur doit préexister en base.
+            if (empty($state) || empty($redirectUri)) {
+                return new JsonResponse(['error' => 'parametres state/redirectUri manquants pour ticket CAS'], 400);
+            }
+
+            $serviceUrl = $this->generateUrl('connect_oauth_cas_accesstoken', [], UrlGeneratorInterface::ABSOLUTE_URL)
+                . '?' . http_build_query([
+                    'redirect_uri' => $redirectUri,
+                    'state' => $state,
+                ]);
+            $uid = $this->casTicketService->resolveUidFromServiceTicket((string) $accessToken, $serviceUrl);
+
+            try {
+                $user = $utilisateurManager->parUid($uid, false);
+            } catch (UserNotFoundException|ErreurLdapException) {
+                return new JsonResponse(['error' => 'Utilisateur CAS non trouvé en base: ' . $uid], 403);
+            }
+        } else {
+            $resourceOwner = $this->oauthService->getResourceOwnerFromToken($accessToken);
+            $user = $utilisateurManager->parUid($resourceOwner->getId(), true);
+        }
 
         $token = $this->jwtTokenManager->create($user);
         $jsonResponse = new JsonResponse(['token' => $token]);

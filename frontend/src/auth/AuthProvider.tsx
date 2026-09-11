@@ -216,6 +216,11 @@ export function AuthProvider({
             },
             body: JSON.stringify({
               accessToken: payload?.access_token,
+              // Pont CAS "service ticket" : le backend a besoin du state et du
+              // redirect_uri d'origine pour reconstruire l'URL de service et
+              // valider le ticket auprès du CAS. Ignorés pour un token OAuth.
+              state: payload?.state,
+              redirectUri: `${env.REACT_APP_FRONTEND}/callback`,
             }),
           },
         )
