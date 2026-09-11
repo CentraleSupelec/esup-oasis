@@ -104,6 +104,19 @@ disponibles dans le fichier
 * [OPTIONNEL] **UNICAMPUS_SID** : url de la base Unicampus (`//serveur:port/SID`)
 * [OPTIONNEL] **UNICAMPUS_SUFFIXES** : suffixes ajoutés par unicampus aux numéros étudiants (`["suffixe1","suffixe2"]`;
   les RNE des établissements concernés pour l'instance Unicampus utilisée)
+* [OPTIONNEL] **ETABLISSEMENT_NOM** : nom de l'établissement imprimé sur la décision d'aménagements
+  (`Université de Bordeaux`)
+* [OPTIONNEL] **SERVICE_NOM** : nom du service accompagnant les étudiants (`Service PHASE`)
+* [OPTIONNEL] **ETABLISSEMENT_VILLE** : ville portée sur la décision (`Talence`)
+* [OPTIONNEL] **ETABLISSEMENT_ADRESSE_RUE**, **ETABLISSEMENT_ADRESSE_POSTALE** : adresse de l'établissement, à
+  disposition d'un gabarit personnalisé
+* [OPTIONNEL] **TRIBUNAL_ADMINISTRATIF_VILLE**, **TRIBUNAL_ADMINISTRATIF_ADRESSE** : tribunal compétent pour les voies
+  de recours, à disposition d'un gabarit personnalisé
+* [OPTIONNEL] **AFFICHER_SERVICE_REFERENT** : affiche le service référent sur la décision (`false`)
+* [OPTIONNEL] **LOGO_DECISION_FILENAME**, **TRIANGLE_DECISION_FILENAME** : images de la décision, cherchées dans
+  `public/images` (`logo_ub.svg`, `triangle-ub.svg`)
+* [OPTIONNEL] **PAEH_DATE_AVIS_MEDECIN_REQUISE** : exige la date de l'avis du médecin avant d'éditer la décision
+  (`false`) — cf. [Décision d'aménagements](decision.md)
 
 Les valeurs renseignées dans le fichier .env peuvent être surchargées par des variables d'environnement au niveau
 système (https://symfony.com/doc/current/configuration.html#overriding-environment-variables-defined-by-the-system), ou
@@ -171,5 +184,6 @@ instances de l'application.
 * [Traitements asynchrones](traitements_asynchrones.md)
 * [Authentification](auth.md)
 * [Connecteurs](connecteurs.md)
+* [Décision d'aménagements](decision.md)
 * [Stockage de fichiers](pieces_justificatives.md)
 * [Questionnaire des demandes](questionnaires.md)
