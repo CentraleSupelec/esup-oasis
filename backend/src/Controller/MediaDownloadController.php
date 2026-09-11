@@ -49,6 +49,16 @@ class MediaDownloadController extends AbstractController
         );
         $response->headers->set('Content-Disposition', $disposition);
         $response->headers->set('Content-Type', $fichier->getTypeMime());
+        // Les fichiers servis ici sont des pièces justificatives et des décisions
+        // d'aménagements : ils portent des données de santé, qui n'ont pas à séjourner
+        // dans un cache partagé entre utilisateurs. Le navigateur peut en conserver une
+        // copie, mais doit la revalider avant chaque réutilisation.
+        //
+        // C'est le comportement que Symfony appliquait déjà faute d'instruction ; on
+        // l'écrit pour qu'il ne dépende plus d'un défaut du framework, ni ne bascule le
+        // jour où un en-tête de validation serait ajouté sur cette route.
+        $response->headers->set('Cache-Control', 'private, no-cache');
+
         return $response;
     }
 }
