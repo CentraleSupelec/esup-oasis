@@ -16,6 +16,11 @@ parameters:
   decision.tribunal_administratif_ville: 'Bordeaux'
   decision.tribunal_administratif_adresse: '9 rue Tastet, 33000 Bordeaux'
 
+  # Images du document, cherchées dans public/images. Si le fichier configuré est
+  # absent, celui livré est utilisé : une configuration incomplète ne casse rien.
+  decision.logo_fichier: 'logo_ub.svg'
+  decision.bandeau_fichier: 'triangle-ub.svg'
+
   # Exiger la date de l'avis du médecin avant d'éditer la décision. À activer par les
   # établissements dont le document cite cet avis dans son visa ; sans effet sinon.
   decision.date_avis_medecin_requise: false

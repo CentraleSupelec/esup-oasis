@@ -72,7 +72,7 @@
             display: flex;
             justify-content: space-between;
             align-items: end;
-            background: url('{{ backUrl }}/images/triangle-ub.svg') bottom right no-repeat;
+            background: url('data:image/svg+xml;base64, {{ data.triangle_base64 }}') bottom right no-repeat;
             background-size: contain;
         }
 
@@ -90,7 +90,7 @@
 <div class="content">
     <header>
         <div class="expediteur">
-            <img src="{{ backUrl }}/images/logo_ub.svg" style="height: 125px" alt="logo"/>
+            <img src="data:image/svg+xml;base64,{{ data.logo_base64 }}" style="height: 125px" alt="logo"/>
             {% set premierAmenagement = data.amenagements|first %}
             {% set premierBeneficiaire = premierAmenagement.beneficiaires|first %}
             <div class="gestionnaire">
