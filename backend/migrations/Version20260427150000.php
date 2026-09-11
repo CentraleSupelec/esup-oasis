@@ -8,19 +8,16 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * OBC-3 — academic profile import.
- *
- * Adds the `code_etape` column on `inscription` to keep the Apogée step
- * code (`cod_etp`) per inscription. This is the building block of the
- * OBC-3 "profil académique" feature: surfacing the cursus on the
- * beneficiary fiche and deriving the LMD level (L1/L2/L3/M1/M2/D1/D3)
- * out of the prefix.
+ * Ajoute la colonne `code_etape` sur `inscription`, qui conserve le code étape du SI
+ * scolarité pour chaque inscription. Elle permet d'afficher le cursus sur la fiche du
+ * bénéficiaire et, à défaut d'autre source, d'en déduire le niveau d'études lorsque le
+ * code l'encode.
  */
 final class Version20260427150000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'OBC-3 add code_etape column to inscription';
+        return 'Ajoute la colonne code_etape sur inscription';
     }
 
     public function up(Schema $schema): void
