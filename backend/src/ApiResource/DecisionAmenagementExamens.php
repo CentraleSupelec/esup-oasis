@@ -18,7 +18,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProcessor;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProvider;
+use App\Validator\DateAvisMedecinRequiseConstraint;
 use App\Validator\EtatDecisionValideConstraint;
+use DateTimeInterface;
 use ReflectionProperty;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -44,6 +46,7 @@ use Symfony\Component\Serializer\Attribute\Ignore;
     processor: DecisionAmenagementExamensProcessor::class,
     stateOptions: new Options(entityClass: \App\Entity\DecisionAmenagementExamens::class),
 )]
+#[DateAvisMedecinRequiseConstraint]
 #[Map(target: \App\Entity\DecisionAmenagementExamens::class)]
 class DecisionAmenagementExamens
 {
@@ -104,6 +107,17 @@ class DecisionAmenagementExamens
                 $this->urlContenu = '/fichiers/' . $this->entity->getFichier()->getId();
             }
             return $this->urlContenu ?? null;
+        }
+    }
+
+    #[Groups([self::GROUP_OUT, self::GROUP_IN])]
+    public ?DateTimeInterface $dateAvisMedecin {
+        get {
+            $prop = new ReflectionProperty(self::class, 'dateAvisMedecin');
+            if (!$prop->isInitialized($this) && $this->entity !== null) {
+                $this->dateAvisMedecin = $this->entity->getDateAvisMedecin();
+            }
+            return $this->dateAvisMedecin ?? null;
         }
     }
 
