@@ -3280,24 +3280,40 @@ export interface components {
         };
         "DecisionAmenagementExamens-decision.in.jsonMergePatch": {
             etat?: string;
+            observations?: string | null;
+            /** Format: date */
+            dateAvisMedecin?: string | null;
         };
         "DecisionAmenagementExamens.html-decision.out": {
             etat?: string;
             urlContenu?: string | null;
+            observations?: string | null;
+            /** Format: date */
+            dateAvisMedecin?: string | null;
         };
         "DecisionAmenagementExamens.html-utilisateur.out": {
             etat?: string;
+            /** Format: date */
+            dateAvisMedecin?: string | null;
         };
         "DecisionAmenagementExamens.jsonld-decision.out": components["schemas"]["HydraItemBaseSchema"] & {
             etat?: string;
             urlContenu?: string | null;
+            observations?: string | null;
+            /** Format: date */
+            dateAvisMedecin?: string | null;
         };
         "DecisionAmenagementExamens.jsonld-utilisateur.out": components["schemas"]["HydraItemBaseSchema"] & {
             etat?: string;
+            /** Format: date */
+            dateAvisMedecin?: string | null;
         };
         "DecisionAmenagementExamens.pdf-decision.out": {
             etat?: string;
             urlContenu?: string | null;
+            observations?: string | null;
+            /** Format: date */
+            dateAvisMedecin?: string | null;
         };
         "Demande-demande.in": {
             /**
