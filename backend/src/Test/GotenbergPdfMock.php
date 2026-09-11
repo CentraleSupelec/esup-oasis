@@ -54,6 +54,16 @@ class GotenbergPdfMock implements GotenbergPdfInterface
                 return $this;
             }
 
+            public function paperStandardSize($paperSize): BuilderInterface
+            {
+                return $this;
+            }
+
+            public function __call(string $name, array $arguments): BuilderInterface
+            {
+                return $this;
+            }
+
             public function generate(): BuilderInterface
             {
                 return $this;
