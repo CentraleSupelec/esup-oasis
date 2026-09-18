@@ -18,7 +18,7 @@ final class Version20260827120000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Ajoute inscription.code_type_diplome et inscription.sante (séparation des familles de diplômes pour la dérivation du niveau).';
+        return 'Ajoute le type de diplôme et l\'indicateur santé sur inscription';
     }
 
     public function up(Schema $schema): void

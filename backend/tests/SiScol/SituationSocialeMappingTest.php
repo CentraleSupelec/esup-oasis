@@ -1,6 +1,11 @@
 <?php
 
-declare(strict_types=1);
+/*
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
+ *
+ * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
+ */
 
 namespace App\Tests\SiScol;
 
@@ -14,13 +19,12 @@ use PHPUnit\Framework\TestCase;
  * accessors fluents) sur les deux champs ajoutés codeSituationSociale et
  * libelleSituationSociale.
  *
- * La RÈGLE de projection (recopie depuis la dernière inscription + dérivation
- * boursier via le code "BO") est testée sur le vrai code de production dans
- * {@see \App\Tests\UtilisateurManagerTest} (cas NO, BO et témoin legacy), et non
- * répliquée ici, pour éviter un test tautologique.
+ * La règle de projection — recopie depuis l'inscription la plus récente — est testée
+ * sur le code de production dans {@see \App\Tests\UtilisateurManagerTest}, et n'est pas
+ * répliquée ici pour éviter un test tautologique.
  *
- * TODO(apogée-réel) : confirmer contre Apogée Saclay réel le nom de colonne
- * cod_soc (vs cod_sco) et la liste exacte des codes considérés "boursier".
+ * Le témoin boursier reste alimenté par le seul indicateur du SI scolarité : la
+ * situation sociale est exposée comme information, elle n'en tire aucune conclusion.
  */
 final class SituationSocialeMappingTest extends TestCase
 {

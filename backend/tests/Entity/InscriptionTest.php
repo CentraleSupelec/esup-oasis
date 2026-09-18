@@ -1,6 +1,11 @@
 <?php
 
-declare(strict_types=1);
+/*
+ * Copyright (c) 2024-2026. Esup - Université de Bordeaux.
+ *
+ * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
+ */
 
 namespace App\Tests\Entity;
 
@@ -15,7 +20,7 @@ final class InscriptionTest extends TestCase
         // Un SI scolarité qui renseigne le niveau de la formation garde exactement
         // son affichage : la dérivation ne s'applique pas, même quand cycle, année
         // et type de diplôme permettraient de conclure autrement.
-        $formation = (new Formation())->setNiveau('Licence 1ère année');
+        $formation = (new Formation())->setNiveau('  Licence 1ère année  ');
         $inscription = (new Inscription())
             ->setFormation($formation)
             ->setCycle(2)
@@ -29,7 +34,9 @@ final class InscriptionTest extends TestCase
     {
         // Formation sans niveau (colonne vide ou SI qui ne la renseigne pas) :
         // la dérivation prend le relais plutôt que de laisser le champ vide.
-        foreach ([null, ''] as $niveauFormation) {
+        // Une colonne de longueur fixe peut arriver complétée d'espaces : ce n'est pas
+        // davantage un niveau renseigné qu'une valeur vide.
+        foreach ([null, '', ' ', '   '] as $niveauFormation) {
             $inscription = (new Inscription())
                 ->setFormation((new Formation())->setNiveau($niveauFormation))
                 ->setCycle(2)
@@ -44,11 +51,21 @@ final class InscriptionTest extends TestCase
     {
         // Le type de diplôme est obligatoire côté entité (UPSaclay) : un type LMD
         // (Licence 86, Master 37) donne le niveau nominal depuis cycle + année.
-        self::assertSame('L1', (new Inscription())->setCycle(1)->setAnneeDansDiplome(1)->setCodeTypeDiplome('86')->getNiveau());
-        self::assertSame('L2', (new Inscription())->setCycle(1)->setAnneeDansDiplome(2)->setCodeTypeDiplome('86')->getNiveau());
-        self::assertSame('L3', (new Inscription())->setCycle(1)->setAnneeDansDiplome(3)->setCodeTypeDiplome('86')->getNiveau());
-        self::assertSame('M1', (new Inscription())->setCycle(2)->setAnneeDansDiplome(1)->setCodeTypeDiplome('37')->getNiveau());
-        self::assertSame('M2', (new Inscription())->setCycle(2)->setAnneeDansDiplome(2)->setCodeTypeDiplome('37')->getNiveau());
+        self::assertSame('L1', (new Inscription())
+            ->setCycle(1)->setAnneeDansDiplome(1)->setCodeTypeDiplome('86')
+            ->getNiveau());
+        self::assertSame('L2', (new Inscription())
+            ->setCycle(1)->setAnneeDansDiplome(2)->setCodeTypeDiplome('86')
+            ->getNiveau());
+        self::assertSame('L3', (new Inscription())
+            ->setCycle(1)->setAnneeDansDiplome(3)->setCodeTypeDiplome('86')
+            ->getNiveau());
+        self::assertSame('M1', (new Inscription())
+            ->setCycle(2)->setAnneeDansDiplome(1)->setCodeTypeDiplome('37')
+            ->getNiveau());
+        self::assertSame('M2', (new Inscription())
+            ->setCycle(2)->setAnneeDansDiplome(2)->setCodeTypeDiplome('37')
+            ->getNiveau());
     }
 
     public function testGetNiveauIsNullWithoutDegreeType(): void

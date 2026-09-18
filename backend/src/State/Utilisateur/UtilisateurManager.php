@@ -529,12 +529,7 @@ readonly class UtilisateurManager
             $utilisateur->setCodeSituationSociale($codeSituationSociale);
             $utilisateur->setLibelleSituationSociale($inscriptions[$last]['libelleSituationSociale'] ?? null);
 
-            // Le booléen boursier reste alimenté pour rétrocompat : soit le témoin Apogée legacy,
-            // soit le code situation sociale "BO".
-            // TODO(apogée-réel) : confirmer que "BO" est bien le seul code boursier sur l'instance réelle.
-            $utilisateur->setBoursier(
-                ($inscriptions[$last]['boursier'] ?? false) || ($codeSituationSociale === 'BO'),
-            );
+            $utilisateur->setBoursier($inscriptions[$last]['boursier'] ?? false);
             $utilisateur->setStatutEtudiant($inscriptions[$last]['statut'] ?? '');
 
             // projection de l'adresse Apogée la plus récente vers Utilisateur::adresse.

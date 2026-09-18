@@ -19,7 +19,7 @@ final class Version20260630130000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Ajoute les colonnes nombre_inscriptions_etape, code_cursus_amenage et libelle_cursus_amenage sur inscription';
+        return 'Ajoute le compteur d\'inscriptions à l\'étape et le cursus aménagé sur inscription';
     }
 
     public function up(Schema $schema): void

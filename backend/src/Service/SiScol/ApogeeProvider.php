@@ -177,6 +177,20 @@ class ApogeeProvider extends AbstractSiScolDataProvider
         oci_bind_by_name($stmt, 'codVrsVet', $codVrsVet);
 
         if (!oci_execute($stmt)) {
+            // Apogée répond mais refuse la requête, typiquement parce qu'elle ne
+            // correspond pas au schéma de l'établissement (table ou colonne absente).
+            // On remonte l'erreur réelle : sans cela, diplôme, discipline et niveau
+            // resteraient vides sur toutes les formations, sans aucun signal.
+            $erreur = oci_error($stmt);
+            $this->logger->error(
+                'Requête formation refusée par Apogée. Diplôme, discipline et niveau resteront '
+                . "vides. Vérifier que la requête correspond au schéma de l'établissement.",
+                [
+                    'code' => $erreur['code'] ?? null,
+                    'message' => $erreur['message'] ?? 'inconnue',
+                ],
+            );
+
             return [];
         }
 
