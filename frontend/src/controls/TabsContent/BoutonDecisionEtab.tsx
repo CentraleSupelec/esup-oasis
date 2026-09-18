@@ -79,10 +79,13 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
     />
   );
 
-  // Le visa du document cite la date de l'avis du médecin : sans elle l'édition est
-  // refusée côté serveur. On l'annonce ici plutôt que de laisser l'utilisateur
-  // découvrir le refus après avoir confirmé.
-  const dateAvisMedecinManquante = !utilisateur.decisionAmenagementAnneeEnCours.dateAvisMedecin;
+  // Certaines instances citent la date de l'avis du médecin dans le visa du document :
+  // leur serveur refuse alors l'édition tant qu'elle manque. Le serveur indique lui-même
+  // si la règle s'applique, pour que l'interface annonce le refus au lieu de le deviner —
+  // ailleurs, l'action reste disponible comme auparavant.
+  const dateAvisMedecinManquante =
+    !!utilisateur.decisionAmenagementAnneeEnCours.dateAvisMedecinRequise &&
+    !utilisateur.decisionAmenagementAnneeEnCours.dateAvisMedecin;
   const messageDateManquante =
     "Renseignez la date de l'avis du médecin dans les observations pour pouvoir éditer la décision.";
 

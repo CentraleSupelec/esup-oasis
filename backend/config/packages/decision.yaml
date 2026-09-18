@@ -12,6 +12,8 @@ parameters:
   # la ville ; les autres sont à disposition d'un gabarit déposé en personnalisation.
   decision.etablissement_nom: 'Université de Bordeaux'
   decision.service_nom: 'Service PHASE'
+  # Forme employée à l'intérieur d'une phrase, où la majuscule serait incorrecte.
+  decision.service_denomination: 'service PHASE'
   decision.etablissement_ville: 'Talence'
   decision.etablissement_adresse_rue: '351 cours de la libération'
   decision.etablissement_adresse_postale: '33405 Talence cedex'
