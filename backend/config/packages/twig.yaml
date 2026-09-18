@@ -7,6 +7,7 @@ twig:
     # Identité de l'établissement sur la décision d'aménagements (cf. decision.yaml)
     etablissementNom: '%env(default:decision.etablissement_nom:ETABLISSEMENT_NOM)%'
     serviceNom: '%env(default:decision.service_nom:SERVICE_NOM)%'
+    serviceDenomination: '%env(default:decision.service_denomination:SERVICE_DENOMINATION)%'
     etablissementVille: '%env(default:decision.etablissement_ville:ETABLISSEMENT_VILLE)%'
     etablissementAdresseRue: '%env(default:decision.etablissement_adresse_rue:ETABLISSEMENT_ADRESSE_RUE)%'
     etablissementAdressePostale: '%env(default:decision.etablissement_adresse_postale:ETABLISSEMENT_ADRESSE_POSTALE)%'

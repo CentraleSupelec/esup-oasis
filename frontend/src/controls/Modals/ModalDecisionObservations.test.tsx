@@ -12,7 +12,7 @@ import { App } from "antd";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ModalDecisionObservations } from "./ModalDecisionObservations";
 
-// ─── Mocks ────────────────────────────────────────────────────────────────────
+// ─── Mocks ───
 
 const { mockUseGetItem, mockMutate, mockUsePatch } = vi.hoisted(() => ({
   mockUseGetItem: vi.fn(),

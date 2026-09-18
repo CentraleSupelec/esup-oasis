@@ -14,12 +14,15 @@ namespace App\State\DecisionAmenagementExamens;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use App\ApiResource\DecisionAmenagementExamens;
 
 readonly class DecisionAmenagementExamensProvider implements ProviderInterface
 {
     public function __construct(
         private DecisionAmenagementManager $decisionAmenagementManager,
+        #[Autowire('%env(default:decision.date_avis_medecin_requise:bool:PAEH_DATE_AVIS_MEDECIN_REQUISE)%')]
+        private bool $dateAvisMedecinRequise = false,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
@@ -29,7 +32,7 @@ readonly class DecisionAmenagementExamensProvider implements ProviderInterface
 
         return match ($entity) {
             null => null,
-            default => new DecisionAmenagementExamens($entity),
+            default => new DecisionAmenagementExamens($entity, $this->dateAvisMedecinRequise),
         };
     }
 }

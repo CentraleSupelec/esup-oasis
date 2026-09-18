@@ -41,6 +41,8 @@ class UtilisateurProvider implements ProviderInterface
         private readonly ProviderInterface $collectionProvider,
         private readonly UtilisateurManager $utilisateurManager,
         private readonly DecisionAmenagementManager $decisionAmenagementManager,
+        #[Autowire('%env(default:decision.date_avis_medecin_requise:bool:PAEH_DATE_AVIS_MEDECIN_REQUISE)%')]
+        private readonly bool $dateAvisMedecinRequise = false,
     ) {}
 
     /**
@@ -115,7 +117,7 @@ class UtilisateurProvider implements ProviderInterface
         $decisionEnCours = $this->decisionAmenagementManager->getDecisionCourante($entity);
         $utilisateur->decisionAmenagementAnneeEnCours = match ($decisionEnCours) {
             null => null,
-            default => new DecisionAmenagementExamens($decisionEnCours),
+            default => new DecisionAmenagementExamens($decisionEnCours, $this->dateAvisMedecinRequise),
         };
 
         return $utilisateur;

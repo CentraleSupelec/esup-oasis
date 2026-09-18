@@ -3290,11 +3290,13 @@ export interface components {
             observations?: string | null;
             /** Format: date */
             dateAvisMedecin?: string | null;
+            dateAvisMedecinRequise?: boolean;
         };
         "DecisionAmenagementExamens.html-utilisateur.out": {
             etat?: string;
             /** Format: date */
             dateAvisMedecin?: string | null;
+            dateAvisMedecinRequise?: boolean;
         };
         "DecisionAmenagementExamens.jsonld-decision.out": components["schemas"]["HydraItemBaseSchema"] & {
             etat?: string;
@@ -3302,11 +3304,13 @@ export interface components {
             observations?: string | null;
             /** Format: date */
             dateAvisMedecin?: string | null;
+            dateAvisMedecinRequise?: boolean;
         };
         "DecisionAmenagementExamens.jsonld-utilisateur.out": components["schemas"]["HydraItemBaseSchema"] & {
             etat?: string;
             /** Format: date */
             dateAvisMedecin?: string | null;
+            dateAvisMedecinRequise?: boolean;
         };
         "DecisionAmenagementExamens.pdf-decision.out": {
             etat?: string;
@@ -3314,6 +3318,7 @@ export interface components {
             observations?: string | null;
             /** Format: date */
             dateAvisMedecin?: string | null;
+            dateAvisMedecinRequise?: boolean;
         };
         "Demande-demande.in": {
             /**

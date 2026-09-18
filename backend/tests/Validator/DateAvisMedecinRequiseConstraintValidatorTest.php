@@ -8,8 +8,6 @@
  *
  */
 
-declare(strict_types=1);
-
 namespace App\Tests\Validator;
 
 use App\ApiResource\DecisionAmenagementExamens as DecisionResource;
@@ -35,7 +33,10 @@ class DateAvisMedecinRequiseConstraintValidatorTest extends ConstraintValidatorT
     public function testSansExigenceLEditionEstPossibleSansDate(): void
     {
         // Comportement d'un établissement qui n'active rien : inchangé.
-        $this->validator->validate($this->decision(etat: DecisionAmenagementExamens::ETAT_EDITION_DEMANDEE), new DateAvisMedecinRequiseConstraint());
+        $this->validator->validate(
+            $this->decision(etat: DecisionAmenagementExamens::ETAT_EDITION_DEMANDEE),
+            new DateAvisMedecinRequiseConstraint(),
+        );
 
         $this->assertNoViolation();
     }
@@ -45,7 +46,10 @@ class DateAvisMedecinRequiseConstraintValidatorTest extends ConstraintValidatorT
         $this->activerExigence();
         $contrainte = new DateAvisMedecinRequiseConstraint();
 
-        $this->validator->validate($this->decision(etat: DecisionAmenagementExamens::ETAT_EDITION_DEMANDEE), $contrainte);
+        $this->validator->validate(
+            $this->decision(etat: DecisionAmenagementExamens::ETAT_EDITION_DEMANDEE),
+            $contrainte,
+        );
 
         $this->buildViolation($contrainte->message)->atPath('property.path.dateAvisMedecin')->assertRaised();
     }
@@ -68,7 +72,10 @@ class DateAvisMedecinRequiseConstraintValidatorTest extends ConstraintValidatorT
         // décision ancienne dont la date n'a jamais été renseignée.
         $this->activerExigence();
 
-        $this->validator->validate($this->decision(etat: DecisionAmenagementExamens::ETAT_VALIDE), new DateAvisMedecinRequiseConstraint());
+        $this->validator->validate(
+            $this->decision(etat: DecisionAmenagementExamens::ETAT_VALIDE),
+            new DateAvisMedecinRequiseConstraint(),
+        );
 
         $this->assertNoViolation();
     }
