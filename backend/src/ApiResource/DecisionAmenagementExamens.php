@@ -18,7 +18,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProcessor;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProvider;
+use App\Validator\DateAvisMedecinRequiseConstraint;
 use App\Validator\EtatDecisionValideConstraint;
+use DateTimeInterface;
 use ReflectionProperty;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -37,6 +39,16 @@ use Symfony\Component\Serializer\Attribute\Ignore;
             securityPostDenormalize: "is_granted('" . self::MODIFIER_DECISION . "', object)",
         ),
     ],
+    // Aucune purge ne cible cette URI : le cache partagé resservait la décision et son
+    // PDF pendant une heure après modification d'un aménagement, sans aucun moyen de
+    // forcer la régénération depuis l'interface. La décision porte par ailleurs des
+    // données de santé, qui n'ont pas à séjourner dans un cache intermédiaire ni dans
+    // celui du navigateur. On la sort donc des caches : « public: false » supprime le
+    // s-maxage hérité de la configuration globale, « no_store » interdit le stockage.
+    cacheHeaders: [
+        'public' => false,
+        'no_store' => true,
+    ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
     security: "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "')",
@@ -44,6 +56,7 @@ use Symfony\Component\Serializer\Attribute\Ignore;
     processor: DecisionAmenagementExamensProcessor::class,
     stateOptions: new Options(entityClass: \App\Entity\DecisionAmenagementExamens::class),
 )]
+#[DateAvisMedecinRequiseConstraint]
 #[Map(target: \App\Entity\DecisionAmenagementExamens::class)]
 class DecisionAmenagementExamens
 {
@@ -107,7 +120,38 @@ class DecisionAmenagementExamens
         }
     }
 
+    #[Groups([self::GROUP_OUT, self::GROUP_IN])]
+    public ?string $observations {
+        get {
+            $prop = new ReflectionProperty(self::class, 'observations');
+            if (!$prop->isInitialized($this) && $this->entity !== null) {
+                $this->observations = $this->entity->getObservations();
+            }
+            return $this->observations ?? null;
+        }
+    }
+
+    // Le groupe « utilisateur » est nécessaire : la fiche du bénéficiaire décide d'après
+    // cette date si la demande d'édition est possible, et la lit sur la décision imbriquée.
+    #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT, self::GROUP_IN])]
+    public ?DateTimeInterface $dateAvisMedecin {
+        get {
+            $prop = new ReflectionProperty(self::class, 'dateAvisMedecin');
+            if (!$prop->isInitialized($this) && $this->entity !== null) {
+                $this->dateAvisMedecin = $this->entity->getDateAvisMedecin();
+            }
+            return $this->dateAvisMedecin ?? null;
+        }
+    }
+
     public function __construct(
         private readonly ?\App\Entity\DecisionAmenagementExamens $entity = null,
+        /**
+         * Indique si la date de l'avis du médecin conditionne l'édition. Renseigné par le
+         * provider depuis la configuration, pour que l'interface applique la même règle que
+         * le serveur au lieu de la deviner.
+         */
+        #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT])]
+        public bool $dateAvisMedecinRequise = false,
     ) {}
 }

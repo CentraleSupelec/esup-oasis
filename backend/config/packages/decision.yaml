@@ -1,0 +1,28 @@
+# Configuration de la décision d'aménagements (PAEH).
+#
+# Chaque valeur peut être surchargée par la variable d'environnement du même nom en
+# majuscules. Les valeurs par défaut reproduisent le document tel qu'il était rendu
+# jusqu'ici : une instance qui ne définit aucune de ces variables n'imprime rien de
+# différent et ne se voit imposer aucune règle nouvelle.
+parameters:
+  # Identité imprimée sur le document. Le gabarit livré utilise le nom, le service et
+  # la ville ; les autres sont à disposition d'un gabarit déposé en personnalisation.
+  decision.etablissement_nom: 'Université de Bordeaux'
+  decision.service_nom: 'Service PHASE'
+  # Forme employée à l'intérieur d'une phrase, où la majuscule serait incorrecte.
+  decision.service_denomination: 'service PHASE'
+  decision.etablissement_ville: 'Talence'
+  decision.etablissement_adresse_rue: '351 cours de la libération'
+  decision.etablissement_adresse_postale: '33405 Talence cedex'
+  decision.afficher_service_referent: false
+  decision.tribunal_administratif_ville: 'Bordeaux'
+  decision.tribunal_administratif_adresse: '9 rue Tastet, 33000 Bordeaux'
+
+  # Images du document, cherchées dans public/images. Si le fichier configuré est
+  # absent, celui livré est utilisé : une configuration incomplète ne casse rien.
+  decision.logo_fichier: 'logo_ub.svg'
+  decision.bandeau_fichier: 'triangle-ub.svg'
+
+  # Exiger la date de l'avis du médecin avant d'éditer la décision. À activer par les
+  # établissements dont le document cite cet avis dans son visa ; sans effet sinon.
+  decision.date_avis_medecin_requise: false

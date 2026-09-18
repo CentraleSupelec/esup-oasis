@@ -19,6 +19,7 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Sensiolabs\GotenbergBundle\GotenbergPdfInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
 
@@ -30,8 +31,27 @@ class PdfEncoder implements EncoderInterface
         private readonly GotenbergPdfInterface $pdf,
         private readonly LoggerInterface $logger,
         KernelInterface $appKernel,
+        #[Autowire('%env(default:decision.logo_fichier:LOGO_DECISION_FILENAME)%')]
+        private readonly string $logoDecisionFilename = 'logo_ub.svg',
+        #[Autowire('%env(default:decision.bandeau_fichier:TRIANGLE_DECISION_FILENAME)%')]
+        private readonly string $triangleDecisionFilename = 'triangle-ub.svg',
     ) {
         $this->projectRoot = $appKernel->getProjectDir();
+    }
+
+    /**
+     * Résout une image de la décision, avec repli sur celle livrée si le fichier
+     * configuré par l'établissement est absent : une configuration incomplète ne
+     * casse pas la génération du document.
+     */
+    private function imageAsset(string $fichier, string $repli): string
+    {
+        $chemin = $this->projectRoot . '/public/images/' . $fichier;
+        if (!is_file($chemin)) {
+            $chemin = $this->projectRoot . '/public/images/' . $repli;
+        }
+
+        return base64_encode(file_get_contents($chemin));
     }
 
     public function encode(mixed $data, string $format, array $context = []): string
@@ -58,8 +78,8 @@ class PdfEncoder implements EncoderInterface
         };
 
         if ($data[0] instanceof DecisionAmenagementExamens) {
-            $data['triangle_base64'] = base64_encode(file_get_contents($this->projectRoot
-            . '/public/images/triangle-ub.svg'));
+            $data['triangle_base64'] = $this->imageAsset($this->triangleDecisionFilename, 'triangle-ub.svg');
+            $data['logo_base64'] = $this->imageAsset($this->logoDecisionFilename, 'logo_ub.svg');
         }
 
         if ($data[0] instanceof ServicesFaits) {
