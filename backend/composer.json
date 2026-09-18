@@ -11,6 +11,7 @@
     "ext-ldap": "*",
     "ext-oci8": "*",
     "ext-pcntl": "*",
+    "ext-pgsql": "*",
     "api-platform/doctrine-orm": "^4.3",
     "api-platform/symfony": "^4.3",
     "doctrine/doctrine-bundle": "^3.2",

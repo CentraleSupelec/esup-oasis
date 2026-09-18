@@ -67,9 +67,14 @@ class NiveauResolver
      * @param array<int,int>         $entreeParCycle    cycle Apogée => niveau d'entrée (bac+N de départ)
      * @param array<int,string>      $libelleParNiveau  bac+N => libellé normalisé (1 => 'L1' … 8 => 'D3')
      * @param array<string,?string>  $surchargeParType  code type de diplôme => libellé forcé (ou null pour vide)
-     * @param list<string>           $typesLmd          types de diplôme LMD ; hors de cette liste, niveau non applicable ([] = pas de filtrage par type)
-     * @param array<string,array{0:string,1:int}> $prefixeParType  code type non-LMD => [préfixe, offset] ; libellé = préfixe + (année + offset)
-     * @param bool                   $typeDiplomeObligatoire  si true, un type de diplôme manquant (null) n'autorise pas le repli nominal LMD (le type null signale alors une inscription non synchronisée, pas un LMD) ; false = rétro-compatibilité (repli nominal)
+     * @param list<string>           $typesLmd          types de diplôme LMD ; hors de cette liste,
+     *                                                  niveau non applicable ([] = pas de filtrage)
+     * @param array<string,array{0:string,1:int}> $prefixeParType  code type non-LMD =>
+     *                                                  [préfixe, offset] ; libellé = préfixe + (année + offset)
+     * @param bool                   $typeDiplomeObligatoire  si true, un type de diplôme manquant
+     *                                                  n'autorise pas le repli nominal : le type absent
+     *                                                  signale une inscription non synchronisée, pas un
+     *                                                  diplôme LMD. false = repli nominal conservé.
      */
     public function __construct(
         private readonly array $entreeParCycle = [1 => 0, 2 => 3, 3 => 5],
@@ -86,7 +91,7 @@ class NiveauResolver
     /**
      * @param int|null    $cycle            cycle du diplôme (Apogée cod_cyc)
      * @param int|null    $anneeDansDiplome année dans le diplôme (Apogée cod_sis_daa)
-     * @param string|null $codeTypeDiplome  type de diplôme (Apogée cod_tpd_etb) : famille + surcharges cas particuliers
+     * @param string|null $codeTypeDiplome  type de diplôme (cod_tpd_etb) : famille et surcharges
      * @param bool        $sante            formation de santé (Apogée tem_sante = 'O') : niveau non applicable
      */
     public function resolve(

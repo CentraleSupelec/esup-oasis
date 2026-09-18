@@ -61,12 +61,12 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
         $this->assertFalse($user->isBoursier(), 'Le code NO ne doit pas dériver boursier');
     }
 
-    public function testMajInscriptionsCodeBoDeriveBoursier(): void
+    public function testMajInscriptionsCodeBoNeDerivePasBoursier(): void
     {
-        // Coeur de la règle : un code situation sociale "BO"
-        // doit dériver boursier = true, MÊME si le témoin Apogée legacy est faux.
-        // On exerce ici le VRAI UtilisateurManager (pas une réplique) via le
-        // FakeSiScolDataProvider configuré pour renvoyer "BO".
+        // La situation sociale est exposée telle quelle, mais n'alimente pas le témoin
+        // boursier : le SI scolarité porte son propre indicateur, qui couvre déjà les
+        // différentes bourses et peut légitimement contredire le code social (bourse
+        // retirée, dossier non validé). On exerce le vrai UtilisateurManager.
         FakeSiScolDataProvider::$boursier = false;
         FakeSiScolDataProvider::$codeSituationSociale = 'BO';
         FakeSiScolDataProvider::$libelleSituationSociale = 'Boursier';
@@ -81,7 +81,7 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
 
         $this->assertSame('BO', $user->getCodeSituationSociale());
         $this->assertSame('Boursier', $user->getLibelleSituationSociale());
-        $this->assertTrue($user->isBoursier(), 'Le code BO doit dériver boursier = true');
+        $this->assertFalse($user->isBoursier(), "Le code social ne doit pas contredire l'indicateur du SI");
     }
 
     public function testMajInscriptionsTemoinLegacyResteBoursier(): void

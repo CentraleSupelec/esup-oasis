@@ -99,9 +99,10 @@ disponibles dans le fichier
 * [OPTION STOCKAGE LOCAL] **STORAGE_BASE_PATH** : chemin de base des PJ sur le système de fichiers (`/data/PJ`)
 * **CLAMAV_SERVER** : serveur clamav (`clamav.univ.fr`)
 * **CLAMAV_PORT** : port du serveur clamav
-* [OPTIONNEL] **UNICAMPUS_USER** : utilisateur avec droits de lecture sur base oracle Unicampus
+* [OPTIONNEL] **UNICAMPUS_SGBD** : SGBD hébergeant la base Unicampus (`oracle` ou `postgresql`)
+* [OPTIONNEL] **UNICAMPUS_USER** : utilisateur avec droits de lecture sur base Unicampus
 * [OPTIONNEL] **UNICAMPUS_PWD** : mot de passe utilisateur Unicampus
-* [OPTIONNEL] **UNICAMPUS_SID** : url de la base Unicampus (`//serveur:port/SID`)
+* [OPTIONNEL] **UNICAMPUS_SID** : url de la base Unicampus (`//serveur:port/SID` pour oracle)
 * [OPTIONNEL] **UNICAMPUS_SUFFIXES** : suffixes ajoutés par unicampus aux numéros étudiants (`["suffixe1","suffixe2"]`;
   les RNE des établissements concernés pour l'instance Unicampus utilisée)
 * [OPTIONNEL] **ETABLISSEMENT_NOM** : nom de l'établissement imprimé sur la décision d'aménagements

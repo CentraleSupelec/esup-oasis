@@ -76,7 +76,7 @@ export function ScolariteListItem({
               {inscription.codeCursusAmenage && (
                 <Tooltip title={inscription.libelleCursusAmenage ?? inscription.codeCursusAmenage}>
                   <Tag color="purple" style={{ marginLeft: 8 }}>
-                    Cursus aménagé
+                    Cursus adapté
                   </Tag>
                 </Tooltip>
               )}
