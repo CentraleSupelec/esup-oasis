@@ -13,8 +13,10 @@ select iae.cod_anu,
            else trim(fixe.num_tel)
            end                               as num_tel,
        iaa.tem_brs_iaa,
-       iaa.cod_soc,
-       soc.lib_soc,
+       -- situation sociale : le code NO signifie « non renseigné » dans le paramétrage UPSaclay,
+       -- on le neutralise ici plutôt que côté OASIS, qui affiche tout code présent.
+       case when iaa.cod_soc = 'NO' then null else iaa.cod_soc end as cod_soc,
+       case when iaa.cod_soc = 'NO' then null else soc.lib_soc end as lib_soc,
        rgi.lib_rgi,
        lib_dip,
        ' ' as niveau, -- niveau brut laissé à blanc (table apogee.extern_niveau_etape non disponible ici) ; le niveau LMD est dérivé côté OASIS par NiveauResolver à partir de cycle + annee_diplome (données SISE nationales)
