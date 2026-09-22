@@ -57,9 +57,16 @@ class FakeSiScolDataProvider extends AbstractSiScolDataProvider
      * comme un SI qui ne renseigne pas ces champs.
      */
     public static ?string $codeEtape = null;
-    public static ?int $nombreInscriptionsEtape = null;
     public static ?string $codeCursusAmenage = null;
     public static ?string $libelleCursusAmenage = null;
+
+    /**
+     * Valeurs dérivées par le connecteur, équivalent du retour de
+     * ApogeeProvider::enrichirInscription(). null par défaut, comme un
+     * connecteur qui ne dérive rien.
+     */
+    public static ?string $niveauDerive = null;
+    public static ?bool $redoublant = null;
 
     /**
      * @inheritDoc
@@ -104,9 +111,10 @@ class FakeSiScolDataProvider extends AbstractSiScolDataProvider
                 'discipline' => 'Informatique',
                 'diplome' => 'Licence',
                 'codeEtape' => self::$codeEtape,
-                'nombreInscriptionsEtape' => self::$nombreInscriptionsEtape,
                 'codeCursusAmenage' => self::$codeCursusAmenage,
                 'libelleCursusAmenage' => self::$libelleCursusAmenage,
+                'niveauDerive' => self::$niveauDerive,
+                'redoublant' => self::$redoublant,
             ],
         ];
     }

@@ -52,12 +52,8 @@ services:
     factory: [ '@App\Service\SiScol\SiScolDataProviderFactory', 'create' ]
     autoconfigure: false
 
-  #APOGEE
-  App\Service\SiScol\ApogeeProvider:
-    arguments:
-      $username: '%env(resolve:APOGEE_USER)%'
-      $password: '%env(resolve:APOGEE_PWD)%'
-      $db: '%env(resolve:APOGEE_DB)%'
+  #APOGEE : connexion résolue par attributs dans ApogeeProvider, pour que les
+  #sous-classes déclarées par un établissement en héritent sans redéclaration.
 
   App\State\Utilisateur\UtilisateurManager:
     arguments:

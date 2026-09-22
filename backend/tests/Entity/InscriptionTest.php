@@ -18,108 +18,45 @@ final class InscriptionTest extends TestCase
     public function testGetNiveauPrefersNiveauFromFormation(): void
     {
         // Un SI scolarité qui renseigne le niveau de la formation garde exactement
-        // son affichage : la dérivation ne s'applique pas, même quand cycle, année
-        // et type de diplôme permettraient de conclure autrement.
-        $formation = (new Formation())->setNiveau('  Licence 1ère année  ');
+        // son affichage, même quand le connecteur en propose un autre.
         $inscription = (new Inscription())
-            ->setFormation($formation)
-            ->setCycle(2)
-            ->setAnneeDansDiplome(2)
-            ->setCodeTypeDiplome('37');
+            ->setFormation((new Formation())->setNiveau('  Licence 1ère année  '))
+            ->setNiveau('M1');
 
         self::assertSame('Licence 1ère année', $inscription->getNiveau());
     }
 
-    public function testGetNiveauIsDerivedWhenFormationHasNone(): void
+    public function testGetNiveauFallsBackToConnectorValue(): void
     {
-        // Formation sans niveau (colonne vide ou SI qui ne la renseigne pas) :
-        // la dérivation prend le relais plutôt que de laisser le champ vide.
-        // Une colonne de longueur fixe peut arriver complétée d'espaces : ce n'est pas
-        // davantage un niveau renseigné qu'une valeur vide.
+        // Formation sans niveau (colonne vide ou SI qui ne la renseigne pas) : on
+        // reprend celui fourni par le connecteur. Une colonne de longueur fixe peut
+        // arriver complétée d'espaces, ce n'est pas davantage un niveau renseigné
+        // qu'une valeur vide.
         foreach ([null, '', ' ', '   '] as $niveauFormation) {
             $inscription = (new Inscription())
                 ->setFormation((new Formation())->setNiveau($niveauFormation))
-                ->setCycle(2)
-                ->setAnneeDansDiplome(1)
-                ->setCodeTypeDiplome('37');
+                ->setNiveau('M1');
 
             self::assertSame('M1', $inscription->getNiveau());
         }
     }
 
-    public function testGetNiveauDerivesLmdFromCycleAndYear(): void
+    public function testGetNiveauIsNullWithoutAnySource(): void
     {
-        // Le type de diplôme est obligatoire côté entité (UPSaclay) : un type LMD
-        // (Licence 86, Master 37) donne le niveau nominal depuis cycle + année.
-        self::assertSame('L1', (new Inscription())
-            ->setCycle(1)->setAnneeDansDiplome(1)->setCodeTypeDiplome('86')
-            ->getNiveau());
-        self::assertSame('L2', (new Inscription())
-            ->setCycle(1)->setAnneeDansDiplome(2)->setCodeTypeDiplome('86')
-            ->getNiveau());
-        self::assertSame('L3', (new Inscription())
-            ->setCycle(1)->setAnneeDansDiplome(3)->setCodeTypeDiplome('86')
-            ->getNiveau());
-        self::assertSame('M1', (new Inscription())
-            ->setCycle(2)->setAnneeDansDiplome(1)->setCodeTypeDiplome('37')
-            ->getNiveau());
-        self::assertSame('M2', (new Inscription())
-            ->setCycle(2)->setAnneeDansDiplome(2)->setCodeTypeDiplome('37')
-            ->getNiveau());
-    }
-
-    public function testGetNiveauIsNullWithoutDegreeType(): void
-    {
-        // Type de diplôme manquant (inscription non synchronisée) : pas de repli
-        // nominal LMD, niveau vide — malgré cycle + année valides.
-        self::assertNull((new Inscription())->setCycle(1)->setAnneeDansDiplome(1)->getNiveau());
-    }
-
-    public function testGetNiveauFallsBackToCodeEtapePrefix(): void
-    {
-        self::assertSame('M1', (new Inscription())->setCodeEtape('M1INFO')->getNiveau());
-    }
-
-    public function testGetNiveauIsNullWhenNotApplicable(): void
-    {
+        // Aucun connecteur ne dérive le niveau et la formation n'en porte pas :
+        // comportement d'une instance qui n'a rien personnalisé.
         self::assertNull((new Inscription())->getNiveau());
-        self::assertNull((new Inscription())->setCodeEtape('PASSMED')->getNiveau());
-    }
-
-    public function testGetNiveauResolvedForLmdDegreeType(): void
-    {
-        self::assertSame(
-            'L1',
-            (new Inscription())->setCycle(1)->setAnneeDansDiplome(1)->setCodeTypeDiplome('86')->getNiveau(),
-        );
-    }
-
-    public function testGetNiveauIsNullForNonLmdDegreeType(): void
-    {
-        // DU/échange (type hors LMD sans libellé propre) : pas de niveau, malgré cycle + année.
         self::assertNull(
-            (new Inscription())->setCycle(1)->setAnneeDansDiplome(1)->setCodeTypeDiplome('72')->getNiveau(),
+            (new Inscription())->setFormation((new Formation())->setNiveau(null))->getNiveau(),
         );
     }
 
-    public function testGetNiveauUsesOwnLabelForNonLmdDegreeType(): void
+    public function testRedoublantIsNullUntilConnectorDecides(): void
     {
-        // BUT/ingénieur : libellé propre dérivé du type + année (BUT2, ING3…).
-        self::assertSame(
-            'BUT2',
-            (new Inscription())->setCycle(1)->setAnneeDansDiplome(2)->setCodeTypeDiplome('16')->getNiveau(),
-        );
-        self::assertSame(
-            'ING3',
-            (new Inscription())->setCycle(4)->setAnneeDansDiplome(1)->setCodeTypeDiplome('34')->getNiveau(),
-        );
-    }
-
-    public function testGetNiveauIsNullForSante(): void
-    {
-        // Formation de santé (tem_sante = 'O') : niveau vide même pour un cycle LMD.
-        self::assertNull(
-            (new Inscription())->setCycle(1)->setAnneeDansDiplome(1)->setSante(true)->getNiveau(),
-        );
+        // Le cœur ne déduit pas le redoublement : sans connecteur pour se
+        // prononcer, l'information reste inconnue plutôt que fausse.
+        self::assertNull((new Inscription())->isRedoublant());
+        self::assertTrue((new Inscription())->setRedoublant(true)->isRedoublant());
+        self::assertFalse((new Inscription())->setRedoublant(false)->isRedoublant());
     }
 }

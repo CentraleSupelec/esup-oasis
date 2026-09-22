@@ -3881,7 +3881,7 @@ export interface components {
             fin?: string;
             codeEtape?: string | null;
             niveau?: string | null;
-            redoublant?: boolean;
+            redoublant?: boolean | null;
             codeCursusAmenage?: string | null;
             libelleCursusAmenage?: string | null;
         };
@@ -3893,7 +3893,7 @@ export interface components {
             fin?: string;
             codeEtape?: string | null;
             niveau?: string | null;
-            redoublant?: boolean;
+            redoublant?: boolean | null;
             codeCursusAmenage?: string | null;
             libelleCursusAmenage?: string | null;
         };
@@ -3905,7 +3905,7 @@ export interface components {
             fin?: string;
             codeEtape?: string | null;
             niveau?: string | null;
-            redoublant?: boolean;
+            redoublant?: boolean | null;
             codeCursusAmenage?: string | null;
             libelleCursusAmenage?: string | null;
         };
@@ -3920,7 +3920,7 @@ export interface components {
             fin?: string;
             codeEtape?: string | null;
             niveau?: string | null;
-            redoublant?: boolean;
+            redoublant?: boolean | null;
             codeCursusAmenage?: string | null;
             libelleCursusAmenage?: string | null;
         };
@@ -3932,7 +3932,7 @@ export interface components {
             fin?: string;
             codeEtape?: string | null;
             niveau?: string | null;
-            redoublant?: boolean;
+            redoublant?: boolean | null;
             codeCursusAmenage?: string | null;
             libelleCursusAmenage?: string | null;
         };
@@ -3944,7 +3944,7 @@ export interface components {
             fin?: string;
             codeEtape?: string | null;
             niveau?: string | null;
-            redoublant?: boolean;
+            redoublant?: boolean | null;
             codeCursusAmenage?: string | null;
             libelleCursusAmenage?: string | null;
         };

@@ -105,11 +105,9 @@ final class Inscription
     /**
      * Niveau d'études de l'inscription (L1/L2/L3/M1/M2/D1-D3, BUT1…).
      *
-     * Le niveau porté par la formation fait foi ; il n'est dérivé que s'il est
-     * absent, à partir des données Apogée nationales (cycle du diplôme + année
-     * dans le diplôme), avec repli sur le préfixe du code étape pour les
-     * instances où celui-ci encode le niveau (L1INFO, M1ARTS…). null quand
-     * aucune source ne permet de conclure (PASS, LAS, codes locaux).
+     * Le niveau porté par la formation fait foi ; à défaut, celui fourni par le
+     * connecteur de SI scolarité. null quand aucune des deux sources ne permet
+     * de conclure.
      */
     #[Groups([Utilisateur::GROUP_OUT, Demande::GROUP_OUT, Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT])]
     public ?string $niveau {
@@ -117,7 +115,7 @@ final class Inscription
             $prop = new ReflectionProperty(self::class, 'niveau');
             if (!$prop->isInitialized($this) && $this->entity !== null) {
                 // Source unique : l'arbitrage entre le niveau de la formation et
-                // la dérivation (résolveur + repli sur le code étape) vit sur l'entité.
+                // celui du connecteur vit sur l'entité.
                 $this->niveau = $this->entity->getNiveau();
             }
             return $this->niveau ?? null;
@@ -155,21 +153,18 @@ final class Inscription
     }
 
     /**
-     * Redoublement déduit à la volée du compteur natif du SI scolarité
-     * (nbr_ins_etp, au-delà de un) via RedoublementCalculator, avec garde sur le
-     * cursus aménagé. Jamais persisté.
+     * Redoublement tel que déterminé par le connecteur de SI scolarité. null
+     * quand celui-ci ne se prononce pas : la déduction dépend des conventions
+     * de l'établissement (étalement, réorientation, césure…).
      */
     #[Groups([Utilisateur::GROUP_OUT, Demande::GROUP_OUT, Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT])]
-    public bool $redoublant {
+    public ?bool $redoublant {
         get {
             $prop = new ReflectionProperty(self::class, 'redoublant');
             if (!$prop->isInitialized($this) && $this->entity !== null) {
-                $this->redoublant = (new \App\Service\SiScol\RedoublementCalculator())->estRedoublant(
-                    $this->entity->getNombreInscriptionsEtape(),
-                    $this->entity->getCodeCursusAmenage(),
-                );
+                $this->redoublant = $this->entity->isRedoublant();
             }
-            return $this->redoublant ?? false;
+            return $this->redoublant ?? null;
         }
     }
 

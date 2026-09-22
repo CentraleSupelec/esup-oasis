@@ -24,9 +24,15 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 class ApogeeProvider extends AbstractSiScolDataProvider
 {
     public function __construct(
+        // Connexion résolue par attribut plutôt que dans services.yaml : une
+        // sous-classe déclarée par un établissement hérite ainsi de la
+        // configuration sans avoir à redéclarer ses arguments.
+        #[Autowire('%env(resolve:APOGEE_USER)%')]
         private readonly string $username,
         #[SensitiveParameter]
+        #[Autowire('%env(resolve:APOGEE_PWD)%')]
         private readonly string $password,
+        #[Autowire('%env(resolve:APOGEE_DB)%')]
         private readonly string $db,
         private readonly LoggerInterface $logger,
         #[Autowire('%env(file:resolve:APOGEE_REQUETE_INSCRIPTIONS)%')]
@@ -101,25 +107,14 @@ class ApogeeProvider extends AbstractSiScolDataProvider
                 'adresseCodePostal' => isset($row->ADR_COD_BDI) ? trim($row->ADR_COD_BDI) : null,
                 'adresseVille' => isset($row->ADR_LIB_VIL) ? trim($row->ADR_LIB_VIL) : null,
                 'adressePays' => isset($row->ADR_COD_PAY) ? trim($row->ADR_COD_PAY) : null,
-                // code étape (cod_etp) pour exposer le cursus
-                // d'inscription et en dériver le niveau d'études côté API.
+                // code étape (cod_etp) pour exposer le cursus d'inscription.
                 'codeEtape' => isset($row->COD_ETP) ? trim($row->COD_ETP) : null,
-                // compteur natif (nbr_ins_etp) du nombre
-                // d'inscriptions à l'étape, base du calcul redoublement.
-                'nombreInscriptionsEtape' => isset($row->NBR_INS_ETP) ? (int) $row->NBR_INS_ETP : null,
                 // cursus aménagé SISE (cod_sis_cur_amg / lib_cur_amg).
                 'codeCursusAmenage' => isset($row->COD_SIS_CUR_AMG) ? trim($row->COD_SIS_CUR_AMG) : null,
                 'libelleCursusAmenage' => isset($row->LIB_CUR_AMG) ? trim($row->LIB_CUR_AMG) : null,
-                // Cycle du diplôme (cod_cyc) + année dans le diplôme (cod_sis_daa,
-                // SISE national) : base du niveau dérivé côté API par NiveauResolver.
-                'cycle' => isset($row->CYCLE) && trim((string) $row->CYCLE) !== '' ? (int) $row->CYCLE : null,
-                'anneeDansDiplome' => isset($row->ANNEE_DIPLOME) && trim((string) $row->ANNEE_DIPLOME) !== '' ? (int) $row->ANNEE_DIPLOME : null,
-                // Type de diplôme (cod_tpd_etb) + indicateur santé (tem_sante) :
-                // séparent les familles (LMD vs santé vs BUT/DUT/ingénieur/DU),
-                // base du filtrage du niveau côté API par NiveauResolver.
-                'codeTypeDiplome' => isset($row->COD_TPD_ETB) && trim((string) $row->COD_TPD_ETB) !== '' ? trim($row->COD_TPD_ETB) : null,
-                'sante' => isset($row->TEM_SANTE) && trim((string) $row->TEM_SANTE) === 'O',
-            ];
+                // Les clés du cœur l'emportent : l'enrichissement ne peut qu'ajouter
+                // des valeurs, jamais écraser celles lues ci-dessus.
+            ] + $this->enrichirInscription($row);
         }
 
         if (isset($numTel) && null === $etudiant->getTelPerso()) {
@@ -131,6 +126,28 @@ class ApogeeProvider extends AbstractSiScolDataProvider
             $etudiant->setGenre($codSexEtu);
         }
         return $formations;
+    }
+
+    /**
+     * Point d'extension : valeurs dérivées de la ligne Apogée brute par
+     * l'établissement. Renvoie un tableau vide ici, donc aucune dérivation par
+     * défaut : les règles en jeu (correspondance type de diplôme => niveau,
+     * interprétation du compteur d'inscriptions à l'étape) dépendent du
+     * paramétrage Apogée local et n'ont pas de valeur universelle.
+     *
+     * Un établissement qui veut les dériver déclare une sous-classe dans
+     * personnalisation/SiScol, lui donne son propre getProviderId() et la
+     * sélectionne via la variable d'environnement SI_SCOL. Les colonnes
+     * supplémentaires nécessaires (cycle, année dans le diplôme, type de
+     * diplôme, compteur d'inscriptions…) sont ajoutées à sa requête
+     * d'inscriptions, également personnalisable.
+     *
+     * @param  object $row ligne telle que renvoyée par oci_fetch_object()
+     * @return array{niveauDerive?: ?string, redoublant?: bool}
+     */
+    protected function enrichirInscription(object $row): array
+    {
+        return [];
     }
 
     /**

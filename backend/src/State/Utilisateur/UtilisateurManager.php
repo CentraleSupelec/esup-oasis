@@ -555,17 +555,14 @@ readonly class UtilisateurManager
                 ) {
                     //trouvée, on passe son chemin
                     unset($inscriptions[$id]);
-                    //rafraîchissement des données d'étape : le compteur d'inscriptions
-                    //et le cursus aménagé peuvent évoluer côté SI en cours d'année
+                    //rafraîchissement des données d'étape : le cursus aménagé comme
+                    //le redoublement peuvent évoluer côté SI en cours d'année
                     $existante
                         ->setCodeEtape($inscription['codeEtape'] ?? null)
-                        ->setNombreInscriptionsEtape($inscription['nombreInscriptionsEtape'] ?? null)
                         ->setCodeCursusAmenage($inscription['codeCursusAmenage'] ?? null)
                         ->setLibelleCursusAmenage($inscription['libelleCursusAmenage'] ?? null)
-                        ->setCycle($inscription['cycle'] ?? null)
-                        ->setAnneeDansDiplome($inscription['anneeDansDiplome'] ?? null)
-                        ->setCodeTypeDiplome($inscription['codeTypeDiplome'] ?? null)
-                        ->setSante($inscription['sante'] ?? false);
+                        ->setNiveau($inscription['niveauDerive'] ?? null)
+                        ->setRedoublant($inscription['redoublant'] ?? null);
                     if (null === $existante->getFormation()->getDiplome()) {
                         //rattrapage pour bilan activité
                         $formation = $this->formationManager->getFormation(
@@ -600,13 +597,10 @@ readonly class UtilisateurManager
                 ->setFin($inscription['fin'])
                 ->setFormation($formation)
                 ->setCodeEtape($inscription['codeEtape'] ?? null)
-                ->setNombreInscriptionsEtape($inscription['nombreInscriptionsEtape'] ?? null)
                 ->setCodeCursusAmenage($inscription['codeCursusAmenage'] ?? null)
                 ->setLibelleCursusAmenage($inscription['libelleCursusAmenage'] ?? null)
-                ->setCycle($inscription['cycle'] ?? null)
-                ->setAnneeDansDiplome($inscription['anneeDansDiplome'] ?? null)
-                ->setCodeTypeDiplome($inscription['codeTypeDiplome'] ?? null)
-                ->setSante($inscription['sante'] ?? false);
+                ->setNiveau($inscription['niveauDerive'] ?? null)
+                ->setRedoublant($inscription['redoublant'] ?? null);
 
             $utilisateur->addInscription($new);
         }
