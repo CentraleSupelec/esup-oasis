@@ -34,7 +34,7 @@ export const ScolariteSection: React.FC<ScolariteSectionProps> = ({ utilisateur,
           <Descriptions.Item label="Régime d'inscription">
             {utilisateur?.statutEtudiant || <MinusOutlined />}
           </Descriptions.Item>
-          {utilisateur.codeSituationSociale && utilisateur.codeSituationSociale !== "NO" && (
+          {utilisateur.codeSituationSociale && (
             <Descriptions.Item label="Situation sociale">
               {utilisateur.libelleSituationSociale || utilisateur.codeSituationSociale || (
                 <MinusOutlined />

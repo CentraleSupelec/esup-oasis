@@ -32,11 +32,12 @@ class FakeSiScolDataProvider extends AbstractSiScolDataProvider
      * Situation sociale simulée renvoyée par le mock, surchargeable depuis les
      * tests pour exercer les différentes branches de la projection réelle
      * (UtilisateurManager) sans dépendre d'Apogée. Valeurs par défaut : étudiant
-     * non boursier ("NO"/"Normal").
+     * non boursier, sans situation sociale renseignée — comme un SI qui ne
+     * fournit pas cette donnée.
      */
     public static bool $boursier = false;
-    public static ?string $codeSituationSociale = 'NO';
-    public static ?string $libelleSituationSociale = 'Normal';
+    public static ?string $codeSituationSociale = null;
+    public static ?string $libelleSituationSociale = null;
 
     /**
      * Adresse simulée, surchargeable depuis les tests pour exercer la

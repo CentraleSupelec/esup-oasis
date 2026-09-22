@@ -15,12 +15,12 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
         $container = static::getContainer();
         $em = $container->get('doctrine')->getManager();
         $user = $em->getRepository(Utilisateur::class)->findOneBy(['uid' => 'beneficiaire']);
-        
+
         /** @var UtilisateurManager $manager */
         $manager = $container->get(UtilisateurManager::class);
-        
+
         $manager->initNumeroAnonyme($user);
-        
+
         $this->assertNotNull($user->getNumeroAnonyme());
         $this->assertStringStartsWith(date('Y'), (string)$user->getNumeroAnonyme());
     }
@@ -30,7 +30,7 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
         $container = static::getContainer();
         /** @var UtilisateurManager $manager */
         $manager = $container->get(UtilisateurManager::class);
-        
+
         $admins = $manager->parRole('ROLE_ADMIN');
         $this->assertNotEmpty($admins);
         // Find 'admin' in the list
@@ -38,12 +38,11 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
         $this->assertContains('admin', $uids);
     }
 
-    public function testMajInscriptionsProjetteSituationSociale(): void
+    public function testMajInscriptionsSansSituationSocialeLaisseVide(): void
     {
-        // La projection situation sociale est alimentée par le
-        // SiScolDataProvider. En env de test, AbstractSiScolDataProvider est aliasé
-        // sur FakeSiScolDataProvider qui renvoie codeSituationSociale "NO"/"Normal"
-        // et boursier=false. On valide que la projection recopie ces champs.
+        // Un SI scolarité qui ne renseigne pas la situation sociale (cas du
+        // FakeSiScolDataProvider par défaut) ne doit produire aucune valeur : la
+        // fiche n'affiche alors pas la ligne. On exerce le vrai UtilisateurManager.
         $container = static::getContainer();
         $em = $container->get('doctrine')->getManager();
         // 'demandeur' porte un numeroEtudiant (123456), donc la MAJ scol se déclenche.
@@ -51,14 +50,11 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
 
         /** @var UtilisateurManager $manager */
         $manager = $container->get(UtilisateurManager::class);
+        $manager->majInscriptionsEtIdentite($user, new \DateTime('2024-09-01'), new \DateTime('2025-08-31'));
 
-        $debut = new \DateTime('2024-09-01');
-        $fin = new \DateTime('2025-08-31');
-        $manager->majInscriptionsEtIdentite($user, $debut, $fin);
-
-        $this->assertSame('NO', $user->getCodeSituationSociale());
-        $this->assertSame('Normal', $user->getLibelleSituationSociale());
-        $this->assertFalse($user->isBoursier(), 'Le code NO ne doit pas dériver boursier');
+        $this->assertNull($user->getCodeSituationSociale());
+        $this->assertNull($user->getLibelleSituationSociale());
+        $this->assertFalse($user->isBoursier());
     }
 
     public function testMajInscriptionsCodeBoNeDerivePasBoursier(): void
@@ -87,10 +83,10 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
     public function testMajInscriptionsTemoinLegacyResteBoursier(): void
     {
         // Rétrocompat : le témoin boursier legacy d'Apogée reste honoré même quand
-        // le code situation sociale n'est pas "BO".
+        // aucune situation sociale n'est renseignée.
         FakeSiScolDataProvider::$boursier = true;
-        FakeSiScolDataProvider::$codeSituationSociale = 'NO';
-        FakeSiScolDataProvider::$libelleSituationSociale = 'Normal';
+        FakeSiScolDataProvider::$codeSituationSociale = null;
+        FakeSiScolDataProvider::$libelleSituationSociale = null;
 
         $container = static::getContainer();
         $em = $container->get('doctrine')->getManager();
@@ -131,12 +127,67 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
         $this->assertSame('FRANCE', $adresse->getPays());
     }
 
+    public function testMajInscriptionsPersisteNiveauEtRedoublementDuConnecteur(): void
+    {
+        // Le niveau et le redoublement sont fournis par le connecteur de SI
+        // scolarité (clés niveauDerive / redoublant) et persistés tels quels : le
+        // cœur ne recalcule rien. On lit la colonne en base plutôt que via
+        // getNiveau(), qui arbitre avec le niveau porté par la formation.
+        FakeSiScolDataProvider::$niveauDerive = 'M1';
+        FakeSiScolDataProvider::$redoublant = true;
+
+        $container = static::getContainer();
+        $em = $container->get('doctrine')->getManager();
+        $user = $em->getRepository(Utilisateur::class)->findOneBy(['uid' => 'demandeur']);
+
+        /** @var UtilisateurManager $manager */
+        $manager = $container->get(UtilisateurManager::class);
+        $manager->majInscriptionsEtIdentite($user, new \DateTime('2024-09-01'), new \DateTime('2025-08-31'));
+
+        $inscription = $user->getInscriptions()->first();
+        $this->assertNotFalse($inscription, 'Le mock doit produire une inscription');
+        $this->assertTrue($inscription->isRedoublant());
+
+        $niveauPersiste = $em->getConnection()->fetchOne(
+            'SELECT niveau FROM inscription WHERE id = :id',
+            ['id' => $inscription->getId()],
+        );
+        $this->assertSame('M1', $niveauPersiste);
+    }
+
+    public function testMajInscriptionsSansDerivationLaisseNiveauEtRedoublementInconnus(): void
+    {
+        // Connecteur qui ne dérive rien (comportement par défaut, celui d'une
+        // instance sans personnalisation) : niveau vide et redoublement inconnu,
+        // jamais "non redoublant" par défaut.
+        FakeSiScolDataProvider::$niveauDerive = null;
+        FakeSiScolDataProvider::$redoublant = null;
+
+        $container = static::getContainer();
+        $em = $container->get('doctrine')->getManager();
+        $user = $em->getRepository(Utilisateur::class)->findOneBy(['uid' => 'demandeur']);
+
+        /** @var UtilisateurManager $manager */
+        $manager = $container->get(UtilisateurManager::class);
+        $manager->majInscriptionsEtIdentite($user, new \DateTime('2024-09-01'), new \DateTime('2025-08-31'));
+
+        $inscription = $user->getInscriptions()->first();
+        $this->assertNotFalse($inscription, 'Le mock doit produire une inscription');
+        $this->assertNull($inscription->isRedoublant());
+
+        $niveauPersiste = $em->getConnection()->fetchOne(
+            'SELECT niveau FROM inscription WHERE id = :id',
+            ['id' => $inscription->getId()],
+        );
+        $this->assertNull($niveauPersiste);
+    }
+
     protected function tearDown(): void
     {
         // Réinitialise le mock situation sociale pour ne pas polluer les autres tests.
         FakeSiScolDataProvider::$boursier = false;
-        FakeSiScolDataProvider::$codeSituationSociale = 'NO';
-        FakeSiScolDataProvider::$libelleSituationSociale = 'Normal';
+        FakeSiScolDataProvider::$codeSituationSociale = null;
+        FakeSiScolDataProvider::$libelleSituationSociale = null;
         // Idem pour l'adresse simulée.
         FakeSiScolDataProvider::$adresseLigne1 = null;
         FakeSiScolDataProvider::$adresseLigne2 = null;
@@ -144,7 +195,12 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
         FakeSiScolDataProvider::$adresseCodePostal = null;
         FakeSiScolDataProvider::$adresseVille = null;
         FakeSiScolDataProvider::$adressePays = null;
-        // Idem pour le mock des données d'étape.
+        // Idem pour le mock des données d'étape et des valeurs dérivées.
+        FakeSiScolDataProvider::$codeEtape = null;
+        FakeSiScolDataProvider::$codeCursusAmenage = null;
+        FakeSiScolDataProvider::$libelleCursusAmenage = null;
+        FakeSiScolDataProvider::$niveauDerive = null;
+        FakeSiScolDataProvider::$redoublant = null;
         parent::tearDown();
     }
 
@@ -152,26 +208,26 @@ class UtilisateurManagerTest extends ApiTestCaseCustom
     {
         $container = static::getContainer();
         $em = $container->get('doctrine')->getManager();
-        
+
         // On crée une demande pour un type qui n'a qu'un profil (artiste, id 2)
         $typeDemande = $em->getRepository(\App\Entity\TypeDemande::class)->find(2);
         $campagne = $typeDemande->getCampagnes()->first();
         $demandeur = $em->getRepository(Utilisateur::class)->findOneBy(['uid' => 'demandeur2']);
-        
+
         $demande = new \App\Entity\Demande();
         $demande->setCampagne($campagne);
         $demande->setDemandeur($demandeur);
         $demande->setEtat($em->getRepository(\App\Entity\EtatDemande::class)->find(\App\Entity\EtatDemande::RECEPTIONNEE));
         $demande->setDateDepot(new \DateTime());
-        
+
         $em->persist($demande);
         $em->flush();
-        
+
         /** @var UtilisateurManager $manager */
         $manager = $container->get(UtilisateurManager::class);
-        
+
         $beneficiaire = $manager->creerBeneficiairePourDemande($demande, null, 'gestionnaire');
-        
+
         $this->assertNotNull($beneficiaire);
         $this->assertEquals($demandeur, $beneficiaire->getUtilisateur());
         $this->assertEquals(6, $beneficiaire->getProfil()->getId()); // profil6 for artistes
