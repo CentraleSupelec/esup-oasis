@@ -18,8 +18,8 @@ use Symfony\Component\Validator\Constraint;
  *
  * Utile aux établissements dont le document cite cet avis dans son visa : sans la date,
  * la mention légale s'imprime à trous sur une pièce qui fait courir un délai de recours.
- * Les autres n'ont rien à faire — la contrainte ne s'applique que si la variable
- * PAEH_DATE_AVIS_MEDECIN_REQUISE est mise à true, et reste sans effet sinon.
+ * La contrainte ne s'applique qu'aux bénéficiaires dont un profil l'active
+ * (ProfilBeneficiaire::avisMedicalRequis) ; elle reste sans effet sinon.
  */
 #[Attribute]
 class DateAvisMedecinRequiseConstraint extends Constraint

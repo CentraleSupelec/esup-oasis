@@ -4424,23 +4424,27 @@ export interface components {
             libelle: string;
             actif?: boolean;
             avecTypologie?: boolean;
+            avisMedicalRequis?: boolean;
         };
         "ProfilBeneficiaire-profil.in.jsonMergePatch": {
             libelle?: string;
             actif?: boolean;
             avecTypologie?: boolean;
+            avisMedicalRequis?: boolean;
         };
         "ProfilBeneficiaire.html-profil.out": {
             id?: number | null;
             libelle: string;
             actif?: boolean;
             avecTypologie?: boolean;
+            avisMedicalRequis?: boolean;
         };
         "ProfilBeneficiaire.jsonld-profil.out": components["schemas"]["HydraItemBaseSchema"] & {
             id?: number | null;
             libelle: string;
             actif?: boolean;
             avecTypologie?: boolean;
+            avisMedicalRequis?: boolean;
         };
         "Question.html-question.out": {
             id?: number | null;

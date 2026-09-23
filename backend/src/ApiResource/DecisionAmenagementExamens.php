@@ -138,8 +138,8 @@ class DecisionAmenagementExamens
         private readonly ?\App\Entity\DecisionAmenagementExamens $entity = null,
         /**
          * Indique si la date de l'avis du médecin conditionne l'édition. Renseigné par le
-         * provider depuis la configuration, pour que l'interface applique la même règle que
-         * le serveur au lieu de la deviner.
+         * provider selon les profils du bénéficiaire (cf. ExigenceAvisMedical), pour que
+         * l'interface applique la même règle que le serveur au lieu de la deviner.
          */
         #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT])]
         public bool $dateAvisMedecinRequise = false,

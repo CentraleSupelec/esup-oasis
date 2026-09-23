@@ -65,8 +65,8 @@ class DecisionAmenagementExamens
 
     /**
      * Date de l'avis du médecin, citée par le visa du document pour les établissements
-     * dont la décision s'y réfère. Facultative : sa présence n'est exigée que si
-     * decision.date_avis_medecin_requise est activé.
+     * dont la décision s'y réfère. Facultative : sa présence n'est exigée que pour les
+     * profils de bénéficiaire qui le demandent (cf. ExigenceAvisMedical).
      */
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?DateTimeInterface $dateAvisMedecin = null;

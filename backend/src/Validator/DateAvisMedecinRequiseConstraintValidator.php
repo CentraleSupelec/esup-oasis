@@ -14,31 +14,24 @@ use App\ApiResource\DecisionAmenagementExamens as DecisionResource;
 use App\Entity\DecisionAmenagementExamens;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class DateAvisMedecinRequiseConstraintValidator extends ConstraintValidator
 {
-    /**
-     * @param bool $requise l'exigence est facultative : tant qu'elle n'est pas demandée,
-     *                      l'édition reste possible sans date, comme auparavant
-     */
-    public function __construct(
-        #[Autowire('%env(default:decision.date_avis_medecin_requise:bool:PAEH_DATE_AVIS_MEDECIN_REQUISE)%')]
-        private readonly bool $requise = false,
-    ) {}
-
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof DateAvisMedecinRequiseConstraint) {
             throw new UnexpectedTypeException($constraint, DateAvisMedecinRequiseConstraint::class);
         }
 
-        if (!$this->requise) {
+        if (!$value instanceof DecisionResource) {
             return;
         }
 
-        if (!$value instanceof DecisionResource) {
+        // L'exigence dépend des profils du bénéficiaire ; le provider l'a évaluée en
+        // chargeant la décision (cf. ExigenceAvisMedical), et l'interface lit la même
+        // valeur. Elle n'est pas modifiable par le client (groupe de sortie seul).
+        if (!$value->dateAvisMedecinRequise) {
             return;
         }
 

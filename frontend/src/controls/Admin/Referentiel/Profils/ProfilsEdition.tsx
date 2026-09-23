@@ -117,6 +117,14 @@ export function ProfilsEdition({ editedItem, setEditedItem }: ProfilsEditionProp
           >
             <Switch />
           </Form.Item>
+          <Form.Item
+            name="avisMedicalRequis"
+            label="Avis médical requis pour éditer la décision d'aménagements"
+            tooltip="La date de l'avis du médecin devra être renseignée avant l'édition de la décision des bénéficiaires de ce profil."
+            valuePropName="checked"
+          >
+            <Switch />
+          </Form.Item>
         </Form>
       </Card>
     </Drawer>

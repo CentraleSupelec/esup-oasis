@@ -105,8 +105,6 @@ disponibles dans le fichier
 * [OPTIONNEL] **UNICAMPUS_SID** : url de la base Unicampus (`//serveur:port/SID` pour oracle)
 * [OPTIONNEL] **UNICAMPUS_SUFFIXES** : suffixes ajoutés par unicampus aux numéros étudiants (`["suffixe1","suffixe2"]`;
   les RNE des établissements concernés pour l'instance Unicampus utilisée)
-* [OPTIONNEL] **PAEH_DATE_AVIS_MEDECIN_REQUISE** : exige la date de l'avis du médecin avant d'éditer la décision
-  (`false`) — cf. [Décision d'aménagements](decision.md)
 
 Les valeurs renseignées dans le fichier .env peuvent être surchargées par des variables d'environnement au niveau
 système (https://symfony.com/doc/current/configuration.html#overriding-environment-variables-defined-by-the-system), ou

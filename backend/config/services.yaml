@@ -6,11 +6,6 @@
 parameters:
   .container.dumper.inline_factories: true
 
-  # Exiger la date de l'avis du médecin avant d'éditer la décision d'aménagements.
-  # À activer par les établissements dont le document cite cet avis dans son visa ;
-  # sans effet sinon. Surchargeable par PAEH_DATE_AVIS_MEDECIN_REQUISE.
-  decision.date_avis_medecin_requise: false
-
 services:
   # default configuration for services in *this* file
   _defaults:

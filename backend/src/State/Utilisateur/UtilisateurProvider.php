@@ -22,6 +22,7 @@ use App\ApiResource\DecisionAmenagementExamens;
 use App\ApiResource\Utilisateur;
 use App\Service\ErreurLdapException;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementManager;
+use App\State\DecisionAmenagementExamens\ExigenceAvisMedical;
 use App\State\MappedCollectionPaginator;
 use Override;
 use Psr\Cache\InvalidArgumentException;
@@ -41,8 +42,7 @@ class UtilisateurProvider implements ProviderInterface
         private readonly ProviderInterface $collectionProvider,
         private readonly UtilisateurManager $utilisateurManager,
         private readonly DecisionAmenagementManager $decisionAmenagementManager,
-        #[Autowire('%env(default:decision.date_avis_medecin_requise:bool:PAEH_DATE_AVIS_MEDECIN_REQUISE)%')]
-        private readonly bool $dateAvisMedecinRequise = false,
+        private readonly ExigenceAvisMedical $exigenceAvisMedical,
     ) {}
 
     /**
@@ -117,7 +117,10 @@ class UtilisateurProvider implements ProviderInterface
         $decisionEnCours = $this->decisionAmenagementManager->getDecisionCourante($entity);
         $utilisateur->decisionAmenagementAnneeEnCours = match ($decisionEnCours) {
             null => null,
-            default => new DecisionAmenagementExamens($decisionEnCours, $this->dateAvisMedecinRequise),
+            default => new DecisionAmenagementExamens(
+                $decisionEnCours,
+                $this->exigenceAvisMedical->estRequisePour($decisionEnCours),
+            ),
         };
 
         return $utilisateur;
