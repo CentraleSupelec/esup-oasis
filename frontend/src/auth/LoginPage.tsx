@@ -22,13 +22,14 @@ import { useTypedText } from "@utils/TypedText/useTypedText";
 import HomepageImage from "@controls/Images/HomepageImage";
 import PageTitle from "@utils/PageTitle/PageTitle";
 import { env } from "@/env";
+import { etablissement, service } from "@lib";
 import { useEffectiveTheme } from "@utils/theme/useEffectiveTheme";
 
 function getMessageAccueil() {
   if (env.REACT_APP_MSG_ACCUEIL) {
     return env.REACT_APP_MSG_ACCUEIL.split(";");
   }
-  return [env.REACT_APP_ETABLISSEMENT, env.REACT_APP_TITRE];
+  return [etablissement.nom.denomination, env.REACT_APP_TITRE];
 }
 
 export default function LoginPage(): ReactElement {
@@ -63,13 +64,13 @@ export default function LoginPage(): ReactElement {
                 target="_blank"
                 referrerPolicy="no-referrer"
                 rel="noopener noreferrer"
-                aria-label={`Visiter le site de ${env.REACT_APP_ETABLISSEMENT_ARTICLE}`}
+                aria-label={`Visiter le site ${etablissement.nom.de}`}
               >
                 <img
                   src={
                     isDark && env.REACT_APP_LOGO_DARK ? env.REACT_APP_LOGO_DARK : env.REACT_APP_LOGO
                   }
-                  alt={`Logo de ${env.REACT_APP_ETABLISSEMENT_ARTICLE}`}
+                  alt={`Logo ${etablissement.nom.de}`}
                   style={{
                     maxWidth: "50vw",
                     maxHeight: "10vh",
@@ -99,7 +100,7 @@ export default function LoginPage(): ReactElement {
               aria-hidden
               style={{ backgroundColor: "var(--color-primary)" }}
             />
-            <h1 aria-label={`${env.REACT_APP_ETABLISSEMENT} : ${env.REACT_APP_TITRE}`}>
+            <h1 aria-label={`${etablissement.nom.denomination} : ${env.REACT_APP_TITRE}`}>
               <span
                 aria-hidden
                 style={{
@@ -136,7 +137,7 @@ export default function LoginPage(): ReactElement {
             <div className="info fs-09">
               <p className="mb-0">
                 La connexion à l'application se fait en utilisant vos identifiants fournis par{" "}
-                {env.REACT_APP_ETABLISSEMENT_ARTICLE}.
+                {etablissement.nom.defini}.
               </p>
               {env.REACT_APP_INFOS_AUTH && (
                 <a target="_blank" href={env.REACT_APP_INFOS_AUTH} rel="noreferrer">
@@ -152,7 +153,7 @@ export default function LoginPage(): ReactElement {
                   target="_blank"
                   referrerPolicy="no-referrer"
                   rel="noopener noreferrer"
-                  aria-label={`Visiter le site de ${env.REACT_APP_ETABLISSEMENT}`}
+                  aria-label={`Visiter le site ${etablissement.nom.de}`}
                 >
                   <img
                     src={
@@ -184,10 +185,7 @@ export default function LoginPage(): ReactElement {
               l'authentification. Aucun cookie de traçage ou de publicité n'est utilisé.
               <br />
               Pour en savoir plus, merci de contacter{" "}
-              <a style={{ whiteSpace: "nowrap" }} href={`mailto:${env.REACT_APP_EMAIL_SERVICE}`}>
-                le service {env.REACT_APP_SERVICE}
-              </a>
-              .
+              <a href={`mailto:${env.REACT_APP_EMAIL_SERVICE}`}>{service.defini}</a>.
             </p>
             <p className="mb-0">
               <a href="/rgpd">Politique d'utilisation des données</a> <MinusOutlined aria-hidden />{" "}

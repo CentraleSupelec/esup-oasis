@@ -17,6 +17,7 @@ import "@controls/AppLayout/AppLayout.scss";
 import { MinusOutlined } from "@ant-design/icons";
 import { UtilisateurPreferencesProvider } from "@context/utilisateurPreferences/UtilisateurPreferencesProvider";
 import { env } from "@/env";
+import { etablissement } from "@lib";
 
 const { Header, Content, Footer } = Layout;
 
@@ -56,7 +57,7 @@ export default function AppLayout(): ReactElement {
           </main>
         </Content>
         <Footer style={{ textAlign: "center" }}>
-          {env.REACT_APP_TITRE} <MinusOutlined aria-hidden /> {env.REACT_APP_ETABLISSEMENT}{" "}
+          {env.REACT_APP_TITRE} <MinusOutlined aria-hidden /> {etablissement.nom.denomination}{" "}
           <MinusOutlined aria-hidden /> <a href="/rgpd">Politique d'utilisation des données</a>{" "}
           <MinusOutlined aria-hidden />{" "}
           <Button type="link" className="m-0 p-0" onClick={() => navigate("/versions")}>
