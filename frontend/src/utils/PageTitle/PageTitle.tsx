@@ -10,6 +10,7 @@
 import React, { ReactElement, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { env } from "@/env";
+import { etablissement } from "@lib";
 
 /**
  * Changement du titre de la page en fonction de la localisation actuelle.
@@ -22,7 +23,7 @@ export default function PageTitle(props: {
   const location = useLocation();
 
   useEffect(() => {
-    let title = `[${env.REACT_APP_ETABLISSEMENT_ABV}] ${env.REACT_APP_TITRE}`;
+    let title = `[${etablissement.abv.denomination}] ${env.REACT_APP_TITRE}`;
 
     switch (location.pathname.split("/")[1].toLowerCase()) {
       case "":

@@ -12,7 +12,7 @@ import React, { ReactElement } from "react";
 import { IInscription, IUtilisateur } from "@api";
 import { getLibellePeriode, isEnCoursSurPeriode } from "@utils/dates";
 import { ComposanteItem } from "@controls/Items/ComposanteItem";
-import { env } from "@/env";
+import { etablissement } from "@lib";
 import { CheckOutlined, PlusOutlined } from "@ant-design/icons";
 
 interface ITabScolariteProps {
@@ -115,7 +115,7 @@ export function ScolariteListItem({
 export function TabScolarite({ utilisateur }: ITabScolariteProps): ReactElement {
   return (
     <>
-      <p className="semi-bold">Inscriptions à {env.REACT_APP_ETABLISSEMENT_ABV_ARTICLE}</p>
+      <p className="semi-bold">Inscriptions {etablissement.abv.a}</p>
       {utilisateur.inscriptions?.length === 0 ? (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Aucune inscription" />
       ) : (
