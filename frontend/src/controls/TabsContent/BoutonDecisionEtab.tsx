@@ -23,6 +23,62 @@ import apiDownloader from "@utils/apiDownloader";
 import { EtatDecisionEtablissement } from "@controls/Avatars/DecisionEtablissementAvatar";
 import { queryClient } from "@/queryClient";
 import { env } from "@/env";
+import dayjs from "dayjs";
+
+/** États de signature électronique, absents si la décision n'est pas passée par la signature. */
+export enum EtatSignatureDecision {
+  "EN_SIGNATURE" = "EN_SIGNATURE",
+  "SIGNEE" = "SIGNEE",
+  "REFUSEE" = "REFUSEE",
+  "EXPIREE" = "EXPIREE",
+  "ERREUR" = "ERREUR",
+  "REMPLACEE" = "REMPLACEE",
+}
+
+/** Libellés du bouton et de sa légende, null pour une décision envoyée par e-mail. */
+export function libellesSignature(
+  etatSignature: string | null | undefined,
+  derniereVerification: string | null | undefined,
+): { bouton: string; legende: string; enErreur: boolean } | null {
+  const verification = derniereVerification
+    ? ` Dernière vérification le ${dayjs(derniereVerification).format("DD/MM/YYYY à HH:mm")}.`
+    : "";
+
+  switch (etatSignature) {
+    case EtatSignatureDecision.EN_SIGNATURE:
+      return {
+        bouton: "Décision d'étab. en signature",
+        legende: `La décision est en cours de signature électronique.${verification}`,
+        enErreur: false,
+      };
+    case EtatSignatureDecision.REFUSEE:
+      return {
+        bouton: "Signature de la décision refusée",
+        legende: `Un signataire a refusé la décision dans le parapheur électronique.${verification}`,
+        enErreur: true,
+      };
+    case EtatSignatureDecision.EXPIREE:
+      return {
+        bouton: "Signature de la décision interrompue",
+        legende: `Le circuit de signature s'est interrompu sans aboutir.${verification}`,
+        enErreur: true,
+      };
+    case EtatSignatureDecision.ERREUR:
+      return {
+        bouton: "Erreur de signature de la décision",
+        legende: `La signature électronique a échoué côté parapheur.${verification}`,
+        enErreur: true,
+      };
+    case EtatSignatureDecision.REMPLACEE:
+      return {
+        bouton: "Décision d'étab. remplacée",
+        legende: "Le document a été remplacé dans le parapheur électronique.",
+        enErreur: false,
+      };
+    default:
+      return null;
+  }
+}
 
 export function BoutonDecisionEtab(props: { utilisateurId: string }) {
   const auth = useAuth();
@@ -59,6 +115,12 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
   if (!utilisateur || !utilisateur.decisionAmenagementAnneeEnCours) {
     return <></>;
   }
+
+  const signature = libellesSignature(
+    utilisateur.decisionAmenagementAnneeEnCours.etatSignature,
+    utilisateur.decisionAmenagementAnneeEnCours.derniereVerificationSignature,
+  );
+  const dateSignature = utilisateur.decisionAmenagementAnneeEnCours.dateSignature;
 
   switch (utilisateur.decisionAmenagementAnneeEnCours.etat) {
     case EtatDecisionEtablissement.ATTENTE_VALIDATION_CAS:
@@ -193,7 +255,7 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
           <Button
             loading={loading}
             icon={<FileDoneOutlined />}
-            className="mr-2"
+            className={`mr-2 ${signature?.enErreur ? "text-danger border-error" : ""}`}
             onClick={() => {
               setLoading(true);
               apiDownloader(
@@ -208,10 +270,10 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
               ).then();
             }}
           >
-            Décision d'étab. en cours d'envoi
+            {signature?.bouton ?? "Décision d'étab. en cours d'envoi"}
           </Button>
           <Space className="legende">
-            <div>La décision sera envoyée dans les prochaines minutes.</div>
+            <div>{signature?.legende ?? "La décision sera envoyée dans les prochaines minutes."}</div>
             <Tooltip title="Rafraîchir" placement="bottom">
               <Button
                 icon={<ReloadOutlined />}
@@ -233,7 +295,13 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
 
     case EtatDecisionEtablissement.EDITE:
       return (
-        <Tooltip title="Décision d'établissement envoyée">
+        <Tooltip
+          title={
+            dateSignature
+              ? `Décision d'établissement signée électroniquement le ${dayjs(dateSignature).format("DD/MM/YYYY")}`
+              : "Décision d'établissement envoyée"
+          }
+        >
           <Button
             loading={loading}
             onClick={() => {
@@ -252,7 +320,7 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
             icon={<CheckCircleFilled />}
             className={`mr-2 ${EtatDecisionEtablissement.EDITE ? "text-success border-green-light" : ""}`}
           >
-            Décision étab. envoyée
+            {dateSignature ? "Décision étab. signée" : "Décision étab. envoyée"}
           </Button>
         </Tooltip>
       );
