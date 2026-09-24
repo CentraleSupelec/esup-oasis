@@ -112,6 +112,9 @@ services:
       $espace: '%env(resolve:NUXEO_ESPACE)%'
   App\Service\Photo\PhotoProviderInterface:
     alias: App\Service\Photo\UnicampusProvider
+  # sans client FAST réel, les décisions restent envoyées par e-mail
+  App\Service\Signature\FastParapheurClientInterface:
+    alias: App\Service\Signature\FastParapheurClientNonConfigure
   App\Service\ParametreService:
     arguments:
       $appEnv:
@@ -148,7 +151,15 @@ when@test:
       class: App\Test\FakeLdapService
     App\Service\Photo\PhotoProviderInterface:
       alias: App\Test\FakePhotoProvider
+    App\Service\Signature\FastParapheurClientInterface:
+      alias: App\Service\Signature\FastParapheurClientFactice
     App\Service\SiScol\SiScolDataProviderFactory:
       public: true
       autowire: true
       autoconfigure: true
+
+when@dev:
+  services:
+    # client en mémoire, sans accès FAST
+    App\Service\Signature\FastParapheurClientInterface:
+      alias: App\Service\Signature\FastParapheurClientFactice
