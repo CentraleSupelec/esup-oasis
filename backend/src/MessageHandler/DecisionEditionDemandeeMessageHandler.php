@@ -15,21 +15,19 @@ namespace App\MessageHandler;
 use App\ApiResource\DecisionAmenagementExamens as DecisionResource;
 use App\ApiResource\Utilisateur;
 use App\Entity\DecisionAmenagementExamens;
-use App\Entity\Fichier;
-use App\Entity\PieceJointeBeneficiaire;
 use App\Message\DecisionEditionDemandeeMessage;
 use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
-use App\Repository\PieceJointeBeneficiaireRepository;
 use App\Serializer\DecisionAmenagementEditionNormalizer;
 use App\Serializer\Encoder\PdfEncoder;
-use App\Service\FileStorage\StorageProviderInterface;
+use App\Service\Decision\ArchivageDecision;
 use App\Service\MailService;
+use App\Service\Signature\CircuitFastResolver;
+use App\Service\Signature\FastParapheurClientInterface;
 use App\State\Utilisateur\UtilisateurManager;
 use Exception;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Message\RedispatchMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -38,18 +36,17 @@ use Symfony\Component\Messenger\Stamp\DelayStamp;
 #[AsMessageHandler(handles: DecisionEditionDemandeeMessage::class)]
 readonly class DecisionEditionDemandeeMessageHandler
 {
-    use ClockAwareTrait;
-
     public function __construct(
         private DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
         private DecisionAmenagementEditionNormalizer $decisionAmenagementEditionNormalizer,
-        private PieceJointeBeneficiaireRepository $pieceJointeBeneficiaireRepository,
         private UtilisateurManager $utilisateurManager,
         private PdfEncoder $pdfEncoder,
         private MailService $mailService,
         private LoggerInterface $logger,
-        private StorageProviderInterface $storageProvider,
         private MessageBusInterface $messageBus,
+        private ArchivageDecision $archivageDecision,
+        private CircuitFastResolver $circuitFastResolver,
+        private FastParapheurClientInterface $fastParapheurClient,
     ) {}
 
     public function __invoke(DecisionEditionDemandeeMessage $message): void
@@ -62,6 +59,48 @@ readonly class DecisionEditionDemandeeMessageHandler
         $resource = new DecisionResource($decision);
 
         $normalized = $this->decisionAmenagementEditionNormalizer->normalize($resource);
+
+        // composante reliée à un circuit FAST : la décision part en signature au lieu de l'e-mail,
+        // l'état EDITE et la copie au dossier viendront du suivi de signature
+        $circuitId = $this->circuitFastResolver->circuitPour($decision);
+        if (null !== $circuitId && !$this->fastParapheurClient->estDisponible()) {
+            // circuits déclarés sans client réel : envoi par e-mail
+            $this->logger->warning(
+                'FAST_CIRCUITS est renseignée mais aucun client FAST-Parapheur n\'est configuré : '
+                . 'décision {id} envoyée par e-mail.',
+                ['id' => $decision->getId()],
+            );
+            $circuitId = null;
+        }
+        if (null !== $circuitId) {
+            $normalized['signature_electronique'] = true;
+            try {
+                $pdf = $this->pdfEncoder->encode($normalized, 'pdf');
+                $documentId = $this->fastParapheurClient->deposer(
+                    pdf: $pdf,
+                    circuitId: $circuitId,
+                    libelle: sprintf(
+                        "Décision d'aménagements - %s %s",
+                        $decision->getBeneficiaire()->getPrenom(),
+                        $decision->getBeneficiaire()->getNom(),
+                    ),
+                );
+            } catch (RuntimeException $e) {
+                $this->logger->error($e->getMessage());
+                $this->logger->info($e->getTraceAsString());
+                $delay = new DelayStamp(3600000); //on réessaye dans une heure
+                $this->messageBus->dispatch(new RedispatchMessage($message), [$delay]);
+                return;
+            }
+            $decision->setEtatSignature(DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE);
+            $decision->setFastDocumentId($documentId);
+            $decision->setFastCircuitId($circuitId);
+            $decision->setUidDemandeurSignature($message->getUidDemandeur());
+            $this->decisionAmenagementExamensRepository->save($decision, true);
+            $this->messageBus->dispatch(new RessourceModifieeMessage(new Utilisateur($decision->getBeneficiaire())));
+            return;
+        }
+
         try {
             $pdf = $this->pdfEncoder->encode($normalized, 'pdf');
             $this->mailService->envoyerDecision($decision, $pdf);
@@ -77,29 +116,11 @@ readonly class DecisionEditionDemandeeMessageHandler
 
         //on stocke une copie dans le dossier de l'étudiant
         try {
-            $filename = 'decision-' . $decision->getId() . '.pdf';
-            $mimeType = 'application/pdf';
-            $dateEnvoi = $this->now();
-            $description = "Décision d'aménagements au " . $dateEnvoi->format('d/m/Y');
-            $metadata = $this->storageProvider->store(
-                contents: $pdf,
-                filename: $filename,
-                mimeType: $mimeType,
-                description: $description,
+            $this->archivageDecision->archiver(
+                decision: $decision,
+                pdf: $pdf,
+                auteur: $this->utilisateurManager->parUid($message->getUidDemandeur()),
             );
-            $fichier = new Fichier();
-            $fichier->setNom($filename);
-            $fichier->setProprietaire($decision->getBeneficiaire());
-            $fichier->setMetadata($metadata);
-            $fichier->setTypeMime($mimeType);
-            $decision->setFichier($fichier);
-            $pieceJointe = new PieceJointeBeneficiaire();
-            $pieceJointe->setFichier($fichier);
-            $pieceJointe->setBeneficiaire($decision->getBeneficiaire());
-            $pieceJointe->setUtilisateurCreation($this->utilisateurManager->parUid($message->getUidDemandeur()));
-            $pieceJointe->setDateDepot($dateEnvoi);
-            $pieceJointe->setLibelle($description);
-            $this->pieceJointeBeneficiaireRepository->save($pieceJointe, true);
         } catch (Exception) {
             $this->logger->error('Erreur d\'enregistrement de la copie pdf de la décision');
         }
