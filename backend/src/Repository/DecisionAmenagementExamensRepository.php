@@ -48,4 +48,23 @@ class DecisionAmenagementExamensRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    /**
+     * Décisions en cours de signature, les moins récemment vérifiées d'abord :
+     * d'un lot à l'autre, aucune n'est ignorée indéfiniment.
+     *
+     * @return DecisionAmenagementExamens[]
+     */
+    public function aSuivreDansFast(int $limite): array
+    {
+        return $this->createQueryBuilder('d')
+            ->andWhere('d.etatSignature = :enSignature')
+            ->andWhere('d.fastDocumentId IS NOT NULL')
+            ->setParameter('enSignature', DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE)
+            ->addOrderBy('CASE WHEN d.derniereVerificationFast IS NULL THEN 0 ELSE 1 END', 'ASC')
+            ->addOrderBy('d.derniereVerificationFast', 'ASC')
+            ->setMaxResults($limite)
+            ->getQuery()
+            ->getResult();
+    }
 }

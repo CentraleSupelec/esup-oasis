@@ -104,6 +104,86 @@ pour renseigner la variable d'environnement `SI_SCOL`, dont la valeur par défau
 
 Voir [la section dédiée aux pièces justificatives](pieces_justificatives.md)
 
+## Signature électronique FAST-Parapheur
+
+Oasis peut faire signer électroniquement la décision d'aménagements d'examens via
+[FAST-Parapheur](https://www.docaposte.com/solutions/fast-parapheur) (Docaposte) : au lieu d'être envoyé
+par e-mail, le PDF est déposé dans un circuit de signature configuré côté FAST (les signataires, l'ordre
+des étapes et les relances sont portés par FAST), puis récupéré signé une fois le circuit terminé.
+
+Cette fonctionnalité est **totalement optionnelle** : si vous laissez la configuration par défaut,
+l'application conserve le comportement historique (génération du PDF et envoi par e-mail). L'activation
+se fait uniquement par configuration, et la désactivation restaure le comportement historique sans autre
+intervention.
+
+### Activation
+
+L'unique interrupteur est la variable `FAST_CIRCUITS`, qui associe un code composante (celui stocké dans
+`composante.code_externe`, `COD_CMP` pour Apogée) à l'identifiant d'un circuit FAST, au format JSON :
+
+```dotenv
+FAST_CIRCUITS='{"CODE_COMPOSANTE_1": "identifiant-circuit-1", "CODE_COMPOSANTE_2": "identifiant-circuit-2"}'
+```
+
+* variable vide ou absente : connecteur inactif, comportement historique pour toutes les décisions ;
+* composante absente du mapping : comportement historique pour ses bénéficiaires, ce qui permet une
+  activation progressive, composante par composante.
+
+Quand un étudiant a des inscriptions en cours dans plusieurs composantes reliées à des circuits différents,
+le connecteur ne choisit pas de signataire à la place de l'établissement : la décision suit le comportement
+historique. Les requêtes Apogée livrées ne remontent que l'inscription principale (`tem_iae_prm = 'O'`), ce
+qui écarte ce cas pour les doubles cursus d'une même année.
+
+### Suivi des signatures
+
+Une fois déposée, la décision passe à l'état de signature `EN_SIGNATURE`. Le worker interroge ensuite FAST
+à intervalle régulier sur les décisions en cours, récupère les documents signés, les dépose au dossier du
+bénéficiaire et fait évoluer leur état (`SIGNEE`, `REFUSEE`, `EXPIREE`, `ERREUR`). Les issues négatives sont
+enregistrées et visibles sur la fiche du bénéficiaire.
+
+La fréquence d'interrogation se règle par la variable `FAST_FREQUENCE_SUIVI`, au format du Scheduler Symfony
+(`15 minutes`, `2 hours`…), une heure par défaut. Aucune interrogation n'est planifiée tant qu'aucun client
+FAST n'est configuré. La commande `app:fast:suivi-signatures` effectue le même traitement à la demande, par
+exemple pour un contrôle ponctuel.
+
+Si aucune décision du lot n'a pu être vérifiée, un message de niveau `critical` signale que FAST semble
+injoignable ; les décisions concernées sont reprises au passage suivant.
+
+### Date de signature et gabarit du document
+
+Le document est déposé dans FAST avant d'être signé : il ne peut donc pas imprimer la date de sa propre
+signature. Cette date, celle du dernier signataire du circuit, est lue dans l'historique FAST au moment où le
+document signé est récupéré, puis enregistrée sur la décision et affichée sur la fiche du bénéficiaire.
+
+Le gabarit de la décision reçoit la variable `data.signature_electronique`, vraie quand le document part en
+signature électronique. Un établissement peut s'en servir pour adapter son modèle, par exemple ne pas y
+insérer l'image de signature scannée ou une mention « signé le » :
+
+```twig
+{% if not data.signature_electronique %}
+    {# signature scannée, mention de date… #}
+{% endif %}
+```
+
+### Personnalisation
+
+Le connecteur s'appuie sur l'interface `App\Service\Signature\FastParapheurClientInterface` : savoir si le
+client est disponible, déposer un document dans un circuit, consulter son historique, télécharger le document
+signé.
+
+Deux implémentations sont livrées :
+
+* `FastParapheurClientNonConfigure`, branchée par défaut : elle se déclare indisponible. Tant qu'aucun client
+  réel n'est branché, les décisions suivent donc le comportement historique, **même si `FAST_CIRCUITS` est
+  renseignée** ; un avertissement est alors journalisé. Une configuration incomplète ne peut pas faire
+  disparaître une décision ;
+* `FastParapheurClientFactice`, un client en mémoire branché en développement et en test, qui permet
+  d'exercer le connecteur sans accès à FAST.
+
+Pour activer la signature, fournissez une implémentation réelle de l'interface et déclarez-la comme alias
+de `App\Service\Signature\FastParapheurClientInterface` dans `config/services.yaml`, puis renseignez
+`FAST_CIRCUITS`. Le même principe permet de brancher un autre outil de signature.
+
 ## Photos
 
 Oasis peut récupérer et afficher les photos des étudiants (aux utilisateurs ayant un rôle gestionnaire ou

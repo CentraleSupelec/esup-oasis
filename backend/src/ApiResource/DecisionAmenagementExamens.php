@@ -19,6 +19,7 @@ use ApiPlatform\Metadata\Patch;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProcessor;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProvider;
 use App\Validator\EtatDecisionValideConstraint;
+use DateTimeInterface;
 use ReflectionProperty;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -93,6 +94,42 @@ class DecisionAmenagementExamens
                 $this->etat = $this->entity->getEtat() ?? '';
             }
             return $this->etat;
+        }
+    }
+
+    /** ETAT_SIGNATURE_* de l'entité, null si la décision n'est pas passée par la signature électronique. */
+    #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT])]
+    public ?string $etatSignature {
+        get {
+            $prop = new ReflectionProperty(self::class, 'etatSignature');
+            if (!$prop->isInitialized($this) && $this->entity !== null) {
+                $this->etatSignature = $this->entity->getEtatSignature();
+            }
+            return $this->etatSignature ?? null;
+        }
+    }
+
+    /** Date de la dernière signature du circuit. */
+    #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT])]
+    public ?DateTimeInterface $dateSignature {
+        get {
+            $prop = new ReflectionProperty(self::class, 'dateSignature');
+            if (!$prop->isInitialized($this) && $this->entity !== null) {
+                $this->dateSignature = $this->entity->getDateSignature();
+            }
+            return $this->dateSignature ?? null;
+        }
+    }
+
+    /** Dernière interrogation de FAST, pour situer la fraîcheur de l'état affiché. */
+    #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT])]
+    public ?DateTimeInterface $derniereVerificationSignature {
+        get {
+            $prop = new ReflectionProperty(self::class, 'derniereVerificationSignature');
+            if (!$prop->isInitialized($this) && $this->entity !== null) {
+                $this->derniereVerificationSignature = $this->entity->getDerniereVerificationFast();
+            }
+            return $this->derniereVerificationSignature ?? null;
         }
     }
 
