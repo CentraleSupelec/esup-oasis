@@ -104,6 +104,102 @@ pour renseigner la variable d'environnement `SI_SCOL`, dont la valeur par défau
 
 Voir [la section dédiée aux pièces justificatives](pieces_justificatives.md)
 
+## Signature électronique
+
+Oasis peut faire signer électroniquement la décision d'aménagements d'examens par un parapheur électronique : au
+lieu d'être envoyé par e-mail, le PDF est déposé dans un circuit de signature configuré dans le parapheur
+(signataires, ordre des étapes, relances), puis récupéré signé une fois le circuit terminé. C'est le parapheur
+qui transmet la décision signée à l'étudiant, à l'adresse de l'e-mail habituel ; OASIS n'envoie alors aucun
+e-mail et dépose une copie du document signé au dossier du bénéficiaire.
+
+Cette fonctionnalité est **totalement optionnelle** : si vous laissez la configuration par défaut, l'application
+conserve le comportement historique (génération du PDF et envoi par e-mail).
+
+### Activation
+
+Le parapheur est choisi par la variable d'environnement `PARAPHEUR`, vide par défaut (aucun parapheur). Son
+reflet côté frontend, `REACT_APP_PARAPHEUR`, fait apparaître les réglages de la signature électronique dans
+l'interface d'administration.
+
+Chaque composante porte le circuit de signature de ses décisions : l'identifiant du circuit, tel que le parapheur
+le connaît, se renseigne dans l'administration, sur l'écran des référents de composante. Sans circuit, les
+décisions des bénéficiaires de la composante suivent le comportement historique, ce qui permet une activation
+progressive, composante par composante.
+
+Pour une composante reliée à un circuit, la demande d'édition du gestionnaire dépose la décision dans le
+parapheur : le circuit de signature remplace l'envoi par l'administrateur fonctionnel.
+
+* `PARAPHEUR` vide : aucune décision ne part en signature, même si des circuits sont renseignés (un avertissement
+  est alors journalisé) ;
+* quand un étudiant a des inscriptions en cours dans plusieurs composantes aux circuits différents, la décision
+  suit le comportement historique : l'application ne choisit pas de signataire à la place de l'établissement.
+
+### Suivi des signatures
+
+Une fois déposée, la décision passe à l'état `EN_SIGNATURE`. Le worker interroge ensuite le parapheur à
+intervalle régulier sur les décisions en signature, récupère les documents signés, les dépose au dossier du
+bénéficiaire et passe la décision à l'état `EDITE`. Un circuit terminé sans signature (refus d'un signataire,
+circuit interrompu, document inconnu du parapheur) passe la décision à l'état `REFUSEE` : le motif est affiché
+sur la fiche du bénéficiaire, et les décisions refusées se retrouvent avec le filtre de la liste des
+bénéficiaires.
+
+La fréquence d'interrogation se règle par le paramètre `FREQUENCE_SUIVI_SIGNATURES` (administration, écran des
+paramètres), au format du Scheduler Symfony (`15 minutes`, `2 hours`…), une heure par défaut ; le worker le relit
+à son redémarrage. Aucune interrogation n'est planifiée sans parapheur. La commande `app:signature:suivi`
+effectue le même traitement à la demande.
+
+Si aucune décision du lot n'a pu être vérifiée, un message de niveau `critical` signale que le parapheur semble
+injoignable ; les décisions concernées sont reprises au passage suivant. Un document que le parapheur ne connaît
+plus passe à l'état `ERREUR` et n'est plus interrogé.
+
+Tant que la décision est en signature, rien de ce qu'elle reprend ne se modifie : les aménagements des types
+inclus dans la décision et les avis de santé du bénéficiaire sont refusés en écriture (erreur 422), et la
+décision elle-même ne change plus d'état avant le retour du parapheur. Une décision refusée se reprend comme
+une décision en attente : on corrige, puis on redemande l'édition, ce qui dépose un nouveau document.
+
+### Date de signature et gabarit du document
+
+Le document est déposé avant d'être signé : il ne peut donc pas imprimer la date de sa propre signature. Cette
+date, fournie par le parapheur, est enregistrée sur la décision et affichée sur la fiche du bénéficiaire.
+
+Le gabarit de la décision reçoit la variable `data.signature_electronique`, vraie quand le document part en
+signature électronique. Un établissement peut s'en servir pour adapter son modèle, par exemple ne pas y insérer
+l'image de signature scannée :
+
+```twig
+{% if not data.signature_electronique %}
+    {# signature scannée… #}
+{% endif %}
+```
+
+### Ajouter un parapheur
+
+Un parapheur s'ajoute en étendant la classe abstraite
+[`App\Service\Signature\AbstractParapheur`](../../backend/src/Service/Signature/AbstractParapheur.php) : `deposer`
+dépose le PDF dans un circuit, avec l'adresse à laquelle transmettre le document signé, et retourne
+l'identifiant du document, `suivre` retourne son état et, une fois
+signé, la date de signature, `telecharger` retourne le PDF signé. L'état retourné par `suivre` est l'une des constantes `ETAT_SIGNATURE_*` de la décision :
+`EN_SIGNATURE`, `SIGNEE`, `REFUSEE`, `EXPIREE` (circuit interrompu), `REMPLACEE` (document remplacé dans le
+parapheur) ou `ERREUR` ; tout état autre que `EN_SIGNATURE` et `SIGNEE` passe la décision à l'état `REFUSEE`. Les
+erreurs d'appel sont levées en `App\Service\Signature\ParapheurException` (`DocumentInconnuException` pour un
+document inconnu) : un dépôt en échec est rejoué une heure plus tard.
+
+La méthode `getProviderId()` doit retourner un identifiant unique parmi les implémentations disponibles : c'est
+cette valeur qui renseigne la variable `PARAPHEUR`.
+
+Deux implémentations sont livrées : `aucun`, le comportement par défaut, et `factice`, disponible uniquement en
+développement et en test (`PARAPHEUR=factice`). Le parapheur factice garde ses documents dans
+`var/parapheur-factice`, partagé par l'API et le worker ; la commande `app:signature:factice` joue le rôle des
+signataires :
+
+```bash
+php bin/console app:signature:factice lister
+php bin/console app:signature:factice signer <document>
+php bin/console app:signature:factice refuser <document>
+```
+
+Le suivi planifié, ou `app:signature:suivi`, reporte ensuite l'état sur la décision.
+
 ## Photos
 
 Oasis peut récupérer et afficher les photos des étudiants (aux utilisateurs ayant un rôle gestionnaire ou
