@@ -104,6 +104,29 @@ class ClientFast
     }
 
     /**
+     * Circuits de signature de l'abonné : de quoi vérifier la connexion et trouver les identifiants à
+     * renseigner sur les composantes.
+     *
+     * @return array<int, array{circuitId: string, circuitName: string, circuitType: string}>
+     *
+     * @throws ParapheurException
+     */
+    public function circuits(): array
+    {
+        $reponse = $this->appeler('getCircuits', ['siren' => $this->siren]);
+        $circuits = $reponse->return ?? [];
+
+        return array_map(
+            fn(object $circuit) => [
+                'circuitId' => (string) ($circuit->circuitId ?? ''),
+                'circuitName' => (string) ($circuit->circuitName ?? ''),
+                'circuitType' => (string) ($circuit->circuitType ?? ''),
+            ],
+            is_array($circuits) ? $circuits : [$circuits],
+        );
+    }
+
+    /**
      * @throws ParapheurException
      */
     private function appeler(string $operation, array $arguments): object

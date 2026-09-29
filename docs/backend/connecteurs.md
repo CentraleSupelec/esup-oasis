@@ -225,9 +225,15 @@ Réglages, dans `.env` :
 * `FAST_CERTIFICAT_MOT_DE_PASSE` : mot de passe de la clé, s'il y en a un ;
 * `FAST_AUTORITE` : certificat de l'autorité de FAST, si le système ne la connaît pas.
 
-Le circuit de chaque composante est l'identifiant du circuit tel que FAST le nomme. La connexion à FAST n'est
-établie qu'au premier dépôt ou suivi : une configuration incomplète est signalée à ce moment, dans les journaux,
-et la décision est reprise au passage suivant.
+Le circuit de chaque composante est l'identifiant du circuit tel que FAST le nomme. La commande
+`app:signature:fast:circuits` vérifie la connexion et liste ces identifiants :
+
+```bash
+php bin/console app:signature:fast:circuits
+```
+
+La connexion à FAST n'est établie qu'au premier appel : une configuration incomplète est signalée à ce moment,
+dans les journaux, et la décision concernée est reprise au passage suivant.
 
 ## Photos
 
