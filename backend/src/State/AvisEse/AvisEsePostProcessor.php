@@ -20,6 +20,7 @@ use App\Message\RessourceCollectionModifieeMessage;
 use App\Repository\AvisEseRepository;
 use App\Repository\FichierRepository;
 use App\Service\ErreurLdapException;
+use App\Service\Signature\SignatureElectronique;
 use App\State\Utilisateur\UtilisateurManager;
 use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -31,6 +32,7 @@ readonly class AvisEsePostProcessor implements ProcessorInterface
         private AvisEseRepository $avisEseRepository,
         private UtilisateurManager $utilisateurManager,
         private MessageBusInterface $messageBus,
+        private SignatureElectronique $signatureElectronique,
     ) {}
 
     /**
@@ -54,6 +56,7 @@ readonly class AvisEsePostProcessor implements ProcessorInterface
             default => $this->fichierRepository->find($data->fichier->id),
         });
         $entity->setUtilisateur($this->utilisateurManager->parUid($uriVariables['uid']));
+        $this->signatureElectronique->interdireSiEnSignature($entity->getUtilisateur());
 
         $this->avisEseRepository->save($entity, true);
 

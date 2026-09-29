@@ -23,6 +23,7 @@ use DateTime;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -115,6 +116,23 @@ class SignatureElectroniqueTest extends TestCase
         $this->assertFalse($signature->estEnCours($decision));
         $signature->deposer($decision, '%PDF-test', 'circuit-ufr1', 'gestionnaire');
         $this->assertTrue($signature->estEnCours($decision));
+    }
+
+    public function testChangesAreRefusedWhileDecisionIsEnSignature(): void
+    {
+        $decision = $this->decision()->setEtat(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
+
+        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->signature(new ParapheurFactice())->interdireSiEnSignature($decision->getBeneficiaire());
+    }
+
+    public function testChangesAreAllowedOnceSignatureIsOver(): void
+    {
+        $decision = $this->decision()->setEtat(DecisionAmenagementExamens::ETAT_REFUSEE);
+
+        $this->signature(new ParapheurFactice())->interdireSiEnSignature($decision->getBeneficiaire());
+
+        $this->addToAssertionCount(1);
     }
 
     private function signature(AbstractParapheur $parapheur): SignatureElectronique

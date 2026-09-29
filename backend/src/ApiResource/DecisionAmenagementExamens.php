@@ -34,7 +34,9 @@ use Symfony\Component\Serializer\Attribute\Ignore;
         new Patch(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'annee'],
-            securityPostDenormalize: "is_granted('" . self::MODIFIER_DECISION . "', object)",
+            // en signature, seul le retour du parapheur fait avancer la décision
+            securityPostDenormalize: "is_granted('" . self::MODIFIER_DECISION . "', object) and previous_object.etat != '"
+                . \App\Entity\DecisionAmenagementExamens::ETAT_EN_SIGNATURE . "'",
         ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],

@@ -9,16 +9,19 @@
 
 namespace App\Service\Signature;
 
-use App\ApiResource\Utilisateur;
+use App\ApiResource\Utilisateur as UtilisateurResource;
 use App\Entity\DecisionAmenagementExamens;
+use App\Entity\Utilisateur;
 use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Passage d'une décision d'aménagements par le parapheur : dépôt à la demande d'édition.
+ * Passage d'une décision d'aménagements par le parapheur : dépôt à la demande d'édition, puis
+ * verrou tant que le circuit n'est pas terminé.
  */
 readonly class SignatureElectronique
 {
@@ -115,7 +118,24 @@ readonly class SignatureElectronique
             ->setDateSignature(null)
             ->setDerniereVerificationSignature(null);
         $this->decisionAmenagementExamensRepository->save($decision, true);
-        $this->messageBus->dispatch(new RessourceModifieeMessage(new Utilisateur($decision->getBeneficiaire())));
+        $this->messageBus->dispatch(new RessourceModifieeMessage(new UtilisateurResource($decision->getBeneficiaire())));
     }
 
+    /**
+     * Refuse une modification qui changerait une décision en cours de signature : aménagements repris
+     * dans la décision, avis de santé. Sinon le document signé ne dirait plus ce qu'affiche OASIS.
+     *
+     * @throws UnprocessableEntityHttpException
+     */
+    public function interdireSiEnSignature(Utilisateur $beneficiaire): void
+    {
+        foreach ($beneficiaire->getDecisionsAmenagementExamens() as $decision) {
+            if (DecisionAmenagementExamens::ETAT_EN_SIGNATURE === $decision->getEtat()) {
+                throw new UnprocessableEntityHttpException(
+                    'La décision d\'aménagements de ce bénéficiaire est en cours de signature électronique : '
+                    . 'ses aménagements et ses avis de santé ne peuvent pas être modifiés avant la fin du circuit.',
+                );
+            }
+        }
+    }
 }

@@ -9,20 +9,24 @@
 
 namespace App\Tests;
 
+use App\Entity\Amenagement;
 use App\Entity\DecisionAmenagementExamens;
 use App\Entity\Formation;
 use App\Entity\Inscription;
+use App\Entity\TypeAmenagement;
 use App\Entity\Utilisateur;
 use DateTime;
 
 /**
- * Parcours de la décision avec un parapheur : la demande du gestionnaire part au parapheur.
+ * Parcours de la décision avec un parapheur : la demande du gestionnaire part au parapheur, puis la
+ * décision et ce qu'elle reprend ne changent plus jusqu'à la fin du circuit.
  */
 class SignatureDecisionTest extends ApiTestCaseCustom
 {
     private const string DECISION = '/utilisateurs/beneficiaire-decision/decisions/2025';
 
     private ?int $inscription = null;
+    private ?int $amenagement = null;
 
     protected function tearDown(): void
     {
@@ -35,6 +39,9 @@ class SignatureDecisionTest extends ApiTestCaseCustom
             ->getComposante()->setCircuitSignature(null);
         if (null !== $this->inscription) {
             $manager->remove($manager->find(Inscription::class, $this->inscription));
+        }
+        if (null !== $this->amenagement) {
+            $manager->remove($manager->find(Amenagement::class, $this->amenagement));
         }
         $manager->flush();
 
@@ -71,6 +78,20 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         $this->assertSame(DecisionAmenagementExamens::ETAT_VALIDE, $this->decision()->getEtat());
     }
 
+    public function testDecisionEnSignatureCannotBeModified(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $this->etatDecision(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
+
+        $client->request('PATCH', self::DECISION, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['etat' => DecisionAmenagementExamens::ETAT_EDITION_DEMANDEE],
+        ]);
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertSame(DecisionAmenagementExamens::ETAT_EN_SIGNATURE, $this->decision()->getEtat());
+    }
+
     public function testRefusedDecisionCanBeRequestedAgain(): void
     {
         $client = $this->createClientWithCredentials('gestionnaire');
@@ -84,6 +105,34 @@ class SignatureDecisionTest extends ApiTestCaseCustom
 
         $this->assertResponseIsSuccessful();
         $this->assertSame(DecisionAmenagementExamens::ETAT_EDITION_DEMANDEE, $this->decision()->getEtat());
+    }
+
+    public function testAmenagementInDecisionIsLockedWhileEnSignature(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $this->etatDecision(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
+
+        $client->request('PATCH', '/utilisateurs/beneficiaire-decision/amenagements/' . $this->amenagementDecision(), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['commentaire' => 'Salle isolée'],
+        ]);
+
+        $this->assertResponseStatusCodeSame(422);
+    }
+
+    public function testAvisEseIsLockedWhileDecisionEnSignature(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $this->etatDecision(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
+
+        $client->request('POST', '/utilisateurs/beneficiaire-decision/avis_ese', [
+            'json' => [
+                'libelle' => 'Avis pendant la signature',
+                'debut' => new DateTime()->format('Y-m-d'),
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(422);
     }
 
     /** La décision 2025 visée par l'URI : le bénéficiaire en a aussi une pour l'année en cours. */
@@ -104,6 +153,9 @@ class SignatureDecisionTest extends ApiTestCaseCustom
     {
         $decision = $this->decision();
         $decision->setEtat($etat);
+        if (DecisionAmenagementExamens::ETAT_EN_SIGNATURE === $etat) {
+            $decision->setIdDocumentParapheur(uniqid('factice-', true));
+        }
         static::getContainer()->get('doctrine')->getManager()->flush();
     }
 
@@ -124,4 +176,26 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         $this->inscription = $inscription->getId();
     }
 
+    /** Un aménagement d'examens du bénéficiaire, d'un type inclus dans la décision. */
+    private function amenagementDecision(): int
+    {
+        $manager = static::getContainer()->get('doctrine')->getManager();
+        $utilisateur = $manager->getRepository(Utilisateur::class)->findOneBy(['uid' => 'beneficiaire-decision']);
+        $type = $manager->getRepository(TypeAmenagement::class)->findOneBy(['examens' => true]);
+        $type->setDecision(true);
+
+        // créé ici : les autres classes de test modifient les aménagements des fixtures
+        $amenagement = new Amenagement();
+        $amenagement->setType($type);
+        $amenagement->setDebut(new DateTime('-1 month'));
+        $amenagement->setFin(new DateTime('+1 month'));
+        $amenagement->setSemestre1(true);
+        $amenagement->setSemestre2(true);
+        $amenagement->addBeneficiaire($utilisateur->getBeneficiaires()->first());
+        $manager->persist($amenagement);
+        $manager->flush();
+        $this->amenagement = $amenagement->getId();
+
+        return $this->amenagement;
+    }
 }
