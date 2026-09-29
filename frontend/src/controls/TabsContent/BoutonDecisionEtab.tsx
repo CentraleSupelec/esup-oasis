@@ -24,6 +24,62 @@ import { EtatDecisionEtablissement } from "@controls/Avatars/DecisionEtablisseme
 import { queryClient } from "@/queryClient";
 import { env } from "@/env";
 import { decisionEtab } from "@lib";
+import dayjs from "dayjs";
+
+/** États de signature électronique, absents si la décision n'est pas passée par la signature. */
+export enum EtatSignatureDecision {
+  "EN_SIGNATURE" = "EN_SIGNATURE",
+  "SIGNEE" = "SIGNEE",
+  "REFUSEE" = "REFUSEE",
+  "EXPIREE" = "EXPIREE",
+  "ERREUR" = "ERREUR",
+  "REMPLACEE" = "REMPLACEE",
+}
+
+/** Libellés du bouton et de sa légende, null pour une décision envoyée par e-mail. */
+export function libellesSignature(
+  etatSignature: string | null | undefined,
+  derniereVerification: string | null | undefined,
+): { bouton: string; legende: string; enErreur: boolean } | null {
+  const verification = derniereVerification
+    ? ` Dernière vérification le ${dayjs(derniereVerification).format("DD/MM/YYYY à HH:mm")}.`
+    : "";
+
+  switch (etatSignature) {
+    case EtatSignatureDecision.EN_SIGNATURE:
+      return {
+        bouton: `${decisionEtab.Denomination} en signature`,
+        legende: `${decisionEtab.Defini} est en cours de signature électronique.${verification}`,
+        enErreur: false,
+      };
+    case EtatSignatureDecision.REFUSEE:
+      return {
+        bouton: `Signature ${decisionEtab.de} refusée`,
+        legende: `Un signataire a refusé ${decisionEtab.defini} dans le parapheur électronique.${verification}`,
+        enErreur: true,
+      };
+    case EtatSignatureDecision.EXPIREE:
+      return {
+        bouton: `Signature ${decisionEtab.de} interrompue`,
+        legende: `Le circuit de signature s'est interrompu sans aboutir.${verification}`,
+        enErreur: true,
+      };
+    case EtatSignatureDecision.ERREUR:
+      return {
+        bouton: `Erreur de signature ${decisionEtab.de}`,
+        legende: `La signature électronique a échoué côté parapheur.${verification}`,
+        enErreur: true,
+      };
+    case EtatSignatureDecision.REMPLACEE:
+      return {
+        bouton: `${decisionEtab.Denomination} remplacé${decisionEtab.accordE}`,
+        legende: "Le document a été remplacé dans le parapheur électronique.",
+        enErreur: false,
+      };
+    default:
+      return null;
+  }
+}
 
 export function BoutonDecisionEtab(props: { utilisateurId: string }) {
   const auth = useAuth();
@@ -61,10 +117,25 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
     return <></>;
   }
 
+  const refusee =
+    utilisateur.decisionAmenagementAnneeEnCours.etat === EtatDecisionEtablissement.REFUSEE;
+  // ce que rapporte le parapheur, pour une décision en signature ou refusée
+  const signature =
+    refusee ||
+    utilisateur.decisionAmenagementAnneeEnCours.etat === EtatDecisionEtablissement.EN_SIGNATURE
+      ? libellesSignature(
+          utilisateur.decisionAmenagementAnneeEnCours.etatSignature,
+          utilisateur.decisionAmenagementAnneeEnCours.derniereVerificationSignature,
+        )
+      : null;
+  const dateSignature = utilisateur.decisionAmenagementAnneeEnCours.dateSignature;
+
   switch (utilisateur.decisionAmenagementAnneeEnCours.etat) {
+    // une signature refusée se reprend comme une décision en attente : correction, puis nouvelle demande
+    case EtatDecisionEtablissement.REFUSEE:
     case EtatDecisionEtablissement.ATTENTE_VALIDATION_CAS:
       return (
-        <Tooltip title="En attente validation CAS">
+        <Tooltip title={refusee ? signature?.legende : "En attente validation CAS"}>
           <Dropdown
             menu={{
               items: [
@@ -126,9 +197,13 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
             <Button
               loading={loading}
               icon={<FileDoneOutlined />}
-              className="text-warning border-orange mr-2"
+              className={
+                refusee ? "text-danger border-error mr-2" : "text-warning border-orange mr-2"
+              }
             >
-              {decisionEtab.Denomination} en attente
+              {refusee
+                ? (signature?.bouton ?? `Signature ${decisionEtab.de} refusée`)
+                : `${decisionEtab.Denomination} en attente`}
             </Button>
           </Dropdown>
         </Tooltip>
@@ -190,13 +265,14 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
         </Dropdown>
       );
 
+    case EtatDecisionEtablissement.EN_SIGNATURE:
     case EtatDecisionEtablissement.EDITION_DEMANDEE:
       return (
         <Space orientation="vertical" size={0}>
           <Button
             loading={loading}
             icon={<FileDoneOutlined />}
-            className="mr-2"
+            className={`mr-2 ${signature?.enErreur ? "text-danger border-error" : ""}`}
             onClick={() => {
               setLoading(true);
               apiDownloader(
@@ -211,11 +287,12 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
               ).then();
             }}
           >
-            {decisionEtab.Denomination} en cours d'envoi
+            {signature?.bouton ?? `${decisionEtab.Denomination} en cours d'envoi`}
           </Button>
           <Space className="legende">
             <div>
-              {decisionEtab.Defini} sera envoyé{decisionEtab.accordE} dans les prochaines minutes.
+              {signature?.legende ??
+                `${decisionEtab.Defini} sera envoyé${decisionEtab.accordE} dans les prochaines minutes.`}
             </div>
             <Tooltip title="Rafraîchir" placement="bottom">
               <Button
@@ -238,7 +315,13 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
 
     case EtatDecisionEtablissement.EDITE:
       return (
-        <Tooltip title={`${decisionEtab.Denomination} : envoyé${decisionEtab.accordE}`}>
+        <Tooltip
+          title={
+            dateSignature
+              ? `${decisionEtab.Denomination} : signé${decisionEtab.accordE} électroniquement le ${dayjs(dateSignature).format("DD/MM/YYYY")}`
+              : `${decisionEtab.Denomination} : envoyé${decisionEtab.accordE}`
+          }
+        >
           <Button
             loading={loading}
             onClick={() => {
@@ -257,7 +340,9 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
             icon={<CheckCircleFilled />}
             className={`mr-2 ${EtatDecisionEtablissement.EDITE ? "text-success border-green-light" : ""}`}
           >
-            {decisionEtab.Denomination} : envoyé{decisionEtab.accordE}
+            {dateSignature
+              ? `${decisionEtab.Denomination} : signé${decisionEtab.accordE}`
+              : `${decisionEtab.Denomination} : envoyé${decisionEtab.accordE}`}
           </Button>
         </Tooltip>
       );

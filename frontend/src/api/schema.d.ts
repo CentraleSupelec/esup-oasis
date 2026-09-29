@@ -3183,6 +3183,7 @@ export interface components {
             actif?: boolean;
         };
         "Composante-composante.in.jsonMergePatch": {
+            circuitSignature?: string | null;
             referents?: string[];
         };
         "Composante.html-amenagement.out": {
@@ -3194,6 +3195,7 @@ export interface components {
         "Composante.html-composante.out": {
             id?: number;
             libelle?: string;
+            circuitSignature?: string | null;
             referents?: string[];
         };
         "Composante.jsonld-amenagement.out": components["schemas"]["HydraItemBaseSchema"] & {
@@ -3205,6 +3207,7 @@ export interface components {
         "Composante.jsonld-composante.out": components["schemas"]["HydraItemBaseSchema"] & {
             id?: number;
             libelle?: string;
+            circuitSignature?: string | null;
             referents?: string[];
         };
         /** @description Unprocessable entity */
@@ -3259,10 +3262,20 @@ export interface components {
         };
         "DecisionAmenagementExamens.html-decision.out": {
             etat?: string;
+            etatSignature?: string | null;
+            /** Format: date-time */
+            dateSignature?: string | null;
+            /** Format: date-time */
+            derniereVerificationSignature?: string | null;
             urlContenu?: string | null;
         };
         "DecisionAmenagementExamens.html-utilisateur.out": {
             etat?: string;
+            etatSignature?: string | null;
+            /** Format: date-time */
+            dateSignature?: string | null;
+            /** Format: date-time */
+            derniereVerificationSignature?: string | null;
         };
         "DecisionAmenagementExamens.jsonld": components["schemas"]["HydraItemBaseSchema"] & {
             etat?: string;
@@ -3270,13 +3283,28 @@ export interface components {
         };
         "DecisionAmenagementExamens.jsonld-decision.out": components["schemas"]["HydraItemBaseSchema"] & {
             etat?: string;
+            etatSignature?: string | null;
+            /** Format: date-time */
+            dateSignature?: string | null;
+            /** Format: date-time */
+            derniereVerificationSignature?: string | null;
             urlContenu?: string | null;
         };
         "DecisionAmenagementExamens.jsonld-utilisateur.out": components["schemas"]["HydraItemBaseSchema"] & {
             etat?: string;
+            etatSignature?: string | null;
+            /** Format: date-time */
+            dateSignature?: string | null;
+            /** Format: date-time */
+            derniereVerificationSignature?: string | null;
         };
         "DecisionAmenagementExamens.pdf-decision.out": {
             etat?: string;
+            etatSignature?: string | null;
+            /** Format: date-time */
+            dateSignature?: string | null;
+            /** Format: date-time */
+            derniereVerificationSignature?: string | null;
             urlContenu?: string | null;
         };
         "Demande-demande.in": {
