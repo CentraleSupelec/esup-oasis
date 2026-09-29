@@ -209,6 +209,26 @@ php bin/console app:signature:factice refuser <document>
 
 Le suivi planifié, ou `app:signature:suivi`, reporte ensuite l'état sur la décision.
 
+### FAST-Parapheur
+
+`PARAPHEUR=fast` fait signer les décisions par FAST-Parapheur (Docaposte), en dépôt standard : le document est
+déposé dans le circuit renseigné sur la composante, FAST notifie et relance les signataires, puis transmet le
+document signé à l'étudiant. L'état est déduit de l'historique du document (« Signé », « Classé », « Refusé »,
+« Classé (interrompu) »…), FAST n'exposant pas d'état courant.
+
+Réglages, dans `.env` :
+
+* `FAST_URL` : adresse du service SOAP, par exemple `https://parapheur.example/parapheur-soap/soap/v1/Documents` ;
+* `FAST_SIREN` : numéro d'abonné de l'établissement ;
+* `FAST_CERTIFICAT` : chemin du certificat client (PEM, clé et certificat concaténés), qui authentifie
+  l'établissement auprès de FAST ; à monter en volume dans le backend et le worker, jamais dans l'image ;
+* `FAST_CERTIFICAT_MOT_DE_PASSE` : mot de passe de la clé, s'il y en a un ;
+* `FAST_AUTORITE` : certificat de l'autorité de FAST, si le système ne la connaît pas.
+
+Le circuit de chaque composante est l'identifiant du circuit tel que FAST le nomme. La connexion à FAST n'est
+établie qu'au premier dépôt ou suivi : une configuration incomplète est signalée à ce moment, dans les journaux,
+et la décision est reprise au passage suivant.
+
 ## Photos
 
 Oasis peut récupérer et afficher les photos des étudiants (aux utilisateurs ayant un rôle gestionnaire ou
