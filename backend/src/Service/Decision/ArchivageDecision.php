@@ -19,8 +19,8 @@ use App\Service\FileStorage\StorageProviderInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
 
 /**
- * Dépose une copie du PDF de la décision au dossier du bénéficiaire, après envoi par e-mail.
- * Les copies antérieures sont conservées.
+ * Dépose une copie du PDF de la décision au dossier du bénéficiaire, après envoi par e-mail
+ * ou retour de signature. Les copies antérieures sont conservées.
  */
 readonly class ArchivageDecision
 {
@@ -34,17 +34,25 @@ readonly class ArchivageDecision
     /**
      * @param string $pdf contenu binaire du PDF
      * @param Utilisateur $auteur utilisateur au nom duquel la pièce jointe est déposée
+     * @param bool $signee la copie porte-t-elle les signatures électroniques
      */
     public function archiver(
         DecisionAmenagementExamens $decision,
         string $pdf,
         Utilisateur $auteur,
+        bool $signee = false,
     ): void {
         $dateDepot = $this->now();
         $mimeType = 'application/pdf';
 
-        $filename = 'decision-' . $decision->getId() . '.pdf';
-        $description = "Décision d'aménagements au " . $dateDepot->format('d/m/Y');
+        $filename = match ($signee) {
+            true => 'decision-' . $decision->getId() . '-signee.pdf',
+            false => 'decision-' . $decision->getId() . '.pdf',
+        };
+        $description = match ($signee) {
+            true => "Décision d'aménagements signée au " . $dateDepot->format('d/m/Y'),
+            false => "Décision d'aménagements au " . $dateDepot->format('d/m/Y'),
+        };
 
         $metadata = $this->storageProvider->store(
             contents: $pdf,
