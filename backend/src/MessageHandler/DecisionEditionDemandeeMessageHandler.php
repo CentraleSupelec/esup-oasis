@@ -74,8 +74,8 @@ readonly class DecisionEditionDemandeeMessageHandler
             } catch (RuntimeException $e) {
                 $this->logger->error($e->getMessage());
                 $this->logger->info($e->getTraceAsString());
-                $delay = new DelayStamp(3600000); //on réessaye dans une heure
-                $this->messageBus->dispatch(new RedispatchMessage($message), [$delay]);
+                // renvoyé dans sa file : un RedispatchMessage serait traité aussitôt, sans le délai
+                $this->messageBus->dispatch($message, [new DelayStamp(3600000)]); //on réessaye dans une heure
             }
             return;
         }
