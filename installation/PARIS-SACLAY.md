@@ -60,7 +60,30 @@ php -d date.timezone=UTC vendor/bin/phpunit --no-configuration \
 
 ## Décision d'aménagements (PAEH)
 
-À compléter : gabarit du document, exigence de l'avis médical par profil.
+Le document suit le modèle de Paris-Saclay : visas juridiques, destinataire, aménagements classés en études, aides humaines et examens, observations, voies de recours.
+
+| Fichier | Rôle |
+| --- | --- |
+| `backend/personnalisation/templates/Decisions/index.html.twig` | le document, qui remplace celui de l'application dans l'image |
+| `backend/personnalisation/templates/Decisions/footer.html.twig` | le pied de page (adresse postale, pagination) |
+
+Le gabarit ne lit que ce que l'application fournit déjà ; les classes de l'application ne sont pas modifiées. Un type d'aménagement coché dans plusieurs catégories (études, aides humaines, examens) apparaît dans chacune ; seuls les types marqués « à inclure dans la décision » figurent sur le document.
+
+Identité de l'établissement (`installation/.env`) :
+
+```dotenv
+APP_ETABLISSEMENT="Université Paris-Saclay"
+APP_ETABLISSEMENT_ARTICLE="l'Université Paris-Saclay"
+APP_LOGO="/images/…"
+```
+
+Le logo se dépose dans `backend/personnalisation/public/images/`, sous le nom donné à `APP_LOGO`.
+
+Dans *Administration › Paramètres* : le lieu du courrier, l'adresse postale du pied de page, la qualité et le nom du signataire.
+
+Le tribunal administratif compétent est écrit en tête du gabarit (`tribunalAdministratif`), avec les autres réglages propres à Paris-Saclay.
+
+À compléter : exigence de l'avis médical par profil, numéro d'avenant.
 
 ## Signature électronique (FAST-Parapheur)
 
