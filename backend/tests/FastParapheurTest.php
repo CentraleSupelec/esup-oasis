@@ -95,7 +95,7 @@ class FastParapheurTest extends TestCase
     public function testUnknownDocumentFaultBecomesDocumentInconnu(): void
     {
         $soap = $this->createMock(SoapClient::class);
-        $soap->method('__soapCall')->willThrowException(new SoapFault('Server', 'Document introuvable : doc-42'));
+        $soap->method('__soapCall')->willThrowException(new SoapFault('Server', 'Document inconnu du parapheur : "doc-42".'));
 
         $this->expectException(DocumentInconnuException::class);
         $this->parapheur($soap)->suivre('doc-42');
