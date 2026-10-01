@@ -124,6 +124,16 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         $this->assertResponseStatusCodeSame(422);
     }
 
+    public function testAmenagementInDecisionCannotBeDeletedWhileEnSignature(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $this->etatDecision(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
+
+        $client->request('DELETE', '/utilisateurs/beneficiaire-decision/amenagements/' . $this->amenagementDecision());
+
+        $this->assertResponseStatusCodeSame(422);
+    }
+
     public function testAvisEseIsLockedWhileDecisionEnSignature(): void
     {
         $client = $this->createClientWithCredentials('gestionnaire');

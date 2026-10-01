@@ -57,9 +57,7 @@ class AmenagementProcessor implements ProcessorInterface
         //DELETE
         if ($operation instanceof Delete) {
             if ($entity->getType()->isDecision()) {
-                $this->signatureElectronique->interdireSiEnSignature(
-                    $entity->getBeneficiaires()->current()->getUtilisateur(),
-                );
+                $this->signatureElectronique->interdireSiEnSignature($this->utilisateurManager->parUid($uriVariables['uid']));
             }
             $this->messageBus->dispatch(new AmenagementModifieMessage($entity));
             $this->amenagementRepository->remove($entity, true);
