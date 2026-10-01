@@ -218,9 +218,10 @@ ce qui distingue les versions successives d'une même décision.
 
 L'état est déduit de l'historique du document, FAST n'exposant pas d'état courant : « Visa désapprouvé »,
 « Refusé » ou « Signature rejetée » rendent la décision refusée, « Classé (interrompu) » interrompue, et le
-circuit est terminé une fois le document « Classé » ou « Archivé ». Tous les circuits ne classent pas le
-document : une signature restée la dernière étape de l'historique pendant cinq minutes termine alors le circuit
-(FAST enchaîne l'étape suivante dans la seconde).
+circuit est terminé une fois le document « Classé » ou « Archivé », ou sur une signature restée la dernière
+étape de l'historique, tous les circuits ne classant pas le document. Un circuit à plusieurs signatures écrit
+« Signé » à chacune : FAST inscrivant l'étape suivante dans la seconde, il n'est pas tenu pour terminé à la
+première signature, sauf à être interrogé précisément entre les deux étapes.
 
 Paramétrage attendu des circuits, dans FAST :
 

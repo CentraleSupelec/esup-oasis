@@ -73,7 +73,6 @@ class FastParapheurTest extends TestCase
 
     public function testSuivreEndsCircuitWithoutClassementOnLastSignature(): void
     {
-        // horloge du test : 2026-09-29T15:30, plus de cinq minutes après le cachet
         $soap = $this->createMock(SoapClient::class);
         $soap->method('__soapCall')->willReturn((object) ['return' => [
             (object) ['stateName' => 'Visa approuvé', 'date' => '2026-09-29T15:10:00+02:00'],

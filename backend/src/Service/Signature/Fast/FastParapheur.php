@@ -9,7 +9,6 @@
 
 namespace App\Service\Signature\Fast;
 
-use App\Entity\DecisionAmenagementExamens;
 use App\Service\Signature\AbstractParapheur;
 use App\Service\Signature\SuiviSignature;
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -46,15 +45,11 @@ class FastParapheur extends AbstractParapheur
     public function suivre(string $documentId): SuiviSignature
     {
         $historique = $this->client->historique($documentId);
-        $etat = $this->deriver->deriver(array_column($historique, 'stateName'));
 
-        // tous les circuits ne classent pas le document : sa dernière signature termine alors le circuit
-        if (DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE === $etat
-            && $this->deriver->termineParSignature($historique, $this->now())) {
-            $etat = DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE;
-        }
-
-        return new SuiviSignature($etat, $this->deriver->dateDeSignature($historique));
+        return new SuiviSignature(
+            $this->deriver->deriver(array_column($historique, 'stateName')),
+            $this->deriver->dateDeSignature($historique),
+        );
     }
 
     public function telecharger(string $documentId): string
