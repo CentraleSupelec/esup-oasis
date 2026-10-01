@@ -139,9 +139,12 @@ parapheur : le circuit de signature remplace l'envoi par l'administrateur foncti
 Une fois déposée, la décision passe à l'état `EN_SIGNATURE`. Le worker interroge ensuite le parapheur à
 intervalle régulier sur les décisions en signature, récupère les documents signés, les dépose au dossier du
 bénéficiaire et passe la décision à l'état `EDITE`. Un circuit terminé sans signature (refus d'un signataire,
-circuit interrompu, document inconnu du parapheur) passe la décision à l'état `REFUSEE` : la fiche du
-bénéficiaire en indique la cause (refus, interruption, erreur), le détail restant consultable dans le parapheur,
-et les décisions refusées se retrouvent avec le filtre de la liste des bénéficiaires.
+circuit interrompu, document inconnu du parapheur) passe la décision à l'état `REFUSEE`, et le document rendu
+par le parapheur est lui aussi déposé au dossier du bénéficiaire (« Décision d'aménagements refusée au … »),
+pour l'historique, sans devenir le document de la décision ; seul un document inconnu du parapheur ne peut pas
+l'être. La fiche du bénéficiaire indique la cause du refus (refus, interruption, erreur), le détail restant
+consultable dans le parapheur, et les décisions refusées se retrouvent avec le filtre de la liste des
+bénéficiaires.
 
 La fréquence d'interrogation se règle par le paramètre `FREQUENCE_SUIVI_SIGNATURES` (administration, écran des
 paramètres), au format du Scheduler Symfony (`15 minutes`, `2 hours`…), une heure par défaut ; le worker le relit

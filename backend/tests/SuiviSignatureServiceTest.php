@@ -10,6 +10,7 @@
 namespace App\Tests;
 
 use App\Entity\DecisionAmenagementExamens;
+use App\Entity\PieceJointeBeneficiaire;
 use App\Service\Signature\ParapheurFactice;
 use App\Service\Signature\SuiviSignatureService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -68,6 +69,37 @@ class SuiviSignatureServiceTest extends KernelTestCase
         self::assertSame(DecisionAmenagementExamens::ETAT_SIGNATURE_REFUSEE, $decision->getEtatSignature());
         self::assertSame(DecisionAmenagementExamens::ETAT_REFUSEE, $decision->getEtat());
         self::assertNull($decision->getDateSignature());
+    }
+
+    public function testRefusedDocumentIsFiledForHistory(): void
+    {
+        [$decision, $documentId] = $this->decisionEnSignature();
+        $fichierDecision = $decision->getFichier();
+        $this->parapheur->marquerRefusee($documentId);
+
+        $this->suivi->traiterLot();
+
+        $copies = $this->em->getRepository(PieceJointeBeneficiaire::class)->findBy(['beneficiaire' => $decision->getBeneficiaire()]);
+        self::assertContains(
+            "Décision d'aménagements refusée au " . date('d/m/Y'),
+            array_map(fn(PieceJointeBeneficiaire $copie) => $copie->getLibelle(), $copies),
+        );
+        // la copie refusée n'est pas le document de la décision
+        self::assertSame($fichierDecision, $decision->getFichier());
+    }
+
+    public function testRefusedDecisionWithoutRequesterIsRetried(): void
+    {
+        [$decision, $documentId] = $this->decisionEnSignature();
+        $decision->setUidDemandeurSignature(null);
+        $this->em->flush();
+        $this->parapheur->marquerRefusee($documentId);
+
+        $rapport = $this->suivi->traiterLot();
+
+        // sans copie au dossier, la décision ne sort pas de la signature
+        self::assertSame(1, $rapport->erreurs);
+        self::assertSame(DecisionAmenagementExamens::ETAT_EN_SIGNATURE, $decision->getEtat());
     }
 
     public function testUnknownDocumentStopsFollowUp(): void

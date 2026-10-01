@@ -20,7 +20,7 @@ use Symfony\Component\Clock\ClockAwareTrait;
 
 /**
  * Dépose une copie du PDF de la décision au dossier du bénéficiaire, après envoi par e-mail
- * ou retour de signature. Les copies antérieures sont conservées.
+ * ou retour du parapheur, signée ou refusée. Les copies antérieures sont conservées.
  */
 readonly class ArchivageDecision
 {
@@ -34,25 +34,26 @@ readonly class ArchivageDecision
     /**
      * @param string $pdf contenu binaire du PDF
      * @param Utilisateur $auteur utilisateur au nom duquel la pièce jointe est déposée
-     * @param bool $signee la copie porte-t-elle les signatures électroniques
+     * @param ?string $etatSignature null après un envoi par e-mail, sinon l'état rendu par le parapheur
+     *                               (DecisionAmenagementExamens::ETAT_SIGNATURE_*)
      */
     public function archiver(
         DecisionAmenagementExamens $decision,
         string $pdf,
         Utilisateur $auteur,
-        bool $signee = false,
+        ?string $etatSignature = null,
     ): void {
         $dateDepot = $this->now();
         $mimeType = 'application/pdf';
 
-        $filename = match ($signee) {
-            true => 'decision-' . $decision->getId() . '-signee.pdf',
-            false => 'decision-' . $decision->getId() . '.pdf',
+        [$suffixe, $qualificatif] = match ($etatSignature) {
+            null => ['', ''],
+            DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE => ['-signee', ' signée'],
+            DecisionAmenagementExamens::ETAT_SIGNATURE_REFUSEE => ['-refusee', ' refusée'],
+            default => ['-non-signee', ' non signée'],
         };
-        $description = match ($signee) {
-            true => "Décision d'aménagements signée au " . $dateDepot->format('d/m/Y'),
-            false => "Décision d'aménagements au " . $dateDepot->format('d/m/Y'),
-        };
+        $filename = 'decision-' . $decision->getId() . $suffixe . '.pdf';
+        $description = "Décision d'aménagements" . $qualificatif . ' au ' . $dateDepot->format('d/m/Y');
 
         $metadata = $this->storageProvider->store(
             contents: $pdf,
@@ -66,7 +67,10 @@ readonly class ArchivageDecision
         $fichier->setProprietaire($decision->getBeneficiaire());
         $fichier->setMetadata($metadata);
         $fichier->setTypeMime($mimeType);
-        $decision->setFichier($fichier);
+        // une décision rendue sans signature n'est pas le document de la décision : copie au dossier seulement
+        if (null === $etatSignature || DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE === $etatSignature) {
+            $decision->setFichier($fichier);
+        }
 
         $pieceJointe = new PieceJointeBeneficiaire();
         $pieceJointe->setFichier($fichier);

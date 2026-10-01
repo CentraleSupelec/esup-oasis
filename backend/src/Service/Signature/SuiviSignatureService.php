@@ -22,8 +22,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Throwable;
 
 /**
- * Suit les décisions en signature et dépose le PDF signé au dossier. Une décision n'est
- * déclarée signée qu'une fois son PDF archivé, sinon elle est reprise au passage suivant.
+ * Suit les décisions en signature et dépose le PDF rendu par le parapheur au dossier, signé ou
+ * refusé. Une décision ne sort de la signature qu'une fois ce PDF archivé, sinon elle est reprise
+ * au passage suivant.
  */
 readonly class SuiviSignatureService
 {
@@ -129,6 +130,11 @@ readonly class SuiviSignatureService
             return $this->finaliser($decision, $suivi);
         }
 
+        // rendue sans signature : le document rejoint aussi le dossier, pour l'historique
+        if (!$this->archiverDocument($decision, $suivi->etat)) {
+            return ['erreurs' => 1];
+        }
+
         $decision->setEtat(DecisionAmenagementExamens::ETAT_REFUSEE);
         $decision->setEtatSignature($suivi->etat);
         $this->decisionAmenagementExamensRepository->save($decision, true);
@@ -152,34 +158,7 @@ readonly class SuiviSignatureService
      */
     private function finaliser(DecisionAmenagementExamens $decision, SuiviSignature $suivi): array
     {
-        // sans demandeur mémorisé au dépôt, la pièce jointe n'a pas d'auteur
-        $uidDemandeur = $decision->getUidDemandeurSignature();
-        if (null === $uidDemandeur) {
-            $this->logger->error(
-                'Décision {id} signée mais sans demandeur mémorisé : archivage impossible.',
-                ['id' => $decision->getId()],
-            );
-            $this->decisionAmenagementExamensRepository->save($decision, true);
-
-            return ['erreurs' => 1];
-        }
-
-        try {
-            $pdf = $this->parapheur->telecharger($decision->getIdDocumentParapheur());
-            $this->archivageDecision->archiver(
-                decision: $decision,
-                pdf: $pdf,
-                auteur: $this->utilisateurManager->parUid($uidDemandeur),
-                signee: true,
-            );
-        } catch (Throwable $e) {
-            // pas signée sans son document : nouvel essai au passage suivant
-            $this->logger->error(
-                'Décision {id} signée mais récupération du PDF impossible : {erreur}',
-                ['id' => $decision->getId(), 'erreur' => $e->getMessage()],
-            );
-            $this->decisionAmenagementExamensRepository->save($decision, true);
-
+        if (!$this->archiverDocument($decision, DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE)) {
             return ['erreurs' => 1];
         }
 
@@ -198,5 +177,44 @@ readonly class SuiviSignatureService
         $this->messageBus->dispatch(new RessourceModifieeMessage(new Utilisateur($decision->getBeneficiaire())));
 
         return ['signees' => 1];
+    }
+
+    /**
+     * Dépose au dossier du bénéficiaire le document rendu par le parapheur.
+     *
+     * @return bool faux si le document n'a pas pu être récupéré ou déposé : la décision est reprise au passage suivant
+     */
+    private function archiverDocument(DecisionAmenagementExamens $decision, string $etatSignature): bool
+    {
+        // sans demandeur mémorisé au dépôt, la pièce jointe n'a pas d'auteur
+        $uidDemandeur = $decision->getUidDemandeurSignature();
+        if (null === $uidDemandeur) {
+            $this->logger->error(
+                'Décision {id} rendue par le parapheur ({etat}) mais sans demandeur mémorisé : archivage impossible.',
+                ['id' => $decision->getId(), 'etat' => $etatSignature],
+            );
+            $this->decisionAmenagementExamensRepository->save($decision, true);
+
+            return false;
+        }
+
+        try {
+            $this->archivageDecision->archiver(
+                decision: $decision,
+                pdf: $this->parapheur->telecharger($decision->getIdDocumentParapheur()),
+                auteur: $this->utilisateurManager->parUid($uidDemandeur),
+                etatSignature: $etatSignature,
+            );
+        } catch (Throwable $e) {
+            $this->logger->error(
+                'Décision {id} rendue par le parapheur ({etat}) mais récupération du PDF impossible : {erreur}',
+                ['id' => $decision->getId(), 'etat' => $etatSignature, 'erreur' => $e->getMessage()],
+            );
+            $this->decisionAmenagementExamensRepository->save($decision, true);
+
+            return false;
+        }
+
+        return true;
     }
 }
