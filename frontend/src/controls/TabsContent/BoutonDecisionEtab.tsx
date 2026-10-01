@@ -24,7 +24,7 @@ import apiDownloader from "@utils/apiDownloader";
 import { EtatDecisionEtablissement } from "@controls/Avatars/DecisionEtablissementAvatar";
 import { queryClient } from "@/queryClient";
 import { env } from "@/env";
-import { decisionEtab } from "@lib";
+import { decisionEtab, intervalleSuiviEnvoi } from "@lib";
 import dayjs from "dayjs";
 
 /** États de signature électronique, absents si la décision n'est pas passée par la signature. */
@@ -91,6 +91,7 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
     path: "/utilisateurs/{uid}",
     url: props.utilisateurId,
     enabled: !!props.utilisateurId,
+    refetchInterval: intervalleSuiviEnvoi,
   });
 
   const mutateDecisionEtab = useApi().usePatch({
