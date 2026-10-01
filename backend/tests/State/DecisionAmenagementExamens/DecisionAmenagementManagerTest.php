@@ -21,6 +21,7 @@ use App\Entity\Utilisateur;
 use App\Repository\DecisionAmenagementExamensRepository;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementManager;
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionProperty;
@@ -137,5 +138,51 @@ final class DecisionAmenagementManagerTest extends TestCase
             new DateTimeImmutable(self::START),
             new DateTimeImmutable(self::END),
         );
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function instantsProvider(): array
+    {
+        return [
+            'aménagement en cours' => [self::END . ' 11:00:00'],
+            'aménagement terminé' => ['2026-09-01 00:00:01'],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function etatsVerrouillesProvider(): array
+    {
+        $etats = [];
+        foreach (self::instantsProvider() as $instant => [$now]) {
+            $etats["en signature, $instant"] = [DecisionAmenagementExamens::ETAT_EN_SIGNATURE, $now];
+            $etats["refusée, $instant"] = [DecisionAmenagementExamens::ETAT_REFUSEE, $now];
+        }
+
+        return $etats;
+    }
+
+    #[DataProvider('etatsVerrouillesProvider')]
+    public function testLeavesLockedDecisionUntouched(string $etat, string $now): void
+    {
+        // en signature ou refusée, la décision attend le parapheur ou sa reprise : ni remise en validation, ni suppression
+        $decision = new DecisionAmenagementExamens()->setEtat($etat);
+
+        $repository = $this->createMock(DecisionAmenagementExamensRepository::class);
+        $repository->expects(self::never())->method('remove');
+        $repository->expects(self::never())->method('save');
+
+        $beneficiaire = $this->beneficiaire([$this->amenagementDecision($now)], $decision);
+
+        $this->manager($now, $repository)->majEtatDecision(
+            $beneficiaire,
+            new DateTimeImmutable(self::START),
+            new DateTimeImmutable(self::END),
+        );
+
+        self::assertSame($etat, $decision->getEtat());
     }
 }

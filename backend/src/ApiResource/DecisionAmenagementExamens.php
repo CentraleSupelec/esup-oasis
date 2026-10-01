@@ -18,7 +18,10 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProcessor;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProvider;
+use App\State\DecisionAmenagementExamens\RepriseDecisionProcessor;
+use App\State\DecisionAmenagementExamens\VerificationSignatureProcessor;
 use App\Validator\EtatDecisionValideConstraint;
+use DateTimeInterface;
 use ReflectionProperty;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -34,7 +37,30 @@ use Symfony\Component\Serializer\Attribute\Ignore;
         new Patch(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'annee'],
-            securityPostDenormalize: "is_granted('" . self::MODIFIER_DECISION . "', object)",
+            // en signature, seul le retour du parapheur fait avancer la décision ; refusée, elle est d'abord reprise
+            securityPostDenormalize: "is_granted('" . self::MODIFIER_DECISION . "', object) and previous_object.etat not in ['"
+                . \App\Entity\DecisionAmenagementExamens::ETAT_EN_SIGNATURE . "', '"
+                . \App\Entity\DecisionAmenagementExamens::ETAT_REFUSEE . "']",
+        ),
+        // interroge le parapheur sans attendre le passage planifié ; le corps de la requête est ignoré
+        new Patch(
+            uriTemplate: self::VERIFICATION_SIGNATURE_URI,
+            uriVariables: ['uid', 'annee'],
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "') and object.etat == '"
+                . \App\Entity\DecisionAmenagementExamens::ETAT_EN_SIGNATURE . "'",
+            denormalizationContext: ['groups' => [self::GROUP_VERIFICATION_IN]],
+            validationContext: ['groups' => [self::GROUP_VERIFICATION_IN]],
+            processor: VerificationSignatureProcessor::class,
+        ),
+        // une décision refusée par le parapheur redevient modifiable ; le corps de la requête est ignoré
+        new Patch(
+            uriTemplate: self::REPRISE_URI,
+            uriVariables: ['uid', 'annee'],
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "') and object.etat == '"
+                . \App\Entity\DecisionAmenagementExamens::ETAT_REFUSEE . "'",
+            denormalizationContext: ['groups' => [self::GROUP_REPRISE_IN]],
+            validationContext: ['groups' => [self::GROUP_REPRISE_IN]],
+            processor: RepriseDecisionProcessor::class,
         ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
@@ -48,10 +74,14 @@ use Symfony\Component\Serializer\Attribute\Ignore;
 class DecisionAmenagementExamens
 {
     public const string ITEM_URI = '/utilisateurs/{uid}/decisions/{annee}';
+    public const string VERIFICATION_SIGNATURE_URI = self::ITEM_URI . '/verification_signature';
+    public const string REPRISE_URI = self::ITEM_URI . '/reprise';
     public const string MODIFIER_DECISION = 'MODIFIER_DECISION';
 
     public const string GROUP_IN = 'decision:in';
     public const string GROUP_OUT = 'decision:out';
+    public const string GROUP_VERIFICATION_IN = 'decision:verification_signature:in';
+    public const string GROUP_REPRISE_IN = 'decision:reprise:in';
 
     #[Ignore]
     public ?int $id {
@@ -93,6 +123,42 @@ class DecisionAmenagementExamens
                 $this->etat = $this->entity->getEtat() ?? '';
             }
             return $this->etat;
+        }
+    }
+
+    /** ETAT_SIGNATURE_* de l'entité, null si la décision n'est pas passée par la signature électronique. */
+    #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT])]
+    public ?string $etatSignature {
+        get {
+            $prop = new ReflectionProperty(self::class, 'etatSignature');
+            if (!$prop->isInitialized($this) && $this->entity !== null) {
+                $this->etatSignature = $this->entity->getEtatSignature();
+            }
+            return $this->etatSignature ?? null;
+        }
+    }
+
+    /** Date de la dernière signature du circuit. */
+    #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT])]
+    public ?DateTimeInterface $dateSignature {
+        get {
+            $prop = new ReflectionProperty(self::class, 'dateSignature');
+            if (!$prop->isInitialized($this) && $this->entity !== null) {
+                $this->dateSignature = $this->entity->getDateSignature();
+            }
+            return $this->dateSignature ?? null;
+        }
+    }
+
+    /** Dernière interrogation du parapheur, pour situer la fraîcheur de l'état affiché. */
+    #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT])]
+    public ?DateTimeInterface $derniereVerificationSignature {
+        get {
+            $prop = new ReflectionProperty(self::class, 'derniereVerificationSignature');
+            if (!$prop->isInitialized($this) && $this->entity !== null) {
+                $this->derniereVerificationSignature = $this->entity->getDerniereVerificationSignature();
+            }
+            return $this->derniereVerificationSignature ?? null;
         }
     }
 
