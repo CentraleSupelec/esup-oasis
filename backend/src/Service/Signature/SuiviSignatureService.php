@@ -75,6 +75,20 @@ readonly class SuiviSignatureService
     }
 
     /**
+     * Interroge le parapheur pour une seule décision en signature, à la demande du gestionnaire.
+     *
+     * @return bool faux si le parapheur n'a pas pu être interrogé ou le document signé récupéré
+     */
+    public function verifier(DecisionAmenagementExamens $decision): bool
+    {
+        if (!$this->parapheur->estDisponible() || null === $decision->getIdDocumentParapheur()) {
+            return false;
+        }
+
+        return !array_key_exists('erreurs', $this->traiter($decision));
+    }
+
+    /**
      * @return array<string, int> incréments à reporter au bilan
      */
     private function traiter(DecisionAmenagementExamens $decision): array

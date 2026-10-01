@@ -18,6 +18,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProcessor;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProvider;
+use App\State\DecisionAmenagementExamens\VerificationSignatureProcessor;
 use App\Validator\EtatDecisionValideConstraint;
 use DateTimeInterface;
 use ReflectionProperty;
@@ -39,6 +40,16 @@ use Symfony\Component\Serializer\Attribute\Ignore;
             securityPostDenormalize: "is_granted('" . self::MODIFIER_DECISION . "', object) and previous_object.etat != '"
                 . \App\Entity\DecisionAmenagementExamens::ETAT_EN_SIGNATURE . "'",
         ),
+        // interroge le parapheur sans attendre le passage planifié ; le corps de la requête est ignoré
+        new Patch(
+            uriTemplate: self::VERIFICATION_SIGNATURE_URI,
+            uriVariables: ['uid', 'annee'],
+            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "') and object.etat == '"
+                . \App\Entity\DecisionAmenagementExamens::ETAT_EN_SIGNATURE . "'",
+            denormalizationContext: ['groups' => [self::GROUP_VERIFICATION_IN]],
+            validationContext: ['groups' => [self::GROUP_VERIFICATION_IN]],
+            processor: VerificationSignatureProcessor::class,
+        ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],
@@ -51,10 +62,12 @@ use Symfony\Component\Serializer\Attribute\Ignore;
 class DecisionAmenagementExamens
 {
     public const string ITEM_URI = '/utilisateurs/{uid}/decisions/{annee}';
+    public const string VERIFICATION_SIGNATURE_URI = self::ITEM_URI . '/verification_signature';
     public const string MODIFIER_DECISION = 'MODIFIER_DECISION';
 
     public const string GROUP_IN = 'decision:in';
     public const string GROUP_OUT = 'decision:out';
+    public const string GROUP_VERIFICATION_IN = 'decision:verification_signature:in';
 
     #[Ignore]
     public ?int $id {

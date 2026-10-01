@@ -15,6 +15,7 @@ use App\Entity\Formation;
 use App\Entity\Inscription;
 use App\Entity\TypeAmenagement;
 use App\Entity\Utilisateur;
+use App\Service\Signature\ParapheurFactice;
 use DateTime;
 
 /**
@@ -24,6 +25,7 @@ use DateTime;
 class SignatureDecisionTest extends ApiTestCaseCustom
 {
     private const string DECISION = '/utilisateurs/beneficiaire-decision/decisions/2025';
+    private const string VERIFICATION = self::DECISION . '/verification_signature';
 
     private ?int $inscription = null;
     private ?int $amenagement = null;
@@ -34,7 +36,9 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         $manager = static::getContainer()->get('doctrine')->getManager();
         $decision = $this->decision();
         $decision->setEtat(DecisionAmenagementExamens::ETAT_VALIDE);
-        $decision->setEtatSignature(null)->setIdDocumentParapheur(null)->setCircuitParapheur(null);
+        $decision->setEtatSignature(null)->setIdDocumentParapheur(null)->setCircuitParapheur(null)
+            ->setUidDemandeurSignature(null)->setDateSignature(null)->setDerniereVerificationSignature(null)
+            ->setFichier(null);
         $manager->getRepository(Formation::class)->findOneBy(['codeExterne' => 'CODE_F_1'])
             ->getComposante()->setCircuitSignature(null);
         if (null !== $this->inscription) {
@@ -135,6 +139,69 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         $this->assertResponseStatusCodeSame(422);
     }
 
+    public function testGestionnaireChecksSignedDecisionWithoutWaitingForSchedule(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $documentId = $this->enSignatureDansLeParapheur();
+        static::getContainer()->get(ParapheurFactice::class)->marquerSignee($documentId);
+
+        $client->request('PATCH', self::VERIFICATION, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['etat' => DecisionAmenagementExamens::ETAT_EDITE]);
+        $decision = $this->decision();
+        $this->assertSame(DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE, $decision->getEtatSignature());
+        $this->assertNotNull($decision->getFichier());
+    }
+
+    public function testGestionnaireChecksRefusedDecision(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $documentId = $this->enSignatureDansLeParapheur();
+        static::getContainer()->get(ParapheurFactice::class)->marquerRefusee($documentId);
+
+        $client->request('PATCH', self::VERIFICATION, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['etat' => DecisionAmenagementExamens::ETAT_REFUSEE]);
+    }
+
+    public function testCheckKeepsDecisionEnSignatureUntilCircuitEnds(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $this->enSignatureDansLeParapheur();
+
+        $client->request('PATCH', self::VERIFICATION, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $decision = $this->decision();
+        $this->assertSame(DecisionAmenagementExamens::ETAT_EN_SIGNATURE, $decision->getEtat());
+        // la fiche affiche l'heure de cette vérification
+        $this->assertNotNull($decision->getDerniereVerificationSignature());
+    }
+
+    public function testCheckIsRefusedOutsideSignature(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $this->etatDecision(DecisionAmenagementExamens::ETAT_VALIDE);
+
+        $client->request('PATCH', self::VERIFICATION, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [],
+        ]);
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
     /** La décision 2025 visée par l'URI : le bénéficiaire en a aussi une pour l'année en cours. */
     private function decision(): DecisionAmenagementExamens
     {
@@ -157,6 +224,21 @@ class SignatureDecisionTest extends ApiTestCaseCustom
             $decision->setIdDocumentParapheur(uniqid('factice-', true));
         }
         static::getContainer()->get('doctrine')->getManager()->flush();
+    }
+
+    /** Décision déposée dans le parapheur factice, avec le gestionnaire comme demandeur. */
+    private function enSignatureDansLeParapheur(): string
+    {
+        $documentId = static::getContainer()->get(ParapheurFactice::class)
+            ->deposer('%PDF-1.4 décision', 'circuit-test', 'Décision d\'aménagements', 'beneficiaire-decision@app.fr');
+        $decision = $this->decision();
+        $decision->setEtat(DecisionAmenagementExamens::ETAT_EN_SIGNATURE)
+            ->setEtatSignature(DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE)
+            ->setIdDocumentParapheur($documentId)
+            ->setUidDemandeurSignature('gestionnaire');
+        static::getContainer()->get('doctrine')->getManager()->flush();
+
+        return $documentId;
     }
 
     private function inscrireDansUneComposanteAvecCircuit(): void

@@ -84,6 +84,7 @@ export function libellesSignature(
 export function BoutonDecisionEtab(props: { utilisateurId: string }) {
   const auth = useAuth();
   const [loading, setLoading] = React.useState<boolean>(false);
+  const [verification, setVerification] = React.useState<boolean>(false);
   const { message } = App.useApp();
   const { data: utilisateur } = useApi().useGetItem({
     path: "/utilisateurs/{uid}",
@@ -110,6 +111,26 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
     onError: () => {
       setLoading(false);
       message.error(`Erreur lors du traitement ${decisionEtab.de}`).then();
+    },
+  });
+
+  // décision en signature : le rafraîchissement interroge le parapheur sans attendre le suivi planifié
+  const mutateVerification = useApi().usePatch({
+    path: "/utilisateurs/{uid}/decisions/{annee}/verification_signature",
+    invalidationQueryKeys: [
+      QK_BENEFICIAIRES,
+      QK_UTILISATEURS_ITEM,
+      QK_UTILISATEURS_DECISIONS,
+      props.utilisateurId,
+    ],
+    onSuccess: () => setVerification(false),
+    onError: () => {
+      setVerification(false);
+      message
+        .warning(
+          "Le parapheur électronique n'a pas pu être interrogé : l'état sera mis à jour au prochain passage du suivi.",
+        )
+        .then();
     },
   });
 
@@ -294,13 +315,33 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
               {signature?.legende ??
                 `${decisionEtab.Defini} sera envoyé${decisionEtab.accordE} dans les prochaines minutes.`}
             </div>
-            <Tooltip title="Rafraîchir" placement="bottom">
+            <Tooltip
+              title={
+                utilisateur.decisionAmenagementAnneeEnCours.etat ===
+                EtatDecisionEtablissement.EN_SIGNATURE
+                  ? "Vérifier auprès du parapheur"
+                  : "Rafraîchir"
+              }
+              placement="bottom"
+            >
               <Button
                 icon={<ReloadOutlined />}
                 size="small"
                 type="link"
                 className="m-0"
+                loading={verification}
                 onClick={() => {
+                  if (
+                    utilisateur.decisionAmenagementAnneeEnCours?.etat ===
+                    EtatDecisionEtablissement.EN_SIGNATURE
+                  ) {
+                    setVerification(true);
+                    mutateVerification.mutate({
+                      "@id": `${utilisateur.decisionAmenagementAnneeEnCours["@id"]}/verification_signature`,
+                      data: {},
+                    });
+                    return;
+                  }
                   queryClient
                     .invalidateQueries({
                       queryKey: [props.utilisateurId],
