@@ -43,7 +43,7 @@ readonly class AvisEsePatchProcessor implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): AvisEse
     {
         $entity = $this->avisEseRepository->find($data->id);
-        $this->signatureElectronique->interdireSiEnSignature($entity->getUtilisateur());
+        $this->signatureElectronique->interdireSiVerrouillee($entity->getUtilisateur());
         $entity->setCommentaire($data->commentaire);
         $entity->setLibelle($data->libelle);
         $entity->setDebut($data->debut);

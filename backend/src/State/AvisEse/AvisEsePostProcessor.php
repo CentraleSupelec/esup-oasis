@@ -56,7 +56,7 @@ readonly class AvisEsePostProcessor implements ProcessorInterface
             default => $this->fichierRepository->find($data->fichier->id),
         });
         $entity->setUtilisateur($this->utilisateurManager->parUid($uriVariables['uid']));
-        $this->signatureElectronique->interdireSiEnSignature($entity->getUtilisateur());
+        $this->signatureElectronique->interdireSiVerrouillee($entity->getUtilisateur());
 
         $this->avisEseRepository->save($entity, true);
 

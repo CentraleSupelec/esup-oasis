@@ -11,6 +11,7 @@ import { App, Button, Dropdown, Popconfirm, Space, Tooltip } from "antd";
 import { useApi } from "@context/api/ApiProvider";
 import {
   CheckCircleFilled,
+  EditOutlined,
   EyeOutlined,
   FileDoneOutlined,
   ReloadOutlined,
@@ -114,6 +115,25 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
     },
   });
 
+  // décision refusée par le parapheur : la reprise la rend de nouveau modifiable
+  const mutateReprise = useApi().usePatch({
+    path: "/utilisateurs/{uid}/decisions/{annee}/reprise",
+    invalidationQueryKeys: [
+      QK_BENEFICIAIRES,
+      QK_UTILISATEURS_ITEM,
+      QK_UTILISATEURS_DECISIONS,
+      props.utilisateurId,
+    ],
+    onSuccess: () => {
+      setLoading(false);
+      message.success(`${decisionEtab.Denomination} repris${decisionEtab.accordE}`).then();
+    },
+    onError: () => {
+      setLoading(false);
+      message.error(`Erreur lors de la reprise ${decisionEtab.de}`).then();
+    },
+  });
+
   // décision en signature : le rafraîchissement interroge le parapheur sans attendre le suivi planifié
   const mutateVerification = useApi().usePatch({
     path: "/utilisateurs/{uid}/decisions/{annee}/verification_signature",
@@ -152,7 +172,7 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
   const dateSignature = utilisateur.decisionAmenagementAnneeEnCours.dateSignature;
 
   switch (utilisateur.decisionAmenagementAnneeEnCours.etat) {
-    // une signature refusée se reprend comme une décision en attente : correction, puis nouvelle demande
+    // une décision refusée se reprend, puis se corrige et se redemande comme une décision en attente
     case EtatDecisionEtablissement.REFUSEE:
     case EtatDecisionEtablissement.ATTENTE_VALIDATION_CAS:
       return (
@@ -182,36 +202,58 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
                   type: "divider",
                   key: "divider",
                 },
-                {
-                  key: "send",
-                  icon: <SendOutlined />,
-                  label: (
-                    <Popconfirm
-                      title={
-                        auth.user?.isAdmin
-                          ? `Envoyer ${decisionEtab.defini} ?`
-                          : `Demander l'édition ${decisionEtab.de} ?`
-                      }
-                      onConfirm={() => {
-                        setLoading(true);
-                        mutateDecisionEtab.mutate({
-                          data: {
-                            etat: auth.user?.isAdmin
-                              ? EtatDecisionEtablissement.EDITION_DEMANDEE
-                              : EtatDecisionEtablissement.VALIDE,
-                          },
-                          "@id": utilisateur.decisionAmenagementAnneeEnCours?.["@id"] as string,
-                        });
-                      }}
-                    >
-                      <Button loading={loading} type="text" className="p-0 m-0 no-hover">
-                        {auth.user?.isAdmin
-                          ? `Envoyer ${decisionEtab.defini}`
-                          : `Demander l'édition ${decisionEtab.de}`}
-                      </Button>
-                    </Popconfirm>
-                  ),
-                },
+                refusee
+                  ? {
+                      key: "reprise",
+                      icon: <EditOutlined />,
+                      label: (
+                        <Popconfirm
+                          title={`Reprendre ${decisionEtab.defini} ?`}
+                          description="Ses aménagements et avis de santé redeviendront modifiables."
+                          onConfirm={() => {
+                            setLoading(true);
+                            mutateReprise.mutate({
+                              "@id": `${utilisateur.decisionAmenagementAnneeEnCours?.["@id"]}/reprise`,
+                              data: {},
+                            });
+                          }}
+                        >
+                          <Button loading={loading} type="text" className="p-0 m-0 no-hover">
+                            Reprendre {decisionEtab.defini}
+                          </Button>
+                        </Popconfirm>
+                      ),
+                    }
+                  : {
+                      key: "send",
+                      icon: <SendOutlined />,
+                      label: (
+                        <Popconfirm
+                          title={
+                            auth.user?.isAdmin
+                              ? `Envoyer ${decisionEtab.defini} ?`
+                              : `Demander l'édition ${decisionEtab.de} ?`
+                          }
+                          onConfirm={() => {
+                            setLoading(true);
+                            mutateDecisionEtab.mutate({
+                              data: {
+                                etat: auth.user?.isAdmin
+                                  ? EtatDecisionEtablissement.EDITION_DEMANDEE
+                                  : EtatDecisionEtablissement.VALIDE,
+                              },
+                              "@id": utilisateur.decisionAmenagementAnneeEnCours?.["@id"] as string,
+                            });
+                          }}
+                        >
+                          <Button loading={loading} type="text" className="p-0 m-0 no-hover">
+                            {auth.user?.isAdmin
+                              ? `Envoyer ${decisionEtab.defini}`
+                              : `Demander l'édition ${decisionEtab.de}`}
+                          </Button>
+                        </Popconfirm>
+                      ),
+                    },
               ],
             }}
           >

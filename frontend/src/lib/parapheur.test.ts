@@ -9,7 +9,9 @@ import { describe, expect, it, vi } from "vitest";
 import { IUtilisateur } from "@api";
 
 // nom de la décision fixé ici pour ne pas dépendre de la configuration de l'environnement de test
-vi.mock("./decisionEtab", () => ({ decisionEtab: { Defini: "Le PAEH" } }));
+vi.mock("./decisionEtab", () => ({
+  decisionEtab: { Defini: "Le PAEH", de: "du PAEH", accordE: "" },
+}));
 
 import { verrouSignature } from "./parapheur";
 
@@ -24,8 +26,10 @@ describe("verrouSignature", () => {
     );
   });
 
-  it("laisse modifier une décision refusée, à reprendre par le gestionnaire", () => {
-    expect(verrouSignature(beneficiaire("REFUSEE"))).toBeUndefined();
+  it("bloque les modifications d'une décision refusée tant qu'elle n'est pas reprise", () => {
+    expect(verrouSignature(beneficiaire("REFUSEE"))).toBe(
+      "Le PAEH a été refusé dans le circuit de signature : modification possible après la reprise du PAEH.",
+    );
   });
 
   it("laisse modifier hors signature ou sans décision", () => {

@@ -156,9 +156,11 @@ plus passe la décision à l'état `REFUSEE`, avec l'état de signature `ERREUR`
 
 Tant que la décision est en signature, rien de ce qu'elle reprend ne se modifie : les aménagements des types
 inclus dans la décision et les avis de santé du bénéficiaire sont refusés en écriture (erreur 422), et la
-décision elle-même ne change plus d'état avant le retour du parapheur. L'interface désactive ces actions et en
-donne le motif ; elle ne connaît que la décision de l'année en cours, le serveur refusant dans tous les cas. Une décision refusée se reprend comme
-une décision en attente : on corrige, puis on redemande l'édition, ce qui dépose un nouveau document.
+décision elle-même ne change plus d'état avant le retour du parapheur. Une décision refusée reste verrouillée de
+la même façon, jusqu'à sa reprise par un gestionnaire (bouton « Reprendre » sur la fiche du bénéficiaire,
+`PATCH /utilisateurs/{uid}/decisions/{annee}/reprise`) : elle repasse alors en attente, on corrige, puis on
+redemande l'édition, ce qui dépose un nouveau document. L'interface désactive les actions verrouillées et en
+donne le motif ; elle ne connaît que la décision de l'année en cours, le serveur refusant dans tous les cas.
 
 ### Date de signature et gabarit du document
 

@@ -64,8 +64,8 @@ class DecisionAmenagementManager
 
         $decision = $beneficiaire->getDecisionAmenagementExamens($debutPeriode, $finPeriode);
 
-        // en signature, le document est figé : le parapheur rendra la décision signée ou refusée
-        if (DecisionAmenagementExamens::ETAT_EN_SIGNATURE === $decision?->getEtat()) {
+        // en signature, le parapheur rendra la décision signée ou refusée ; refusée, le gestionnaire la reprendra
+        if (in_array($decision?->getEtat(), [DecisionAmenagementExamens::ETAT_EN_SIGNATURE, DecisionAmenagementExamens::ETAT_REFUSEE], true)) {
             return;
         }
 

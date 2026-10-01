@@ -26,6 +26,7 @@ class SignatureDecisionTest extends ApiTestCaseCustom
 {
     private const string DECISION = '/utilisateurs/beneficiaire-decision/decisions/2025';
     private const string VERIFICATION = self::DECISION . '/verification_signature';
+    private const string REPRISE = self::DECISION . '/reprise';
 
     private ?int $inscription = null;
     private ?int $amenagement = null;
@@ -96,7 +97,7 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         $this->assertSame(DecisionAmenagementExamens::ETAT_EN_SIGNATURE, $this->decision()->getEtat());
     }
 
-    public function testRefusedDecisionCanBeRequestedAgain(): void
+    public function testRefusedDecisionMustBeResumedBeforeNewRequest(): void
     {
         $client = $this->createClientWithCredentials('gestionnaire');
         $this->inscrireDansUneComposanteAvecCircuit();
@@ -107,8 +108,58 @@ class SignatureDecisionTest extends ApiTestCaseCustom
             'json' => ['etat' => DecisionAmenagementExamens::ETAT_VALIDE],
         ]);
 
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertSame(DecisionAmenagementExamens::ETAT_REFUSEE, $this->decision()->getEtat());
+    }
+
+    public function testGestionnaireResumesRefusedDecisionThenRequestsItAgain(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $this->inscrireDansUneComposanteAvecCircuit();
+        $this->etatDecision(DecisionAmenagementExamens::ETAT_REFUSEE);
+
+        $client->request('PATCH', self::REPRISE, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['etat' => DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS]);
+
+        $client->request('PATCH', self::DECISION, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['etat' => DecisionAmenagementExamens::ETAT_VALIDE],
+        ]);
+
         $this->assertResponseIsSuccessful();
         $this->assertSame(DecisionAmenagementExamens::ETAT_EDITION_DEMANDEE, $this->decision()->getEtat());
+    }
+
+    public function testResumeIsRefusedOutsideRefusal(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $this->etatDecision(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
+
+        $client->request('PATCH', self::REPRISE, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [],
+        ]);
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertSame(DecisionAmenagementExamens::ETAT_EN_SIGNATURE, $this->decision()->getEtat());
+    }
+
+    public function testAmenagementInDecisionIsLockedUntilRefusedDecisionIsResumed(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $this->etatDecision(DecisionAmenagementExamens::ETAT_REFUSEE);
+
+        $client->request('PATCH', '/utilisateurs/beneficiaire-decision/amenagements/' . $this->amenagementDecision(), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['commentaire' => 'Salle isolée'],
+        ]);
+
+        $this->assertResponseStatusCodeSame(422);
     }
 
     public function testAmenagementInDecisionIsLockedWhileEnSignature(): void

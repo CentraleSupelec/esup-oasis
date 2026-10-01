@@ -151,11 +151,25 @@ final class DecisionAmenagementManagerTest extends TestCase
         ];
     }
 
-    #[DataProvider('instantsProvider')]
-    public function testLeavesDecisionEnSignatureUntouched(string $now): void
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function etatsVerrouillesProvider(): array
     {
-        // en signature, le document est figé : ni remise en validation, ni suppression
-        $decision = new DecisionAmenagementExamens()->setEtat(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
+        $etats = [];
+        foreach (self::instantsProvider() as $instant => [$now]) {
+            $etats["en signature, $instant"] = [DecisionAmenagementExamens::ETAT_EN_SIGNATURE, $now];
+            $etats["refusée, $instant"] = [DecisionAmenagementExamens::ETAT_REFUSEE, $now];
+        }
+
+        return $etats;
+    }
+
+    #[DataProvider('etatsVerrouillesProvider')]
+    public function testLeavesLockedDecisionUntouched(string $etat, string $now): void
+    {
+        // en signature ou refusée, la décision attend le parapheur ou sa reprise : ni remise en validation, ni suppression
+        $decision = new DecisionAmenagementExamens()->setEtat($etat);
 
         $repository = $this->createMock(DecisionAmenagementExamensRepository::class);
         $repository->expects(self::never())->method('remove');
@@ -169,6 +183,6 @@ final class DecisionAmenagementManagerTest extends TestCase
             new DateTimeImmutable(self::END),
         );
 
-        self::assertSame(DecisionAmenagementExamens::ETAT_EN_SIGNATURE, $decision->getEtat());
+        self::assertSame($etat, $decision->getEtat());
     }
 }

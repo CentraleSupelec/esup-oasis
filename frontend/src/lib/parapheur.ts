@@ -20,13 +20,16 @@ export function parapheurConfigure(): boolean {
 
 /**
  * Motif à afficher sur les actions bloquées quand la décision de l'année est dans le circuit de
- * signature, `undefined` sinon. Le serveur refuse ces modifications de toute façon : l'interface
- * les désactive pour l'annoncer avant la saisie.
+ * signature ou refusée sans avoir été reprise, `undefined` sinon. Le serveur refuse ces
+ * modifications de toute façon : l'interface les désactive pour l'annoncer avant la saisie.
  */
 export function verrouSignature(utilisateur?: IUtilisateur): string | undefined {
-  if (utilisateur?.decisionAmenagementAnneeEnCours?.etat !== "EN_SIGNATURE") {
-    return undefined;
+  switch (utilisateur?.decisionAmenagementAnneeEnCours?.etat) {
+    case "EN_SIGNATURE":
+      return `${decisionEtab.Defini} est en cours de signature électronique : modification impossible jusqu'à la fin du circuit.`;
+    case "REFUSEE":
+      return `${decisionEtab.Defini} a été refusé${decisionEtab.accordE} dans le circuit de signature : modification possible après la reprise ${decisionEtab.de}.`;
+    default:
+      return undefined;
   }
-
-  return `${decisionEtab.Defini} est en cours de signature électronique : modification impossible jusqu'à la fin du circuit.`;
 }

@@ -122,20 +122,26 @@ readonly class SignatureElectronique
     }
 
     /**
-     * Refuse une modification qui changerait une décision en cours de signature : aménagements repris
-     * dans la décision, avis de santé. Sinon le document signé ne dirait plus ce qu'affiche OASIS.
+     * Refuse une modification qui changerait une décision en signature ou refusée : aménagements repris
+     * dans la décision, avis de santé. En signature, le document signé ne dirait plus ce qu'affiche OASIS ;
+     * refusée, la décision attend d'être reprise par un gestionnaire.
      *
      * @throws UnprocessableEntityHttpException
      */
-    public function interdireSiEnSignature(Utilisateur $beneficiaire): void
+    public function interdireSiVerrouillee(Utilisateur $beneficiaire): void
     {
         foreach ($beneficiaire->getDecisionsAmenagementExamens() as $decision) {
-            if (DecisionAmenagementExamens::ETAT_EN_SIGNATURE === $decision->getEtat()) {
-                throw new UnprocessableEntityHttpException(
+            match ($decision->getEtat()) {
+                DecisionAmenagementExamens::ETAT_EN_SIGNATURE => throw new UnprocessableEntityHttpException(
                     'La décision d\'aménagements de ce bénéficiaire est en cours de signature électronique : '
                     . 'ses aménagements et ses avis de santé ne peuvent pas être modifiés avant la fin du circuit.',
-                );
-            }
+                ),
+                DecisionAmenagementExamens::ETAT_REFUSEE => throw new UnprocessableEntityHttpException(
+                    'La décision d\'aménagements de ce bénéficiaire a été refusée dans le circuit de signature : '
+                    . 'reprenez-la avant de modifier ses aménagements et ses avis de santé.',
+                ),
+                default => null,
+            };
         }
     }
 }

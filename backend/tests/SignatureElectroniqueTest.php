@@ -123,14 +123,24 @@ class SignatureElectroniqueTest extends TestCase
         $decision = $this->decision()->setEtat(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
 
         $this->expectException(UnprocessableEntityHttpException::class);
-        $this->signature(new ParapheurFactice())->interdireSiEnSignature($decision->getBeneficiaire());
+        $this->expectExceptionMessage('en cours de signature');
+        $this->signature(new ParapheurFactice())->interdireSiVerrouillee($decision->getBeneficiaire());
     }
 
-    public function testChangesAreAllowedOnceSignatureIsOver(): void
+    public function testChangesAreRefusedUntilRefusedDecisionIsResumed(): void
     {
         $decision = $this->decision()->setEtat(DecisionAmenagementExamens::ETAT_REFUSEE);
 
-        $this->signature(new ParapheurFactice())->interdireSiEnSignature($decision->getBeneficiaire());
+        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->expectExceptionMessage('reprenez-la');
+        $this->signature(new ParapheurFactice())->interdireSiVerrouillee($decision->getBeneficiaire());
+    }
+
+    public function testChangesAreAllowedOnceDecisionIsResumed(): void
+    {
+        $decision = $this->decision()->setEtat(DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS);
+
+        $this->signature(new ParapheurFactice())->interdireSiVerrouillee($decision->getBeneficiaire());
 
         $this->addToAssertionCount(1);
     }
