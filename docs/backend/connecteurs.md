@@ -213,8 +213,21 @@ Le suivi planifié, ou `app:signature:suivi`, reporte ensuite l'état sur la dé
 
 `PARAPHEUR=fast` fait signer les décisions par FAST-Parapheur (Docaposte), en dépôt standard : le document est
 déposé dans le circuit renseigné sur la composante, FAST notifie et relance les signataires, puis transmet le
-document signé à l'étudiant. L'état est déduit de l'historique du document (« Signé », « Classé », « Refusé »,
-« Classé (interrompu) »…), FAST n'exposant pas d'état courant.
+document signé à l'étudiant. Le fichier déposé est nommé d'après le libellé de la décision et la date du dépôt,
+ce qui distingue les versions successives d'une même décision.
+
+L'état est déduit de l'historique du document, FAST n'exposant pas d'état courant : « Visa désapprouvé »,
+« Refusé » ou « Signature rejetée » rendent la décision refusée, « Classé (interrompu) » interrompue, et le
+circuit est terminé une fois le document « Classé » ou « Archivé ». Tous les circuits ne classent pas le
+document : une signature restée la dernière étape de l'historique pendant cinq minutes termine alors le circuit
+(FAST enchaîne l'étape suivante dans la seconde).
+
+Paramétrage attendu des circuits, dans FAST :
+
+* l'adresse de l'étudiant est transmise au dépôt (`email_destinataire`) ; le circuit doit l'accepter et envoyer
+  le document signé à ce destinataire (« notification externe »), sinon FAST refuse le dépôt avec le message
+  « Vous ne pouvez pas renseigner la propriété email_destinataire sur ce circuit » ;
+* le motif d'un refus reste consultable dans FAST : OASIS indique seulement que la décision a été refusée.
 
 Réglages, dans `.env` :
 

@@ -36,7 +36,7 @@ class FastParapheurTest extends TestCase
                 self::assertSame('Décision - Camille Aubert', $upload['label']);
                 self::assertSame('camille.aubert@univ.example', $upload['email_destinataire']);
                 self::assertSame('%PDF-test', $upload['dataFileVO']['dataHandler']);
-                self::assertSame('decision-20260929-153000-' . substr(sha1('%PDF-test'), 0, 8) . '.pdf', $upload['dataFileVO']['filename']);
+                self::assertSame('decision-camille-aubert-20260929-153000.pdf', $upload['dataFileVO']['filename']);
 
                 return true;
             }))
@@ -69,6 +69,22 @@ class FastParapheurTest extends TestCase
 
         self::assertSame(DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE, $suivi->etat);
         self::assertEquals(new DateTimeImmutable('2026-09-22T16:30:00+02:00'), $suivi->dateSignature);
+    }
+
+    public function testSuivreEndsCircuitWithoutClassementOnLastSignature(): void
+    {
+        // horloge du test : 2026-09-29T15:30, plus de cinq minutes après le cachet
+        $soap = $this->createMock(SoapClient::class);
+        $soap->method('__soapCall')->willReturn((object) ['return' => [
+            (object) ['stateName' => 'Visa approuvé', 'date' => '2026-09-29T15:10:00+02:00'],
+            (object) ['stateName' => 'Envoyé pour signature', 'date' => '2026-09-29T15:10:01+02:00'],
+            (object) ['stateName' => 'Signé', 'date' => '2026-09-29T15:10:01+02:00'],
+        ]]);
+
+        $suivi = $this->parapheur($soap)->suivre('doc-42');
+
+        self::assertSame(DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE, $suivi->etat);
+        self::assertEquals(new DateTimeImmutable('2026-09-29T15:10:01+02:00'), $suivi->dateSignature);
     }
 
     public function testSuivreAcceptsSingleHistoryEntry(): void
@@ -109,6 +125,30 @@ class FastParapheurTest extends TestCase
         $this->expectException(ParapheurException::class);
         $this->expectExceptionMessage('FAST history');
         $this->parapheur($soap)->suivre('doc-42');
+    }
+
+    public function testUnknownCircuitAtDepositIsNotAnUnknownDocument(): void
+    {
+        $soap = $this->createMock(SoapClient::class);
+        $soap->method('__soapCall')->willThrowException(new SoapFault('Server', 'Circuit inconnu : circuit-ufr1'));
+
+        try {
+            $this->parapheur($soap)->deposer('%PDF-test', 'circuit-ufr1', 'Décision', 'camille.aubert@univ.example');
+            self::fail('Le dépôt aurait dû échouer.');
+        } catch (ParapheurException $e) {
+            self::assertNotInstanceOf(DocumentInconnuException::class, $e);
+        }
+    }
+
+    public function testSocketTimeoutIsRestoredAfterCall(): void
+    {
+        $soap = $this->createMock(SoapClient::class);
+        $soap->method('__soapCall')->willReturn((object) ['return' => []]);
+        $avant = ini_get('default_socket_timeout');
+
+        $this->parapheur($soap)->suivre('doc-42');
+
+        self::assertSame($avant, ini_get('default_socket_timeout'));
     }
 
     public function testMissingConfigurationFailsBeforeAnyCall(): void

@@ -18,7 +18,8 @@ use Normalizer;
 /**
  * Dérive l'état de signature de l'historique FAST, qui n'expose pas d'état courant.
  * Libellés comparés sans accents ni casse, libellés inconnus ignorés. La fin du circuit
- * est le classement, pas le nombre de « Signé », qui dépend du circuit.
+ * est le classement, pas le nombre de « Signé », qui dépend du circuit ; un circuit qui ne
+ * classe pas se termine sur sa dernière signature (cf. termineParSignature()).
  */
 class EtatSignatureDeriver
 {
@@ -37,6 +38,9 @@ class EtatSignatureDeriver
 
     private const string SIGNE = 'signe';
 
+    // FAST enchaîne l'étape suivante dans la seconde : passé ce délai, plus rien ne suivra
+    public const int DELAI_FIN_SANS_CLASSEMENT = 300;
+
     /**
      * Date du dernier « Signé », à défaut celle du classement (circuit de visa seul).
      *
@@ -49,8 +53,7 @@ class EtatSignatureDeriver
 
         foreach ($historique as $entree) {
             $normalise = $this->normaliser($entree['stateName'] ?? '');
-            // « Signé à l'étape 2 » compte, « Signature rejetée » non
-            if (self::SIGNE === $normalise || str_starts_with($normalise, self::SIGNE . ' ')) {
+            if ($this->estSignature($normalise)) {
                 $derniereSignature = $entree['date'] ?? null;
             } elseif (null === $classement && (self::CLASSE === $normalise || self::ARCHIVE === $normalise)) {
                 $classement = $entree['date'] ?? null;
@@ -100,6 +103,30 @@ class EtatSignatureDeriver
             true => DecisionAmenagementExamens::ETAT_SIGNATURE_ERREUR,
             false => DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE,
         };
+    }
+
+    /**
+     * Circuit sans classement final : une signature restée dernière étape pendant
+     * DELAI_FIN_SANS_CLASSEMENT secondes termine le circuit.
+     *
+     * @param array<int, array{stateName: string, date: string}> $historique dans l'ordre chronologique
+     */
+    public function termineParSignature(array $historique, DateTimeImmutable $maintenant): bool
+    {
+        $derniere = end($historique);
+        if (false === $derniere || !$this->estSignature($this->normaliser($derniere['stateName'] ?? ''))) {
+            return false;
+        }
+
+        $date = $this->lireDate($derniere['date'] ?? null);
+
+        return null !== $date && $maintenant->getTimestamp() - $date->getTimestamp() >= self::DELAI_FIN_SANS_CLASSEMENT;
+    }
+
+    // « Signé à l'étape 2 » compte, « Signature rejetée » non
+    private function estSignature(string $normalise): bool
+    {
+        return self::SIGNE === $normalise || str_starts_with($normalise, self::SIGNE . ' ');
     }
 
     private function normaliser(string $libelle): string

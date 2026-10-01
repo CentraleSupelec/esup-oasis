@@ -22,6 +22,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 class ClientFast
 {
     private const int DELAI_CONNEXION = 30;
+    // lecture de la réponse, bornée par default_socket_timeout : un dépôt volumineux doit aboutir
+    private const int DELAI_REPONSE = 120;
 
     private ?SoapClient $client;
 
@@ -131,16 +133,22 @@ class ClientFast
      */
     private function appeler(string $operation, array $arguments): object
     {
+        $delai = ini_set('default_socket_timeout', (string) self::DELAI_REPONSE);
         try {
             $reponse = $this->client()->__soapCall($operation, [$arguments]);
         } catch (SoapFault $e) {
             $message = sprintf('FAST %s : %s', $operation, $e->getMessage());
-            // FAST ne distingue pas un document inconnu par un code, seulement par le message
-            if (preg_match('/inconnu|introuvable|n.existe pas|does not exist|not found/i', $e->getMessage())) {
-                throw new DocumentInconnuException($arguments['documentId'] ?? $message);
+            // FAST ne distingue un document inconnu que par le message ; au dépôt, ce serait un circuit inconnu
+            if (isset($arguments['documentId'])
+                && preg_match('/inconnu|introuvable|n.existe pas|does not exist|not found/i', $e->getMessage())) {
+                throw new DocumentInconnuException($arguments['documentId']);
             }
 
             throw new ParapheurException($message, previous: $e);
+        } finally {
+            if (false !== $delai) {
+                ini_set('default_socket_timeout', $delai);
+            }
         }
 
         return is_object($reponse) ? $reponse : new \stdClass();

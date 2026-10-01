@@ -148,6 +148,69 @@ class EtatSignatureDeriverTest extends TestCase
         $this->assertNull($deriver->dateDeSignature([]));
     }
 
+    /**
+     * Historique réel d'un circuit à deux visas puis cachet serveur, qui ne classe pas le document.
+     *
+     * @return array<int, array{stateName: string, date: string}>
+     */
+    private static function circuitSansClassement(): array
+    {
+        return [
+            ['stateName' => 'Préparé', 'date' => '2026-10-01T08:58:54+02:00'],
+            ['stateName' => 'Envoyé pour visa', 'date' => '2026-10-01T08:58:54+02:00'],
+            ['stateName' => 'Visa approuvé', 'date' => '2026-10-01T08:59:23+02:00'],
+            ['stateName' => 'Envoyé pour visa', 'date' => '2026-10-01T08:59:24+02:00'],
+            ['stateName' => 'Visa approuvé', 'date' => '2026-10-01T08:59:45+02:00'],
+            ['stateName' => 'Envoyé pour signature', 'date' => '2026-10-01T08:59:46+02:00'],
+            ['stateName' => 'Signé', 'date' => '2026-10-01T08:59:46+02:00'],
+        ];
+    }
+
+    public function testCircuitWithoutClassementEndsOnLastSignature(): void
+    {
+        $deriver = new EtatSignatureDeriver();
+
+        $this->assertTrue($deriver->termineParSignature(
+            self::circuitSansClassement(),
+            new DateTimeImmutable('2026-10-01T09:05:00+02:00'),
+        ));
+    }
+
+    public function testRecentSignatureMayStillBeFollowedByAnotherStep(): void
+    {
+        // une signature intermédiaire est suivie, dans la seconde, de l'envoi à l'étape suivante
+        $this->assertFalse(new EtatSignatureDeriver()->termineParSignature(
+            self::circuitSansClassement(),
+            new DateTimeImmutable('2026-10-01T09:01:00+02:00'),
+        ));
+    }
+
+    public function testSignatureFollowedByAnotherStepDoesNotEndCircuit(): void
+    {
+        $historique = [
+            ...self::circuitSansClassement(),
+            ['stateName' => 'Envoyé pour signature', 'date' => '2026-10-01T08:59:47+02:00'],
+        ];
+
+        $this->assertFalse(new EtatSignatureDeriver()->termineParSignature(
+            $historique,
+            new DateTimeImmutable('2026-10-02T09:00:00+02:00'),
+        ));
+    }
+
+    public function testCircuitEndingWithoutReadableSignatureDateIsNotEnded(): void
+    {
+        $deriver = new EtatSignatureDeriver();
+        $maintenant = new DateTimeImmutable('2026-10-02T09:00:00+02:00');
+
+        $this->assertFalse($deriver->termineParSignature([['stateName' => 'Signé', 'date' => 'pas une date']], $maintenant));
+        $this->assertFalse($deriver->termineParSignature([], $maintenant));
+        $this->assertTrue($deriver->termineParSignature(
+            [['stateName' => "Signé à l'étape 2", 'date' => '2026-10-01T09:00:00+02:00']],
+            $maintenant,
+        ));
+    }
+
     public function testSignatureWithEtapeSuffixIsCounted(): void
     {
         $date = new EtatSignatureDeriver()->dateDeSignature([
