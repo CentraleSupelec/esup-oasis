@@ -139,22 +139,25 @@ parapheur : le circuit de signature remplace l'envoi par l'administrateur foncti
 Une fois déposée, la décision passe à l'état `EN_SIGNATURE`. Le worker interroge ensuite le parapheur à
 intervalle régulier sur les décisions en signature, récupère les documents signés, les dépose au dossier du
 bénéficiaire et passe la décision à l'état `EDITE`. Un circuit terminé sans signature (refus d'un signataire,
-circuit interrompu, document inconnu du parapheur) passe la décision à l'état `REFUSEE` : le motif est affiché
-sur la fiche du bénéficiaire, et les décisions refusées se retrouvent avec le filtre de la liste des
-bénéficiaires.
+circuit interrompu, document inconnu du parapheur) passe la décision à l'état `REFUSEE` : la fiche du
+bénéficiaire en indique la cause (refus, interruption, erreur), le détail restant consultable dans le parapheur,
+et les décisions refusées se retrouvent avec le filtre de la liste des bénéficiaires.
 
 La fréquence d'interrogation se règle par le paramètre `FREQUENCE_SUIVI_SIGNATURES` (administration, écran des
 paramètres), au format du Scheduler Symfony (`15 minutes`, `2 hours`…), une heure par défaut ; le worker le relit
 à son redémarrage. Aucune interrogation n'est planifiée sans parapheur. La commande `app:signature:suivi`
-effectue le même traitement à la demande.
+effectue le même traitement à la demande. Sur la fiche du bénéficiaire, le bouton de rafraîchissement d'une
+décision en signature interroge le parapheur pour cette seule décision, sans attendre le passage suivant
+(`PATCH /utilisateurs/{uid}/decisions/{annee}/verification_signature`, réservé aux gestionnaires).
 
 Si aucune décision du lot n'a pu être vérifiée, un message de niveau `critical` signale que le parapheur semble
 injoignable ; les décisions concernées sont reprises au passage suivant. Un document que le parapheur ne connaît
-plus passe à l'état `ERREUR` et n'est plus interrogé.
+plus passe la décision à l'état `REFUSEE`, avec l'état de signature `ERREUR`, et n'est plus interrogé.
 
 Tant que la décision est en signature, rien de ce qu'elle reprend ne se modifie : les aménagements des types
 inclus dans la décision et les avis de santé du bénéficiaire sont refusés en écriture (erreur 422), et la
-décision elle-même ne change plus d'état avant le retour du parapheur. Une décision refusée se reprend comme
+décision elle-même ne change plus d'état avant le retour du parapheur. L'interface désactive ces actions et en
+donne le motif ; elle ne connaît que la décision de l'année en cours, le serveur refusant dans tous les cas. Une décision refusée se reprend comme
 une décision en attente : on corrige, puis on redemande l'édition, ce qui dépose un nouveau document.
 
 ### Date de signature et gabarit du document
