@@ -23,7 +23,7 @@ use App\Repository\AmenagementRepository;
 use App\Repository\TypeAmenagementRepository;
 use App\Repository\TypeSuiviAmenagementRepository;
 use App\Service\ErreurLdapException;
-use App\Service\Signature\SignatureElectronique;
+use App\State\DecisionAmenagementExamens\DecisionAmenagementManager;
 use App\State\Utilisateur\UtilisateurManager;
 use App\Util\AnneeUniversitaireAwareTrait;
 use Override;
@@ -39,7 +39,7 @@ class AmenagementProcessor implements ProcessorInterface
         private readonly TypeSuiviAmenagementRepository $typeSuiviAmenagementRepository,
         private readonly UtilisateurManager $utilisateurManager,
         private readonly MessageBusInterface $messageBus,
-        private readonly SignatureElectronique $signatureElectronique,
+        private readonly DecisionAmenagementManager $decisionAmenagementManager,
     ) {}
 
     /**
@@ -57,7 +57,7 @@ class AmenagementProcessor implements ProcessorInterface
         //DELETE
         if ($operation instanceof Delete) {
             if ($entity->getType()->isDecision()) {
-                $this->signatureElectronique->interdireSiVerrouillee($this->utilisateurManager->parUid($uriVariables['uid']));
+                $this->decisionAmenagementManager->interdireSiVerrouillee($this->utilisateurManager->parUid($uriVariables['uid']));
             }
             $this->messageBus->dispatch(new AmenagementModifieMessage($entity));
             $this->amenagementRepository->remove($entity, true);
@@ -70,7 +70,7 @@ class AmenagementProcessor implements ProcessorInterface
         //POST/PATCH
         $type = $this->typeAmenagementRepository->find($data->typeAmenagement->id);
         if ($type->isDecision() || $entity->getType()?->isDecision()) {
-            $this->signatureElectronique->interdireSiVerrouillee($this->utilisateurManager->parUid($uriVariables['uid']));
+            $this->decisionAmenagementManager->interdireSiVerrouillee($this->utilisateurManager->parUid($uriVariables['uid']));
         }
 
         /**

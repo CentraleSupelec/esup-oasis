@@ -17,7 +17,7 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Message\AvisEseModifieMessage;
 use App\Message\RessourceModifieeMessage;
 use App\Repository\AvisEseRepository;
-use App\Service\Signature\SignatureElectronique;
+use App\State\DecisionAmenagementExamens\DecisionAmenagementManager;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class AvisEseDeleteProcessor implements ProcessorInterface
@@ -25,13 +25,13 @@ readonly class AvisEseDeleteProcessor implements ProcessorInterface
     public function __construct(
         private AvisEseRepository $avisEseRepository,
         private MessageBusInterface $messageBus,
-        private SignatureElectronique $signatureElectronique,
+        private DecisionAmenagementManager $decisionAmenagementManager,
     ) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
         $entity = $this->avisEseRepository->find($data->id);
-        $this->signatureElectronique->interdireSiVerrouillee($entity->getUtilisateur());
+        $this->decisionAmenagementManager->interdireSiVerrouillee($entity->getUtilisateur());
         $this->avisEseRepository->remove($entity, true);
 
         //        $this->messageBus->dispatch(new RessourceModifieeMessage($data));

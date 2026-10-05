@@ -19,7 +19,7 @@ use App\Message\AvisEseModifieMessage;
 use App\Message\RessourceModifieeMessage;
 use App\Repository\AvisEseRepository;
 use App\Repository\FichierRepository;
-use App\Service\Signature\SignatureElectronique;
+use App\State\DecisionAmenagementExamens\DecisionAmenagementManager;
 use Exception;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -29,7 +29,7 @@ readonly class AvisEsePatchProcessor implements ProcessorInterface
         private FichierRepository $fichierRepository,
         private AvisEseRepository $avisEseRepository,
         private MessageBusInterface $messageBus,
-        private SignatureElectronique $signatureElectronique,
+        private DecisionAmenagementManager $decisionAmenagementManager,
     ) {}
 
     /**
@@ -43,7 +43,7 @@ readonly class AvisEsePatchProcessor implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): AvisEse
     {
         $entity = $this->avisEseRepository->find($data->id);
-        $this->signatureElectronique->interdireSiVerrouillee($entity->getUtilisateur());
+        $this->decisionAmenagementManager->interdireSiVerrouillee($entity->getUtilisateur());
         $entity->setCommentaire($data->commentaire);
         $entity->setLibelle($data->libelle);
         $entity->setDebut($data->debut);

@@ -23,6 +23,7 @@ use App\Util\AnneeUniversitaireAwareTrait;
 use DateTime;
 use DateTimeInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class DecisionAmenagementManager
@@ -153,5 +154,29 @@ class DecisionAmenagementManager
             fn(Beneficiaire $profil) => true === $profil->getProfil()?->isAvecTypologie()
                 && true === $profil->getProfil()->isAvisMedicalRequis(),
         );
+    }
+
+    /**
+     * Refuse une modification qui changerait une décision en signature ou refusée : aménagements repris
+     * dans la décision, avis de santé. En signature, le document signé ne dirait plus ce qu'affiche OASIS ;
+     * refusée, la décision attend d'être reprise par un gestionnaire.
+     *
+     * @throws UnprocessableEntityHttpException
+     */
+    public function interdireSiVerrouillee(Utilisateur $beneficiaire): void
+    {
+        foreach ($beneficiaire->getDecisionsAmenagementExamens() as $decision) {
+            match ($decision->getEtat()) {
+                DecisionAmenagementExamens::ETAT_EN_SIGNATURE => throw new UnprocessableEntityHttpException(
+                    'La décision d\'aménagements de ce bénéficiaire est en cours de signature électronique : '
+                    . 'ses aménagements et ses avis de santé ne peuvent pas être modifiés avant la fin du circuit.',
+                ),
+                DecisionAmenagementExamens::ETAT_REFUSEE => throw new UnprocessableEntityHttpException(
+                    'La décision d\'aménagements de ce bénéficiaire a été refusée dans le circuit de signature : '
+                    . 'reprenez-la avant de modifier ses aménagements et ses avis de santé.',
+                ),
+                default => null,
+            };
+        }
     }
 }

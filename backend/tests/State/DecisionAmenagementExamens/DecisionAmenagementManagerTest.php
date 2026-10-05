@@ -29,6 +29,7 @@ use stdClass;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
  * Filet de sécurité sur le fix isActif (granularité jour) : la décision
@@ -184,5 +185,42 @@ final class DecisionAmenagementManagerTest extends TestCase
         );
 
         self::assertSame($etat, $decision->getEtat());
+    }
+
+    public function testChangesAreRefusedWhileDecisionIsEnSignature(): void
+    {
+        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->expectExceptionMessage('en cours de signature');
+        $this->managerSansDependances()->interdireSiVerrouillee($this->beneficiaireAvecDecision(DecisionAmenagementExamens::ETAT_EN_SIGNATURE));
+    }
+
+    public function testChangesAreRefusedUntilRefusedDecisionIsResumed(): void
+    {
+        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->expectExceptionMessage('reprenez-la');
+        $this->managerSansDependances()->interdireSiVerrouillee($this->beneficiaireAvecDecision(DecisionAmenagementExamens::ETAT_REFUSEE));
+    }
+
+    public function testChangesAreAllowedOnceDecisionIsResumed(): void
+    {
+        $this->managerSansDependances()->interdireSiVerrouillee(
+            $this->beneficiaireAvecDecision(DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS),
+        );
+
+        $this->addToAssertionCount(1);
+    }
+
+    // le verrou ne lit que les décisions du bénéficiaire : pas besoin des dépendances du manager
+    private function managerSansDependances(): DecisionAmenagementManager
+    {
+        return new ReflectionClass(DecisionAmenagementManager::class)->newInstanceWithoutConstructor();
+    }
+
+    private function beneficiaireAvecDecision(string $etat): Utilisateur
+    {
+        $beneficiaire = new Utilisateur();
+        $beneficiaire->addDecisionsAmenagementExamen(new DecisionAmenagementExamens()->setEtat($etat));
+
+        return $beneficiaire;
     }
 }

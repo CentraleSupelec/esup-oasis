@@ -16,7 +16,6 @@ use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -119,29 +118,5 @@ readonly class SignatureElectronique
             ->setDerniereVerificationSignature(null);
         $this->decisionAmenagementExamensRepository->save($decision, true);
         $this->messageBus->dispatch(new RessourceModifieeMessage(new UtilisateurResource($decision->getBeneficiaire())));
-    }
-
-    /**
-     * Refuse une modification qui changerait une décision en signature ou refusée : aménagements repris
-     * dans la décision, avis de santé. En signature, le document signé ne dirait plus ce qu'affiche OASIS ;
-     * refusée, la décision attend d'être reprise par un gestionnaire.
-     *
-     * @throws UnprocessableEntityHttpException
-     */
-    public function interdireSiVerrouillee(Utilisateur $beneficiaire): void
-    {
-        foreach ($beneficiaire->getDecisionsAmenagementExamens() as $decision) {
-            match ($decision->getEtat()) {
-                DecisionAmenagementExamens::ETAT_EN_SIGNATURE => throw new UnprocessableEntityHttpException(
-                    'La décision d\'aménagements de ce bénéficiaire est en cours de signature électronique : '
-                    . 'ses aménagements et ses avis de santé ne peuvent pas être modifiés avant la fin du circuit.',
-                ),
-                DecisionAmenagementExamens::ETAT_REFUSEE => throw new UnprocessableEntityHttpException(
-                    'La décision d\'aménagements de ce bénéficiaire a été refusée dans le circuit de signature : '
-                    . 'reprenez-la avant de modifier ses aménagements et ses avis de santé.',
-                ),
-                default => null,
-            };
-        }
     }
 }
