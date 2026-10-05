@@ -139,7 +139,7 @@ class DecisionAmenagementExamens
         }
     }
 
-    // renseignée par les providers (cf. ExigenceAvisMedical) : l'interface applique la même règle que le serveur
+    // renseignée par DecisionAmenagementManager::versRessource : l'interface applique la même règle que le serveur
     #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT])]
     public bool $dateAvisMedecinRequise = false;
 

@@ -14,13 +14,11 @@ namespace App\State\DecisionAmenagementExamens;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\ApiResource\DecisionAmenagementExamens;
 
 readonly class DecisionAmenagementExamensProvider implements ProviderInterface
 {
     public function __construct(
         private DecisionAmenagementManager $decisionAmenagementManager,
-        private ExigenceAvisMedical $exigenceAvisMedical,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
@@ -28,13 +26,9 @@ readonly class DecisionAmenagementExamensProvider implements ProviderInterface
         //support de GET seulement, avec en entrée uid et année
         $entity = $this->decisionAmenagementManager->parUidEtAnnee($uriVariables['uid'], (int) $uriVariables['annee']);
 
-        if (null === $entity) {
-            return null;
-        }
-
-        $decision = new DecisionAmenagementExamens($entity);
-        $decision->dateAvisMedecinRequise = $this->exigenceAvisMedical->estRequisePour($entity);
-
-        return $decision;
+        return match ($entity) {
+            null => null,
+            default => $this->decisionAmenagementManager->versRessource($entity),
+        };
     }
 }

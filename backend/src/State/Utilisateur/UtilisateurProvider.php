@@ -18,11 +18,9 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\ProviderInterface;
-use App\ApiResource\DecisionAmenagementExamens;
 use App\ApiResource\Utilisateur;
 use App\Service\ErreurLdapException;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementManager;
-use App\State\DecisionAmenagementExamens\ExigenceAvisMedical;
 use App\State\MappedCollectionPaginator;
 use Override;
 use Psr\Cache\InvalidArgumentException;
@@ -42,7 +40,6 @@ class UtilisateurProvider implements ProviderInterface
         private readonly ProviderInterface $collectionProvider,
         private readonly UtilisateurManager $utilisateurManager,
         private readonly DecisionAmenagementManager $decisionAmenagementManager,
-        private readonly ExigenceAvisMedical $exigenceAvisMedical,
     ) {}
 
     /**
@@ -115,12 +112,10 @@ class UtilisateurProvider implements ProviderInterface
     {
         $utilisateur = new Utilisateur($entity);
         $decisionEnCours = $this->decisionAmenagementManager->getDecisionCourante($entity);
-        $utilisateur->decisionAmenagementAnneeEnCours = null;
-        if (null !== $decisionEnCours) {
-            $utilisateur->decisionAmenagementAnneeEnCours = new DecisionAmenagementExamens($decisionEnCours);
-            $utilisateur->decisionAmenagementAnneeEnCours->dateAvisMedecinRequise =
-                $this->exigenceAvisMedical->estRequisePour($decisionEnCours);
-        }
+        $utilisateur->decisionAmenagementAnneeEnCours = match ($decisionEnCours) {
+            null => null,
+            default => $this->decisionAmenagementManager->versRessource($decisionEnCours),
+        };
 
         return $utilisateur;
     }

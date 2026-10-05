@@ -27,7 +27,7 @@ class DateAvisMedecinRequiseConstraintValidator extends ConstraintValidator
             return;
         }
 
-        // évaluée par le provider (cf. ExigenceAvisMedical), en lecture seule pour le client
+        // évaluée par DecisionAmenagementManager::dateAvisMedecinRequise, en lecture seule pour le client
         if (!$value->dateAvisMedecinRequise) {
             return;
         }
