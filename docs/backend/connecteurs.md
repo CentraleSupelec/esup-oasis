@@ -235,7 +235,8 @@ Réglages, dans `.env` :
 * `FAST_URL` : adresse du service SOAP, par exemple `https://parapheur.example/parapheur-soap/soap/v1/Documents` ;
 * `FAST_SIREN` : numéro d'abonné de l'établissement ;
 * `FAST_CERTIFICAT` : chemin du certificat client (PEM, clé et certificat concaténés), qui authentifie
-  l'établissement auprès de FAST ; à monter en volume dans le backend et le worker, jamais dans l'image ;
+  l'établissement auprès de FAST ; à monter en volume dans le backend et le worker, jamais dans l'image
+  (cf. [installation](/docs/installation/README.md#signature-électronique-facultatif)) ;
 * `FAST_CERTIFICAT_MOT_DE_PASSE` : mot de passe de la clé, s'il y en a un ;
 * `FAST_AUTORITE` : certificat de l'autorité de FAST, si le système ne la connaît pas.
 

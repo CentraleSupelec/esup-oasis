@@ -57,6 +57,34 @@ Si vous utilisez un autre SI de scolarité sans implémentation fournie, vous po
 implémentation dans le dossier [backend/personnalisation/SiScol](../../installation/backend/personnalisation/SiScol) -
 cf [documentation dédiée au connecteur vers le SI de scolarité](/docs/backend/connecteurs.md#si-scolarité)
 
+### Signature électronique (facultatif)
+
+Pour faire signer la décision d'aménagements par FAST-Parapheur (cf.
+[documentation du connecteur](/docs/backend/connecteurs.md#signature-électronique)) :
+
+1. Convertissez le certificat client fourni par FAST (`.p12`) en un seul fichier PEM, clé et certificat concaténés :
+
+   ```
+   openssl pkcs12 -in certificat.p12 -clcerts -nokeys -out client-cert.pem
+   openssl pkcs12 -in certificat.p12 -nocerts -nodes -out client-cle.pem
+   cat client-cert.pem client-cle.pem > client.pem
+   ```
+
+   Ajoutez `-legacy` aux deux premières commandes si openssl refuse le fichier. Sans `-nodes`, la clé reste
+   chiffrée et son mot de passe se renseigne dans `FAST_CERTIFICAT_MOT_DE_PASSE`.
+2. Déposez `client.pem` dans `installation/secrets/parapheur/`, exclu du dépôt, et décommentez le montage de ce
+   dossier dans [compose.yaml](../../installation/compose.yaml), pour le backend **et** le worker : c'est le worker qui
+   dépose et suit les décisions.
+3. Dans `.env`, renseignez `PARAPHEUR=fast`, `FAST_URL`, `FAST_SIREN` et `FAST_CERTIFICAT=/run/secrets/parapheur/client.pem`.
+4. Après le démarrage, vérifiez la connexion et listez les circuits que FAST autorise :
+
+   ```
+   docker compose exec backend php bin/console app:signature:fast:circuits
+   ```
+
+5. Renseignez le circuit de chaque composante dans l'administration, sur l'écran des référents de composante. Les
+   composantes sont créées par l'import des inscriptions : lancez-le avant cette étape.
+
 ### Démarrer l'application
 
 * Pour de la production :
