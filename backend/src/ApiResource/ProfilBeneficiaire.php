@@ -22,6 +22,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Filter\CaseInsensitiveOrderFilter;
+use App\State\ProfilBeneficiaire\PatchProfilBeneficiaireProcessor;
 use ReflectionProperty;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -32,7 +33,11 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(uriTemplate: self::COLLECTION_URI),
         new Get(uriTemplate: self::ITEM_URI, uriVariables: ['id' => 'id']),
         new Post(uriTemplate: self::COLLECTION_URI, security: "is_granted('ROLE_ADMIN')"),
-        new Patch(uriTemplate: self::ITEM_URI, security: "is_granted('ROLE_ADMIN')"),
+        new Patch(
+            uriTemplate: self::ITEM_URI,
+            security: "is_granted('ROLE_ADMIN')",
+            processor: PatchProfilBeneficiaireProcessor::class,
+        ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
     denormalizationContext: ['groups' => [self::GROUP_IN]],

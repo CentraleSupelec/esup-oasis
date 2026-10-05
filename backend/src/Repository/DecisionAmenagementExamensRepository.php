@@ -13,6 +13,8 @@
 namespace App\Repository;
 
 use App\Entity\DecisionAmenagementExamens;
+use App\Entity\ProfilBeneficiaire;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -47,5 +49,29 @@ class DecisionAmenagementExamensRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    /**
+     * Décisions de l'année, pas encore envoyées, des bénéficiaires qui ont ou ont eu ce profil.
+     *
+     * @return DecisionAmenagementExamens[]
+     */
+    public function nonEnvoyeesParProfil(ProfilBeneficiaire $profil, DateTimeInterface $debutAnnee): array
+    {
+        return $this->createQueryBuilder('d')
+            ->join('d.beneficiaire', 'u')
+            ->join('u.beneficiaires', 'b')
+            ->where('b.profil = :profil')
+            ->andWhere('d.debut = :debut')
+            ->andWhere('d.etat IN (:etats)')
+            ->setParameter('profil', $profil)
+            ->setParameter('debut', $debutAnnee)
+            ->setParameter('etats', [
+                DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS,
+                DecisionAmenagementExamens::ETAT_VALIDE,
+            ])
+            ->distinct()
+            ->getQuery()
+            ->getResult();
     }
 }

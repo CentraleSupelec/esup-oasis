@@ -74,4 +74,22 @@ class ProfilsTest extends ApiTestCaseCustom
             'libelle' => 'Profil Modifié',
         ]);
     }
+
+    public function testAdminCanRequireMedicalOpinionOnProfil(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('PATCH', '/profils/1', [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => [
+                'avecTypologie' => true,
+                'avisMedicalRequis' => true,
+            ],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            'avecTypologie' => true,
+            'avisMedicalRequis' => true,
+        ]);
+    }
 }

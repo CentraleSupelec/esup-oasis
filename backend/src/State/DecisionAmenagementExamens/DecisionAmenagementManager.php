@@ -15,6 +15,7 @@ namespace App\State\DecisionAmenagementExamens;
 use App\Entity\AvisEse;
 use App\Entity\Beneficiaire;
 use App\Entity\DecisionAmenagementExamens;
+use App\Entity\ProfilBeneficiaire;
 use App\Entity\Utilisateur;
 use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
@@ -122,6 +123,18 @@ class DecisionAmenagementManager
         $ressource->dateAvisMedecinRequise = $this->dateAvisMedecinRequise($decision);
 
         return $ressource;
+    }
+
+    /**
+     * Les fiches affichent l'exigence de la date de l'avis médical sans référencer le profil : quand un profil
+     * est modifié, on invalide les décisions de ses bénéficiaires qui peuvent encore être éditées.
+     */
+    public function invaliderDecisionsNonEnvoyees(ProfilBeneficiaire $profil): void
+    {
+        $bornes = $this->bornesAnneeDuJour();
+        foreach ($this->decisionAmenagementExamensRepository->nonEnvoyeesParProfil($profil, $bornes['debut']) as $decision) {
+            $this->messageBus->dispatch(new RessourceModifieeMessage(new \App\ApiResource\DecisionAmenagementExamens($decision)));
+        }
     }
 
     /**

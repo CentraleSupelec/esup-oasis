@@ -13,10 +13,17 @@ use App\Entity\Beneficiaire;
 use App\Entity\DecisionAmenagementExamens;
 use App\Entity\ProfilBeneficiaire;
 use App\Entity\Utilisateur;
+use App\Message\RessourceModifieeMessage;
+use App\Repository\DecisionAmenagementExamensRepository;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementManager;
 use DateTime;
 use PHPUnit\Framework\TestCase;
+use DateTimeImmutable;
 use ReflectionClass;
+use stdClass;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final class DateAvisMedecinRequiseTest extends TestCase
 {
@@ -78,6 +85,30 @@ final class DateAvisMedecinRequiseTest extends TestCase
         );
 
         self::assertTrue($this->manager()->dateAvisMedecinRequise($decision));
+    }
+
+    public function testPendingDecisionsOfTheProfilAreInvalidated(): void
+    {
+        $profil = new ProfilBeneficiaire();
+        $repository = $this->createMock(DecisionAmenagementExamensRepository::class);
+        $repository->expects(self::once())
+            ->method('nonEnvoyeesParProfil')
+            ->with($profil, new DateTime('2025-09-01'))
+            ->willReturn([new DecisionAmenagementExamens(), new DecisionAmenagementExamens()]);
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects(self::exactly(2))
+            ->method('dispatch')
+            ->with(self::isInstanceOf(RessourceModifieeMessage::class))
+            ->willReturn(new Envelope(new stdClass()));
+
+        // UtilisateurManager, readonly, n'est pas doublable : seuls le dépôt et le bus servent ici
+        $reflection = new ReflectionClass(DecisionAmenagementManager::class);
+        $manager = $reflection->newInstanceWithoutConstructor();
+        $reflection->getProperty('decisionAmenagementExamensRepository')->setValue($manager, $repository);
+        $reflection->getProperty('messageBus')->setValue($manager, $bus);
+        $manager->setClock(new MockClock(new DateTimeImmutable('2026-01-15')));
+
+        $manager->invaliderDecisionsNonEnvoyees($profil);
     }
 
     private function profil(
