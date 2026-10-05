@@ -14,8 +14,9 @@ faut configurer.
   (`AbstractCalculScolarite`, variable `SI_SCOL_CALCUL`). Cette évolution est proposée à Bordeaux
   et n'est pas encore intégrée.
 - La correction de l'image du **worker**, qui doit recevoir la personnalisation comme l'image du
-  serveur. Sans elle, l'import des inscriptions, qui s'exécute dans le worker, n'utilise ni les
-  requêtes ni le calcul de Paris-Saclay. Cette correction est à proposer à Bordeaux.
+  serveur. Sans elle, l'import des inscriptions et l'envoi du PAEH, qui s'exécutent dans le worker,
+  n'utilisent ni les requêtes ni le gabarit de Paris-Saclay. Cette correction est intégrée au code de
+  Bordeaux : il faut une version publiée qui la contient.
 
 ## Profil étudiant
 
@@ -87,5 +88,82 @@ Le tribunal administratif compétent est écrit en tête du gabarit (`tribunalAd
 
 ## Signature électronique (FAST-Parapheur)
 
-À compléter : adresse du service, certificat, correspondance entre composantes et circuits de
-signature.
+Le PAEH est signé dans FAST au lieu d'être envoyé par e-mail. Quand le chargé d'accompagnement
+demande l'édition, OASIS dépose le document dans le circuit FAST de la composante de l'étudiant.
+FAST fait signer, puis envoie le PDF signé à l'étudiant. OASIS récupère le document signé et le
+range au dossier du bénéficiaire. Une composante sans circuit garde l'envoi par e-mail.
+
+Rien n'est à copier dans `personnalisation/` : le connecteur FAST fait partie de l'application. Le
+gabarit de Paris-Saclay remplace déjà la mention « Signé numériquement le … » par « Signé
+électroniquement » quand le document part dans FAST.
+
+### Prérequis
+
+- Une version d'OASIS qui intègre la **signature électronique** et le **connecteur FAST**. Ces
+  évolutions sont proposées à Bordeaux et ne sont pas encore intégrées.
+- Le **certificat de dépôt** d'OASIS (fichier `.p12`) et son mot de passe, fournis par le chargé de
+  projet FAST de l'UPS. Le mot de passe arrive par un autre canal que le certificat.
+- Un **circuit FAST par composante**, créé par le support FAST, avec l'envoi du document signé au
+  destinataire activé. Sans cette activation, FAST refuse le dépôt.
+- Un accès réseau sortant du serveur OASIS vers FAST, en HTTPS.
+
+### Certificat
+
+Convertir le `.p12` en `client.pem`, comme l'indique le
+[guide d'installation](../docs/installation/README.md#signature-électronique-facultatif), puis le
+déposer dans `installation/secrets/parapheur/`. Ce dossier est exclu du dépôt. Décommenter son
+montage dans `compose.yaml`, pour le **backend** et pour le **worker** : c'est le worker qui dépose et
+suit les documents.
+
+Noter la date d'expiration du certificat, et prévoir son renouvellement :
+
+```bash
+openssl x509 -in installation/secrets/parapheur/client.pem -noout -enddate
+```
+
+### Variables (`installation/.env`)
+
+```dotenv
+PARAPHEUR=fast
+FAST_URL=https://parapheur.dfast.fr/parapheur-soap/soap/v1/Documents
+FAST_SIREN=…
+FAST_CERTIFICAT=/run/secrets/parapheur/client.pem
+```
+
+- `FAST_URL` : l'adresse de production. La préproduction utilise la plateforme de démonstration,
+  `https://demo-parapheur.dfast.fr/parapheur-soap/soap/v1/Documents`.
+- `FAST_SIREN` : le numéro d'abonné de l'UPS, fourni avec le certificat. La démonstration a son
+  propre numéro.
+- `FAST_CERTIFICAT_MOT_DE_PASSE` reste vide si la clé a été convertie en clair, comme dans le guide.
+
+### Mise en service, dans cet ordre
+
+1. Démarrer OASIS et lancer l'**import des inscriptions** : c'est lui qui crée les composantes.
+2. Vérifier la connexion à FAST et lister les circuits autorisés pour le certificat :
+
+   ```bash
+   docker compose exec backend php bin/console app:signature:fast:circuits
+   ```
+
+   Un circuit absent de la liste refusera le dépôt : le certificat n'y est pas autorisé.
+3. Dans *Administration › Référents*, ouvrir chaque composante et renseigner son **Circuit de
+   signature** avec l'identifiant affiché par la commande.
+4. Dans *Administration › Paramètres*, régler `FREQUENCE_SUIVI_SIGNATURES`, la fréquence à laquelle
+   OASIS interroge FAST (une heure par défaut, par exemple `15 minutes`), puis redémarrer le worker.
+5. Faire un essai complet sur un étudiant de chaque composante.
+
+### Correspondance des composantes et des circuits
+
+À remplir avec la liste fournie par le chargé de projet FAST :
+
+| Composante (libellé dans OASIS) | Identifiant du circuit FAST |
+| --- | --- |
+| … | … |
+
+### Points d'attention
+
+- Un étudiant **sans inscription en cours**, par exemple avant sa réinscription, ou **inscrit dans
+  deux composantes** aux circuits différents, reçoit son PAEH par e-mail, sans signature. Une
+  correction est en cours.
+- La fin du circuit est lue dans l'historique FAST. Sur un circuit à **plusieurs signatures**, le
+  vérifier lors de l'essai : le PAEH ne doit passer à « signé » qu'après la dernière.
