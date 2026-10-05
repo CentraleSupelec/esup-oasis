@@ -110,30 +110,13 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
         message.success(`${decisionEtab.Denomination} : envoyé${decisionEtab.accordE}`).then();
       } else if (data.etat === EtatDecisionEtablissement.VALIDE) {
         message.success(`Demande d'édition ${decisionEtab.de} envoyée`).then();
+      } else if (data.etat === EtatDecisionEtablissement.ATTENTE_VALIDATION_CAS) {
+        message.success(`${decisionEtab.Denomination} repris${decisionEtab.accordE}`).then();
       }
     },
     onError: () => {
       setLoading(false);
       message.error(`Erreur lors du traitement ${decisionEtab.de}`).then();
-    },
-  });
-
-  // décision refusée par le parapheur : la reprise la rend de nouveau modifiable
-  const mutateReprise = useApi().usePatch({
-    path: "/utilisateurs/{uid}/decisions/{annee}/reprise",
-    invalidationQueryKeys: [
-      QK_BENEFICIAIRES,
-      QK_UTILISATEURS_ITEM,
-      QK_UTILISATEURS_DECISIONS,
-      props.utilisateurId,
-    ],
-    onSuccess: () => {
-      setLoading(false);
-      message.success(`${decisionEtab.Denomination} repris${decisionEtab.accordE}`).then();
-    },
-    onError: () => {
-      setLoading(false);
-      message.error(`Erreur lors de la reprise ${decisionEtab.de}`).then();
     },
   });
 
@@ -242,9 +225,9 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
                             description="Ses aménagements et avis de santé redeviendront modifiables."
                             onConfirm={() => {
                               setLoading(true);
-                              mutateReprise.mutate({
-                                "@id": `${utilisateur.decisionAmenagementAnneeEnCours?.["@id"]}/reprise`,
-                                data: {},
+                              mutateDecisionEtab.mutate({
+                                data: { etat: EtatDecisionEtablissement.ATTENTE_VALIDATION_CAS },
+                                "@id": decisionIri,
                               });
                             }}
                           >

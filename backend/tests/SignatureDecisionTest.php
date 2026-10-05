@@ -26,7 +26,6 @@ class SignatureDecisionTest extends ApiTestCaseCustom
 {
     private const string DECISION = '/utilisateurs/beneficiaire-decision/decisions/2025';
     private const string VERIFICATION = self::DECISION . '/verification_signature';
-    private const string REPRISE = self::DECISION . '/reprise';
 
     private ?int $inscription = null;
     private ?int $amenagement = null;
@@ -118,9 +117,9 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         $this->inscrireDansUneComposanteAvecCircuit();
         $this->etatDecision(DecisionAmenagementExamens::ETAT_REFUSEE);
 
-        $client->request('PATCH', self::REPRISE, [
+        $client->request('PATCH', self::DECISION, [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
-            'json' => [],
+            'json' => ['etat' => DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS],
         ]);
 
         $this->assertResponseIsSuccessful();
@@ -140,9 +139,9 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         $client = $this->createClientWithCredentials('gestionnaire');
         $this->etatDecision(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
 
-        $client->request('PATCH', self::REPRISE, [
+        $client->request('PATCH', self::DECISION, [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
-            'json' => [],
+            'json' => ['etat' => DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS],
         ]);
 
         $this->assertResponseStatusCodeSame(403);

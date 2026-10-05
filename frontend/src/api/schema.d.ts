@@ -80,26 +80,6 @@ export interface paths {
         patch: operations["api_utilisateurs_uiddecisions_annee_patch"];
         trace?: never;
     };
-    "/utilisateurs/{uid}/decisions/{annee}/reprise": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Updates the DecisionAmenagementExamens resource.
-         * @description Updates the DecisionAmenagementExamens resource.
-         */
-        patch: operations["api_utilisateurs_uiddecisions_anneereprise_patch"];
-        trace?: never;
-    };
     "/utilisateurs/{uid}/decisions/{annee}/verification_signature": {
         parameters: {
             query?: never;
@@ -3306,7 +3286,6 @@ export interface components {
             /** Format: date-time */
             dateAvisMedecin?: string | null;
         };
-        "DecisionAmenagementExamens-decision.reprise.in.jsonMergePatch": Record<string, never>;
         "DecisionAmenagementExamens-decision.verification_signature.in.jsonMergePatch": Record<string, never>;
         "DecisionAmenagementExamens.html-decision.out": {
             etat?: string;
@@ -5931,81 +5910,6 @@ export interface operations {
         requestBody: {
             content: {
                 "application/merge-patch+json": components["schemas"]["DecisionAmenagementExamens-decision.in.jsonMergePatch"];
-            };
-        };
-        responses: {
-            /** @description DecisionAmenagementExamens resource updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/ld+json": components["schemas"]["DecisionAmenagementExamens.jsonld-decision.out"];
-                    "text/html": components["schemas"]["DecisionAmenagementExamens.html-decision.out"];
-                };
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/ld+json": components["schemas"]["Error.jsonld"];
-                    "application/problem+json": components["schemas"]["Error"];
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/ld+json": components["schemas"]["Error.jsonld"];
-                    "application/problem+json": components["schemas"]["Error"];
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/ld+json": components["schemas"]["Error.jsonld"];
-                    "application/problem+json": components["schemas"]["Error"];
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description An error occurred */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/ld+json": components["schemas"]["ConstraintViolation.jsonld"];
-                    "application/problem+json": components["schemas"]["ConstraintViolation"];
-                    "application/json": components["schemas"]["ConstraintViolation"];
-                };
-            };
-        };
-    };
-    api_utilisateurs_uiddecisions_anneereprise_patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description DecisionAmenagementExamens identifier */
-                uid: string;
-                /** @description DecisionAmenagementExamens identifier */
-                annee: string;
-            };
-            cookie?: never;
-        };
-        /** @description The updated DecisionAmenagementExamens resource */
-        requestBody: {
-            content: {
-                "application/merge-patch+json": components["schemas"]["DecisionAmenagementExamens-decision.reprise.in.jsonMergePatch"];
             };
         };
         responses: {
