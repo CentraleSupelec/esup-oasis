@@ -10,32 +10,36 @@ faut configurer.
 
 ## Prérequis
 
-- Une version d'OASIS qui intègre le **calcul de scolarité interchangeable**
-  (`AbstractCalculScolarite`, variable `SI_SCOL_CALCUL`). Cette évolution est proposée à Bordeaux
-  et n'est pas encore intégrée.
 - La correction de l'image du **worker**, qui doit recevoir la personnalisation comme l'image du
   serveur. Sans elle, l'import des inscriptions et l'envoi du PAEH, qui s'exécutent dans le worker,
   n'utilisent ni les requêtes ni le gabarit de Paris-Saclay. Cette correction est intégrée au code de
   Bordeaux : il faut une version publiée qui la contient.
 
-## Profil étudiant
+## Niveau d'études
 
-Niveau d'études, redoublement, cursus adapté, adresse postale et situation sociale, affichés sur
-la fiche du bénéficiaire ; le niveau alimente aussi le bilan d'activité.
+Le niveau (L1 à M2, BUT1, LP1, ING3…) est calculé par les requêtes Apogée de ce dossier. OASIS
+l'enregistre sur la formation : il s'imprime sur le PAEH et alimente le bilan d'activité.
 
 | Fichier | Rôle |
 | --- | --- |
-| `backend/personnalisation/config/apogee/apogee_get_inscriptions.sql` | inscriptions d'un étudiant, avec les colonnes utiles au calcul |
-| `backend/personnalisation/config/apogee/apogee_get_formation.sql` | diplôme et discipline d'une formation, sans la table de niveaux propre à Bordeaux |
-| `backend/personnalisation/SiScol/CalculScolariteSaclay.php` | calcul du niveau et du redoublement |
-| `backend/personnalisation/SiScol/NiveauResolver.php`, `NiveauExtractor.php`, `RedoublementCalculator.php` | règles de Paris-Saclay (codes des types de diplôme, préfixes d'étape, compteur d'inscriptions) |
-| `backend/personnalisation/tests/` | tests des règles ; ils ne sont pas copiés dans les images |
+| `backend/personnalisation/config/apogee/apogee_get_inscriptions.sql` | inscriptions d'un étudiant, avec le niveau de sa formation |
+| `backend/personnalisation/config/apogee/apogee_get_formation.sql` | diplôme, niveau et discipline d'une formation, sans la table de niveaux propre à Bordeaux |
+
+La règle, par type de diplôme Apogée :
+
+- santé (PASS, LAS, études médicales) : pas de niveau ;
+- BUT, DEUST, licence professionnelle, ingénieur : un préfixe et l'année dans le diplôme, par
+  exemple BUT2, LP1, ING3 à ING5 ;
+- licence, master, CPES : L1 à M2, d'après le cycle et l'année dans le diplôme ;
+- autres types (DU, échange…) : pas de niveau, sauf si le code étape commence par un niveau
+  (L1INFO, M2ARTS…).
+
+Les deux requêtes appliquent la même règle : une modification se fait dans les deux.
 
 Variables d'environnement (`installation/.env`) :
 
 ```dotenv
 SI_SCOL=APOGEE
-SI_SCOL_CALCUL=apogee_saclay
 APOGEE_USER=…
 APOGEE_PWD=…
 APOGEE_DB=…
@@ -44,20 +48,19 @@ APOGEE_DB=…
 Les variables `APOGEE_REQUETE_*` gardent leur valeur par défaut : les requêtes de ce dossier
 remplacent celles de l'application dans l'image.
 
-**Au premier déploiement**, remettre à vide les niveaux de formation enregistrés à blanc par les
-versions précédentes ; l'application ne complète que les niveaux absents :
+OASIS calcule le niveau d'une formation une seule fois, puis le complète seulement s'il est vide.
+**Au premier déploiement**, et après toute modification de la règle, remettre les niveaux à vide :
+ils sont recalculés au prochain import des inscriptions.
 
 ```sql
-update formation set niveau = null where trim(niveau) = '';
+update formation set niveau = null;
 ```
 
-**Vérifier les règles** avant de construire les images, depuis le conteneur de développement :
+## Données affichées sur la fiche
 
-```bash
-php -d date.timezone=UTC vendor/bin/phpunit --no-configuration \
-    --bootstrap /chemin/vers/installation/backend/personnalisation/tests/bootstrap.php \
-    /chemin/vers/installation/backend/personnalisation/tests/SiScol
-```
+Redoublement, cursus aménagé, adresse postale et situation sociale : ces données seront lues dans
+Apogée à la demande, sans être enregistrées, selon le mécanisme que prépare Bordeaux. La requête
+des inscriptions les contient déjà ; OASIS ne les lit pas encore.
 
 ## Décision d'aménagements (PAEH)
 

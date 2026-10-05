@@ -328,8 +328,8 @@
                 <p>Email : {{ etudiant.email }}</p>
             </div>
             <div>
-                {% if inscriptionActive is not null and inscriptionActive.niveau is defined and inscriptionActive.niveau is not null and inscriptionActive.niveau|trim != '' %}
-                    <p>Niveau : {{ inscriptionActive.niveau }}</p>
+                {% if formationActive is not null and formationActive.niveau is defined and formationActive.niveau is not null and formationActive.niveau|trim != '' %}
+                    <p>Niveau : {{ formationActive.niveau }}</p>
                 {% endif %}
                 {% if formationActive is not null and formationActive.libelle is defined and formationActive.libelle is not null %}
                     <p>Formation : {{ formationActive.libelle }}</p>

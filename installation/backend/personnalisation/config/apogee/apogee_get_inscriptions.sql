@@ -1,11 +1,30 @@
 -- Inscriptions d'un étudiant, requête propre à l'université Paris-Saclay.
 --
--- Le niveau d'études et le redoublement ne sont pas calculés ici : la requête renvoie les
--- colonnes dont a besoin le calcul de l'établissement (CalculScolariteSaclay, sélectionné
--- par SI_SCOL_CALCUL=apogee_saclay), qui les lit dans les données transmises par OASIS.
--- Les alias cycle, annee_diplome, cod_tpd_etb, tem_sante, cod_etp, nbr_ins_etp et
--- cod_sis_cur_amg doivent donc être conservés tels quels.
-select iae.cod_anu,
+-- Le niveau d'études est calculé par famille de diplôme, avec la même règle que
+-- apogee_get_formation.sql : la requête intérieure lit Apogée, la requête extérieure applique
+-- la règle. OASIS l'enregistre sur la formation à sa création.
+select q.*,
+       coalesce(
+           case
+               -- santé (PASS, LAS, études médicales) : pas de niveau L/M/D
+               when q.tem_sante = 'O' then null
+               -- BUT, DEUST, licence professionnelle (3 ans, 1 an), ingénieur : préfixe et année
+               -- dans le diplôme, décalée de 2 pour l'ingénieur (étapes P3 à P5)
+               when trim(q.cod_tpd_etb) in ('16', '13', '18', '85', '34') then
+                   case when q.annee_diplome >= 1 then
+                       decode(trim(q.cod_tpd_etb), '16', 'BUT', '13', 'DEUST', '34', 'ING', 'LP')
+                           || to_char(trunc(q.annee_diplome) + decode(trim(q.cod_tpd_etb), '34', 2, 0))
+                   end
+               -- licence, double licence, master, master MEEF, CPES : entrée du cycle et année dans
+               -- le diplôme ; tout autre type de diplôme (DU, échange entrant…) n'a pas de niveau
+               when trim(q.cod_tpd_etb) in ('86', '93', '37', '39', '19') and q.annee_diplome >= 1 then
+                   decode(decode(trim(q.cycle), '1', 0, '2', 3, '3', 5) + trunc(q.annee_diplome),
+                          1, 'L1', 2, 'L2', 3, 'L3', 4, 'M1', 5, 'M2', 6, 'D1', 7, 'D2', 8, 'D3')
+               end,
+           -- à défaut, le niveau inscrit en tête du code étape (L1INFO, M2ARTS…)
+           upper(regexp_substr(q.cod_etp, '^(L[1-3]|M[1-2]|D[1-3])', 1, 1, 'i'))
+       ) as niveau
+from (select iae.cod_anu,
        vet.cod_etp,
        vet.cod_vrs_vet,
        vet.lib_web_vet,
@@ -26,9 +45,6 @@ select iae.cod_anu,
        case when iaa.cod_soc = 'NO' then null else soc.lib_soc end as lib_soc,
        rgi.lib_rgi,
        dip.lib_dip,
-       -- pas de table de niveaux d'étape chez Paris-Saclay : le niveau est calculé par
-       -- CalculScolariteSaclay à partir des colonnes ci-dessous
-       null as niveau,
        dsi.lib_dsi,
        -- adresse : adresse annuelle seule (l'adresse fixe ne sert qu'au téléphone). Ville
        -- via la commune (lib_ade en repli pour l'acheminement à l'étranger), pays en libellé.
@@ -38,11 +54,11 @@ select iae.cod_anu,
        annuelle.cod_bdi as adr_cod_bdi,
        nvl(com.lib_com, annuelle.lib_ade) as adr_lib_vil,
        pay.lib_pay as adr_cod_pay,
-       -- colonnes du calcul du redoublement
+       -- redoublement et cursus aménagé : lus pour l'affichage du profil, pas encore par OASIS
        iae.nbr_ins_etp,
        amg.cod_sis_cur_amg,
        amg.lib_cur_amg,
-       -- colonnes du calcul du niveau (mêmes alias dans apogee_get_formation.sql)
+       -- colonnes du calcul du niveau, dans la requête extérieure
        dip.cod_cyc as cycle,       -- cycle du diplôme (1 = Licence, 2 = Master, 3 = Doctorat)
        dip.cod_tpd_etb,            -- type de diplôme (code propre à l'établissement)
        typ.tem_sante,              -- indicateur santé (O/N) porté par le type de diplôme
@@ -70,5 +86,5 @@ from ins_adm_etp iae
 where i.cod_etu = :codEtu
   and iae.cod_anu between :debut and :fin
   and iae.tem_iae_prm = 'O'
-  and iae.eta_iae = 'E'
-order by iae.cod_anu
+  and iae.eta_iae = 'E') q
+order by q.cod_anu
