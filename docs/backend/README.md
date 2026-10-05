@@ -105,6 +105,8 @@ disponibles dans le fichier
 * [OPTIONNEL] **UNICAMPUS_SID** : url de la base Unicampus (`//serveur:port/SID` pour oracle)
 * [OPTIONNEL] **UNICAMPUS_SUFFIXES** : suffixes ajoutés par unicampus aux numéros étudiants (`["suffixe1","suffixe2"]`;
   les RNE des établissements concernés pour l'instance Unicampus utilisée)
+* [OPTIONNEL] **PARAPHEUR** : parapheur électronique qui signe la décision d'aménagements ; vide, la signature
+  électronique est désactivée — cf. [Connecteurs](connecteurs.md#signature-électronique)
 
 Les valeurs renseignées dans le fichier .env peuvent être surchargées par des variables d'environnement au niveau
 système (https://symfony.com/doc/current/configuration.html#overriding-environment-variables-defined-by-the-system), ou

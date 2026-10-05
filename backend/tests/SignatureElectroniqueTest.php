@@ -1,0 +1,196 @@
+<?php
+
+/*
+ * Copyright (c) 2026. Esup - Université de Bordeaux.
+ *
+ * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
+ */
+
+namespace App\Tests;
+
+use App\Entity\Composante;
+use App\Entity\DecisionAmenagementExamens;
+use App\Entity\Formation;
+use App\Entity\Inscription;
+use App\Entity\Utilisateur;
+use App\Repository\DecisionAmenagementExamensRepository;
+use App\Service\Signature\AbstractParapheur;
+use App\Service\Signature\ParapheurDesactive;
+use App\Service\Signature\ParapheurFactice;
+use App\Service\Signature\SignatureElectronique;
+use DateTime;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+use RuntimeException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
+
+class SignatureElectroniqueTest extends TestCase
+{
+    private const string EMAIL = 'camille.aubert@univ.example';
+
+    public function testNoCircuitWithoutParapheur(): void
+    {
+        $signature = $this->signature(new ParapheurDesactive());
+
+        $this->assertNull($signature->circuitPour($this->decision()));
+    }
+
+    public function testCircuitOfComposanteWithParapheur(): void
+    {
+        $signature = $this->signature(new ParapheurFactice());
+
+        $this->assertSame('circuit-ufr1', $signature->circuitPour($this->decision()));
+    }
+
+    public function testComposanteWithoutCircuitGetsNoCircuit(): void
+    {
+        $signature = $this->signature(new ParapheurFactice());
+
+        $this->assertNull($signature->circuitPour($this->decision(['UFR9' => null])));
+    }
+
+    public function testComposantesSharingCircuitGetThatCircuit(): void
+    {
+        $signature = $this->signature(new ParapheurFactice());
+        $decision = $this->decision(['UFR1' => 'circuit-commun', 'UFR2' => 'circuit-commun']);
+
+        $this->assertSame('circuit-commun', $signature->circuitPour($decision));
+    }
+
+    public function testDistinctCircuitsGiveNoCircuit(): void
+    {
+        $signature = $this->signature(new ParapheurFactice());
+        $decision = $this->decision(['UFR1' => 'circuit-ufr1', 'UFR2' => 'circuit-ufr2']);
+
+        $this->assertNull($signature->circuitPour($decision));
+    }
+
+    public function testEndedInscriptionIsIgnored(): void
+    {
+        $signature = $this->signature(new ParapheurFactice());
+
+        $this->assertNull($signature->circuitPour($this->decision(enCours: false)));
+    }
+
+    public function testDeposerStartsSignatureAndClearsPreviousSignature(): void
+    {
+        $parapheur = new ParapheurFactice();
+        $decision = $this->decision()
+            ->setEtatSignature(DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE)
+            ->setDateSignature(new DateTime('2026-01-15'))
+            ->setDerniereVerificationSignature(new DateTime('2026-01-15'));
+
+        $this->signature($parapheur)->deposer($decision, '%PDF-test', 'circuit-ufr1', 'gestionnaire');
+
+        $this->assertSame(DecisionAmenagementExamens::ETAT_EN_SIGNATURE, $decision->getEtat());
+        $this->assertSame(DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE, $decision->getEtatSignature());
+        $this->assertSame('circuit-ufr1', $decision->getCircuitParapheur());
+        $this->assertSame('gestionnaire', $decision->getUidDemandeurSignature());
+        $this->assertNull($decision->getDateSignature());
+        $this->assertNull($decision->getDerniereVerificationSignature());
+        $this->assertSame('%PDF-test', $parapheur->telecharger($decision->getIdDocumentParapheur()));
+        $this->assertSame(self::EMAIL, $parapheur->documents()[$decision->getIdDocumentParapheur()]['destinataire']);
+    }
+
+    public function testDeposerRequiresBeneficiaireEmail(): void
+    {
+        $parapheur = new ParapheurFactice();
+
+        try {
+            $this->signature($parapheur)->deposer($this->decision(email: null), '%PDF-test', 'circuit-ufr1', 'gestionnaire');
+            $this->fail('Dépôt accepté sans adresse e-mail');
+        } catch (RuntimeException) {
+            // sans adresse, l'étudiant ne recevrait jamais le document signé : rien n'est déposé
+            $this->assertSame([], $parapheur->documents());
+        }
+    }
+
+    public function testDepositedDecisionIsEnCours(): void
+    {
+        $signature = $this->signature(new ParapheurFactice());
+        $decision = $this->decision();
+
+        $this->assertFalse($signature->estEnCours($decision));
+        $signature->deposer($decision, '%PDF-test', 'circuit-ufr1', 'gestionnaire');
+        $this->assertTrue($signature->estEnCours($decision));
+    }
+
+    public function testChangesAreRefusedWhileDecisionIsEnSignature(): void
+    {
+        $decision = $this->decision()->setEtat(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
+
+        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->expectExceptionMessage('en cours de signature');
+        $this->signature(new ParapheurFactice())->interdireSiVerrouillee($decision->getBeneficiaire());
+    }
+
+    public function testChangesAreRefusedUntilRefusedDecisionIsResumed(): void
+    {
+        $decision = $this->decision()->setEtat(DecisionAmenagementExamens::ETAT_REFUSEE);
+
+        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->expectExceptionMessage('reprenez-la');
+        $this->signature(new ParapheurFactice())->interdireSiVerrouillee($decision->getBeneficiaire());
+    }
+
+    public function testChangesAreAllowedOnceDecisionIsResumed(): void
+    {
+        $decision = $this->decision()->setEtat(DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS);
+
+        $this->signature(new ParapheurFactice())->interdireSiVerrouillee($decision->getBeneficiaire());
+
+        $this->addToAssertionCount(1);
+    }
+
+    private function signature(AbstractParapheur $parapheur): SignatureElectronique
+    {
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->method('dispatch')->willReturn(new Envelope(new \stdClass()));
+
+        return new SignatureElectronique(
+            $parapheur,
+            $this->createMock(DecisionAmenagementExamensRepository::class),
+            $bus,
+            new NullLogger(),
+        );
+    }
+
+    /**
+     * @param array<string, ?string> $circuits circuit de signature par code composante
+     */
+    private function decision(
+        array $circuits = ['UFR1' => 'circuit-ufr1'],
+        bool $enCours = true,
+        ?string $email = self::EMAIL,
+    ): DecisionAmenagementExamens {
+        $beneficiaire = new Utilisateur();
+        $beneficiaire->setPrenom('Camille');
+        $beneficiaire->setNom('Aubert');
+        if (null !== $email) {
+            $beneficiaire->setEmail($email);
+        }
+
+        foreach ($circuits as $code => $circuit) {
+            $composante = new Composante();
+            $composante->setCodeExterne($code)->setCircuitSignature($circuit);
+
+            $formation = new Formation();
+            $formation->setComposante($composante);
+
+            $inscription = new Inscription();
+            $inscription->setFormation($formation);
+            $inscription->setDebut(new DateTime($enCours ? '-1 month' : '-13 months'));
+            $inscription->setFin(new DateTime($enCours ? '+1 month' : '-1 month'));
+
+            $beneficiaire->addInscription($inscription);
+        }
+
+        $decision = new DecisionAmenagementExamens()->setBeneficiaire($beneficiaire);
+        $beneficiaire->addDecisionsAmenagementExamen($decision);
+
+        return $decision;
+    }
+}
