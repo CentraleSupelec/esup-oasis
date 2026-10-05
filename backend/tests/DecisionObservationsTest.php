@@ -17,7 +17,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class DecisionObservationsTest extends ApiTestCaseCustom
 {
     private const string DECISION = '/utilisateurs/beneficiaire-decision/decisions/2025';
-    private const string URI = self::DECISION . '/observations';
 
     protected function tearDown(): void
     {
@@ -59,7 +58,7 @@ class DecisionObservationsTest extends ApiTestCaseCustom
         $client = $this->createClientWithCredentials('gestionnaire');
         $this->etatDecision($etat);
 
-        $client->request('PATCH', self::URI, [
+        $client->request('PATCH', self::DECISION, [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
             'json' => [
                 'observations' => 'Salle au rez-de-chaussée',
@@ -92,7 +91,7 @@ class DecisionObservationsTest extends ApiTestCaseCustom
         $this->assertSame(DecisionAmenagementExamens::ETAT_VALIDE, $this->decision()->getEtat());
 
         // la date saisie, l'édition passe
-        $client->request('PATCH', self::URI, [
+        $client->request('PATCH', self::DECISION, [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
             'json' => ['dateAvisMedecin' => '2026-06-15'],
         ]);
@@ -133,21 +132,21 @@ class DecisionObservationsTest extends ApiTestCaseCustom
         $this->assertResponseIsSuccessful();
     }
 
-    public function testObservationsCannotChangeEtat(): void
+    public function testRequiredDateCannotBeRemovedOnceRequested(): void
     {
-        $client = $this->createClientWithCredentials('admin');
-        $this->etatDecision(DecisionAmenagementExamens::ETAT_VALIDE);
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $this->exigerAvisMedical(true);
+        $decision = $this->decision();
+        $decision->setEtat(DecisionAmenagementExamens::ETAT_VALIDE)->setDateAvisMedecin(new DateTime('2026-06-15'));
+        static::getContainer()->get('doctrine')->getManager()->flush();
 
-        $client->request('PATCH', self::URI, [
+        $client->request('PATCH', self::DECISION, [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
-            'json' => [
-                'etat' => DecisionAmenagementExamens::ETAT_EDITION_DEMANDEE,
-                'observations' => 'Tiers temps',
-            ],
+            'json' => ['dateAvisMedecin' => null],
         ]);
 
-        $this->assertResponseIsSuccessful();
-        $this->assertSame(DecisionAmenagementExamens::ETAT_VALIDE, $this->decision()->getEtat());
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('2026-06-15', $this->decision()->getDateAvisMedecin()?->format('Y-m-d'));
     }
 
     #[DataProvider('etatsEnvoyesProvider')]
@@ -156,7 +155,7 @@ class DecisionObservationsTest extends ApiTestCaseCustom
         $client = $this->createClientWithCredentials('admin');
         $this->etatDecision($etat);
 
-        $client->request('PATCH', self::URI, [
+        $client->request('PATCH', self::DECISION, [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
             'json' => ['observations' => 'Trop tard'],
         ]);
@@ -170,7 +169,7 @@ class DecisionObservationsTest extends ApiTestCaseCustom
         $client = $this->createClientWithCredentials('beneficiaire-decision');
         $this->etatDecision(DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS);
 
-        $client->request('PATCH', self::URI, [
+        $client->request('PATCH', self::DECISION, [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
             'json' => ['observations' => 'Saisie non autorisée'],
         ]);
@@ -183,7 +182,7 @@ class DecisionObservationsTest extends ApiTestCaseCustom
         $client = $this->createClientWithCredentials('gestionnaire');
         $this->etatDecision(DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS);
 
-        $client->request('PATCH', self::URI, [
+        $client->request('PATCH', self::DECISION, [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
             'json' => ['observations' => str_repeat('o', 4001)],
         ]);

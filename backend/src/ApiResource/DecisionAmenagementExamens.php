@@ -18,7 +18,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProcessor;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProvider;
-use App\State\DecisionAmenagementExamens\DecisionObservationsProcessor;
 use App\Validator\DateAvisMedecinRequiseConstraint;
 use App\Validator\EtatDecisionValideConstraint;
 use DateTimeInterface;
@@ -38,18 +37,11 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Patch(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'annee'],
-            securityPostDenormalize: "is_granted('" . self::MODIFIER_DECISION . "', object)",
-        ),
-        // saisies libres, modifiables tant que la décision n'est pas envoyée, sans changer son état
-        new Patch(
-            uriTemplate: self::OBSERVATIONS_URI,
-            uriVariables: ['uid', 'annee'],
-            security: "is_granted('" . \App\Entity\Utilisateur::ROLE_GESTIONNAIRE . "') and object.etat in ['"
-                . \App\Entity\DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS . "', '"
-                . \App\Entity\DecisionAmenagementExamens::ETAT_VALIDE . "']",
-            denormalizationContext: ['groups' => [self::GROUP_OBSERVATIONS_IN]],
-            validationContext: ['groups' => [self::GROUP_OBSERVATIONS_IN]],
-            processor: DecisionObservationsProcessor::class,
+            // état inchangé : saisie des observations, possible tant que la décision n'est pas envoyée
+            securityPostDenormalize: "object.etat == previous_object.etat"
+                . " ? previous_object.etat in ['" . \App\Entity\DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS
+                . "', '" . \App\Entity\DecisionAmenagementExamens::ETAT_VALIDE . "']"
+                . " : is_granted('" . self::MODIFIER_DECISION . "', object)",
         ),
     ],
     normalizationContext: ['groups' => [self::GROUP_OUT]],
@@ -64,12 +56,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 class DecisionAmenagementExamens
 {
     public const string ITEM_URI = '/utilisateurs/{uid}/decisions/{annee}';
-    public const string OBSERVATIONS_URI = self::ITEM_URI . '/observations';
     public const string MODIFIER_DECISION = 'MODIFIER_DECISION';
 
     public const string GROUP_IN = 'decision:in';
     public const string GROUP_OUT = 'decision:out';
-    public const string GROUP_OBSERVATIONS_IN = 'decision:observations:in';
 
     #[Ignore]
     public ?int $id {
@@ -125,8 +115,8 @@ class DecisionAmenagementExamens
         }
     }
 
-    #[Groups([self::GROUP_OUT, self::GROUP_OBSERVATIONS_IN])]
-    #[Assert\Length(max: 4000, groups: [self::GROUP_OBSERVATIONS_IN])]
+    #[Groups([self::GROUP_OUT, self::GROUP_IN])]
+    #[Assert\Length(max: 4000)]
     public ?string $observations {
         get {
             $prop = new ReflectionProperty(self::class, 'observations');
@@ -138,7 +128,7 @@ class DecisionAmenagementExamens
     }
 
     // exposée aussi sur la fiche du bénéficiaire, qui en déduit si la demande d'édition est possible
-    #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT, self::GROUP_OBSERVATIONS_IN])]
+    #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT, self::GROUP_IN])]
     public ?DateTimeInterface $dateAvisMedecin {
         get {
             $prop = new ReflectionProperty(self::class, 'dateAvisMedecin');

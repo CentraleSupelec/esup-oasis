@@ -122,7 +122,7 @@ describe("ModalDecisionObservations", () => {
       expect(mockMutate).toHaveBeenCalledTimes(1);
     });
     expect(mockMutate).toHaveBeenCalledWith({
-      "@id": "/utilisateurs/test@uni.fr/decisions/2026/observations",
+      "@id": "/utilisateurs/test@uni.fr/decisions/2026",
       data: { observations: "Tiers temps validé sur dossier 2026", dateAvisMedecin: null },
     });
   });
@@ -154,7 +154,7 @@ describe("ModalDecisionObservations", () => {
       expect(mockMutate).toHaveBeenCalledTimes(1);
     });
     expect(mockMutate).toHaveBeenCalledWith({
-      "@id": "/utilisateurs/test@uni.fr/decisions/2026/observations",
+      "@id": "/utilisateurs/test@uni.fr/decisions/2026",
       data: { observations: null, dateAvisMedecin: "2026-06-15" },
     });
   });
@@ -183,7 +183,7 @@ describe("ModalDecisionObservations", () => {
       expect(mockMutate).toHaveBeenCalledTimes(1);
     });
     expect(mockMutate).toHaveBeenCalledWith({
-      "@id": "/utilisateurs/test@uni.fr/decisions/2026/observations",
+      "@id": "/utilisateurs/test@uni.fr/decisions/2026",
       data: { observations: null, dateAvisMedecin: null },
     });
   });

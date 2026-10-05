@@ -71,7 +71,7 @@ export function ModalDecisionObservations({
   const suggestion = dateAvisMedecinSuggeree(decision?.dateAvisMedecin, avis?.items ?? []);
 
   const mutateDecision = useApi().usePatch({
-    path: "/utilisateurs/{uid}/decisions/{annee}/observations",
+    path: "/utilisateurs/{uid}/decisions/{annee}",
     invalidationQueryKeys: [
       QK_BENEFICIAIRES,
       QK_UTILISATEURS_ITEM,
@@ -109,7 +109,7 @@ export function ModalDecisionObservations({
       ? values.dateAvisMedecin.format("YYYY-MM-DD")
       : null;
     mutateDecision.mutate({
-      "@id": `${decisionId}/observations`,
+      "@id": decisionId,
       data: { observations, dateAvisMedecin },
     });
   }
