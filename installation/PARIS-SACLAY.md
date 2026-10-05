@@ -165,8 +165,10 @@ FAST_CERTIFICAT=/run/secrets/parapheur/client.pem
 
 ### Points d'attention
 
-- Un étudiant **sans inscription en cours**, par exemple avant sa réinscription, ou **inscrit dans
-  deux composantes** aux circuits différents, reçoit son PAEH par e-mail, sans signature. Une
-  correction est en cours.
+- Pour un étudiant **sans inscription en cours**, par exemple avant sa réinscription, ou **inscrit
+  dans deux composantes** aux circuits différents, OASIS ne trouve pas de circuit. Sa décision suit
+  alors le circuit habituel : elle attend la validation de l'administrateur fonctionnel, puis part
+  par e-mail avec la mention « Signé numériquement ». Rien ne signale à l'administrateur qu'elle ne
+  passe pas par FAST.
 - La fin du circuit est lue dans l'historique FAST. Sur un circuit à **plusieurs signatures**, le
   vérifier lors de l'essai : le PAEH ne doit passer à « signé » qu'après la dernière.
