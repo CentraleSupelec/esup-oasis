@@ -140,7 +140,6 @@ class SuiviSignatureServiceTest extends KernelTestCase
             ->setEtat(DecisionAmenagementExamens::ETAT_EN_SIGNATURE)
             ->setEtatSignature(DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE)
             ->setIdDocumentParapheur($documentId)
-            ->setCircuitParapheur('circuit-test')
             ->setUidDemandeurSignature('admin')
             ->setDateSignature(null)
             ->setDerniereVerificationSignature(null);
