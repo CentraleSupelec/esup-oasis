@@ -9,14 +9,11 @@
 
 namespace App\Service\Signature;
 
-use App\ApiResource\Utilisateur as UtilisateurResource;
 use App\Entity\DecisionAmenagementExamens;
 use App\Entity\Utilisateur;
-use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Passage d'une décision d'aménagements par le parapheur : dépôt à la demande d'édition, puis
@@ -27,7 +24,6 @@ readonly class SignatureElectronique
     public function __construct(
         private AbstractParapheur $parapheur,
         private DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
-        private MessageBusInterface $messageBus,
         private LoggerInterface $logger,
     ) {}
 
@@ -37,13 +33,7 @@ readonly class SignatureElectronique
      */
     public function circuitPour(DecisionAmenagementExamens $decision): ?string
     {
-        $circuits = [];
-        foreach ($decision->getBeneficiaire()->getInscriptionsEnCours() as $inscription) {
-            $composante = $inscription->getFormation()?->getComposante();
-            if (null !== $composante?->getCircuitSignature()) {
-                $circuits[$composante->getCodeExterne()] = $composante->getCircuitSignature();
-            }
-        }
+        [, $circuits] = $this->composantesEtCircuits($decision);
 
         // composante sans circuit : envoi par e-mail, ce qui permet une activation progressive
         if ([] === $circuits) {
@@ -62,16 +52,55 @@ readonly class SignatureElectronique
 
         // plusieurs circuits possibles : on ne choisit pas le signataire à la place de l'établissement
         if (count(array_unique($circuits)) > 1) {
-            $this->logger->warning(
-                'Décision {id} : inscriptions en cours dans plusieurs composantes à circuits distincts '
-                . '({composantes}), envoi par e-mail.',
-                ['id' => $decision->getId(), 'composantes' => implode(', ', array_keys($circuits))],
-            );
-
             return null;
         }
 
         return current($circuits);
+    }
+
+    /**
+     * Pourquoi la décision ne peut pas partir en signature, null si elle le peut ou si elle part par e-mail.
+     * Avec un parapheur, une décision dont le circuit ne peut pas être déterminé n'est pas envoyée sans signature.
+     */
+    public function motifSansCircuit(DecisionAmenagementExamens $decision): ?string
+    {
+        if (!$this->parapheur->estDisponible()) {
+            return null;
+        }
+
+        [$composantes, $circuits] = $this->composantesEtCircuits($decision);
+
+        if ([] === $composantes) {
+            return "Aucune inscription en cours : la composante de l'étudiant, et donc son circuit de signature, est inconnue.";
+        }
+
+        if (count(array_unique($circuits)) > 1) {
+            return 'Inscriptions en cours dans plusieurs composantes aux circuits différents : le circuit de signature ne peut pas être choisi.';
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array{0: list<string>, 1: array<string, string>} codes des composantes des inscriptions en cours,
+     *                                                           et circuit de celles qui en ont un
+     */
+    private function composantesEtCircuits(DecisionAmenagementExamens $decision): array
+    {
+        $composantes = [];
+        $circuits = [];
+        foreach ($decision->getBeneficiaire()->getInscriptionsEnCours() as $inscription) {
+            $composante = $inscription->getFormation()?->getComposante();
+            if (null === $composante) {
+                continue;
+            }
+            $composantes[$composante->getCodeExterne()] = $composante->getCodeExterne();
+            if (null !== $composante->getCircuitSignature()) {
+                $circuits[$composante->getCodeExterne()] = $composante->getCircuitSignature();
+            }
+        }
+
+        return [array_values($composantes), $circuits];
     }
 
     public function estEnCours(DecisionAmenagementExamens $decision): bool
@@ -111,12 +140,10 @@ readonly class SignatureElectronique
         $decision
             ->setEtatSignature(DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE)
             ->setIdDocumentParapheur($documentId)
-            ->setCircuitParapheur($circuit)
             ->setUidDemandeurSignature($uidDemandeur)
             // une signature précédente ne concerne pas ce nouveau document
             ->setDateSignature(null)
             ->setDerniereVerificationSignature(null);
         $this->decisionAmenagementExamensRepository->save($decision, true);
-        $this->messageBus->dispatch(new RessourceModifieeMessage(new UtilisateurResource($decision->getBeneficiaire())));
     }
 }

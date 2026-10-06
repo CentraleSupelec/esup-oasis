@@ -3307,6 +3307,7 @@ export interface components {
             dateAvisMedecin?: string | null;
             /** @default false */
             dateAvisMedecinRequise: boolean;
+            motifSignatureImpossible?: string | null;
         };
         "DecisionAmenagementExamens.html-utilisateur.out": {
             etat?: string;
@@ -3326,6 +3327,7 @@ export interface components {
             dateAvisMedecin?: string | null;
             /** @default false */
             dateAvisMedecinRequise: boolean;
+            motifSignatureImpossible?: string | null;
         };
         "DecisionAmenagementExamens.jsonld": components["schemas"]["HydraItemBaseSchema"] & {
             etat?: string;
@@ -3347,6 +3349,7 @@ export interface components {
             dateAvisMedecin?: string | null;
             /** @default false */
             readonly dateAvisMedecinRequise: boolean;
+            readonly motifSignatureImpossible?: string | null;
         };
         "DecisionAmenagementExamens.jsonld-decision.out": components["schemas"]["HydraItemBaseSchema"] & {
             etat?: string;
@@ -3368,6 +3371,7 @@ export interface components {
             dateAvisMedecin?: string | null;
             /** @default false */
             dateAvisMedecinRequise: boolean;
+            motifSignatureImpossible?: string | null;
         };
         "DecisionAmenagementExamens.jsonld-utilisateur.out": components["schemas"]["HydraItemBaseSchema"] & {
             etat?: string;
@@ -3387,6 +3391,7 @@ export interface components {
             dateAvisMedecin?: string | null;
             /** @default false */
             dateAvisMedecinRequise: boolean;
+            motifSignatureImpossible?: string | null;
         };
         "DecisionAmenagementExamens.pdf-decision.out": {
             etat?: string;
@@ -3408,6 +3413,7 @@ export interface components {
             dateAvisMedecin?: string | null;
             /** @default false */
             dateAvisMedecinRequise: boolean;
+            motifSignatureImpossible?: string | null;
         };
         "Demande-demande.in": {
             /**

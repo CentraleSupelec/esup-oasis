@@ -173,12 +173,14 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
     />
   );
 
-  // le serveur dit si la date de l'avis médical conditionne l'édition : l'interface annonce son refus sans le deviner
+  // le serveur dit ce qui empêche l'édition, date de l'avis médical ou circuit de signature : l'interface
+  // annonce son refus sans le deviner
   const dateAvisMedecinManquante =
     !!utilisateur.decisionAmenagementAnneeEnCours.dateAvisMedecinRequise &&
     !utilisateur.decisionAmenagementAnneeEnCours.dateAvisMedecin;
-  const messageDateManquante =
-    "Veuillez saisir une date d'avis médical afin de générer le document.";
+  const motifBlocage = dateAvisMedecinManquante
+    ? "Veuillez saisir une date d'avis médical afin de générer le document."
+    : (utilisateur.decisionAmenagementAnneeEnCours.motifSignatureImpossible ?? null);
 
   switch (utilisateur.decisionAmenagementAnneeEnCours.etat) {
     // une décision refusée se reprend, puis se corrige et se redemande comme une décision en attente
@@ -240,9 +242,9 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
                     : {
                         key: "send",
                         icon: <SendOutlined />,
-                        disabled: dateAvisMedecinManquante,
-                        label: dateAvisMedecinManquante ? (
-                          <Tooltip title={messageDateManquante}>
+                        disabled: !!motifBlocage,
+                        label: motifBlocage ? (
+                          <Tooltip title={motifBlocage}>
                             <span>
                               {auth.user?.isAdmin
                                 ? `Envoyer ${decisionEtab.defini}`
@@ -331,15 +333,15 @@ export function BoutonDecisionEtab(props: { utilisateurId: string }) {
                   ? {
                       key: "send",
                       icon: <SendOutlined />,
-                      disabled: dateAvisMedecinManquante,
-                      label: dateAvisMedecinManquante ? (
-                        <Tooltip title={messageDateManquante}>
+                      disabled: !!motifBlocage,
+                      label: motifBlocage ? (
+                        <Tooltip title={motifBlocage}>
                           <span>Envoyer {decisionEtab.defini}</span>
                         </Tooltip>
                       ) : (
                         `Envoyer ${decisionEtab.defini}`
                       ),
-                      onClick: dateAvisMedecinManquante
+                      onClick: motifBlocage
                         ? undefined
                         : () => {
                             setLoading(true);

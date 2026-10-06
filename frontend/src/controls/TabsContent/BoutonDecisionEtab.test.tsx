@@ -87,6 +87,16 @@ describe("BoutonDecisionEtab", () => {
     expect(await ouvrirLeMenu()).toHaveAttribute("aria-disabled", "true");
   });
 
+  it("empêche l'envoi quand le circuit de signature ne peut pas être déterminé", async () => {
+    rendreAvecDecision({
+      dateAvisMedecin: null,
+      motifSignatureImpossible:
+        "Aucune inscription en cours : la composante de l'étudiant est inconnue.",
+    });
+
+    expect(await ouvrirLeMenu()).toHaveAttribute("aria-disabled", "true");
+  });
+
   it("rétablit l'envoi dès que la date est saisie", async () => {
     rendreAvecDecision({ dateAvisMedecinRequise: true, dateAvisMedecin: "2026-09-01" });
 

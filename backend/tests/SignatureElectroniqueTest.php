@@ -23,8 +23,6 @@ use DateTime;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use RuntimeException;
-use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 class SignatureElectroniqueTest extends TestCase
 {
@@ -74,6 +72,36 @@ class SignatureElectroniqueTest extends TestCase
         $this->assertNull($signature->circuitPour($this->decision(enCours: false)));
     }
 
+    public function testNoCurrentInscriptionBlocksSignature(): void
+    {
+        $signature = $this->signature(new ParapheurFactice());
+
+        $this->assertStringContainsString('Aucune inscription en cours', $signature->motifSansCircuit($this->decision(enCours: false)));
+    }
+
+    public function testDistinctCircuitsBlockSignature(): void
+    {
+        $signature = $this->signature(new ParapheurFactice());
+        $decision = $this->decision(['UFR1' => 'circuit-ufr1', 'UFR2' => 'circuit-ufr2']);
+
+        $this->assertStringContainsString('plusieurs composantes', $signature->motifSansCircuit($decision));
+    }
+
+    public function testComposanteWithoutCircuitKeepsEmail(): void
+    {
+        $signature = $this->signature(new ParapheurFactice());
+
+        // activation progressive : la composante sans circuit n'est pas un blocage
+        $this->assertNull($signature->motifSansCircuit($this->decision(['UFR9' => null])));
+    }
+
+    public function testNothingBlocksWithoutParapheur(): void
+    {
+        $signature = $this->signature(new ParapheurDesactive());
+
+        $this->assertNull($signature->motifSansCircuit($this->decision(enCours: false)));
+    }
+
     public function testDeposerStartsSignatureAndClearsPreviousSignature(): void
     {
         $parapheur = new ParapheurFactice();
@@ -86,7 +114,6 @@ class SignatureElectroniqueTest extends TestCase
 
         $this->assertSame(DecisionAmenagementExamens::ETAT_EN_SIGNATURE, $decision->getEtat());
         $this->assertSame(DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE, $decision->getEtatSignature());
-        $this->assertSame('circuit-ufr1', $decision->getCircuitParapheur());
         $this->assertSame('gestionnaire', $decision->getUidDemandeurSignature());
         $this->assertNull($decision->getDateSignature());
         $this->assertNull($decision->getDerniereVerificationSignature());
@@ -119,13 +146,9 @@ class SignatureElectroniqueTest extends TestCase
 
     private function signature(AbstractParapheur $parapheur): SignatureElectronique
     {
-        $bus = $this->createMock(MessageBusInterface::class);
-        $bus->method('dispatch')->willReturn(new Envelope(new \stdClass()));
-
         return new SignatureElectronique(
             $parapheur,
             $this->createMock(DecisionAmenagementExamensRepository::class),
-            $bus,
             new NullLogger(),
         );
     }

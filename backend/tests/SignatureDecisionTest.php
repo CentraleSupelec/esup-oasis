@@ -29,6 +29,7 @@ class SignatureDecisionTest extends ApiTestCaseCustom
 
     private ?int $inscription = null;
     private ?int $amenagement = null;
+    private bool $inscriptionsTerminees = false;
 
     protected function tearDown(): void
     {
@@ -36,13 +37,18 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         $manager = static::getContainer()->get('doctrine')->getManager();
         $decision = $this->decision();
         $decision->setEtat(DecisionAmenagementExamens::ETAT_VALIDE);
-        $decision->setEtatSignature(null)->setIdDocumentParapheur(null)->setCircuitParapheur(null)
+        $decision->setEtatSignature(null)->setIdDocumentParapheur(null)
             ->setUidDemandeurSignature(null)->setDateSignature(null)->setDerniereVerificationSignature(null)
             ->setFichier(null);
         $manager->getRepository(Formation::class)->findOneBy(['codeExterne' => 'CODE_F_1'])
             ->getComposante()->setCircuitSignature(null);
         if (null !== $this->inscription) {
             $manager->remove($manager->find(Inscription::class, $this->inscription));
+        }
+        if ($this->inscriptionsTerminees) {
+            foreach ($manager->getRepository(Utilisateur::class)->findOneBy(['uid' => 'beneficiaire-decision'])->getInscriptions() as $inscription) {
+                $inscription->setFin(new DateTime('next year'));
+            }
         }
         if (null !== $this->amenagement) {
             $manager->remove($manager->find(Amenagement::class, $this->amenagement));
@@ -80,6 +86,23 @@ class SignatureDecisionTest extends ApiTestCaseCustom
 
         $this->assertResponseIsSuccessful();
         $this->assertSame(DecisionAmenagementExamens::ETAT_VALIDE, $this->decision()->getEtat());
+    }
+
+    public function testRequestIsRefusedWithoutCurrentInscriptionWhenParapheurIsConfigured(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $this->terminerLesInscriptions();
+        $this->etatDecision(DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS);
+
+        $client->request('PATCH', self::DECISION, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['etat' => DecisionAmenagementExamens::ETAT_VALIDE],
+        ]);
+
+        // sans inscription en cours, la composante et son circuit sont inconnus : pas d'envoi sans signature
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains(['violations' => [['propertyPath' => 'etat']]]);
+        $this->assertSame(DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS, $this->decision()->getEtat());
     }
 
     public function testDecisionEnSignatureCannotBeModified(): void
@@ -301,11 +324,23 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         return $documentId;
     }
 
-    private function inscrireDansUneComposanteAvecCircuit(): void
+    /** Plus d'inscription en cours : la composante du bénéficiaire devient inconnue. */
+    private function terminerLesInscriptions(): void
+    {
+        $manager = static::getContainer()->get('doctrine')->getManager();
+        $beneficiaire = $manager->getRepository(Utilisateur::class)->findOneBy(['uid' => 'beneficiaire-decision']);
+        foreach ($beneficiaire->getInscriptions() as $inscription) {
+            $inscription->setFin(new DateTime('-1 day'));
+        }
+        $manager->flush();
+        $this->inscriptionsTerminees = true;
+    }
+
+    private function inscrireDansUneComposanteAvecCircuit(?string $circuit = 'circuit-test'): void
     {
         $manager = static::getContainer()->get('doctrine')->getManager();
         $formation = $manager->getRepository(Formation::class)->findOneBy(['codeExterne' => 'CODE_F_1']);
-        $formation->getComposante()->setCircuitSignature('circuit-test');
+        $formation->getComposante()->setCircuitSignature($circuit);
 
         $inscription = new Inscription()
             ->setFormation($formation)

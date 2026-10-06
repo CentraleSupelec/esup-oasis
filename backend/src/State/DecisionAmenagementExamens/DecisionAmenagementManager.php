@@ -18,6 +18,7 @@ use App\Entity\DecisionAmenagementExamens;
 use App\Entity\Utilisateur;
 use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
+use App\Service\Signature\SignatureElectronique;
 use App\State\Utilisateur\UtilisateurManager;
 use App\Util\AnneeUniversitaireAwareTrait;
 use DateTime;
@@ -35,6 +36,7 @@ class DecisionAmenagementManager
         private readonly DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
         private readonly UtilisateurManager $utilisateurManager,
         private readonly MessageBusInterface $messageBus,
+        private readonly SignatureElectronique $signatureElectronique,
     ) {}
 
     public function parUidEtAnnee(string $uid, int $annee): ?DecisionAmenagementExamens
@@ -126,6 +128,7 @@ class DecisionAmenagementManager
     {
         $ressource = new \App\ApiResource\DecisionAmenagementExamens($decision);
         $ressource->dateAvisMedecinRequise = $this->dateAvisMedecinRequise($decision);
+        $ressource->motifSignatureImpossible = $this->signatureElectronique->motifSansCircuit($decision);
 
         return $ressource;
     }

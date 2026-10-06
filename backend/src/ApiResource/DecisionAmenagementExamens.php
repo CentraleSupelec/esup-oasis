@@ -18,6 +18,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProcessor;
 use App\State\DecisionAmenagementExamens\DecisionAmenagementExamensProvider;
+use App\Validator\CircuitSignatureConstraint;
 use App\Validator\DateAvisMedecinRequiseConstraint;
 use App\State\DecisionAmenagementExamens\VerificationSignatureProcessor;
 use App\Validator\EtatDecisionValideConstraint;
@@ -59,6 +60,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     stateOptions: new Options(entityClass: \App\Entity\DecisionAmenagementExamens::class),
 )]
 #[DateAvisMedecinRequiseConstraint]
+#[CircuitSignatureConstraint]
 #[Map(target: \App\Entity\DecisionAmenagementExamens::class)]
 class DecisionAmenagementExamens
 {
@@ -187,6 +189,10 @@ class DecisionAmenagementExamens
     // renseignée par DecisionAmenagementManager::versRessource : l'interface applique la même règle que le serveur
     #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT])]
     public bool $dateAvisMedecinRequise = false;
+
+    // avec un parapheur, pourquoi la décision ne peut pas partir en signature ; renseigné par versRessource
+    #[Groups([Utilisateur::GROUP_OUT, self::GROUP_OUT])]
+    public ?string $motifSignatureImpossible = null;
 
     public function __construct(
         private readonly ?\App\Entity\DecisionAmenagementExamens $entity = null,

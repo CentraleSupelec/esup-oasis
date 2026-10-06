@@ -131,8 +131,11 @@ parapheur : le circuit de signature remplace l'envoi par l'administrateur foncti
 
 * `PARAPHEUR` vide : aucune décision ne part en signature, même si des circuits sont renseignés (un avertissement
   est alors journalisé) ;
-* quand un étudiant a des inscriptions en cours dans plusieurs composantes aux circuits différents, la décision
-  suit le comportement historique : l'application ne choisit pas de signataire à la place de l'établissement.
+* avec un parapheur, une décision dont le circuit ne peut pas être déterminé n'est pas envoyée sans signature : la
+  demande d'édition et l'envoi sont refusés (erreur 422), et l'interface désactive l'action en donnant le motif.
+  C'est le cas d'un étudiant sans inscription en cours, dont la composante est inconnue, et d'un étudiant inscrit
+  dans plusieurs composantes aux circuits différents : l'application ne choisit pas de signataire à la place de
+  l'établissement.
 
 ### Suivi des signatures
 
