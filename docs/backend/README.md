@@ -107,6 +107,8 @@ disponibles dans le fichier
   les RNE des établissements concernés pour l'instance Unicampus utilisée)
 * [OPTIONNEL] **PARAPHEUR** : parapheur électronique qui signe la décision d'aménagements ; vide, la signature
   électronique est désactivée — cf. [Connecteurs](connecteurs.md#signature-électronique)
+* [OPTIONNEL] **FAST_URL**, **FAST_SIREN**, **FAST_CERTIFICAT**, **FAST_CERTIFICAT_MOT_DE_PASSE**, **FAST_AUTORITE** :
+  réglages de FAST-Parapheur (`PARAPHEUR=fast`) — cf. [Connecteurs](connecteurs.md#fast-parapheur)
 
 Les valeurs renseignées dans le fichier .env peuvent être surchargées par des variables d'environnement au niveau
 système (https://symfony.com/doc/current/configuration.html#overriding-environment-variables-defined-by-the-system), ou
