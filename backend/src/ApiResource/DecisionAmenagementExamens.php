@@ -38,16 +38,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Patch(
             uriTemplate: self::ITEM_URI,
             uriVariables: ['uid', 'annee'],
-            // état inchangé : saisie des observations, possible tant que la décision n'est pas envoyée ;
-            // refusée par le parapheur, la décision est reprise en repassant en attente ;
-            // en signature, seul le retour du parapheur la fait avancer
-            securityPostDenormalize: "object.etat == previous_object.etat"
-                . " ? previous_object.etat in ['" . \App\Entity\DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS
-                . "', '" . \App\Entity\DecisionAmenagementExamens::ETAT_VALIDE . "']"
-                . " : (previous_object.etat == '" . \App\Entity\DecisionAmenagementExamens::ETAT_REFUSEE
-                . "' ? object.etat == '" . \App\Entity\DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS . "'"
-                . " : previous_object.etat != '" . \App\Entity\DecisionAmenagementExamens::ETAT_EN_SIGNATURE
-                . "' and is_granted('" . self::MODIFIER_DECISION . "', object))",
+            securityPostDenormalize: "is_granted('" . self::MODIFIER_DECISION . "', [previous_object, object])",
         ),
         // interroge le parapheur sans attendre le passage planifié ; le corps de la requête est ignoré
         new Patch(
