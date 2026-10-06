@@ -119,6 +119,39 @@ class EtatSignatureDeriverTest extends TestCase
         $this->assertSame($etatAttendu, $deriver->deriver($libelles));
     }
 
+    public function testEstablishmentCanWaitForArchiving(): void
+    {
+        $deriver = new EtatSignatureDeriver('Archivé');
+
+        $this->assertSame(DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE, $deriver->deriver(['Envoyé pour signature', 'Signé', 'Classé']));
+        $this->assertSame(DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE, $deriver->deriver(['Envoyé pour signature', 'Signé', 'Classé', 'Archivé']));
+    }
+
+    public function testFinalStateStaysFinalWhenFollowedByAnotherState(): void
+    {
+        // classé, puis archivé plus tard : le circuit reste terminé
+        $deriver = new EtatSignatureDeriver('Classé');
+
+        $this->assertSame(DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE, $deriver->deriver(['Envoyé pour signature', 'Signé', 'Classé', 'Archivé']));
+    }
+
+    public function testVisaOnlyCircuitEndsOnLastVisa(): void
+    {
+        $deriver = new EtatSignatureDeriver('Visa approuvé');
+        $historique = [
+            ['stateName' => 'Envoyé pour visa', 'date' => '2026-09-01T09:00:00+02:00'],
+            ['stateName' => 'Visa approuvé', 'date' => '2026-09-01T10:00:00+02:00'],
+            ['stateName' => 'Envoyé pour visa', 'date' => '2026-09-01T10:00:00+02:00'],
+        ];
+
+        $this->assertSame(DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE, $deriver->deriver(array_column($historique, 'stateName')));
+
+        $historique[] = ['stateName' => 'Visa approuvé', 'date' => '2026-09-02T11:00:00+02:00'];
+
+        $this->assertSame(DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE, $deriver->deriver(array_column($historique, 'stateName')));
+        $this->assertSame('2026-09-02 11:00', $deriver->dateDeSignature($historique)?->format('Y-m-d H:i'));
+    }
+
     public function testDateSignatureIsLastSignature(): void
     {
         $date = new EtatSignatureDeriver()->dateDeSignature([

@@ -14,15 +14,37 @@ use App\Entity\DecisionAmenagementExamens;
 use DateTimeImmutable;
 use Exception;
 use Normalizer;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Dérive l'état de signature de l'historique FAST, qui n'expose pas d'état courant.
- * Libellés comparés sans accents ni casse, libellés inconnus ignorés. Le circuit est terminé
- * une fois le document classé, ou sur une signature restée la dernière étape de l'historique,
- * tous les circuits ne classant pas le document.
+ * Libellés comparés sans accents ni casse, libellés inconnus ignorés. Le circuit est terminé sur un état
+ * de fin, choisi par l'établissement (FAST_ETATS_FIN), tant qu'aucune nouvelle étape n'a été envoyée après.
  */
 class EtatSignatureDeriver
 {
+    // tous les circuits ne classent ni n'archivent le document : la signature suffit par défaut
+    public const string ETATS_FIN_PAR_DEFAUT = 'Signé, Classé, Archivé';
+
+    /** @var list<string> libellés normalisés des états qui terminent un circuit */
+    private array $etatsFin;
+
+    /**
+     * @param string|null $etatsFin états de l'historique qui terminent un circuit, séparés par des virgules ;
+     *                              vide : ETATS_FIN_PAR_DEFAUT. Un établissement qui classe ou archive ses
+     *                              documents peut n'attendre que cet état.
+     */
+    public function __construct(
+        #[Autowire('%env(default::FAST_ETATS_FIN)%')]
+        ?string $etatsFin = null,
+    ) {
+        $etats = array_filter(array_map($this->normaliser(...), explode(',', (string) $etatsFin)));
+        if ([] === $etats) {
+            $etats = array_map($this->normaliser(...), explode(',', self::ETATS_FIN_PAR_DEFAUT));
+        }
+        $this->etatsFin = array_values($etats);
+    }
+
     // terminaux négatifs ; le refus peut porter un suffixe d'étape (« Refusé à l'étape OTP »)
     private const string PREFIXE_REFUS = 'refus';
     private const string SIGNATURE_REJETEE = 'signature rejetee';
@@ -32,32 +54,33 @@ class EtatSignatureDeriver
     private const string ECHEC_ENVOI = "echec de l'envoi a fast";
     private const string ECHEC_TRAITEMENT = 'echec du traitement fast';
 
-    // terminaux positifs
-    private const string CLASSE = 'classe';
-    private const string ARCHIVE = 'archive';
-
     private const string SIGNE = 'signe';
+    // « Envoyé pour visa », « Envoyé pour signature » : une nouvelle étape relance le circuit
+    private const string NOUVELLE_ETAPE = 'envoye pour';
 
     /**
-     * Date du dernier « Signé », à défaut celle du classement (circuit de visa seul).
+     * Date de la dernière signature, à défaut celle de l'état de fin qui a terminé le circuit (circuit de visa seul).
      *
      * @param array<int, array{stateName: string, date: string}> $historique dans l'ordre chronologique
      */
     public function dateDeSignature(array $historique): ?DateTimeImmutable
     {
         $derniereSignature = null;
-        $classement = null;
+        $fin = null;
 
         foreach ($historique as $entree) {
             $normalise = $this->normaliser($entree['stateName'] ?? '');
             if ($this->estSignature($normalise)) {
                 $derniereSignature = $entree['date'] ?? null;
-            } elseif (null === $classement && (self::CLASSE === $normalise || self::ARCHIVE === $normalise)) {
-                $classement = $entree['date'] ?? null;
+            }
+            if ($this->estEtatFin($normalise)) {
+                $fin ??= $entree['date'] ?? null;
+            } elseif (str_starts_with($normalise, self::NOUVELLE_ETAPE)) {
+                $fin = null;
             }
         }
 
-        return $this->lireDate($derniereSignature ?? $classement);
+        return $this->lireDate($derniereSignature ?? $fin);
     }
 
     /**
@@ -68,6 +91,7 @@ class EtatSignatureDeriver
     public function deriver(array $libelles): string
     {
         $erreur = false;
+        $termine = false;
 
         foreach ($libelles as $libelle) {
             $normalise = $this->normaliser($libelle);
@@ -87,19 +111,21 @@ class EtatSignatureDeriver
                 return DecisionAmenagementExamens::ETAT_SIGNATURE_REMPLACEE;
             }
 
-            if (self::CLASSE === $normalise || self::ARCHIVE === $normalise) {
-                return DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE;
-            }
-
             if (self::ECHEC_ENVOI === $normalise || self::ECHEC_TRAITEMENT === $normalise) {
                 $erreur = true;
             }
+
+            // Un circuit à plusieurs signatures écrit « Signé » à chacune, puis envoie l'étape suivante : lu entre
+            // les deux, il serait tenu pour terminé ; FAST les inscrivant dans la même seconde, le cas n'a pas été
+            // observé. Le classement ou l'archivage, choisis comme état de fin, lèvent ce doute.
+            if ($this->estEtatFin($normalise)) {
+                $termine = true;
+            } elseif (str_starts_with($normalise, self::NOUVELLE_ETAPE)) {
+                $termine = false;
+            }
         }
 
-        // Fin du circuit sur sa dernière signature, tous les circuits ne classant pas le document. Un circuit
-        // à plusieurs signatures écrit « Signé » à chacune : lu entre deux étapes, il serait tenu pour terminé
-        // à la première ; FAST inscrivant l'étape suivante dans la seconde, le cas n'a pas été observé.
-        if ([] !== $libelles && $this->estSignature($this->normaliser($libelles[array_key_last($libelles)]))) {
+        if ($termine) {
             return DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE;
         }
 
@@ -109,7 +135,15 @@ class EtatSignatureDeriver
         };
     }
 
-    // « Signé à l'étape 2 » compte, « Signature rejetée » non
+    // l'état peut porter un suffixe (« Signé à l'étape 2 ») ; « Signature rejetée » ne compte pas
+    private function estEtatFin(string $normalise): bool
+    {
+        return array_any(
+            $this->etatsFin,
+            fn(string $etat) => $etat === $normalise || str_starts_with($normalise, $etat . ' '),
+        );
+    }
+
     private function estSignature(string $normalise): bool
     {
         return self::SIGNE === $normalise || str_starts_with($normalise, self::SIGNE . ' ');

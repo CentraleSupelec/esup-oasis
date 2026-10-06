@@ -221,10 +221,13 @@ ce qui distingue les versions successives d'une même décision.
 
 L'état est déduit de l'historique du document, FAST n'exposant pas d'état courant : « Visa désapprouvé »,
 « Refusé » ou « Signature rejetée » rendent la décision refusée, « Classé (interrompu) » interrompue, et le
-circuit est terminé une fois le document « Classé » ou « Archivé », ou sur une signature restée la dernière
-étape de l'historique, tous les circuits ne classant pas le document. Un circuit à plusieurs signatures écrit
-« Signé » à chacune : FAST inscrivant l'étape suivante dans la seconde, il n'est pas tenu pour terminé à la
-première signature, sauf à être interrogé précisément entre les deux étapes.
+circuit est terminé sur un état de fin, tant qu'aucune nouvelle étape (« Envoyé pour … ») n'a suivi. Les états de
+fin sont « Signé », « Classé » et « Archivé » par défaut. Chaque établissement les choisit avec `FAST_ETATS_FIN`,
+séparés par des virgules, selon le paramétrage de ses circuits : « Archivé » seul pour attendre l'archivage,
+« Visa approuvé » pour un circuit qui se termine par un visa. Un circuit à plusieurs signatures écrit « Signé » à
+chacune : FAST inscrivant l'étape suivante dans la même seconde, il n'est pas tenu pour terminé à la première
+signature, sauf à être interrogé précisément entre les deux ; choisir le classement ou l'archivage automatique
+comme état de fin lève ce doute.
 
 Paramétrage attendu des circuits, dans FAST :
 
@@ -241,7 +244,8 @@ Réglages, dans `.env` :
   l'établissement auprès de FAST ; à monter en volume dans le backend et le worker, jamais dans l'image
   (cf. [installation](/docs/installation/README.md#signature-électronique-facultatif)) ;
 * `FAST_CERTIFICAT_MOT_DE_PASSE` : mot de passe de la clé, s'il y en a un ;
-* `FAST_AUTORITE` : certificat de l'autorité de FAST, si le système ne la connaît pas.
+* `FAST_AUTORITE` : certificat de l'autorité de FAST, si le système ne la connaît pas ;
+* `FAST_ETATS_FIN` : états de l'historique qui terminent un circuit, « Signé, Classé, Archivé » par défaut.
 
 Le circuit de chaque composante est l'identifiant du circuit tel que FAST le nomme. La commande
 `app:signature:fast:circuits` vérifie la connexion et liste ces identifiants :
