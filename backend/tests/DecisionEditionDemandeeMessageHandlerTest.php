@@ -91,8 +91,8 @@ class DecisionEditionDemandeeMessageHandlerTest extends KernelTestCase
                 DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE,
                 $parapheur->suivre($documentId)->etat,
             );
-            // c'est le parapheur qui enverra la décision signée à l'étudiant
-            $this->assertSame($decision->getBeneficiaire()->getEmail(), $parapheur->documents()[$documentId]['destinataire']);
+            // par défaut, OASIS enverra la décision signée : le parapheur n'a pas l'adresse, et rien ne part encore
+            $this->assertNull($parapheur->documents()[$documentId]['destinataire']);
             $this->assertEmailCount(0);
 
             // message rejoué : le document n'est pas déposé une seconde fois
@@ -127,7 +127,7 @@ class DecisionEditionDemandeeMessageHandlerTest extends KernelTestCase
                 return 'injoignable';
             }
 
-            public function deposer(string $pdf, string $circuit, string $libelle, string $destinataire): string
+            public function deposer(string $pdf, string $circuit, string $libelle, ?string $destinataire): string
             {
                 throw new ParapheurException('Parapheur injoignable');
             }

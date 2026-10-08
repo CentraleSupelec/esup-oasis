@@ -108,9 +108,12 @@ Voir [la section dédiée aux pièces justificatives](pieces_justificatives.md)
 
 Oasis peut faire signer électroniquement la décision d'aménagements d'examens par un parapheur électronique : au
 lieu d'être envoyé par e-mail, le PDF est déposé dans un circuit de signature configuré dans le parapheur
-(signataires, ordre des étapes, relances), puis récupéré signé une fois le circuit terminé. C'est le parapheur
-qui transmet la décision signée à l'étudiant, à l'adresse de l'e-mail habituel ; OASIS n'envoie alors aucun
-e-mail et dépose une copie du document signé au dossier du bénéficiaire.
+(signataires, ordre des étapes, relances), puis récupéré signé une fois le circuit terminé. OASIS en dépose une
+copie au dossier du bénéficiaire et l'envoie à l'étudiant par l'e-mail habituel, le document signé en pièce
+jointe.
+
+Si le parapheur envoie lui-même le document signé à l'étudiant, renseignez `PARAPHEUR_ENVOIE_DOCUMENT=true` :
+OASIS lui transmet alors l'adresse de l'étudiant au dépôt et n'envoie plus d'e-mail.
 
 Cette fonctionnalité est **totalement optionnelle** : si vous laissez la configuration par défaut, l'application
 conserve le comportement historique (génération du PDF et envoi par e-mail).
@@ -186,8 +189,8 @@ l'image de signature scannée :
 
 Un parapheur s'ajoute en étendant la classe abstraite
 [`App\Service\Signature\AbstractParapheur`](../../backend/src/Service/Signature/AbstractParapheur.php) : `deposer`
-dépose le PDF dans un circuit, avec l'adresse à laquelle transmettre le document signé, et retourne
-l'identifiant du document, `suivre` retourne son état et, une fois
+dépose le PDF dans un circuit, avec l'adresse à laquelle transmettre le document signé quand
+`PARAPHEUR_ENVOIE_DOCUMENT` est vrai (`null` sinon), et retourne l'identifiant du document, `suivre` retourne son état et, une fois
 signé, la date de signature, `telecharger` retourne le PDF signé. L'état retourné par `suivre` est l'une des constantes `ETAT_SIGNATURE_*` de la décision :
 `EN_SIGNATURE`, `SIGNEE`, `REFUSEE`, `EXPIREE` (circuit interrompu), `REMPLACEE` (document remplacé dans le
 parapheur) ou `ERREUR` ; tout état autre que `EN_SIGNATURE` et `SIGNEE` passe la décision à l'état `REFUSEE`. Les

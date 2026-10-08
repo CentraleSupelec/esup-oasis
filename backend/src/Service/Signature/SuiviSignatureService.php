@@ -15,9 +15,11 @@ use App\Entity\DecisionAmenagementExamens;
 use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
 use App\Service\Decision\ArchivageDecision;
+use App\Service\MailService;
 use App\State\Utilisateur\UtilisateurManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Throwable;
 
@@ -37,6 +39,10 @@ readonly class SuiviSignatureService
         private UtilisateurManager $utilisateurManager,
         private MessageBusInterface $messageBus,
         private LoggerInterface $logger,
+        private MailService $mailService,
+        // faux : le parapheur n'envoie pas le document signé, OASIS l'envoie comme une décision non signée
+        #[Autowire('%env(bool:default::PARAPHEUR_ENVOIE_DOCUMENT)%')]
+        private bool $parapheurEnvoieDocument = false,
     ) {}
 
     public function traiterLot(int $limite = 50): RapportSuiviSignature
@@ -131,7 +137,7 @@ readonly class SuiviSignatureService
         }
 
         // rendue sans signature : le document rejoint aussi le dossier, pour l'historique
-        if (!$this->archiverDocument($decision, $suivi->etat)) {
+        if (null === $this->archiverDocument($decision, $suivi->etat)) {
             return ['erreurs' => 1];
         }
 
@@ -152,13 +158,15 @@ readonly class SuiviSignatureService
     }
 
     /**
-     * Récupère le PDF signé, le dépose au dossier, et clôt la décision.
+     * Récupère le PDF signé, le dépose au dossier, clôt la décision et l'envoie à l'étudiant si le
+     * parapheur ne le fait pas.
      *
      * @return array<string, int>
      */
     private function finaliser(DecisionAmenagementExamens $decision, SuiviSignature $suivi): array
     {
-        if (!$this->archiverDocument($decision, DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE)) {
+        $pdf = $this->archiverDocument($decision, DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE);
+        if (null === $pdf) {
             return ['erreurs' => 1];
         }
 
@@ -176,15 +184,20 @@ readonly class SuiviSignatureService
         $this->decisionAmenagementExamensRepository->save($decision, true);
         $this->messageBus->dispatch(new RessourceModifieeMessage(new Utilisateur($decision->getBeneficiaire())));
 
+        if (!$this->parapheurEnvoieDocument) {
+            $this->mailService->envoyerDecision($decision, $pdf);
+        }
+
         return ['signees' => 1];
     }
 
     /**
      * Dépose au dossier du bénéficiaire le document rendu par le parapheur.
      *
-     * @return bool faux si le document n'a pas pu être récupéré ou déposé : la décision est reprise au passage suivant
+     * @return ?string le PDF déposé ; null s'il n'a pas pu être récupéré ou déposé : la décision est reprise au
+     *                 passage suivant
      */
-    private function archiverDocument(DecisionAmenagementExamens $decision, string $etatSignature): bool
+    private function archiverDocument(DecisionAmenagementExamens $decision, string $etatSignature): ?string
     {
         // sans demandeur mémorisé au dépôt, la pièce jointe n'a pas d'auteur
         $uidDemandeur = $decision->getUidDemandeurSignature();
@@ -195,13 +208,14 @@ readonly class SuiviSignatureService
             );
             $this->decisionAmenagementExamensRepository->save($decision, true);
 
-            return false;
+            return null;
         }
 
         try {
+            $pdf = $this->parapheur->telecharger($decision->getIdDocumentParapheur());
             $this->archivageDecision->archiver(
                 decision: $decision,
-                pdf: $this->parapheur->telecharger($decision->getIdDocumentParapheur()),
+                pdf: $pdf,
                 auteur: $this->utilisateurManager->parUid($uidDemandeur),
                 etatSignature: $etatSignature,
             );
@@ -212,9 +226,9 @@ readonly class SuiviSignatureService
             );
             $this->decisionAmenagementExamensRepository->save($decision, true);
 
-            return false;
+            return null;
         }
 
-        return true;
+        return $pdf;
     }
 }

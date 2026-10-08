@@ -27,7 +27,7 @@ class ParapheurFactice extends AbstractParapheur
 {
     public const string ID = 'factice';
 
-    /** @var array<string, array{pdf: string, circuit: string, libelle: string, destinataire: string, etat: string, dateSignature: ?string}> */
+    /** @var array<string, array{pdf: string, circuit: string, libelle: string, destinataire: ?string, etat: string, dateSignature: ?string}> */
     private array $documents = [];
 
     public function __construct(
@@ -40,7 +40,7 @@ class ParapheurFactice extends AbstractParapheur
         return self::ID;
     }
 
-    public function deposer(string $pdf, string $circuit, string $libelle, string $destinataire): string
+    public function deposer(string $pdf, string $circuit, string $libelle, ?string $destinataire): string
     {
         $documentId = uniqid('factice-', true);
 
@@ -88,7 +88,7 @@ class ParapheurFactice extends AbstractParapheur
     }
 
     /**
-     * @return array<string, array{circuit: string, libelle: string, destinataire: string, etat: string, dateSignature: ?string}>
+     * @return array<string, array{circuit: string, libelle: string, destinataire: ?string, etat: string, dateSignature: ?string}>
      */
     public function documents(): array
     {
@@ -105,7 +105,7 @@ class ParapheurFactice extends AbstractParapheur
     }
 
     /**
-     * @return array{pdf: string, circuit: string, libelle: string, destinataire: string, etat: string, dateSignature: ?string}
+     * @return array{pdf: string, circuit: string, libelle: string, destinataire: ?string, etat: string, dateSignature: ?string}
      */
     private function document(string $documentId): array
     {

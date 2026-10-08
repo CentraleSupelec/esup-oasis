@@ -28,7 +28,7 @@ class ParapheurDesactive extends AbstractParapheur
         return false;
     }
 
-    public function deposer(string $pdf, string $circuit, string $libelle, string $destinataire): string
+    public function deposer(string $pdf, string $circuit, string $libelle, ?string $destinataire): string
     {
         throw new LogicException('Aucun parapheur n\'est configuré.');
     }

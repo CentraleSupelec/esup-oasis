@@ -17,6 +17,7 @@ use App\Repository\DecisionAmenagementExamensRepository;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\Clock\ClockAwareTrait;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -33,6 +34,9 @@ readonly class SignatureElectronique
         private DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
         private MessageBusInterface $messageBus,
         private LoggerInterface $logger,
+        // vrai : le parapheur envoie le document signé à l'étudiant ; faux : OASIS l'envoie par e-mail
+        #[Autowire('%env(bool:default::PARAPHEUR_ENVOIE_DOCUMENT)%')]
+        private bool $parapheurEnvoieDocument = false,
     ) {}
 
     /**
@@ -96,7 +100,7 @@ readonly class SignatureElectronique
         string $circuit,
         string $uidDemandeur,
     ): void {
-        // le parapheur transmet la décision signée à l'étudiant, à l'adresse de l'e-mail habituel
+        // le document signé part à l'adresse de l'e-mail habituel, par le parapheur ou par OASIS
         $destinataire = $decision->getBeneficiaire()->getEmail()
             ?? throw new RuntimeException(sprintf('Bénéficiaire de la décision %d sans adresse e-mail.', $decision->getId()));
 
@@ -108,7 +112,7 @@ readonly class SignatureElectronique
                 $decision->getBeneficiaire()->getPrenom(),
                 $decision->getBeneficiaire()->getNom(),
             ),
-            destinataire: $destinataire,
+            destinataire: $this->parapheurEnvoieDocument ? $destinataire : null,
         );
 
         $decision->setEtat(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);

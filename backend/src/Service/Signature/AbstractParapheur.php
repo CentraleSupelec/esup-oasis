@@ -13,8 +13,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
  * Parapheur électronique qui fait signer la décision d'aménagements, sélectionné par la variable
- * d'environnement PARAPHEUR. Le circuit (signataires, étapes, relances) et l'envoi du document
- * signé à son destinataire sont portés par le parapheur.
+ * d'environnement PARAPHEUR. Le circuit (signataires, étapes, relances) est porté par le parapheur.
  */
 #[AutoconfigureTag('oasis.parapheur')]
 abstract class AbstractParapheur
@@ -29,13 +28,14 @@ abstract class AbstractParapheur
 
     /**
      * @param string $libelle libellé affiché aux signataires
-     * @param string $destinataire adresse à laquelle le parapheur transmet le document signé
+     * @param ?string $destinataire adresse à laquelle le parapheur transmet le document signé ; null quand
+     *                              OASIS l'envoie lui-même (PARAPHEUR_ENVOIE_DOCUMENT)
      *
      * @return string identifiant du document dans le parapheur
      *
      * @throws ParapheurException
      */
-    abstract public function deposer(string $pdf, string $circuit, string $libelle, string $destinataire): string;
+    abstract public function deposer(string $pdf, string $circuit, string $libelle, ?string $destinataire): string;
 
     /**
      * @throws DocumentInconnuException si le parapheur ne connaît pas le document

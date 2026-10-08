@@ -11,10 +11,16 @@ namespace App\Tests;
 
 use App\Entity\DecisionAmenagementExamens;
 use App\Entity\PieceJointeBeneficiaire;
+use App\Repository\DecisionAmenagementExamensRepository;
+use App\Service\Decision\ArchivageDecision;
+use App\Service\MailService;
 use App\Service\Signature\ParapheurFactice;
 use App\Service\Signature\SuiviSignatureService;
+use App\State\Utilisateur\UtilisateurManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class SuiviSignatureServiceTest extends KernelTestCase
 {
@@ -43,6 +49,40 @@ class SuiviSignatureServiceTest extends KernelTestCase
         self::assertSame(DecisionAmenagementExamens::ETAT_EDITE, $decision->getEtat());
         self::assertNotNull($decision->getDateSignature());
         self::assertEqualsWithDelta(time(), $decision->getDateSignature()->getTimestamp(), 60);
+    }
+
+    public function testSignedDecisionIsSentByOasisByDefault(): void
+    {
+        [, $documentId] = $this->decisionEnSignature();
+        $this->parapheur->marquerSignee($documentId);
+
+        $this->suivi->traiterLot();
+
+        // même e-mail que l'envoi sans parapheur, avec le document signé en pièce jointe
+        self::assertEmailCount(1);
+        self::assertEmailAttachmentCount(self::getMailerMessage(), 1);
+    }
+
+    public function testParapheurSendsSignedDecisionItself(): void
+    {
+        [$decision, $documentId] = $this->decisionEnSignature();
+        $this->parapheur->marquerSignee($documentId);
+        $container = self::getContainer();
+        $suivi = new SuiviSignatureService(
+            $container->get(DecisionAmenagementExamensRepository::class),
+            $this->parapheur,
+            $container->get(ArchivageDecision::class),
+            $container->get(UtilisateurManager::class),
+            $container->get(MessageBusInterface::class),
+            new NullLogger(),
+            $container->get(MailService::class),
+            parapheurEnvoieDocument: true,
+        );
+
+        $suivi->traiterLot();
+
+        self::assertSame(DecisionAmenagementExamens::ETAT_EDITE, $decision->getEtat());
+        self::assertEmailCount(0);
     }
 
     public function testDecisionInProgressStaysEnSignature(): void

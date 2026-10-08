@@ -92,7 +92,19 @@ class SignatureElectroniqueTest extends TestCase
         $this->assertNull($decision->getDateSignature());
         $this->assertNull($decision->getDerniereVerificationSignature());
         $this->assertSame('%PDF-test', $parapheur->telecharger($decision->getIdDocumentParapheur()));
-        $this->assertSame(self::EMAIL, $parapheur->documents()[$decision->getIdDocumentParapheur()]['destinataire']);
+    }
+
+    public function testParapheurReceivesAddressOnlyWhenItSendsTheDocument(): void
+    {
+        $parapheur = new ParapheurFactice();
+        $parOasis = $this->decision();
+        $parLeParapheur = $this->decision();
+
+        $this->signature($parapheur)->deposer($parOasis, '%PDF-test', 'circuit-ufr1', 'gestionnaire');
+        $this->signature($parapheur, parapheurEnvoieDocument: true)->deposer($parLeParapheur, '%PDF-test', 'circuit-ufr1', 'gestionnaire');
+
+        $this->assertNull($parapheur->documents()[$parOasis->getIdDocumentParapheur()]['destinataire']);
+        $this->assertSame(self::EMAIL, $parapheur->documents()[$parLeParapheur->getIdDocumentParapheur()]['destinataire']);
     }
 
     public function testDeposerRequiresBeneficiaireEmail(): void
@@ -169,7 +181,7 @@ class SignatureElectroniqueTest extends TestCase
         $this->signature(new ParapheurFactice())->interdireSiVerrouillee($decision->getBeneficiaire());
     }
 
-    private function signature(AbstractParapheur $parapheur): SignatureElectronique
+    private function signature(AbstractParapheur $parapheur, bool $parapheurEnvoieDocument = false): SignatureElectronique
     {
         $bus = $this->createMock(MessageBusInterface::class);
         $bus->method('dispatch')->willReturn(new Envelope(new \stdClass()));
@@ -179,6 +191,7 @@ class SignatureElectroniqueTest extends TestCase
             $this->createMock(DecisionAmenagementExamensRepository::class),
             $bus,
             new NullLogger(),
+            $parapheurEnvoieDocument,
         );
     }
 
