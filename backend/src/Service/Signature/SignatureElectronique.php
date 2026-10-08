@@ -16,6 +16,7 @@ use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -25,6 +26,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 readonly class SignatureElectronique
 {
+    use ClockAwareTrait;
+
     public function __construct(
         private AbstractParapheur $parapheur,
         private DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
@@ -131,6 +134,11 @@ readonly class SignatureElectronique
     public function interdireSiVerrouillee(Utilisateur $beneficiaire): void
     {
         foreach ($beneficiaire->getDecisionsAmenagementExamens() as $decision) {
+            // une décision d'une année terminée ne reprend plus rien de modifiable
+            if ($decision->getFin() < $this->now()) {
+                continue;
+            }
+
             match ($decision->getEtat()) {
                 DecisionAmenagementExamens::ETAT_EN_SIGNATURE => throw new UnprocessableEntityHttpException(
                     'La décision d\'aménagements de ce bénéficiaire est en cours de signature électronique : '

@@ -145,6 +145,30 @@ class SignatureElectroniqueTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
+    public function testRefusedDecisionOfEndedYearDoesNotLockChanges(): void
+    {
+        // refusée l'an dernier et jamais reprise : elle ne bloque pas l'année en cours
+        $decision = $this->decision()
+            ->setEtat(DecisionAmenagementExamens::ETAT_REFUSEE)
+            ->setDebut(new DateTime('-13 months'))
+            ->setFin(new DateTime('-1 month'));
+
+        $this->signature(new ParapheurFactice())->interdireSiVerrouillee($decision->getBeneficiaire());
+
+        $this->addToAssertionCount(1);
+    }
+
+    public function testDecisionOfComingYearStillLocksChanges(): void
+    {
+        $decision = $this->decision()
+            ->setEtat(DecisionAmenagementExamens::ETAT_EN_SIGNATURE)
+            ->setDebut(new DateTime('+1 month'))
+            ->setFin(new DateTime('+13 months'));
+
+        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->signature(new ParapheurFactice())->interdireSiVerrouillee($decision->getBeneficiaire());
+    }
+
     private function signature(AbstractParapheur $parapheur): SignatureElectronique
     {
         $bus = $this->createMock(MessageBusInterface::class);
@@ -188,7 +212,10 @@ class SignatureElectroniqueTest extends TestCase
             $beneficiaire->addInscription($inscription);
         }
 
-        $decision = new DecisionAmenagementExamens()->setBeneficiaire($beneficiaire);
+        $decision = new DecisionAmenagementExamens()
+            ->setBeneficiaire($beneficiaire)
+            ->setDebut(new DateTime('-1 month'))
+            ->setFin(new DateTime('+11 months'));
         $beneficiaire->addDecisionsAmenagementExamen($decision);
 
         return $decision;

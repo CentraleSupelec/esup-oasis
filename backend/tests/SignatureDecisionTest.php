@@ -30,6 +30,7 @@ class SignatureDecisionTest extends ApiTestCaseCustom
 
     private ?int $inscription = null;
     private ?int $amenagement = null;
+    private ?int $decisionEnCours = null;
 
     protected function tearDown(): void
     {
@@ -47,6 +48,9 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         }
         if (null !== $this->amenagement) {
             $manager->remove($manager->find(Amenagement::class, $this->amenagement));
+        }
+        if (null !== $this->decisionEnCours) {
+            $manager->remove($manager->find(DecisionAmenagementExamens::class, $this->decisionEnCours));
         }
         $manager->flush();
 
@@ -152,7 +156,7 @@ class SignatureDecisionTest extends ApiTestCaseCustom
     public function testAmenagementInDecisionIsLockedUntilRefusedDecisionIsResumed(): void
     {
         $client = $this->createClientWithCredentials('gestionnaire');
-        $this->etatDecision(DecisionAmenagementExamens::ETAT_REFUSEE);
+        $this->decisionEnCours(DecisionAmenagementExamens::ETAT_REFUSEE);
 
         $client->request('PATCH', '/utilisateurs/beneficiaire-decision/amenagements/' . $this->amenagementDecision(), [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
@@ -165,7 +169,7 @@ class SignatureDecisionTest extends ApiTestCaseCustom
     public function testAmenagementInDecisionIsLockedWhileEnSignature(): void
     {
         $client = $this->createClientWithCredentials('gestionnaire');
-        $this->etatDecision(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
+        $this->decisionEnCours(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
 
         $client->request('PATCH', '/utilisateurs/beneficiaire-decision/amenagements/' . $this->amenagementDecision(), [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
@@ -178,7 +182,7 @@ class SignatureDecisionTest extends ApiTestCaseCustom
     public function testAmenagementInDecisionCannotBeDeletedWhileEnSignature(): void
     {
         $client = $this->createClientWithCredentials('gestionnaire');
-        $this->etatDecision(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
+        $this->decisionEnCours(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
 
         $client->request('DELETE', '/utilisateurs/beneficiaire-decision/amenagements/' . $this->amenagementDecision());
 
@@ -188,7 +192,7 @@ class SignatureDecisionTest extends ApiTestCaseCustom
     public function testAvisEseIsLockedWhileDecisionEnSignature(): void
     {
         $client = $this->createClientWithCredentials('gestionnaire');
-        $this->etatDecision(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
+        $this->decisionEnCours(DecisionAmenagementExamens::ETAT_EN_SIGNATURE);
 
         $client->request('POST', '/utilisateurs/beneficiaire-decision/avis_ese', [
             'json' => [
@@ -285,6 +289,21 @@ class SignatureDecisionTest extends ApiTestCaseCustom
             $decision->setIdDocumentParapheur(uniqid('factice-', true));
         }
         static::getContainer()->get('doctrine')->getManager()->flush();
+    }
+
+    /** Décision dont la période n'est pas terminée, la seule qui verrouille ce qu'elle reprend. */
+    private function decisionEnCours(string $etat): void
+    {
+        $manager = static::getContainer()->get('doctrine')->getManager();
+        $decision = new DecisionAmenagementExamens()
+            ->setBeneficiaire($manager->getRepository(Utilisateur::class)->findOneBy(['uid' => 'beneficiaire-decision']))
+            ->setDebut(new DateTime('-1 month'))
+            ->setFin(new DateTime('+11 months'))
+            ->setDateModification(new DateTime())
+            ->setEtat($etat);
+        $manager->persist($decision);
+        $manager->flush();
+        $this->decisionEnCours = $decision->getId();
     }
 
     /** Décision déposée dans le parapheur factice, avec le gestionnaire comme demandeur. */
