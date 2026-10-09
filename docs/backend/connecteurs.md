@@ -200,6 +200,10 @@ document inconnu) : un dépôt en échec est rejoué une heure plus tard.
 La méthode `getProviderId()` doit retourner un identifiant unique parmi les implémentations disponibles : c'est
 cette valeur qui renseigne la variable `PARAPHEUR`.
 
+Une implémentation propre à l'établissement, dans l'espace de noms `App\Service\Signature`, se dépose dans
+`installation/backend/personnalisation/Signature` : elle est copiée dans les images du backend et du worker à leur
+construction, comme celles du SI de scolarité.
+
 Deux implémentations sont livrées : `aucun`, le comportement par défaut, et `factice`, disponible uniquement en
 développement et en test (`PARAPHEUR=factice`). Le parapheur factice garde ses documents dans
 `var/parapheur-factice`, partagé par l'API et le worker ; la commande `app:signature:factice` joue le rôle des
