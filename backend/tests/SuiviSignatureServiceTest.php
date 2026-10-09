@@ -117,10 +117,14 @@ class SuiviSignatureServiceTest extends KernelTestCase
 
         $this->suivi->traiterLot();
 
-        $copies = $this->em->getRepository(PieceJointeBeneficiaire::class)->findBy(['beneficiaire' => $decision->getBeneficiaire()]);
-        self::assertContains(
-            "Décision d'aménagements refusée au " . date('d/m/Y'),
-            array_map(fn(PieceJointeBeneficiaire $copie) => $copie->getLibelle(), $copies),
+        $copie = $this->em->getRepository(PieceJointeBeneficiaire::class)->findOneBy(
+            ['beneficiaire' => $decision->getBeneficiaire()],
+            ['id' => 'DESC'],
+        );
+        // date lue sur la copie : le libellé est daté au dépôt, pas au moment de l'assertion
+        self::assertSame(
+            "Décision d'aménagements refusée au " . $copie->getDateDepot()->format('d/m/Y'),
+            $copie->getLibelle(),
         );
         // la copie refusée n'est pas le document de la décision
         self::assertSame($fichierDecision, $decision->getFichier());

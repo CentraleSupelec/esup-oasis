@@ -147,15 +147,15 @@ class SignatureElectroniqueTest extends TestCase
 
     public function testChangesAreAllowedOnceDecisionIsResumed(): void
     {
+        $this->expectNotToPerformAssertions();
         $decision = $this->decision()->setEtat(DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS);
 
         $this->signature(new ParapheurFactice())->interdireSiVerrouillee($decision->getBeneficiaire());
-
-        $this->addToAssertionCount(1);
     }
 
     public function testRefusedDecisionOfEndedYearDoesNotLockChanges(): void
     {
+        $this->expectNotToPerformAssertions();
         // refusée l'an dernier et jamais reprise : elle ne bloque pas l'année en cours
         $decision = $this->decision()
             ->setEtat(DecisionAmenagementExamens::ETAT_REFUSEE)
@@ -163,8 +163,6 @@ class SignatureElectroniqueTest extends TestCase
             ->setFin(new DateTime('-1 month'));
 
         $this->signature(new ParapheurFactice())->interdireSiVerrouillee($decision->getBeneficiaire());
-
-        $this->addToAssertionCount(1);
     }
 
     public function testDecisionOfComingYearStillLocksChanges(): void

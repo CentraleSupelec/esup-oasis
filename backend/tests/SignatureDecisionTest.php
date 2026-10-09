@@ -31,6 +31,8 @@ class SignatureDecisionTest extends ApiTestCaseCustom
     private ?int $inscription = null;
     private ?int $amenagement = null;
     private ?int $decisionEnCours = null;
+    /** @var array{int, bool}|null type d'aménagement inclus dans la décision par le test, et sa valeur d'origine */
+    private ?array $typeDecision = null;
 
     protected function tearDown(): void
     {
@@ -48,6 +50,10 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         }
         if (null !== $this->amenagement) {
             $manager->remove($manager->find(Amenagement::class, $this->amenagement));
+        }
+        if (null !== $this->typeDecision) {
+            [$id, $decisionAvant] = $this->typeDecision;
+            $manager->find(TypeAmenagement::class, $id)->setDecision($decisionAvant);
         }
         if (null !== $this->decisionEnCours) {
             $manager->remove($manager->find(DecisionAmenagementExamens::class, $this->decisionEnCours));
@@ -344,6 +350,7 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         $manager = static::getContainer()->get('doctrine')->getManager();
         $utilisateur = $manager->getRepository(Utilisateur::class)->findOneBy(['uid' => 'beneficiaire-decision']);
         $type = $manager->getRepository(TypeAmenagement::class)->findOneBy(['examens' => true]);
+        $this->typeDecision = [$type->getId(), (bool) $type->isDecision()];
         $type->setDecision(true);
 
         // créé ici : les autres classes de test modifient les aménagements des fixtures
