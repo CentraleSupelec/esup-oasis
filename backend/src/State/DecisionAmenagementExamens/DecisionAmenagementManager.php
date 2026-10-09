@@ -64,6 +64,11 @@ class DecisionAmenagementManager
 
         $decision = $beneficiaire->getDecisionAmenagementExamens($debutPeriode, $finPeriode);
 
+        // en signature, le parapheur rendra la décision signée ou refusée ; refusée, le gestionnaire la reprendra
+        if (in_array($decision?->getEtat(), [DecisionAmenagementExamens::ETAT_EN_SIGNATURE, DecisionAmenagementExamens::ETAT_REFUSEE], true)) {
+            return;
+        }
+
         $now = $this->now();
         $dateConsideree = match (true) {
             $now >= $debutPeriode && $now <= $finPeriode => $now,
