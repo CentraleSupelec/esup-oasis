@@ -11,19 +11,19 @@ vi.mock("@context/api/ApiProvider", () => ({ useApi: () => ({}) }));
 vi.mock("@/auth/AuthProvider", () => ({ useAuth: () => ({}) }));
 vi.mock("@/queryClient", () => ({ queryClient: {} }));
 vi.mock("@utils/apiDownloader", () => ({ default: vi.fn() }));
-// nom de la décision fixé ici pour ne pas dépendre de la configuration de l'environnement de test
+// nom par défaut de la décision, fixé ici pour ne pas dépendre de la configuration de l'environnement de test
 vi.mock("@lib", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@lib")>()),
   decisionEtab: {
-    denomination: "PAEH",
-    Denomination: "PAEH",
-    defini: "le PAEH",
-    Defini: "Le PAEH",
-    de: "du PAEH",
-    De: "Du PAEH",
-    a: "au PAEH",
-    A: "Au PAEH",
-    accordE: "",
+    denomination: "décision d'établissement",
+    Denomination: "Décision d'établissement",
+    defini: "la décision d'établissement",
+    Defini: "La décision d'établissement",
+    de: "de la décision d'établissement",
+    De: "De la décision d'établissement",
+    a: "à la décision d'établissement",
+    A: "À la décision d'établissement",
+    accordE: "e",
   },
 }));
 
@@ -38,8 +38,10 @@ describe("libellesSignature", () => {
   it("annonce la signature en cours plutôt qu'un envoi imminent", () => {
     const libelles = libellesSignature(EtatSignatureDecision.EN_SIGNATURE, null);
 
-    expect(libelles?.bouton).toBe("PAEH en signature");
-    expect(libelles?.legende).toBe("Le PAEH est en cours de signature électronique.");
+    expect(libelles?.bouton).toBe("Décision d'établissement en signature");
+    expect(libelles?.legende).toBe(
+      "La décision d'établissement est en cours de signature électronique.",
+    );
     expect(libelles?.enErreur).toBe(false);
   });
 
@@ -50,9 +52,9 @@ describe("libellesSignature", () => {
   });
 
   it.each([
-    [EtatSignatureDecision.REFUSEE, "Signature du PAEH refusée"],
-    [EtatSignatureDecision.EXPIREE, "Signature du PAEH interrompue"],
-    [EtatSignatureDecision.ERREUR, "Erreur de signature du PAEH"],
+    [EtatSignatureDecision.REFUSEE, "Signature de la décision d'établissement refusée"],
+    [EtatSignatureDecision.EXPIREE, "Signature de la décision d'établissement interrompue"],
+    [EtatSignatureDecision.ERREUR, "Erreur de signature de la décision d'établissement"],
   ])("signale l'issue négative %s", (etat, bouton) => {
     const libelles = libellesSignature(etat, null);
 
@@ -61,6 +63,8 @@ describe("libellesSignature", () => {
   });
 
   it("accorde le libellé d'un document remplacé avec le nom de la décision", () => {
-    expect(libellesSignature(EtatSignatureDecision.REMPLACEE, null)?.bouton).toBe("PAEH remplacé");
+    expect(libellesSignature(EtatSignatureDecision.REMPLACEE, null)?.bouton).toBe(
+      "Décision d'établissement remplacée",
+    );
   });
 });

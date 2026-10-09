@@ -14,9 +14,13 @@ const { mockEnv } = vi.hoisted(() => ({
 
 vi.mock("@/env", () => ({ env: mockEnv }));
 
-// nom de la décision fixé ici pour ne pas dépendre de la configuration de l'environnement de test
+// nom par défaut de la décision, fixé ici pour ne pas dépendre de la configuration de l'environnement de test
 vi.mock("./decisionEtab", () => ({
-  decisionEtab: { Defini: "Le PAEH", de: "du PAEH", accordE: "" },
+  decisionEtab: {
+    Defini: "La décision d'établissement",
+    de: "de la décision d'établissement",
+    accordE: "e",
+  },
 }));
 
 import { INTERVALLE_SUIVI_ENVOI, intervalleSuiviEnvoi, verrouSignature } from "./parapheur";
@@ -32,7 +36,7 @@ beforeEach(() => {
 describe("verrouSignature", () => {
   it("bloque les modifications le temps de l'envoi au parapheur", () => {
     expect(verrouSignature(beneficiaire("EDITION_DEMANDEE"))).toBe(
-      "Le PAEH est en cours d'envoi : modification possible une fois l'envoi terminé.",
+      "La décision d'établissement est en cours d'envoi : modification possible une fois l'envoi terminé.",
     );
   });
 
@@ -44,13 +48,13 @@ describe("verrouSignature", () => {
 
   it("bloque les modifications tant que la décision est dans le circuit de signature", () => {
     expect(verrouSignature(beneficiaire("EN_SIGNATURE"))).toBe(
-      "Le PAEH est en cours de signature électronique : modification impossible jusqu'à la fin du circuit.",
+      "La décision d'établissement est en cours de signature électronique : modification impossible jusqu'à la fin du circuit.",
     );
   });
 
   it("bloque les modifications d'une décision refusée tant qu'elle n'est pas reprise", () => {
     expect(verrouSignature(beneficiaire("REFUSEE"))).toBe(
-      "Le PAEH a été refusé dans le circuit de signature : modification possible après la reprise du PAEH.",
+      "La décision d'établissement a été refusée dans le circuit de signature : modification possible après la reprise de la décision d'établissement.",
     );
   });
 
