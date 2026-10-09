@@ -12,10 +12,7 @@ namespace App\State\DecisionAmenagementExamens;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\DecisionAmenagementExamens;
-use App\ApiResource\Utilisateur;
-use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Reprend une décision refusée par le parapheur : elle repasse en attente, ses aménagements et avis de
@@ -25,7 +22,6 @@ readonly class RepriseDecisionProcessor implements ProcessorInterface
 {
     public function __construct(
         private DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
-        private MessageBusInterface $messageBus,
     ) {}
 
     /**
@@ -37,10 +33,6 @@ readonly class RepriseDecisionProcessor implements ProcessorInterface
         $entity->setEtat(\App\Entity\DecisionAmenagementExamens::ETAT_ATTENTE_VALIDATION_CAS);
         $this->decisionAmenagementExamensRepository->save($entity, true);
 
-        $resource = new DecisionAmenagementExamens($entity);
-        $this->messageBus->dispatch(new RessourceModifieeMessage(new Utilisateur($entity->getBeneficiaire())));
-        $this->messageBus->dispatch(new RessourceModifieeMessage($resource));
-
-        return $resource;
+        return new DecisionAmenagementExamens($entity);
     }
 }

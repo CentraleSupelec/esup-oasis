@@ -84,7 +84,6 @@ class DecisionEditionDemandeeMessageHandlerTest extends KernelTestCase
 
             $this->assertSame(DecisionAmenagementExamens::ETAT_EN_SIGNATURE, $decision->getEtat());
             $this->assertSame(DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE, $decision->getEtatSignature());
-            $this->assertSame('circuit-test', $decision->getCircuitParapheur());
             $this->assertSame('admin', $decision->getUidDemandeurSignature());
             $documentId = $decision->getIdDocumentParapheur();
             $this->assertSame(
@@ -107,7 +106,6 @@ class DecisionEditionDemandeeMessageHandlerTest extends KernelTestCase
                 ->setEtat($etatInitial)
                 ->setEtatSignature(null)
                 ->setIdDocumentParapheur(null)
-                ->setCircuitParapheur(null)
                 ->setUidDemandeurSignature(null);
             $em->flush();
         }
@@ -151,7 +149,7 @@ class DecisionEditionDemandeeMessageHandlerTest extends KernelTestCase
             new NullLogger(),
             $bus,
             $container->get(ArchivageDecision::class),
-            new SignatureElectronique($parapheur, $container->get(DecisionAmenagementExamensRepository::class), $bus, new NullLogger()),
+            new SignatureElectronique($parapheur, $container->get(DecisionAmenagementExamensRepository::class), new NullLogger()),
         );
 
         $decision = $em->getRepository(DecisionAmenagementExamens::class)->findOneBy([]);
@@ -193,7 +191,6 @@ class DecisionEditionDemandeeMessageHandlerTest extends KernelTestCase
                 ->setEtat($etatInitial)
                 ->setEtatSignature(null)
                 ->setIdDocumentParapheur(null)
-                ->setCircuitParapheur(null)
                 ->setUidDemandeurSignature(null);
             $em->flush();
         }

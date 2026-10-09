@@ -12,12 +12,9 @@ namespace App\State\DecisionAmenagementExamens;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\DecisionAmenagementExamens;
-use App\ApiResource\Utilisateur;
-use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
 use App\Service\Signature\SuiviSignatureService;
 use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Vérifie auprès du parapheur une décision en signature, à la demande du gestionnaire, comme le
@@ -28,7 +25,6 @@ readonly class VerificationSignatureProcessor implements ProcessorInterface
     public function __construct(
         private DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
         private SuiviSignatureService $suiviSignatureService,
-        private MessageBusInterface $messageBus,
     ) {}
 
     /**
@@ -44,9 +40,6 @@ readonly class VerificationSignatureProcessor implements ProcessorInterface
                 'Le parapheur électronique n\'a pas pu être interrogé : l\'état sera mis à jour au prochain passage du suivi.',
             );
         }
-
-        // même sans changement d'état, la fiche affiche l'heure de cette vérification
-        $this->messageBus->dispatch(new RessourceModifieeMessage(new Utilisateur($entity->getBeneficiaire())));
 
         return new DecisionAmenagementExamens($entity);
     }

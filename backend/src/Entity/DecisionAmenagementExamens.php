@@ -91,10 +91,6 @@ class DecisionAmenagementExamens
     #[Map(if: false)]
     private ?string $idDocumentParapheur = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Map(if: false)]
-    private ?string $circuitParapheur = null;
-
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Map(if: false)]
     private ?DateTimeInterface $derniereVerificationSignature = null;
@@ -206,18 +202,6 @@ class DecisionAmenagementExamens
     public function setIdDocumentParapheur(?string $idDocumentParapheur): static
     {
         $this->idDocumentParapheur = $idDocumentParapheur;
-
-        return $this;
-    }
-
-    public function getCircuitParapheur(): ?string
-    {
-        return $this->circuitParapheur;
-    }
-
-    public function setCircuitParapheur(?string $circuitParapheur): static
-    {
-        $this->circuitParapheur = $circuitParapheur;
 
         return $this;
     }

@@ -29,7 +29,6 @@ final class Version20260928100000 extends AbstractMigration
         // état de la signature sur la décision
         $this->addSql('ALTER TABLE decision_amenagement_examens ADD etat_signature VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE decision_amenagement_examens ADD id_document_parapheur VARCHAR(255) DEFAULT NULL');
-        $this->addSql('ALTER TABLE decision_amenagement_examens ADD circuit_parapheur VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE decision_amenagement_examens ADD derniere_verification_signature TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL');
         $this->addSql('ALTER TABLE decision_amenagement_examens ADD date_signature TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL');
         $this->addSql('ALTER TABLE decision_amenagement_examens ADD uid_demandeur_signature VARCHAR(255) DEFAULT NULL');
@@ -65,7 +64,6 @@ final class Version20260928100000 extends AbstractMigration
         $this->addSql('ALTER TABLE decision_amenagement_examens DROP uid_demandeur_signature');
         $this->addSql('ALTER TABLE decision_amenagement_examens DROP date_signature');
         $this->addSql('ALTER TABLE decision_amenagement_examens DROP derniere_verification_signature');
-        $this->addSql('ALTER TABLE decision_amenagement_examens DROP circuit_parapheur');
         $this->addSql('ALTER TABLE decision_amenagement_examens DROP id_document_parapheur');
         $this->addSql('ALTER TABLE decision_amenagement_examens DROP etat_signature');
     }

@@ -9,17 +9,14 @@
 
 namespace App\Service\Signature;
 
-use App\ApiResource\Utilisateur as UtilisateurResource;
 use App\Entity\DecisionAmenagementExamens;
 use App\Entity\Utilisateur;
-use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Passage d'une décision d'aménagements par le parapheur : dépôt à la demande d'édition, puis
@@ -32,7 +29,6 @@ readonly class SignatureElectronique
     public function __construct(
         private AbstractParapheur $parapheur,
         private DecisionAmenagementExamensRepository $decisionAmenagementExamensRepository,
-        private MessageBusInterface $messageBus,
         private LoggerInterface $logger,
         // vrai : le parapheur envoie le document signé à l'étudiant ; faux : OASIS l'envoie par e-mail
         #[Autowire('%env(bool:default::PARAPHEUR_ENVOIE_DOCUMENT)%')]
@@ -119,13 +115,11 @@ readonly class SignatureElectronique
         $decision
             ->setEtatSignature(DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE)
             ->setIdDocumentParapheur($documentId)
-            ->setCircuitParapheur($circuit)
             ->setUidDemandeurSignature($uidDemandeur)
             // une signature précédente ne concerne pas ce nouveau document
             ->setDateSignature(null)
             ->setDerniereVerificationSignature(null);
         $this->decisionAmenagementExamensRepository->save($decision, true);
-        $this->messageBus->dispatch(new RessourceModifieeMessage(new UtilisateurResource($decision->getBeneficiaire())));
     }
 
     /**

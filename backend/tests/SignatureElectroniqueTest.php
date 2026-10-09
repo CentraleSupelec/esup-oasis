@@ -24,8 +24,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use RuntimeException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 class SignatureElectroniqueTest extends TestCase
 {
@@ -87,7 +85,6 @@ class SignatureElectroniqueTest extends TestCase
 
         $this->assertSame(DecisionAmenagementExamens::ETAT_EN_SIGNATURE, $decision->getEtat());
         $this->assertSame(DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE, $decision->getEtatSignature());
-        $this->assertSame('circuit-ufr1', $decision->getCircuitParapheur());
         $this->assertSame('gestionnaire', $decision->getUidDemandeurSignature());
         $this->assertNull($decision->getDateSignature());
         $this->assertNull($decision->getDerniereVerificationSignature());
@@ -183,13 +180,9 @@ class SignatureElectroniqueTest extends TestCase
 
     private function signature(AbstractParapheur $parapheur, bool $parapheurEnvoieDocument = false): SignatureElectronique
     {
-        $bus = $this->createMock(MessageBusInterface::class);
-        $bus->method('dispatch')->willReturn(new Envelope(new \stdClass()));
-
         return new SignatureElectronique(
             $parapheur,
             $this->createMock(DecisionAmenagementExamensRepository::class),
-            $bus,
             new NullLogger(),
             $parapheurEnvoieDocument,
         );

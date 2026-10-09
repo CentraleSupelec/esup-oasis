@@ -38,7 +38,7 @@ class SignatureDecisionTest extends ApiTestCaseCustom
         $manager = static::getContainer()->get('doctrine')->getManager();
         $decision = $this->decision();
         $decision->setEtat(DecisionAmenagementExamens::ETAT_VALIDE);
-        $decision->setEtatSignature(null)->setIdDocumentParapheur(null)->setCircuitParapheur(null)
+        $decision->setEtatSignature(null)->setIdDocumentParapheur(null)
             ->setUidDemandeurSignature(null)->setDateSignature(null)->setDerniereVerificationSignature(null)
             ->setFichier(null);
         $manager->getRepository(Formation::class)->findOneBy(['codeExterne' => 'CODE_F_1'])

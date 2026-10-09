@@ -10,9 +10,7 @@
 
 namespace App\Service\Signature;
 
-use App\ApiResource\Utilisateur;
 use App\Entity\DecisionAmenagementExamens;
-use App\Message\RessourceModifieeMessage;
 use App\Repository\DecisionAmenagementExamensRepository;
 use App\Service\Decision\ArchivageDecision;
 use App\Service\MailService;
@@ -20,7 +18,6 @@ use App\State\Utilisateur\UtilisateurManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Throwable;
 
 /**
@@ -37,7 +34,6 @@ readonly class SuiviSignatureService
         private AbstractParapheur $parapheur,
         private ArchivageDecision $archivageDecision,
         private UtilisateurManager $utilisateurManager,
-        private MessageBusInterface $messageBus,
         private LoggerInterface $logger,
         private MailService $mailService,
         // faux : le parapheur n'envoie pas le document signé, OASIS l'envoie comme une décision non signée
@@ -107,7 +103,6 @@ readonly class SuiviSignatureService
             $decision->setEtat(DecisionAmenagementExamens::ETAT_REFUSEE);
             $decision->setEtatSignature(DecisionAmenagementExamens::ETAT_SIGNATURE_ERREUR);
             $this->decisionAmenagementExamensRepository->save($decision, true);
-            $this->messageBus->dispatch(new RessourceModifieeMessage(new Utilisateur($decision->getBeneficiaire())));
             $this->logger->error(
                 'Décision {id} : document {document} inconnu du parapheur, suivi arrêté.',
                 ['id' => $decision->getId(), 'document' => $decision->getIdDocumentParapheur()],
@@ -144,8 +139,6 @@ readonly class SuiviSignatureService
         $decision->setEtat(DecisionAmenagementExamens::ETAT_REFUSEE);
         $decision->setEtatSignature($suivi->etat);
         $this->decisionAmenagementExamensRepository->save($decision, true);
-        // la fiche du bénéficiaire affiche l'état de signature
-        $this->messageBus->dispatch(new RessourceModifieeMessage(new Utilisateur($decision->getBeneficiaire())));
         $this->logger->warning(
             'Décision {id} : circuit de signature terminé sans signature ({etat}).',
             ['id' => $decision->getId(), 'etat' => $suivi->etat],
@@ -182,7 +175,6 @@ readonly class SuiviSignatureService
         $decision->setEtatSignature(DecisionAmenagementExamens::ETAT_SIGNATURE_SIGNEE);
         $decision->setEtat(DecisionAmenagementExamens::ETAT_EDITE);
         $this->decisionAmenagementExamensRepository->save($decision, true);
-        $this->messageBus->dispatch(new RessourceModifieeMessage(new Utilisateur($decision->getBeneficiaire())));
 
         if (!$this->parapheurEnvoieDocument) {
             $this->mailService->envoyerDecision($decision, $pdf);

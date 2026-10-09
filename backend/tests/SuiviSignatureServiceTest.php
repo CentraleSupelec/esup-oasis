@@ -20,7 +20,6 @@ use App\State\Utilisateur\UtilisateurManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 class SuiviSignatureServiceTest extends KernelTestCase
 {
@@ -73,7 +72,6 @@ class SuiviSignatureServiceTest extends KernelTestCase
             $this->parapheur,
             $container->get(ArchivageDecision::class),
             $container->get(UtilisateurManager::class),
-            $container->get(MessageBusInterface::class),
             new NullLogger(),
             $container->get(MailService::class),
             parapheurEnvoieDocument: true,
@@ -180,7 +178,6 @@ class SuiviSignatureServiceTest extends KernelTestCase
             ->setEtat(DecisionAmenagementExamens::ETAT_EN_SIGNATURE)
             ->setEtatSignature(DecisionAmenagementExamens::ETAT_SIGNATURE_EN_SIGNATURE)
             ->setIdDocumentParapheur($documentId)
-            ->setCircuitParapheur('circuit-test')
             ->setUidDemandeurSignature('admin')
             ->setDateSignature(null)
             ->setDerniereVerificationSignature(null);
