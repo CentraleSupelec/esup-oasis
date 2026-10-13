@@ -25,7 +25,7 @@ version publiée :
 | Évolution | État chez Bordeaux |
 | --- | --- |
 | Personnalisation copiée dans le worker (gabarit du PAEH, requêtes Apogée) | intégrée, pas encore publiée |
-| Observations et date de l'avis médical sur le PAEH | en revue |
+| Observations et date de l'avis médical sur le PAEH | intégrée, pas encore publiée |
 | Signature électronique et connecteur FAST | à proposer |
 
 **À compléter :** version d'OASIS à installer.
