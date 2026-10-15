@@ -26,6 +26,7 @@ use App\State\Composante\ComposanteProvider;
 use App\State\Composante\PatchComposanteProcessor;
 use ReflectionProperty;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
@@ -61,7 +62,7 @@ final class Composante
         }
     }
 
-    #[Groups([Utilisateur::AMENAGEMENTS_UTILISATEURS_OUT, Amenagement::GROUP_OUT, self::GROUP_OUT])]
+    #[Groups([self::GROUP_OUT])]
     public string $libelle {
         get {
             $prop = new ReflectionProperty(self::class, 'libelle');
@@ -69,6 +70,19 @@ final class Composante
                 $this->libelle = $this->entity->getLibelle() ?? '';
             }
             return $this->libelle;
+        }
+    }
+
+    /** Circuit du parapheur qui signe les décisions d'aménagements ; vide, elles partent par e-mail. */
+    #[Groups([self::GROUP_OUT, self::GROUP_IN])]
+    #[Assert\Length(max: 255)]
+    public ?string $circuitSignature {
+        get {
+            $prop = new ReflectionProperty(self::class, 'circuitSignature');
+            if (!$prop->isInitialized($this) && $this->entity !== null) {
+                $this->circuitSignature = $this->entity->getCircuitSignature();
+            }
+            return $this->circuitSignature ?? null;
         }
     }
 

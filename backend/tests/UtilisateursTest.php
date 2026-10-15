@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * Copyright (c) 2026. Esup - Université de Bordeaux.
+ *
+ * This file is part of the Esup-Oasis project (https://github.com/EsupPortail/esup-oasis).
+ *  For full copyright and license information please view the LICENSE file distributed with the source code.
+ *
+ *  @author Manuel Rossard <manuel.rossard@u-bordeaux.fr>
+ *
+ */
+
 namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\Response;
@@ -361,7 +371,37 @@ class UtilisateursTest extends ApiTestCaseCustom
         $this->assertJsonContains([
             '@context' => '/contexts/Inscription',
             '@id' => '/inscriptions/1',
+            'principale' => true,
         ]);
+    }
+
+    public function testGetInscriptionSecondaire(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('GET', '/inscriptions/4');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@context' => '/contexts/Inscription',
+            '@id' => '/inscriptions/4',
+            'principale' => false,
+        ]);
+    }
+
+    public function testGetUtilisateurHasMultipleInscriptions(): void
+    {
+        $client = $this->createClientWithCredentials('admin');
+        $client->request('GET', '/utilisateurs/beneficiaire');
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertArrayHasKey('inscriptions', $data);
+        $this->assertCount(2, $data['inscriptions']);
+
+        $inscriptions = $data['inscriptions'];
+        $principaleValues = array_column($inscriptions, 'principale');
+        $this->assertContains(true, $principaleValues);
+        $this->assertContains(false, $principaleValues);
     }
 
     public function testIntervenantCanSeeBeneficiaryOfTheirEvents(): void
@@ -386,5 +426,93 @@ class UtilisateursTest extends ApiTestCaseCustom
         $client->request('GET', '/utilisateurs/admin');
 
         $this->assertResponseIsSuccessful();
+    }
+
+    public function testGestionnaireCanSeeInfosComplementairesForStudent(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $repo = $em->getRepository(Utilisateur::class);
+        $beneficiaire = $repo->findOneBy(['uid' => 'beneficiaire']);
+        $beneficiaire->setNumeroEtudiant(12345678);
+        $repo->save($beneficiaire, true);
+
+        $client->request('GET', '/utilisateurs/beneficiaire');
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertArrayHasKey('infosComplementaires', $data);
+        $this->assertArraySubset([['libelle' => 'someKey', 'valeur' => 'someValue']], $data['infosComplementaires']);
+    }
+
+    public function testStudentCanSeeTheirOwnInfosComplementaires(): void
+    {
+        $client = $this->createClientWithCredentials('beneficiaire');
+
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $repo = $em->getRepository(Utilisateur::class);
+        $beneficiaire = $repo->findOneBy(['uid' => 'beneficiaire']);
+        $beneficiaire->setNumeroEtudiant(12345678);
+        $repo->save($beneficiaire, true);
+
+        $client->request('GET', '/utilisateurs/beneficiaire');
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertArrayHasKey('infosComplementaires', $data);
+        $this->assertArraySubset([['libelle' => 'someKey', 'valeur' => 'someValue']], $data['infosComplementaires']);
+    }
+
+    public function testOtherUserCannotSeeInfosComplementaires(): void
+    {
+        $client = $this->createClientWithCredentials('intervenant');
+
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $repo = $em->getRepository(Utilisateur::class);
+        $beneficiaire = $repo->findOneBy(['uid' => 'beneficiaire']);
+        $beneficiaire->setNumeroEtudiant(12345678);
+        $repo->save($beneficiaire, true);
+
+        $client->request('GET', '/utilisateurs/beneficiaire');
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertArrayNotHasKey('infosComplementaires', $data);
+    }
+
+    public function testUserWithoutNumeroEtudiantHasNoInfosComplementaires(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+        $client->request('GET', '/utilisateurs/admin');
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertEmpty($data['infosComplementaires']);
+    }
+
+    public function testCollectionPreloadsInfosComplementaires(): void
+    {
+        $client = $this->createClientWithCredentials('gestionnaire');
+
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $repo = $em->getRepository(Utilisateur::class);
+        $beneficiaire = $repo->findOneBy(['uid' => 'beneficiaire']);
+        $beneficiaire->setNumeroEtudiant(12345678);
+        $repo->save($beneficiaire, true);
+
+        $client->request('GET', '/beneficiaires');
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+        $this->assertArrayHasKey('hydra:member', $data);
+        $this->assertNotEmpty($data['hydra:member']);
+
+        // Find beneficiaire in the collection
+        $beneficiaires = array_filter($data['hydra:member'], fn($u) => $u['uid'] === 'beneficiaire');
+        $this->assertNotEmpty($beneficiaires);
+        $item = array_values($beneficiaires)[0];
+        $this->assertArrayHasKey('infosComplementaires', $item);
+        $this->assertArraySubset([['libelle' => 'someKey', 'valeur' => 'someValue']], $item['infosComplementaires']);
     }
 }

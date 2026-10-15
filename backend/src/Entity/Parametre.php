@@ -32,6 +32,7 @@ class Parametre
     public const string FREQUENCE_RAPPELS = 'FREQUENCE_RAPPELS';
     public const string FREQUENCE_MAJ_INSCRIPTIONS = 'FREQUENCE_MAJ_INSCRIPTIONS';
     public const string FREQUENCE_RAPPEL_ENVOI_RH = 'FREQUENCE_RAPPEL_ENVOI_RH';
+    public const string FREQUENCE_SUIVI_SIGNATURES = 'FREQUENCE_SUIVI_SIGNATURES';
     public const string RAPPELS_SANS_INTERVENANTS = 'RAPPELS_SANS_INTERVENANTS';
     public const string COEFFICIENT_CHARGES = 'COEFFICIENT_CHARGES';
     public const string DESTINATAIRES_COPIE_DECISIONS = 'DESTINATAIRES_COPIE_DECISIONS';
@@ -46,6 +47,8 @@ class Parametre
     public const string RESPONSABLE_PHASE_QUALITE = 'RESPONSABLE_PHASE_QUALITE';
     public const string LIEU_COURRIER = 'LIEU_COURRIER';
     public const string ADRESSE_POSTALE = 'ADRESSE_POSTALE';
+    // on réserve CONST_* pour les paramètres aux valeurs non modifiables
+    public const string CONST_INFOS_COMPLEMENTAIRES = 'CONST_INFOS_COMPLEMENTAIRES';
 
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
