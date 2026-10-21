@@ -25,6 +25,8 @@ select q.*,
            upper(regexp_substr(q.cod_etp, '^(L[1-3]|M[1-2]|D[1-3])', 1, 1, 'i'))
        ) as niveau
 from (select iae.cod_anu,
+       -- inscription principale (O) ou secondaire (N), lue par OASIS depuis la gestion des inscriptions multiples
+       iae.tem_iae_prm,
        vet.cod_etp,
        vet.cod_vrs_vet,
        vet.lib_web_vet,
@@ -85,6 +87,5 @@ from ins_adm_etp iae
          left outer join pays pay on (pay.cod_pay = annuelle.cod_pay)
 where i.cod_etu = :codEtu
   and iae.cod_anu between :debut and :fin
-  and iae.tem_iae_prm = 'O'
   and iae.eta_iae = 'E') q
 order by q.cod_anu

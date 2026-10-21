@@ -26,6 +26,7 @@ version publiée :
 | --- | --- |
 | Personnalisation copiée dans le worker (gabarit du PAEH, requêtes Apogée) | intégrée, pas encore publiée |
 | Observations et date de l'avis médical sur le PAEH | intégrée, pas encore publiée |
+| Inscriptions multiples (principale et secondaires) | intégrée, pas encore publiée |
 | Signature électronique et connecteur FAST | à proposer |
 
 **À compléter :** version d'OASIS à installer.
@@ -233,7 +234,7 @@ l'enregistre sur la formation : il s'imprime sur le PAEH et alimente le bilan d'
 
 | Fichier | Rôle |
 | --- | --- |
-| `backend/personnalisation/config/apogee/apogee_get_inscriptions.sql` | inscriptions d'un étudiant, avec le niveau de sa formation |
+| `backend/personnalisation/config/apogee/apogee_get_inscriptions.sql` | inscriptions d'un étudiant, principales et secondaires, avec le niveau de sa formation |
 | `backend/personnalisation/config/apogee/apogee_get_formation.sql` | diplôme, niveau et discipline d'une formation, sans la table de niveaux propre à Bordeaux |
 
 La règle, par type de diplôme Apogée :
